@@ -17,11 +17,10 @@ public final class BlobStore {
     }
 
     public func write(png: Data) throws -> WrittenBlob {
+        // Flat layout — for a personal clipboard app capped at a few hundred
+        // entries the 2-char prefix sharding was overkill.
         let id = UUID().uuidString
-        let prefix = String(id.prefix(2)).lowercased()
-        let subdir = rootDirectory.appendingPathComponent(prefix)
-        try FileManager.default.createDirectory(at: subdir, withIntermediateDirectories: true)
-        let relative = "\(prefix)/\(id).png"
+        let relative = "\(id).png"
         let url = rootDirectory.appendingPathComponent(relative)
         try png.write(to: url)
         let thumb = makeThumbnail(from: png) ?? Data()

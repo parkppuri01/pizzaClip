@@ -36,6 +36,43 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(forName: .myclipClearAll, object: nil, queue: .main) { [weak self] _ in
             try? self?.store.clearAll()
         }
+        NotificationCenter.default.addObserver(forName: .myclipExportHistory, object: nil, queue: .main) { [weak self] _ in
+            self?.exportHistoryToTextFile()
+        }
+    }
+
+    private func exportHistoryToTextFile() {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "myclip-history.txt"
+        panel.allowedContentTypes = [.plainText]
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        do {
+            let items = try store.topNRespectingPins(10_000)
+            let df = DateFormatter()
+            df.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            var out = "# myclip history export · \(df.string(from: Date())) · \(items.count) items\n\n"
+            for item in items {
+                let date = Date(timeIntervalSince1970: Double(item.createdAt) / 1000)
+                var header = "--- \(df.string(from: date)) [\(item.type)]"
+                if item.pinned { header += " 📌" }
+                if let src = item.sourceBundle { header += " from \(src)" }
+                header += " ---\n"
+                out += header
+                switch item.type {
+                case "text": out += (item.text ?? "") + "\n\n"
+                case "file": out += "File: \(item.text ?? "")\n\n"
+                case "image": out += "Image blob: \(item.blobPath ?? "")\n\n"
+                default: out += "\n"
+                }
+            }
+            try out.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = "Export failed"
+            alert.informativeText = error.localizedDescription
+            alert.runModal()
+        }
     }
 
     private func setUpStorage() {
