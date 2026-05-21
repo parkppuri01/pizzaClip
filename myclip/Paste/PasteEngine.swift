@@ -3,6 +3,8 @@ import AppKit
 public final class PasteEngine {
     public init() {}
 
+    public var hasAccessibility: Bool { Accessibility.isTrusted() }
+
     public func write(_ item: Item, blobStore: BlobStore?) {
         let pb = NSPasteboard.general
         pb.clearContents()
@@ -30,10 +32,11 @@ public final class PasteEngine {
            let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first {
             app.activate(options: [.activateIgnoringOtherApps])
         }
-        // Give the OS ~50ms to bring the target window forward before sending ⌘V.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.sendCommandV()
+        guard hasAccessibility else {
+            NotificationCenter.default.post(name: .myclipNeedsAccessibility, object: nil)
+            return
         }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { self.sendCommandV() }
     }
 
     private func sendCommandV() {
@@ -45,4 +48,8 @@ public final class PasteEngine {
         vDown?.post(tap: .cghidEventTap)
         vUp?.post(tap: .cghidEventTap)
     }
+}
+
+extension Notification.Name {
+    static let myclipNeedsAccessibility = Notification.Name("myclipNeedsAccessibility")
 }

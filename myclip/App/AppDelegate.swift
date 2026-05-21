@@ -22,6 +22,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setUpStatusItem()
         setUpMonitor()
         setUpPopup()
+        if !Accessibility.isTrusted(prompt: true) {
+            NSLog("Accessibility permission not granted; auto-paste disabled until granted.")
+        }
+        NotificationCenter.default.addObserver(
+            forName: .myclipNeedsAccessibility, object: nil, queue: .main
+        ) { _ in
+            let alert = NSAlert()
+            alert.messageText = "Enable Accessibility for auto-paste"
+            alert.informativeText = "myclip needs Accessibility access to type ⌘V into the previous app. The clipboard already holds your selection — you can ⌘V manually too."
+            alert.addButton(withTitle: "Open System Settings")
+            alert.addButton(withTitle: "Later")
+            if alert.runModal() == .alertFirstButtonReturn {
+                Accessibility.openSystemSettings()
+            }
+        }
     }
 
     private func setUpStorage() {
