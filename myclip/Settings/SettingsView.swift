@@ -132,4 +132,5 @@ struct SettingsView: View {
 extension Notification.Name {
     static let myclipClearAll = Notification.Name("myclipClearAll")
     static let myclipExportHistory = Notification.Name("myclipExportHistory")
+    static let myclipOpenSettings = Notification.Name("myclipOpenSettings")
 }

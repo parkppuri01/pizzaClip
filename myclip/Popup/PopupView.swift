@@ -108,27 +108,40 @@ struct PopupView: View {
     private var footer: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 12) {
-                Text("↵ Paste").foregroundColor(AppColors.secondaryLabel)
-                Text("⌫ Delete").foregroundColor(AppColors.secondaryLabel)
-                Text("⌘P Pin").foregroundColor(AppColors.secondaryLabel)
+                shortcutLabel(symbol: "↵", action: "Paste(or Num)")
+                shortcutLabel(symbol: "⌫", action: "Delete")
+                shortcutLabel(symbol: "⌘P", action: "Pin")
                 Spacer()
-                Text("⌘, Settings").foregroundColor(AppColors.secondaryLabel)
+                Text("⌘, Settings")
+                    .foregroundColor(AppColors.secondaryLabel)
+                    .contentShape(Rectangle())
+                    .onTapGesture(perform: openSettings)
+                    .help("Open Settings")
             }
             HStack(spacing: 4) {
                 Image(systemName: "internaldrive")
                     .font(.system(size: 9))
                     .foregroundColor(AppColors.tertiaryLabel)
-                Button(action: revealStorage) {
-                    Text(abbreviatedStoragePath)
-                        .foregroundColor(AppColors.tertiaryLabel)
-                        .underline(false)
-                }
-                .buttonStyle(.plain)
-                .help("Reveal in Finder")
+                Text(abbreviatedStoragePath)
+                    .foregroundColor(AppColors.tertiaryLabel)
+                    .contentShape(Rectangle())
+                    .onTapGesture(perform: revealStorage)
+                    .help("Reveal in Finder")
             }
         }
         .font(.system(size: 11))
         .padding(.horizontal, 12).padding(.vertical, 6)
+    }
+
+    /// Symbol in secondary gray, action word in coral accent.
+    private func shortcutLabel(symbol: String, action: String) -> Text {
+        Text("\(symbol) ").foregroundColor(AppColors.secondaryLabel)
+        + Text(action).foregroundColor(AppColors.accent)
+    }
+
+    private func openSettings() {
+        NotificationCenter.default.post(name: .myclipOpenSettings, object: nil)
+        onClose()
     }
 
     private var abbreviatedStoragePath: String {

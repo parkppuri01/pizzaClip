@@ -39,6 +39,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(forName: .myclipExportHistory, object: nil, queue: .main) { [weak self] _ in
             self?.exportHistoryToTextFile()
         }
+        NotificationCenter.default.addObserver(forName: .myclipOpenSettings, object: nil, queue: .main) { [weak self] _ in
+            self?.settings.show()
+        }
     }
 
     private func exportHistoryToTextFile() {
