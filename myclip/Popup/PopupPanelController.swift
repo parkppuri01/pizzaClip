@@ -56,6 +56,9 @@ final class PopupPanelController {
         panel.backgroundColor = .clear
         panel.hasShadow = true
         panel.contentView = hosting
+        panel.contentView?.wantsLayer = true
+        panel.contentView?.layer?.cornerRadius = Theme.panelRadius
+        panel.contentView?.layer?.masksToBounds = true
 
         if let screen = NSScreen.main {
             let rect = screen.visibleFrame
@@ -67,12 +70,6 @@ final class PopupPanelController {
         panel.makeKey()
 
         self.panel = panel
-
-        panel.isOpaque = false
-        panel.backgroundColor = .clear
-        panel.contentView?.wantsLayer = true
-        panel.contentView?.layer?.cornerRadius = Theme.panelRadius
-        panel.contentView?.layer?.masksToBounds = true
         installKeyMonitor()
     }
 
@@ -101,9 +98,10 @@ final class PopupPanelController {
     }
 
     func pasteDirect(slot: Int) {
+        guard slot >= 1, slot <= 9 else { return }
         previousFrontmostBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
-        guard let items = try? viewModel.topNNonPinned(slot) else { return }
-        guard slot >= 1, slot <= items.count else { return }
+        guard let items = try? viewModel.topNNonPinned(9),
+              items.indices.contains(slot - 1) else { return }
         let item = items[slot - 1]
         pasteEngine.write(item, blobStore: blobStore)
         pasteEngine.pasteIntoPreviousApp(bundleID: previousFrontmostBundleID)
