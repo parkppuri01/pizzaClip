@@ -5,6 +5,7 @@ struct PopupView: View {
     @ObservedObject var vm: PopupViewModel
     var onPick: (Item) -> Void
     var onClose: () -> Void
+    @FocusState private var searchFocused: Bool
 
     private var slotForItem: [String: Int] {
         var map: [String: Int] = [:]
@@ -67,18 +68,19 @@ struct PopupView: View {
         HStack(spacing: 6) {
             Image(systemName: "doc.on.clipboard")
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(AppColors.accent)
+                .foregroundColor(.white)
             Text("MyClip — Clipboard History")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(AppColors.secondaryLabel)
             Spacer()
-            Button(action: onClose) {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 13))
-                    .foregroundStyle(AppColors.secondaryLabel)
-            }
-            .buttonStyle(.plain)
-            .help("Close (Esc)")
+            // Plain Image instead of Button — sidesteps SwiftUI's default
+            // keyboard-focus ring (the blue selection look the user saw).
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 13))
+                .foregroundStyle(AppColors.secondaryLabel)
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onClose)
+                .help("Close (Esc)")
         }
         .padding(.horizontal, 14)
         .padding(.top, 10)
@@ -91,6 +93,8 @@ struct PopupView: View {
             TextField("Search clipboard…", text: $vm.query)
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))
+                .focused($searchFocused)
+                .onAppear { searchFocused = true }
         }
         .padding(.horizontal, 12).padding(.vertical, 10)
         .background(
