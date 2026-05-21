@@ -44,9 +44,13 @@ final class PopupPanelController {
             onSettings: { [weak self] in
                 // Dismiss the popup *without* re-activating the previous app —
                 // otherwise the just-opened Settings window loses focus to
-                // whatever was frontmost before we opened the popup.
+                // whatever was frontmost before we opened the popup. Defer the
+                // open-settings notification to the next runloop tick so panel
+                // teardown finishes before SwiftUI tries to raise its window.
                 self?.close(restorePreviousApp: false)
-                NotificationCenter.default.post(name: .myclipOpenSettings, object: nil)
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: .myclipOpenSettings, object: nil)
+                }
             }
         )
         let hosting = NSHostingView(rootView: view)

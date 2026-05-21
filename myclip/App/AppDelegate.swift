@@ -43,19 +43,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// Triggers SwiftUI's built-in `Settings` scene. macOS routes the action
-    /// through the responder chain to NSApp, which raises (or creates) the
-    /// settings window and brings it to front.
+    /// Triggers SwiftUI's built-in `Settings` scene. The action must be
+    /// dispatched on the next runloop tick — calling it synchronously during
+    /// a menu close or panel teardown loses the responder chain that SwiftUI
+    /// registered for `showSettingsWindow:`.
     private func showSwiftUISettingsWindow() {
         NSApp.activate(ignoringOtherApps: true)
-        // macOS 14 renamed the selector. Try the new name first, fall back to
-        // the legacy one so we work on macOS 13 too.
-        let selectors = [
-            Selector(("showSettingsWindow:")),
-            Selector(("showPreferencesWindow:")),
-        ]
-        for sel in selectors {
-            if NSApp.sendAction(sel, to: nil, from: nil) { return }
+        DispatchQueue.main.async {
+            // macOS 14 renamed the selector. Try the new name first, fall back
+            // to the legacy one so we work on macOS 13 too.
+            let s1 = Selector(("showSettingsWindow:"))
+            let s2 = Selector(("showPreferencesWindow:"))
+            if NSApp.sendAction(s1, to: nil, from: nil) { return }
+            _ = NSApp.sendAction(s2, to: nil, from: nil)
         }
     }
 
@@ -118,8 +118,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         contextMenu = NSMenu()
         contextMenu.addItem(NSMenuItem(title: "Open Popup",
                                        action: #selector(openPopup), keyEquivalent: ""))
-        contextMenu.addItem(NSMenuItem(title: "Settings…",
-                                       action: #selector(openSettings), keyEquivalent: ","))
+        // Dispatch the standard `showSettingsWindow:` selector via the responder
+        // chain (target = nil). SwiftUI registers a responder for it on NSApp
+        // when the Settings scene is declared, so this opens our SettingsView.
+        let settingsItem = NSMenuItem(title: "Settings…",
+                                      action: Selector(("showSettingsWindow:")),
+                                      keyEquivalent: ",")
+        settingsItem.target = nil
+        contextMenu.addItem(settingsItem)
         contextMenu.addItem(.separator())
         contextMenu.addItem(NSMenuItem(title: "Grant Accessibility…",
                                        action: #selector(grantAccessibility),
