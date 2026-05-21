@@ -13,9 +13,7 @@ public final class HistoryStore {
     }
 
     public func insert(_ captured: CapturedItem) throws {
-        // Stamp at insert time so callers that reuse a CapturedItem (or construct
-        // multiple items back-to-back) still get monotonic timestamps in the DB.
-        let nowMs = Int64(Date().timeIntervalSince1970 * 1000)
+        let capturedMs = Int64(captured.createdAt.timeIntervalSince1970 * 1000)
 
         try queue.write { db in
             // Dedupe rule: if newest non-pinned text item has the same body, just bump its timestamp.
@@ -25,7 +23,7 @@ public final class HistoryStore {
                     .order(Item.Columns.createdAt.desc)
                     .fetchOne(db) {
                     var bumped = existing
-                    bumped.createdAt = nowMs
+                    bumped.createdAt = capturedMs
                     try bumped.update(db)
                     return
                 }
@@ -38,7 +36,7 @@ public final class HistoryStore {
                 blobPath: nil,            // BlobStore wires this up in Task 6
                 thumbPng: nil,
                 sourceBundle: captured.sourceBundleID,
-                createdAt: nowMs,
+                createdAt: capturedMs,
                 pinned: false
             )
             try row.insert(db)

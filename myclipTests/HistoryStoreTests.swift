@@ -10,10 +10,11 @@ final class HistoryStoreTests: XCTestCase {
 
     func test_insert_thenTopN_returnsNewestFirst() throws {
         let store = try makeStore()
-        let a = CapturedItem(kind: .text, text: "first")
-        let b = CapturedItem(kind: .text, text: "second")
+        let a = CapturedItem(kind: .text, text: "first",
+                             createdAt: Date(timeIntervalSince1970: 1_700_000_000.000))
+        let b = CapturedItem(kind: .text, text: "second",
+                             createdAt: Date(timeIntervalSince1970: 1_700_000_001.000))
         try store.insert(a)
-        Thread.sleep(forTimeInterval: 0.005)
         try store.insert(b)
 
         let top = try store.topN(10)
