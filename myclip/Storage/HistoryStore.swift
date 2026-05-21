@@ -4,16 +4,26 @@ import Combine
 
 public final class HistoryStore {
     private let queue: DatabaseWriter
+    private let blobStore: BlobStore?
     @Published public private(set) var snapshot: [Item] = []
 
-    public init(queue: DatabaseWriter) throws {
+    public init(queue: DatabaseWriter, blobStore: BlobStore? = nil) throws {
         self.queue = queue
+        self.blobStore = blobStore
         try Schema.migrator().migrate(queue)
         try reloadSnapshot()
     }
 
     public func insert(_ captured: CapturedItem) throws {
         let capturedMs = Int64(captured.createdAt.timeIntervalSince1970 * 1000)
+
+        var blobRelative: String? = nil
+        var thumb: Data? = nil
+        if captured.kind == .image, let png = captured.imageData, let store = blobStore {
+            let written = try store.write(png: png)
+            blobRelative = written.relativePath
+            thumb = written.thumbnailPNG
+        }
 
         try queue.write { db in
             // Dedupe rule: if newest non-pinned text item has the same body, just bump its timestamp.
@@ -35,8 +45,8 @@ public final class HistoryStore {
                 id: captured.id.uuidString,
                 type: captured.kind.rawValue,
                 text: captured.text,
-                blobPath: nil,            // BlobStore wires this up in Task 6
-                thumbPng: nil,
+                blobPath: blobRelative,
+                thumbPng: thumb,
                 sourceBundle: captured.sourceBundleID,
                 createdAt: capturedMs,
                 pinned: false
@@ -89,7 +99,7 @@ public final class HistoryStore {
             guard nonPinned.count > cap else { return }
             let toDelete = nonPinned[cap...]
             for item in toDelete {
-                // BlobStore cleanup wires in Task 6
+                if let path = item.blobPath { try? blobStore?.remove(relativePath: path) }
                 _ = try Item.deleteOne(db, key: item.id)
             }
         }
