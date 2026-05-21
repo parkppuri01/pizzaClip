@@ -1,22 +1,44 @@
 import AppKit
+import GRDB
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
+    private(set) var store: HistoryStore!
+    private var monitor: ClipboardMonitor!
+    private var blacklist: Set<String> = [
+        "com.1password.1password",
+        "com.agilebits.onepassword7",
+        "com.bitwarden.desktop",
+        "com.apple.keychainaccess",
+    ]
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "doc.on.clipboard",
-                                   accessibilityDescription: "myclip")
-        }
+        setUpStorage()
+        setUpStatusItem()
+        setUpMonitor()
+    }
 
+    private func setUpStorage() {
+        do {
+            let queue = try DatabaseQueue(path: AppPaths.databaseURL.path)
+            let blobs = BlobStore(rootDirectory: AppPaths.blobsDirectory)
+            store = try HistoryStore(queue: queue, blobStore: blobs)
+        } catch {
+            NSLog("myclip storage init failed: \(error). Falling back to in-memory.")
+            let queue = try! DatabaseQueue()
+            store = try! HistoryStore(queue: queue, blobStore: nil)
+        }
+    }
+
+    private func setUpStatusItem() {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem.button?.image = NSImage(systemSymbolName: "doc.on.clipboard",
+                                           accessibilityDescription: "myclip")
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Open Popup",
-                                action: #selector(openPopup),
-                                keyEquivalent: ""))
+                                action: #selector(openPopup), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Settings…",
-                                action: #selector(openSettings),
-                                keyEquivalent: ","))
+                                action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit myclip",
                                 action: #selector(NSApplication.terminate(_:)),
@@ -24,13 +46,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem.menu = menu
     }
 
-    @objc private func openPopup() {
-        // wired in Task 11
-        NSSound.beep()
+    private func setUpMonitor() {
+        monitor = ClipboardMonitor(
+            pasteboard: NSPasteboard.general,
+            frontmostBundleID: { NSWorkspace.shared.frontmostApplication?.bundleIdentifier },
+            blacklistedBundleIDs: { [weak self] in self?.blacklist ?? [] },
+            onCapture: { [weak self] item in
+                guard let self else { return }
+                do {
+                    try self.store.insert(item)
+                    try self.store.prune(cap: 200)
+                } catch {
+                    NSLog("myclip insert failed: \(error)")
+                }
+            }
+        )
+        monitor.start()
     }
 
-    @objc private func openSettings() {
-        // wired in Task 15
-        NSSound.beep()
-    }
+    @objc private func openPopup() { NSSound.beep() }  // wired in Task 11
+    @objc private func openSettings() { NSSound.beep() } // wired in Task 15
 }
