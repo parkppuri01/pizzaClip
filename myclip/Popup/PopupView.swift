@@ -37,13 +37,18 @@ struct PopupView: View {
                                     .id(item.id)
                                     .contentShape(Rectangle())
                                     .onHover { hovered in
-                                        if hovered { vm.selectedIndex = idx }
+                                        if hovered { vm.setHovered(idx) }
                                     }
                                     .onTapGesture { onPick(item) }
                             }
                         }.padding(.horizontal, 8)
                     }
                     .onChange(of: vm.selectedIndex) { newValue in
+                        // Only auto-scroll when the change came from a keyboard
+                        // arrow. Hover-driven selection (and search reloads) just
+                        // updates the highlight without yanking the viewport.
+                        guard vm.pendingKeyboardScroll else { return }
+                        vm.pendingKeyboardScroll = false
                         guard vm.items.indices.contains(newValue) else { return }
                         withAnimation(.linear(duration: 0.08)) {
                             proxy.scrollTo(vm.items[newValue].id, anchor: .center)
