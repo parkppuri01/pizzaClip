@@ -85,4 +85,26 @@ final class HistoryStoreTests: XCTestCase {
         XCTAssertTrue(FileManager.default.fileExists(atPath: tmp.appendingPathComponent(relative).path))
         XCTAssertNotNil(top.first?.thumbPng)
     }
+
+    func test_search_findsByTextFragment() throws {
+        let store = try makeStore()
+        try store.insert(CapturedItem(kind: .text, text: "the quick brown fox"))
+        try store.insert(CapturedItem(kind: .text, text: "lazy dog sleeping"))
+        try store.insert(CapturedItem(kind: .text, text: "foxtrot dance"))
+
+        let hits = try store.search("fox", limit: 10).map(\.text)
+        XCTAssertTrue(hits.contains("the quick brown fox"))
+        XCTAssertTrue(hits.contains("foxtrot dance"))
+        XCTAssertFalse(hits.contains("lazy dog sleeping"))
+    }
+
+    func test_search_emptyQuery_returnsTopNRespectingPins() throws {
+        let store = try makeStore()
+        try store.insert(CapturedItem(kind: .text, text: "a",
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_000)))
+        try store.insert(CapturedItem(kind: .text, text: "b",
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_001)))
+        let hits = try store.search("", limit: 10).map(\.text)
+        XCTAssertEqual(hits, ["b", "a"])
+    }
 }
