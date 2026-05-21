@@ -68,6 +68,10 @@ final class PopupPanelController {
         }
         panel.orderFrontRegardless()
         panel.makeKey()
+        // Activate ourselves so SwiftUI controls inside the panel actually receive
+        // keystrokes and clicks. Without this, the previous frontmost app still
+        // owns the system focus and our TextField / NSEvent monitor see nothing.
+        NSApp.activate(ignoringOtherApps: true)
 
         self.panel = panel
         installKeyMonitor()
@@ -78,6 +82,11 @@ final class PopupPanelController {
         panel?.orderOut(nil)
         panel = nil
         hostingView = nil
+        // Return focus to whatever app the user was in before opening the popup.
+        if let id = previousFrontmostBundleID,
+           let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first {
+            app.activate(options: [.activateIgnoringOtherApps])
+        }
     }
 
     func pick(_ item: Item) {

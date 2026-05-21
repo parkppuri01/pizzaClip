@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 struct PopupRow: View {
     let item: Item
@@ -7,9 +8,7 @@ struct PopupRow: View {
 
     var body: some View {
         HStack(spacing: 10) {
-            Image(systemName: iconName)
-                .frame(width: 22, height: 22)
-                .foregroundColor(AppColors.secondaryLabel)
+            leadingGlyph
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.system(size: 13)).lineLimit(1)
                 Text(subtitle).font(.system(size: 11)).foregroundColor(AppColors.secondaryLabel).lineLimit(1)
@@ -38,6 +37,25 @@ struct PopupRow: View {
             RoundedRectangle(cornerRadius: Theme.rowRadius)
                 .strokeBorder(selected ? AppColors.accent.opacity(0.6) : .clear, lineWidth: 1.5)
         )
+    }
+
+    @ViewBuilder
+    private var leadingGlyph: some View {
+        if item.type == "image", let png = item.thumbPng, let nsImage = NSImage(data: png) {
+            Image(nsImage: nsImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: 40, height: 40)
+                .clipShape(RoundedRectangle(cornerRadius: 4))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(AppColors.separator, lineWidth: 0.5)
+                )
+        } else {
+            Image(systemName: iconName)
+                .frame(width: 40, height: 40)
+                .foregroundColor(AppColors.secondaryLabel)
+        }
     }
 
     private var iconName: String {

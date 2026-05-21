@@ -18,7 +18,7 @@ struct PopupView: View {
     }
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topTrailing) {
             VisualEffectView(material: .hudWindow, blending: .behindWindow)
                 .clipShape(RoundedRectangle(cornerRadius: Theme.panelRadius))
                 .overlay(
@@ -41,6 +41,16 @@ struct PopupView: View {
                 Divider().opacity(0.5)
                 footer
             }
+
+            Button(action: onClose) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(AppColors.secondaryLabel)
+            }
+            .buttonStyle(.plain)
+            .help("Close (Esc)")
+            .padding(.top, 10)
+            .padding(.trailing, 10)
         }
         .frame(width: Theme.panelWidth, height: Theme.panelHeight)
         .accentColor(AppColors.accent)
@@ -58,19 +68,44 @@ struct PopupView: View {
             RoundedRectangle(cornerRadius: 10)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.6))
         )
-        .padding(12)
+        .padding(.top, 12)
+        .padding(.horizontal, 12)
+        .padding(.trailing, 24) // leave room for the close button
+        .padding(.bottom, 12)
     }
 
     private var footer: some View {
-        HStack(spacing: 12) {
-            Text("↵ Paste").foregroundColor(AppColors.secondaryLabel)
-            Text("⌫ Delete").foregroundColor(AppColors.secondaryLabel)
-            Text("⌘P Pin").foregroundColor(AppColors.secondaryLabel)
-            Spacer()
-            Text("⌘, Settings").foregroundColor(AppColors.secondaryLabel)
+        VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 12) {
+                Text("↵ Paste").foregroundColor(AppColors.secondaryLabel)
+                Text("⌫ Delete").foregroundColor(AppColors.secondaryLabel)
+                Text("⌘P Pin").foregroundColor(AppColors.secondaryLabel)
+                Spacer()
+                Text("⌘, Settings").foregroundColor(AppColors.secondaryLabel)
+            }
+            HStack(spacing: 4) {
+                Image(systemName: "internaldrive")
+                    .font(.system(size: 9))
+                    .foregroundColor(AppColors.tertiaryLabel)
+                Button(action: revealStorage) {
+                    Text(abbreviatedStoragePath)
+                        .foregroundColor(AppColors.tertiaryLabel)
+                        .underline(false)
+                }
+                .buttonStyle(.plain)
+                .help("Reveal in Finder")
+            }
         }
         .font(.system(size: 11))
         .padding(.horizontal, 12).padding(.vertical, 6)
+    }
+
+    private var abbreviatedStoragePath: String {
+        (AppPaths.supportDirectory.path as NSString).abbreviatingWithTildeInPath
+    }
+
+    private func revealStorage() {
+        NSWorkspace.shared.open(AppPaths.supportDirectory)
     }
 }
 
