@@ -134,6 +134,17 @@ public final class HistoryStore {
         try reloadSnapshot()
     }
 
+    public func clearAll() throws {
+        try queue.write { db in
+            let imageRows = try Item.filter(Item.Columns.type == "image").fetchAll(db)
+            for row in imageRows {
+                if let path = row.blobPath { try? blobStore?.remove(relativePath: path) }
+            }
+            try Item.deleteAll(db)
+        }
+        try reloadSnapshot()
+    }
+
     private func reloadSnapshot() throws {
         snapshot = try topN(500)
     }

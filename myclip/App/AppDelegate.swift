@@ -10,14 +10,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var pasteEngine = PasteEngine()
     private var viewModel: PopupViewModel!
     private var blobStore: BlobStore?
-    private var blacklist: Set<String> = [
-        "com.1password.1password",
-        "com.agilebits.onepassword7",
-        "com.bitwarden.desktop",
-        "com.apple.keychainaccess",
-    ]
+    private let settings = SettingsWindowController()
+
+    private var historyCap: Int {
+        let v = UserDefaults.standard.integer(forKey: "historyCap")
+        return v == 0 ? 200 : v
+    }
+    private var blacklistFromDefaults: Set<String> {
+        let raw = UserDefaults.standard.string(forKey: "blacklist") ?? ""
+        return Set(raw.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty })
+    }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        UserDefaults.standard.register(defaults: [
+            "historyCap": 200,
+            "blacklist": "com.1password.1password,com.agilebits.onepassword7,com.bitwarden.desktop,com.apple.keychainaccess",
+        ])
         setUpStorage()
         setUpStatusItem()
         setUpMonitor()
@@ -36,6 +44,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if alert.runModal() == .alertFirstButtonReturn {
                 Accessibility.openSystemSettings()
             }
+        }
+        NotificationCenter.default.addObserver(forName: .myclipClearAll, object: nil, queue: .main) { [weak self] _ in
+            try? self?.store.clearAll()
         }
     }
 
@@ -71,12 +82,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         monitor = ClipboardMonitor(
             pasteboard: NSPasteboard.general,
             frontmostBundleID: { NSWorkspace.shared.frontmostApplication?.bundleIdentifier },
-            blacklistedBundleIDs: { [weak self] in self?.blacklist ?? [] },
+            blacklistedBundleIDs: { [weak self] in self?.blacklistFromDefaults ?? [] },
             onCapture: { [weak self] item in
                 guard let self else { return }
                 do {
                     try self.store.insert(item)
-                    try self.store.prune(cap: 200)
+                    try self.store.prune(cap: self.historyCap)
                 } catch {
                     NSLog("myclip insert failed: \(error)")
                 }
@@ -107,5 +118,5 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openPopup() { popupController.toggle() }
-    @objc private func openSettings() { NSSound.beep() } // wired in Task 15
+    @objc private func openSettings() { settings.show() }
 }
