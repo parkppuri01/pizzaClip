@@ -19,6 +19,23 @@ enum Schema {
                 CREATE INDEX idx_items_pinned  ON items(pinned, created_at DESC);
             """)
         }
+        m.registerMigration("v2-fts5") { db in
+            try db.execute(sql: """
+                CREATE VIRTUAL TABLE items_fts USING fts5(text, content='items', content_rowid='rowid');
+                INSERT INTO items_fts(rowid, text) SELECT rowid, text FROM items WHERE text IS NOT NULL;
+
+                CREATE TRIGGER items_ai AFTER INSERT ON items BEGIN
+                  INSERT INTO items_fts(rowid, text) VALUES (new.rowid, new.text);
+                END;
+                CREATE TRIGGER items_ad AFTER DELETE ON items BEGIN
+                  INSERT INTO items_fts(items_fts, rowid, text) VALUES('delete', old.rowid, old.text);
+                END;
+                CREATE TRIGGER items_au AFTER UPDATE ON items BEGIN
+                  INSERT INTO items_fts(items_fts, rowid, text) VALUES('delete', old.rowid, old.text);
+                  INSERT INTO items_fts(rowid, text) VALUES (new.rowid, new.text);
+                END;
+            """)
+        }
         return m
     }
 }

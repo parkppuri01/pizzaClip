@@ -90,6 +90,24 @@ public final class HistoryStore {
         }
     }
 
+    public func search(_ query: String, limit: Int) throws -> [Item] {
+        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        if trimmed.isEmpty { return try topNRespectingPins(limit) }
+
+        let escaped = trimmed.replacingOccurrences(of: "\"", with: "\"\"")
+        let ftsQuery = "\"\(escaped)\"*"  // prefix match, quoted to defang FTS5 operators
+
+        return try queue.read { db in
+            try Item.fetchAll(db, sql: """
+                SELECT items.* FROM items
+                JOIN items_fts ON items_fts.rowid = items.rowid
+                WHERE items_fts MATCH ?
+                ORDER BY items.pinned DESC, items.created_at DESC
+                LIMIT ?
+            """, arguments: [ftsQuery, limit])
+        }
+    }
+
     public func prune(cap: Int) throws {
         try queue.write { db in
             let nonPinned = try Item
