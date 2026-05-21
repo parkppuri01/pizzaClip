@@ -20,7 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit myclip",
                                 action: #selector(NSApplication.terminate(_:)),
-                                keyEquivalent: "q"))
+                                keyEquivalent: ""))
         statusItem.menu = menu
     }
 
