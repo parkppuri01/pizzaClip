@@ -1,7 +1,7 @@
 import AppKit
 @testable import myclip
 
-final class FakePasteboard: myclip.Pasteboard {
+final class FakePasteboard: PasteboardReader {
     private(set) var changeCount: Int = 0
     private var contents: [NSPasteboard.PasteboardType: Data] = [:]
     private var strings: [NSPasteboard.PasteboardType: String] = [:]

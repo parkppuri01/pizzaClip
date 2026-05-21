@@ -175,7 +175,7 @@ Stored data lives only under `~/Library/Application Support/myclip/`. No network
 
 - **Unit tests (XCTest):**
   - `HistoryStore`: insert/prune/pin/search round-trips against an in-memory GRDB queue. FTS query correctness.
-  - `ClipboardMonitor`: feed synthetic pasteboards (an in-memory adapter behind a `Pasteboard` protocol) and assert classifier output + drop rules.
+  - `ClipboardMonitor`: feed synthetic pasteboards (an in-memory adapter behind a `PasteboardReader` protocol) and assert classifier output + drop rules.
   - `PasteEngine`: payload-to-pasteboard mapping (no CGEvent in unit tests — that goes to manual QA).
 - **Integration / manual QA checklist** (in repo as `docs/qa/checklist.md`):
   - Copy text in Safari → popup shows it → ↵ pastes into Notes.
