@@ -62,6 +62,40 @@ public final class HistoryStore {
         try reloadSnapshot()
     }
 
+    public func togglePin(id: String) throws {
+        try queue.write { db in
+            guard var item = try Item.fetchOne(db, key: id) else { return }
+            item.pinned.toggle()
+            try item.update(db)
+        }
+        try reloadSnapshot()
+    }
+
+    public func topNRespectingPins(_ n: Int) throws -> [Item] {
+        try queue.read { db in
+            try Item
+                .order(Item.Columns.pinned.desc, Item.Columns.createdAt.desc)
+                .limit(n)
+                .fetchAll(db)
+        }
+    }
+
+    public func prune(cap: Int) throws {
+        try queue.write { db in
+            let nonPinned = try Item
+                .filter(Item.Columns.pinned == false)
+                .order(Item.Columns.createdAt.desc)
+                .fetchAll(db)
+            guard nonPinned.count > cap else { return }
+            let toDelete = nonPinned[cap...]
+            for item in toDelete {
+                // BlobStore cleanup wires in Task 6
+                _ = try Item.deleteOne(db, key: item.id)
+            }
+        }
+        try reloadSnapshot()
+    }
+
     private func reloadSnapshot() throws {
         snapshot = try topN(500)
     }
