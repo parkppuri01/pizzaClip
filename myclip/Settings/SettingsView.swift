@@ -11,76 +11,125 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             generalTab
-                .padding(20).tabItem { Label("General", systemImage: "gear") }
-
+                .tabItem { Label("General", systemImage: "gear") }
             shortcutsTab
-                .padding(20).tabItem { Label("Shortcuts", systemImage: "keyboard") }
-
+                .tabItem { Label("Shortcuts", systemImage: "keyboard") }
             privacyTab
-                .padding(20).tabItem { Label("Privacy", systemImage: "hand.raised") }
-
+                .tabItem { Label("Privacy", systemImage: "hand.raised") }
             storageTab
-                .padding(20).tabItem { Label("Storage", systemImage: "internaldrive") }
+                .tabItem { Label("Storage", systemImage: "internaldrive") }
         }
         .frame(width: 560, height: 460)
+        .background(WindowAccessor { window in
+            window.title = "MyClip Settings"
+        })
     }
 
-    // MARK: - Tabs
+    // MARK: - General
 
     private var generalTab: some View {
         Form {
-            Stepper("History cap: \(historyCap)", value: $historyCap, in: 20...500, step: 10)
+            LabeledContent("History cap") {
+                HStack(spacing: 8) {
+                    Stepper(value: $historyCap, in: 20...500, step: 10) {
+                        Text("\(historyCap) items")
+                            .frame(minWidth: 70, alignment: .leading)
+                            .monospacedDigit()
+                    }
+                }
+            }
             Text("When the number of non-pinned items exceeds this cap, the oldest entries are deleted automatically. Pinned items are never auto-deleted.")
-                .font(.callout).foregroundColor(.secondary)
+                .font(.callout)
+                .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
         }
+        .formStyle(.grouped)
+        .scrollDisabled(true)
     }
+
+    // MARK: - Shortcuts
 
     private var shortcutsTab: some View {
         Form {
-            KeyboardShortcuts.Recorder("Open popup:", name: .togglePopup)
-            ForEach(1..<10) { n in
-                KeyboardShortcuts.Recorder("Paste slot \(n):", name: .slot(n))
+            Section("Popup") {
+                KeyboardShortcuts.Recorder("Open popup:", name: .togglePopup)
+            }
+            Section("Direct paste — nth most-recent non-pinned") {
+                ForEach(1..<10) { n in
+                    KeyboardShortcuts.Recorder("Slot \(n):", name: .slot(n))
+                }
             }
         }
+        .formStyle(.grouped)
     }
+
+    // MARK: - Privacy
 
     private var privacyTab: some View {
         Form {
-            Text("Apps whose clipboards are never recorded (comma-separated bundle IDs):")
-                .font(.callout).foregroundColor(.secondary)
-            TextEditor(text: $blacklistJoined)
-                .frame(height: 120)
-                .font(.system(.body, design: .monospaced))
+            Section("Blacklisted apps") {
+                Text("Clipboard from these bundle identifiers is never recorded. Comma-separated.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                TextEditor(text: $blacklistJoined)
+                    .font(.system(.body, design: .monospaced))
+                    .frame(minHeight: 110, maxHeight: 160)
+                    .border(Color.secondary.opacity(0.25), width: 1)
+            }
+            Section {
+                Label("Concealed clipboards (passwords, etc.) are always ignored regardless of this list.",
+                      systemImage: "info.circle")
+                    .foregroundStyle(.secondary)
+                    .font(.callout)
+            }
         }
+        .formStyle(.grouped)
     }
+
+    // MARK: - Storage
 
     private var storageTab: some View {
         Form {
-            Section {
-                LabeledContent("Location") {
-                    Text(AppPaths.supportDirectory.path)
-                        .font(.system(.caption, design: .monospaced))
-                        .lineLimit(2)
-                        .truncationMode(.middle)
-                        .textSelection(.enabled)
-                }
-                HStack {
+            Section("Location") {
+                Text(AppPaths.supportDirectory.path)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundStyle(.primary)
+                    .lineLimit(3)
+                    .truncationMode(.middle)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 10) {
                     Button("Change…", action: changeStorageFolder)
                     Button("Reset to default", action: resetStorageFolder)
                         .disabled(customStorageDirectory.isEmpty)
                     Spacer()
-                    Button("Open in Finder") {
+                    Button {
                         NSWorkspace.shared.open(AppPaths.supportDirectory)
+                    } label: {
+                        Label("Open in Finder", systemImage: "folder")
                     }
                 }
             }
-            Divider().padding(.vertical, 8)
-            Section {
-                Button("Export history to text…", action: exportHistory)
-                Button("Clear all history", role: .destructive, action: confirmClearAll)
+            Section("History") {
+                HStack(spacing: 10) {
+                    Button {
+                        NotificationCenter.default.post(name: .myclipExportHistory, object: nil)
+                    } label: {
+                        Label("Export to text…", systemImage: "square.and.arrow.up")
+                    }
+                    Spacer()
+                    Button(role: .destructive, action: confirmClearAll) {
+                        Label("Clear all history", systemImage: "trash")
+                    }
+                }
+                Text("Clearing wipes both database rows and image files, including pinned items.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
+        .formStyle(.grouped)
     }
 
     // MARK: - Actions
@@ -123,9 +172,21 @@ struct SettingsView: View {
             NotificationCenter.default.post(name: .myclipClearAll, object: nil)
         }
     }
+}
 
-    private func exportHistory() {
-        NotificationCenter.default.post(name: .myclipExportHistory, object: nil)
+/// Tiny shim so we can poke the underlying NSWindow once SwiftUI mounts the view
+/// (e.g. to set its title — SwiftUI's Settings scene uses "MyclipApp" by default).
+private struct WindowAccessor: NSViewRepresentable {
+    let configure: (NSWindow) -> Void
+    func makeNSView(context: Context) -> NSView {
+        let v = NSView()
+        DispatchQueue.main.async {
+            if let window = v.window { configure(window) }
+        }
+        return v
+    }
+    func updateNSView(_ nsView: NSView, context: Context) {
+        if let window = nsView.window { configure(window) }
     }
 }
 

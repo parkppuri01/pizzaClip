@@ -5,6 +5,7 @@ struct PopupView: View {
     @ObservedObject var vm: PopupViewModel
     var onPick: (Item) -> Void
     var onClose: () -> Void
+    var onSettings: () -> Void
     @FocusState private var searchFocused: Bool
 
     private var slotForItem: [String: Int] {
@@ -115,7 +116,7 @@ struct PopupView: View {
                 Text("⌘, Settings")
                     .foregroundColor(AppColors.secondaryLabel)
                     .contentShape(Rectangle())
-                    .onTapGesture(perform: openSettings)
+                    .onTapGesture(perform: onSettings)
                     .help("Open Settings")
             }
             HStack(spacing: 4) {
@@ -139,10 +140,6 @@ struct PopupView: View {
         + Text(action).foregroundColor(AppColors.accent)
     }
 
-    private func openSettings() {
-        NotificationCenter.default.post(name: .myclipOpenSettings, object: nil)
-        onClose()
-    }
 
     private var abbreviatedStoragePath: String {
         (AppPaths.supportDirectory.path as NSString).abbreviatingWithTildeInPath

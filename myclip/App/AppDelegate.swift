@@ -11,7 +11,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var pasteEngine = PasteEngine()
     private var viewModel: PopupViewModel!
     private var blobStore: BlobStore?
-    private let settings = SettingsWindowController()
 
     private var historyCap: Int {
         let v = UserDefaults.standard.integer(forKey: "historyCap")
@@ -40,7 +39,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self?.exportHistoryToTextFile()
         }
         NotificationCenter.default.addObserver(forName: .myclipOpenSettings, object: nil, queue: .main) { [weak self] _ in
-            self?.settings.show()
+            self?.showSwiftUISettingsWindow()
+        }
+    }
+
+    /// Triggers SwiftUI's built-in `Settings` scene. macOS routes the action
+    /// through the responder chain to NSApp, which raises (or creates) the
+    /// settings window and brings it to front.
+    private func showSwiftUISettingsWindow() {
+        NSApp.activate(ignoringOtherApps: true)
+        // macOS 14 renamed the selector. Try the new name first, fall back to
+        // the legacy one so we work on macOS 13 too.
+        let selectors = [
+            Selector(("showSettingsWindow:")),
+            Selector(("showPreferencesWindow:")),
+        ]
+        for sel in selectors {
+            if NSApp.sendAction(sel, to: nil, from: nil) { return }
         }
     }
 
@@ -175,7 +190,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openPopup() { popupController.toggle(anchorRect: statusItemFrame) }
-    @objc private func openSettings() { settings.show() }
+    @objc private func openSettings() { showSwiftUISettingsWindow() }
     @objc private func grantAccessibility() {
         // Go straight to System Settings; never re-trigger the system prompt.
         Accessibility.openSystemSettings()

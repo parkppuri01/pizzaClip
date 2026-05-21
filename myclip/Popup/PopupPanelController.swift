@@ -40,7 +40,14 @@ final class PopupPanelController {
         let view = PopupView(
             vm: viewModel,
             onPick: { [weak self] item in self?.pick(item) },
-            onClose: { [weak self] in self?.close() }
+            onClose: { [weak self] in self?.close() },
+            onSettings: { [weak self] in
+                // Dismiss the popup *without* re-activating the previous app —
+                // otherwise the just-opened Settings window loses focus to
+                // whatever was frontmost before we opened the popup.
+                self?.close(restorePreviousApp: false)
+                NotificationCenter.default.post(name: .myclipOpenSettings, object: nil)
+            }
         )
         let hosting = NSHostingView(rootView: view)
 
@@ -103,10 +110,16 @@ final class PopupPanelController {
                       width: w, height: h)
     }
 
-    func close() {
+    /// Closes the popup. When `restorePreviousApp` is true (default) the app
+    /// that was frontmost when the popup opened is reactivated — that's what
+    /// keeps the auto-paste flow intact. Set to false when the popup is being
+    /// dismissed because we're handing focus to another myclip surface
+    /// (e.g. the Settings window), so we don't yank focus away from that.
+    func close(restorePreviousApp: Bool = true) {
         uninstallKeyMonitor()
         panel?.orderOut(nil)
         panel = nil
+        guard restorePreviousApp else { return }
         if let id = previousFrontmostBundleID,
            let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first {
             app.activate(options: [.activateIgnoringOtherApps])
