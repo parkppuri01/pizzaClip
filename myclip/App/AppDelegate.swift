@@ -4,6 +4,7 @@ import KeyboardShortcuts
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
+    private var contextMenu: NSMenu!
     private(set) var store: HistoryStore!
     private var monitor: ClipboardMonitor!
     private var popupController: PopupPanelController!
@@ -30,9 +31,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setUpStatusItem()
         setUpMonitor()
         setUpPopup()
-        // Single launch-time prompt for the only permission we need (Accessibility).
-        // If denied, the menu bar has a "Grant Accessibility…" item to retry later.
-        _ = Accessibility.isTrusted(prompt: true)
+        // First-run-only system prompt. Subsequent launches never re-prompt.
+        Accessibility.promptOnceIfNeeded()
         NotificationCenter.default.addObserver(forName: .myclipClearAll, object: nil, queue: .main) { [weak self] _ in
             try? self?.store.clearAll()
         }
@@ -89,22 +89,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func setUpStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.button?.image = NSImage(systemSymbolName: "doc.on.clipboard",
-                                           accessibilityDescription: "myclip")
-        let menu = NSMenu()
-        menu.addItem(NSMenuItem(title: "Open Popup",
-                                action: #selector(openPopup), keyEquivalent: ""))
-        menu.addItem(NSMenuItem(title: "Settings…",
-                                action: #selector(openSettings), keyEquivalent: ","))
-        menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Grant Accessibility…",
-                                action: #selector(grantAccessibility),
-                                keyEquivalent: ""))
-        menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit myclip",
-                                action: #selector(NSApplication.terminate(_:)),
-                                keyEquivalent: ""))
-        statusItem.menu = menu
+        guard let button = statusItem.button else { return }
+        button.image = NSImage(systemSymbolName: "doc.on.clipboard",
+                               accessibilityDescription: "myclip")
+        button.target = self
+        button.action = #selector(statusItemClicked(_:))
+        // Receive both mouse buttons so we can route left = popup, right = menu.
+        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+
+        contextMenu = NSMenu()
+        contextMenu.addItem(NSMenuItem(title: "Open Popup",
+                                       action: #selector(openPopup), keyEquivalent: ""))
+        contextMenu.addItem(NSMenuItem(title: "Settings…",
+                                       action: #selector(openSettings), keyEquivalent: ","))
+        contextMenu.addItem(.separator())
+        contextMenu.addItem(NSMenuItem(title: "Grant Accessibility…",
+                                       action: #selector(grantAccessibility),
+                                       keyEquivalent: ""))
+        contextMenu.addItem(.separator())
+        contextMenu.addItem(NSMenuItem(title: "Quit myclip",
+                                       action: #selector(NSApplication.terminate(_:)),
+                                       keyEquivalent: ""))
     }
 
     private func setUpMonitor() {
@@ -137,7 +142,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         )
 
         KeyboardShortcuts.onKeyDown(for: .togglePopup) { [weak self] in
-            self?.popupController.toggle()
+            self?.popupController.toggle(anchorRect: self?.statusItemFrame)
         }
         for n in 1...9 {
             KeyboardShortcuts.onKeyDown(for: .slot(n)) { [weak self] in
@@ -146,11 +151,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    @objc private func openPopup() { popupController.toggle() }
+    /// Screen-space rect of the status bar icon button — used to anchor the popup.
+    private var statusItemFrame: NSRect? {
+        statusItem.button?.window?.frame
+    }
+
+    @objc private func statusItemClicked(_ sender: NSStatusBarButton) {
+        guard let event = NSApp.currentEvent else { return }
+        let isContextClick = event.type == .rightMouseUp
+            || event.modifierFlags.contains(.control)
+        if isContextClick {
+            // Temporarily attach the menu so NSStatusBar pops it under the icon,
+            // then detach so the next left-click reaches our action again.
+            statusItem.menu = contextMenu
+            statusItem.button?.performClick(nil)
+            statusItem.menu = nil
+        } else {
+            popupController.toggle(anchorRect: statusItemFrame)
+        }
+    }
+
+    @objc private func openPopup() { popupController.toggle(anchorRect: statusItemFrame) }
     @objc private func openSettings() { settings.show() }
     @objc private func grantAccessibility() {
-        if !Accessibility.isTrusted(prompt: true) {
-            Accessibility.openSystemSettings()
-        }
+        // Go straight to System Settings; never re-trigger the system prompt.
+        Accessibility.openSystemSettings()
     }
 }

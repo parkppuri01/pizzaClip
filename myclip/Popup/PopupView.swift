@@ -16,7 +16,7 @@ struct PopupView: View {
     }
 
     var body: some View {
-        ZStack(alignment: .topTrailing) {
+        ZStack {
             VisualEffectView(material: .hudWindow, blending: .behindWindow)
                 .clipShape(RoundedRectangle(cornerRadius: Theme.panelRadius))
                 .overlay(
@@ -25,6 +25,7 @@ struct PopupView: View {
                 )
 
             VStack(spacing: 0) {
+                titleBar
                 searchField
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -34,6 +35,10 @@ struct PopupView: View {
                                          selected: idx == vm.selectedIndex,
                                          slot: slotForItem[item.id])
                                     .id(item.id)
+                                    .contentShape(Rectangle())
+                                    .onHover { hovered in
+                                        if hovered { vm.selectedIndex = idx }
+                                    }
                                     .onTapGesture { onPick(item) }
                             }
                         }.padding(.horizontal, 8)
@@ -48,19 +53,31 @@ struct PopupView: View {
                 Divider().opacity(0.5)
                 footer
             }
+        }
+        .frame(width: Theme.panelWidth, height: Theme.panelHeight)
+        .accentColor(AppColors.accent)
+    }
 
+    private var titleBar: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "doc.on.clipboard")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(AppColors.accent)
+            Text("MyClip — Clipboard History")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(AppColors.secondaryLabel)
+            Spacer()
             Button(action: onClose) {
                 Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 14))
+                    .font(.system(size: 13))
                     .foregroundStyle(AppColors.secondaryLabel)
             }
             .buttonStyle(.plain)
             .help("Close (Esc)")
-            .padding(.top, 10)
-            .padding(.trailing, 10)
         }
-        .frame(width: Theme.panelWidth, height: Theme.panelHeight)
-        .accentColor(AppColors.accent)
+        .padding(.horizontal, 14)
+        .padding(.top, 10)
+        .padding(.bottom, 6)
     }
 
     private var searchField: some View {
@@ -75,10 +92,8 @@ struct PopupView: View {
             RoundedRectangle(cornerRadius: 10)
                 .fill(Color(NSColor.controlBackgroundColor).opacity(0.6))
         )
-        .padding(.top, 12)
         .padding(.horizontal, 12)
-        .padding(.trailing, 24) // leave room for the close button
-        .padding(.bottom, 12)
+        .padding(.bottom, 8)
     }
 
     private var footer: some View {

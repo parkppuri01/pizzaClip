@@ -1,8 +1,16 @@
 import AppKit
 import SwiftUI
 
+/// Borderless NSPanel that *can* accept key + main status. The defaults on a
+/// styleMask-less NSPanel are too restrictive — SwiftUI inputs (TextField,
+/// onTapGesture, onHover) need a key window with main status to behave.
+final class FocusablePanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { true }
+}
+
 final class PopupPanelController {
-    private var panel: NSPanel?
+    private var panel: FocusablePanel?
     private var previousFrontmostBundleID: String?
     private let store: HistoryStore
     private let viewModel: PopupViewModel
@@ -17,16 +25,14 @@ final class PopupPanelController {
         self.blobStore = blobStore
     }
 
-    deinit {
-        uninstallKeyMonitor()
-    }
+    deinit { uninstallKeyMonitor() }
 
-    func toggle() {
+    func toggle(anchorRect: NSRect? = nil) {
         if let panel = panel, panel.isVisible { close(); return }
-        show()
+        show(anchorRect: anchorRect)
     }
 
-    func show() {
+    func show(anchorRect: NSRect? = nil) {
         previousFrontmostBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         viewModel.query = ""
         viewModel.reload()
@@ -38,10 +44,7 @@ final class PopupPanelController {
         )
         let hosting = NSHostingView(rootView: view)
 
-        // No .nonactivatingPanel: we explicitly activate the app on show, and the
-        // non-activating semantics actively fight us on the second/third open by
-        // refusing to take key status cleanly after a paste round-trip.
-        let panel = NSPanel(
+        let panel = FocusablePanel(
             contentRect: NSRect(x: 0, y: 0, width: Theme.panelWidth, height: Theme.panelHeight),
             styleMask: [.borderless, .fullSizeContentView],
             backing: .buffered,
@@ -53,30 +56,57 @@ final class PopupPanelController {
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
+        panel.acceptsMouseMovedEvents = true
         panel.contentView = hosting
         panel.contentView?.wantsLayer = true
         panel.contentView?.layer?.cornerRadius = Theme.panelRadius
         panel.contentView?.layer?.masksToBounds = true
 
-        if let screen = NSScreen.main {
-            let rect = screen.visibleFrame
-            let origin = NSPoint(x: rect.midX - Theme.panelWidth / 2,
-                                 y: rect.midY - Theme.panelHeight / 2 + rect.height * 0.10)
-            panel.setFrameOrigin(origin)
-        }
+        let target = targetFrame(anchorRect: anchorRect)
+        // Start a touch above the target and fully transparent so the panel
+        // "drops down" from the menu bar icon.
+        let start = target.offsetBy(dx: 0, dy: 24)
+        panel.setFrame(start, display: false)
+        panel.alphaValue = 0
 
         NSApp.activate(ignoringOtherApps: true)
         panel.makeKeyAndOrderFront(nil)
 
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.18
+            ctx.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            panel.animator().setFrame(target, display: true)
+            panel.animator().alphaValue = 1
+        }
+
         self.panel = panel
         installKeyMonitor()
+    }
+
+    private func targetFrame(anchorRect: NSRect?) -> NSRect {
+        let w = Theme.panelWidth, h = Theme.panelHeight
+        if let anchor = anchorRect {
+            // Center under the status icon; keep at least 8pt of margin from the
+            // right edge of the screen.
+            let screen = NSScreen.screens.first(where: { $0.frame.contains(anchor.origin) })
+                ?? NSScreen.main!
+            let visible = screen.visibleFrame
+            var x = anchor.midX - w / 2
+            x = min(max(x, visible.minX + 8), visible.maxX - w - 8)
+            let y = anchor.minY - h - 4
+            return NSRect(x: x, y: y, width: w, height: h)
+        }
+        // Fallback — screen center, biased upward (Spotlight style).
+        let visible = NSScreen.main!.visibleFrame
+        return NSRect(x: visible.midX - w / 2,
+                      y: visible.midY - h / 2 + visible.height * 0.10,
+                      width: w, height: h)
     }
 
     func close() {
         uninstallKeyMonitor()
         panel?.orderOut(nil)
         panel = nil
-        // Return focus to whatever app the user was in before opening the popup.
         if let id = previousFrontmostBundleID,
            let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first {
             app.activate(options: [.activateIgnoringOtherApps])
@@ -98,6 +128,11 @@ final class PopupPanelController {
     func togglePin(_ item: Item) {
         try? store.togglePin(id: item.id)
         viewModel.reload()
+        // Keep the highlight on the same item — its row position changed since
+        // pinned items float to the top of `topNRespectingPins`.
+        if let newIdx = viewModel.items.firstIndex(where: { $0.id == item.id }) {
+            viewModel.selectedIndex = newIdx
+        }
     }
 
     func pasteDirect(slot: Int) {
@@ -110,10 +145,10 @@ final class PopupPanelController {
         pasteEngine.pasteIntoPreviousApp(bundleID: previousFrontmostBundleID)
     }
 
-    /// Slot paste triggered from inside an open popup — picks the Nth non-pinned row
-    /// of the currently displayed list (which is what the visible slot badges count).
-    /// Reuses the existing previousFrontmostBundleID recorded when the popup opened,
-    /// rather than re-reading frontmost (which is now ourselves).
+    /// Slot paste from inside an open popup — picks the Nth non-pinned row of
+    /// the currently displayed list (matches the visible slot badges). Reuses
+    /// the previousFrontmostBundleID recorded on open instead of re-reading
+    /// frontmost (which is now ourselves).
     private func paste(slotInPopup n: Int) {
         let nonPinned = viewModel.items.filter { !$0.pinned }
         guard nonPinned.indices.contains(n - 1) else { return }
@@ -129,7 +164,7 @@ final class PopupPanelController {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
             guard let self else { return event }
             guard self.panel?.isVisible == true else { return event }
-            if self.handleKey(event) { return nil }   // swallow
+            if self.handleKey(event) { return nil }
             return event
         }
     }
@@ -139,9 +174,6 @@ final class PopupPanelController {
     }
 
     private func handleKey(_ event: NSEvent) -> Bool {
-        // Don't intercept while typing arrows/return inside the search field when there
-        // are zero rows. Otherwise we route arrows / return / delete-on-empty / pin / esc
-        // to the popup actions; the TextField still gets every other character.
         let queryIsEmpty = viewModel.query.isEmpty
         let isCmd = event.modifierFlags.contains(.command)
 
@@ -156,21 +188,24 @@ final class PopupPanelController {
         case 126: // up arrow
             viewModel.moveUp(); return true
         case 51: // backspace
-            // Only repurpose backspace when the search field is empty — otherwise the
-            // user is editing the query and expects normal character deletion.
             if queryIsEmpty, let item = viewModel.selectedItem() {
                 delete(item); return true
             }
             return false
         default:
-            if isCmd, event.charactersIgnoringModifiers == "p",
-               let item = viewModel.selectedItem() {
-                togglePin(item); return true
+            // ⌘P → pin/unpin the highlighted item. Check keyCode (35 = P,
+            // layout-stable for ANSI) plus chars (works for layouts that map
+            // P elsewhere).
+            if isCmd, (event.keyCode == 35 || event.charactersIgnoringModifiers == "p") {
+                if let item = viewModel.selectedItem() {
+                    togglePin(item); return true
+                }
+                return true   // swallow even when nothing is selected
             }
-            // Bare digit 1-9 (no Cmd/Opt/Ctrl/Shift, empty query) → paste the Nth
-            // non-pinned row of the currently displayed list and close. While the
-            // user is searching we let digits flow into the field so queries that
-            // start with a number still work.
+            // Bare digit 1-9 (no Cmd/Opt/Ctrl/Shift, empty query) → paste the
+            // Nth non-pinned row of the currently displayed list and close.
+            // While the user is searching, digits flow into the field as
+            // characters so queries that start with a number still work.
             let interfering: NSEvent.ModifierFlags = [.command, .option, .control, .shift]
             let hasInterfering = !event.modifierFlags.intersection(interfering).isEmpty
             if queryIsEmpty, !hasInterfering,
