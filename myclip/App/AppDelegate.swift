@@ -11,7 +11,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var viewModel: PopupViewModel!
     private var blobStore: BlobStore?
     private let settings = SettingsWindowController()
-    private var hasShownAccessibilityPrompt = false
 
     private var historyCap: Int {
         let v = UserDefaults.standard.integer(forKey: "historyCap")
@@ -31,29 +30,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setUpStatusItem()
         setUpMonitor()
         setUpPopup()
-        if !Accessibility.isTrusted(prompt: true) {
-            NSLog("Accessibility permission not granted; auto-paste disabled until granted.")
-        }
-        NotificationCenter.default.addObserver(
-            forName: .myclipNeedsAccessibility, object: nil, queue: .main
-        ) { [weak self] _ in
-            guard let self else { return }
-            // Re-check trust so a grant during this session silences future prompts
-            // without restart, and rate-limit to once per session so a user who
-            // dismissed the dialog isn't nagged on every paste.
-            if Accessibility.isTrusted() { return }
-            if self.hasShownAccessibilityPrompt { return }
-            self.hasShownAccessibilityPrompt = true
-
-            let alert = NSAlert()
-            alert.messageText = "Enable Accessibility for auto-paste"
-            alert.informativeText = "myclip needs Accessibility access to type ⌘V into the previous app. The clipboard already holds your selection — you can ⌘V manually too."
-            alert.addButton(withTitle: "Open System Settings")
-            alert.addButton(withTitle: "Later")
-            if alert.runModal() == .alertFirstButtonReturn {
-                Accessibility.openSystemSettings()
-            }
-        }
+        // Single launch-time prompt for the only permission we need (Accessibility).
+        // If denied, the menu bar has a "Grant Accessibility…" item to retry later.
+        _ = Accessibility.isTrusted(prompt: true)
         NotificationCenter.default.addObserver(forName: .myclipClearAll, object: nil, queue: .main) { [weak self] _ in
             try? self?.store.clearAll()
         }
@@ -80,6 +59,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                 action: #selector(openPopup), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Settings…",
                                 action: #selector(openSettings), keyEquivalent: ","))
+        menu.addItem(.separator())
+        menu.addItem(NSMenuItem(title: "Grant Accessibility…",
+                                action: #selector(grantAccessibility),
+                                keyEquivalent: ""))
         menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "Quit myclip",
                                 action: #selector(NSApplication.terminate(_:)),
@@ -128,4 +111,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func openPopup() { popupController.toggle() }
     @objc private func openSettings() { settings.show() }
+    @objc private func grantAccessibility() {
+        if !Accessibility.isTrusted(prompt: true) {
+            Accessibility.openSystemSettings()
+        }
+    }
 }

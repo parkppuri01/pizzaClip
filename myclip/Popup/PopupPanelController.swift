@@ -42,15 +42,17 @@ final class PopupPanelController {
         let hosting = NSHostingView(rootView: view)
         self.hostingView = hosting
 
+        // No .nonactivatingPanel: we explicitly activate the app on show, and the
+        // non-activating semantics actively fight us on the second/third open by
+        // refusing to take key status cleanly after a paste round-trip.
         let panel = NSPanel(
             contentRect: NSRect(x: 0, y: 0, width: Theme.panelWidth, height: Theme.panelHeight),
-            styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
+            styleMask: [.borderless, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
         panel.isFloatingPanel = true
         panel.level = .floating
-        panel.becomesKeyOnlyIfNeeded = true
         panel.hidesOnDeactivate = false
         panel.isOpaque = false
         panel.backgroundColor = .clear
@@ -66,12 +68,9 @@ final class PopupPanelController {
                                  y: rect.midY - Theme.panelHeight / 2 + rect.height * 0.10)
             panel.setFrameOrigin(origin)
         }
-        panel.orderFrontRegardless()
-        panel.makeKey()
-        // Activate ourselves so SwiftUI controls inside the panel actually receive
-        // keystrokes and clicks. Without this, the previous frontmost app still
-        // owns the system focus and our TextField / NSEvent monitor see nothing.
+
         NSApp.activate(ignoringOtherApps: true)
+        panel.makeKeyAndOrderFront(nil)
 
         self.panel = panel
         installKeyMonitor()

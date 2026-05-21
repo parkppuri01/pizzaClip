@@ -28,15 +28,24 @@ struct PopupView: View {
 
             VStack(spacing: 0) {
                 searchField
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 2) {
-                        ForEach(Array(vm.items.enumerated()), id: \.element.id) { idx, item in
-                            PopupRow(item: item,
-                                     selected: idx == vm.selectedIndex,
-                                     slot: slotForItem[item.id])
-                                .onTapGesture { onPick(item) }
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVStack(alignment: .leading, spacing: 2) {
+                            ForEach(Array(vm.items.enumerated()), id: \.element.id) { idx, item in
+                                PopupRow(item: item,
+                                         selected: idx == vm.selectedIndex,
+                                         slot: slotForItem[item.id])
+                                    .id(item.id)
+                                    .onTapGesture { onPick(item) }
+                            }
+                        }.padding(.horizontal, 8)
+                    }
+                    .onChange(of: vm.selectedIndex) { newValue in
+                        guard vm.items.indices.contains(newValue) else { return }
+                        withAnimation(.linear(duration: 0.08)) {
+                            proxy.scrollTo(vm.items[newValue].id, anchor: .center)
                         }
-                    }.padding(.horizontal, 8)
+                    }
                 }
                 Divider().opacity(0.5)
                 footer
