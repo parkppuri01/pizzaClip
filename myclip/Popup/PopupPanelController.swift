@@ -3,7 +3,6 @@ import SwiftUI
 
 final class PopupPanelController {
     private var panel: NSPanel?
-    private var hostingView: NSHostingView<PopupView>?
     private var previousFrontmostBundleID: String?
     private let store: HistoryStore
     private let viewModel: PopupViewModel
@@ -35,12 +34,9 @@ final class PopupPanelController {
         let view = PopupView(
             vm: viewModel,
             onPick: { [weak self] item in self?.pick(item) },
-            onClose: { [weak self] in self?.close() },
-            onDelete: { [weak self] item in self?.delete(item) },
-            onTogglePin: { [weak self] item in self?.togglePin(item) }
+            onClose: { [weak self] in self?.close() }
         )
         let hosting = NSHostingView(rootView: view)
-        self.hostingView = hosting
 
         // No .nonactivatingPanel: we explicitly activate the app on show, and the
         // non-activating semantics actively fight us on the second/third open by
@@ -80,7 +76,6 @@ final class PopupPanelController {
         uninstallKeyMonitor()
         panel?.orderOut(nil)
         panel = nil
-        hostingView = nil
         // Return focus to whatever app the user was in before opening the popup.
         if let id = previousFrontmostBundleID,
            let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first {

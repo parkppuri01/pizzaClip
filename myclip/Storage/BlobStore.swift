@@ -17,8 +17,6 @@ public final class BlobStore {
     }
 
     public func write(png: Data) throws -> WrittenBlob {
-        // Flat layout — for a personal clipboard app capped at a few hundred
-        // entries the 2-char prefix sharding was overkill.
         let id = UUID().uuidString
         let relative = "\(id).png"
         let url = rootDirectory.appendingPathComponent(relative)

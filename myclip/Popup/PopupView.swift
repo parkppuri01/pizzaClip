@@ -5,8 +5,6 @@ struct PopupView: View {
     @ObservedObject var vm: PopupViewModel
     var onPick: (Item) -> Void
     var onClose: () -> Void
-    var onDelete: (Item) -> Void
-    var onTogglePin: (Item) -> Void
 
     private var slotForItem: [String: Int] {
         var map: [String: Int] = [:]

@@ -1,6 +1,12 @@
 import SwiftUI
 import AppKit
 
+private let relativeDateFormatter: RelativeDateTimeFormatter = {
+    let f = RelativeDateTimeFormatter()
+    f.unitsStyle = .abbreviated
+    return f
+}()
+
 struct PopupRow: View {
     let item: Item
     let selected: Bool
@@ -75,6 +81,6 @@ struct PopupRow: View {
     }
     private var subtitle: String {
         let d = Date(timeIntervalSince1970: Double(item.createdAt) / 1000)
-        return RelativeDateTimeFormatter().localizedString(for: d, relativeTo: Date())
+        return relativeDateFormatter.localizedString(for: d, relativeTo: Date())
     }
 }
