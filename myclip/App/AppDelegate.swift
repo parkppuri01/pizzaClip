@@ -43,19 +43,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    /// Triggers SwiftUI's built-in `Settings` scene. The action must be
-    /// dispatched on the next runloop tick — calling it synchronously during
-    /// a menu close or panel teardown loses the responder chain that SwiftUI
-    /// registered for `showSettingsWindow:`.
+    /// Opens the SwiftUI `Settings` scene by synthesizing the Cmd+, keystroke
+    /// that macOS handles natively. We tried `NSApp.sendAction("showSettingsWindow:")`
+    /// first, but recent macOS releases log a "use SettingsLink" warning and
+    /// treat the selector as a no-op. The synthesized key event goes through
+    /// the same native dispatch as a real Cmd+, press, which we know works.
     private func showSwiftUISettingsWindow() {
         NSApp.activate(ignoringOtherApps: true)
         DispatchQueue.main.async {
-            // macOS 14 renamed the selector. Try the new name first, fall back
-            // to the legacy one so we work on macOS 13 too.
-            let s1 = Selector(("showSettingsWindow:"))
-            let s2 = Selector(("showPreferencesWindow:"))
-            if NSApp.sendAction(s1, to: nil, from: nil) { return }
-            _ = NSApp.sendAction(s2, to: nil, from: nil)
+            guard let event = NSEvent.keyEvent(
+                with: .keyDown,
+                location: .zero,
+                modifierFlags: .command,
+                timestamp: ProcessInfo.processInfo.systemUptime,
+                windowNumber: 0,
+                context: nil,
+                characters: ",",
+                charactersIgnoringModifiers: ",",
+                isARepeat: false,
+                keyCode: 0x2B   // virtual code for comma
+            ) else { return }
+            NSApp.postEvent(event, atStart: false)
         }
     }
 
@@ -118,14 +126,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         contextMenu = NSMenu()
         contextMenu.addItem(NSMenuItem(title: "Open Popup",
                                        action: #selector(openPopup), keyEquivalent: ""))
-        // Dispatch the standard `showSettingsWindow:` selector via the responder
-        // chain (target = nil). SwiftUI registers a responder for it on NSApp
-        // when the Settings scene is declared, so this opens our SettingsView.
-        let settingsItem = NSMenuItem(title: "Settings…",
-                                      action: Selector(("showSettingsWindow:")),
-                                      keyEquivalent: ",")
-        settingsItem.target = nil
-        contextMenu.addItem(settingsItem)
+        contextMenu.addItem(NSMenuItem(title: "Settings…",
+                                       action: #selector(openSettings),
+                                       keyEquivalent: ","))
         contextMenu.addItem(.separator())
         contextMenu.addItem(NSMenuItem(title: "Grant Accessibility…",
                                        action: #selector(grantAccessibility),
