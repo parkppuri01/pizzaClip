@@ -46,6 +46,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.jekeun.myclipTests
     dependencies:
       - target: myclip
+      - package: GRDB
+        product: GRDB
 schemes:
   myclip:
     build:
