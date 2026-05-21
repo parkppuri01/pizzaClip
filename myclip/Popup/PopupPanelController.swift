@@ -5,11 +5,13 @@ final class PopupPanelController {
     private var panel: NSPanel?
     private var hostingView: NSHostingView<PopupView>?
     private var previousFrontmostBundleID: String?
+    private let store: HistoryStore
     private let viewModel: PopupViewModel
     private let pasteEngine: PasteEngine
     private let blobStore: BlobStore?
 
-    init(viewModel: PopupViewModel, pasteEngine: PasteEngine, blobStore: BlobStore?) {
+    init(store: HistoryStore, viewModel: PopupViewModel, pasteEngine: PasteEngine, blobStore: BlobStore?) {
+        self.store = store
         self.viewModel = viewModel
         self.pasteEngine = pasteEngine
         self.blobStore = blobStore
@@ -28,7 +30,9 @@ final class PopupPanelController {
         let view = PopupView(
             vm: viewModel,
             onPick: { [weak self] item in self?.pick(item) },
-            onClose: { [weak self] in self?.close() }
+            onClose: { [weak self] in self?.close() },
+            onDelete: { [weak self] item in self?.delete(item) },
+            onTogglePin: { [weak self] item in self?.togglePin(item) }
         )
         let hosting = NSHostingView(rootView: view)
         self.hostingView = hosting
@@ -71,6 +75,16 @@ final class PopupPanelController {
         pasteEngine.write(item, blobStore: blobStore)
         close()
         pasteEngine.pasteIntoPreviousApp(bundleID: prev)
+    }
+
+    func delete(_ item: Item) {
+        try? store.delete(id: item.id)
+        viewModel.reload()
+    }
+
+    func togglePin(_ item: Item) {
+        try? store.togglePin(id: item.id)
+        viewModel.reload()
     }
 
     func pasteDirect(slot: Int) {

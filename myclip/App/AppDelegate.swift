@@ -75,6 +75,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         self.blobStore = blobs
         self.viewModel = PopupViewModel(store: store)
         self.popupController = PopupPanelController(
+            store: store,
             viewModel: viewModel,
             pasteEngine: pasteEngine,
             blobStore: blobs
