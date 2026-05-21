@@ -19,7 +19,9 @@ public final class HistoryStore {
             // Dedupe rule: if newest non-pinned text item has the same body, just bump its timestamp.
             if captured.kind == .text, let text = captured.text {
                 if let existing = try Item
-                    .filter(Item.Columns.type == "text" && Item.Columns.text == text)
+                    .filter(Item.Columns.type == "text"
+                            && Item.Columns.text == text
+                            && Item.Columns.pinned == false)
                     .order(Item.Columns.createdAt.desc)
                     .fetchOne(db) {
                     var bumped = existing
