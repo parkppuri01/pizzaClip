@@ -1,10 +1,15 @@
 import AppKit
 import GRDB
+import KeyboardShortcuts
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private(set) var store: HistoryStore!
     private var monitor: ClipboardMonitor!
+    private var popupController: PopupPanelController!
+    private var pasteEngine = PasteEngine()
+    private var viewModel: PopupViewModel!
+    private var blobStore: BlobStore?
     private var blacklist: Set<String> = [
         "com.1password.1password",
         "com.agilebits.onepassword7",
@@ -16,6 +21,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setUpStorage()
         setUpStatusItem()
         setUpMonitor()
+        setUpPopup()
     }
 
     private func setUpStorage() {
@@ -64,6 +70,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         monitor.start()
     }
 
-    @objc private func openPopup() { NSSound.beep() }  // wired in Task 11
+    private func setUpPopup() {
+        let blobs = BlobStore(rootDirectory: AppPaths.blobsDirectory)
+        self.blobStore = blobs
+        self.viewModel = PopupViewModel(store: store)
+        self.popupController = PopupPanelController(
+            viewModel: viewModel,
+            pasteEngine: pasteEngine,
+            blobStore: blobs
+        )
+
+        KeyboardShortcuts.onKeyDown(for: .togglePopup) { [weak self] in
+            self?.popupController.toggle()
+        }
+        for n in 1...9 {
+            KeyboardShortcuts.onKeyDown(for: .slot(n)) { [weak self] in
+                self?.popupController.pasteDirect(slot: n)
+            }
+        }
+    }
+
+    @objc private func openPopup() { popupController.toggle() }
     @objc private func openSettings() { NSSound.beep() } // wired in Task 15
 }

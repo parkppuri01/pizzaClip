@@ -90,6 +90,16 @@ public final class HistoryStore {
         }
     }
 
+    public func topNNonPinned(_ n: Int) throws -> [Item] {
+        try queue.read { db in
+            try Item
+                .filter(Item.Columns.pinned == false)
+                .order(Item.Columns.createdAt.desc)
+                .limit(n)
+                .fetchAll(db)
+        }
+    }
+
     public func search(_ query: String, limit: Int) throws -> [Item] {
         let trimmed = query.trimmingCharacters(in: .whitespaces)
         if trimmed.isEmpty { return try topNRespectingPins(limit) }
