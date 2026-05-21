@@ -116,6 +116,16 @@ final class PopupPanelController {
         pasteEngine.pasteIntoPreviousApp(bundleID: previousFrontmostBundleID)
     }
 
+    /// Slot paste triggered from inside an open popup — picks the Nth non-pinned row
+    /// of the currently displayed list (which is what the visible slot badges count).
+    /// Reuses the existing previousFrontmostBundleID recorded when the popup opened,
+    /// rather than re-reading frontmost (which is now ourselves).
+    private func paste(slotInPopup n: Int) {
+        let nonPinned = viewModel.items.filter { !$0.pinned }
+        guard nonPinned.indices.contains(n - 1) else { return }
+        pick(nonPinned[n - 1])
+    }
+
     // MARK: - Keyboard handling
 
     private func installKeyMonitor() {
@@ -162,6 +172,18 @@ final class PopupPanelController {
             if isCmd, event.charactersIgnoringModifiers == "p",
                let item = viewModel.selectedItem() {
                 togglePin(item); return true
+            }
+            // Bare digit 1-9 (no Cmd/Opt/Ctrl/Shift, empty query) → paste the Nth
+            // non-pinned row of the currently displayed list and close. While the
+            // user is searching we let digits flow into the field so queries that
+            // start with a number still work.
+            let interfering: NSEvent.ModifierFlags = [.command, .option, .control, .shift]
+            let hasInterfering = !event.modifierFlags.intersection(interfering).isEmpty
+            if queryIsEmpty, !hasInterfering,
+               let chars = event.charactersIgnoringModifiers, chars.count == 1,
+               let digit = Int(chars), digit >= 1, digit <= 9 {
+                paste(slotInPopup: digit)
+                return true
             }
             return false
         }
