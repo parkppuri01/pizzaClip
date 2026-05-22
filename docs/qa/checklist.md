@@ -2,7 +2,7 @@
 
 Run before any release tag. Tick each box as it passes; record any failure in a follow-up commit.
 
-App version: 0.1.0 · Last updated: 2026-05-22
+App version: 0.1.0 · Last updated: 2026-05-23
 
 ---
 
@@ -28,8 +28,10 @@ App version: 0.1.0 · Last updated: 2026-05-22
 
 - [ ] Copy text in Safari → ⌘⇧V → popup shows it at top.
 - [ ] Copy the same text twice → only one history row exists (dedupe).
-- [ ] ⌘⇧⌃4 screenshot → image item appears with a real thumbnail (not the generic photo glyph).
-- [ ] ⌘C a file in Finder → file row labelled with the file name; pasting into another Finder window creates a copy.
+- [ ] ⌘⇧⌃4 screenshot → image item labelled **"Capture Image"** with a real thumbnail.
+- [ ] ⌘C an image file in Finder (JPG / HEIC / PNG / GIF) → image item labelled with the **full path** (tilde-abbreviated, middle-truncated when long) and thumbnail. Pasting into Messages / Slack inserts the image; pasting into Finder copies the file.
+- [ ] ⌘C a non-image file in Finder (.txt / .pdf / etc.) → file row labelled with the filename; pasting into another Finder window creates a copy.
+- [ ] Verify blob storage retains original format: open `~/Library/Application Support/myclip/blobs/` and confirm `.jpg`/`.heic`/`.gif` files (not all converted to `.png`).
 - [ ] Copy in 1Password (or any blacklisted app) → no entry appears in history.
 - [ ] Copy a password from a manager that uses `org.nspasteboard.ConcealedType` → no entry appears.
 
@@ -75,7 +77,7 @@ App version: 0.1.0 · Last updated: 2026-05-22
 
 ## Settings — General
 
-- [ ] History cap stepper accepts **20** as the minimum (step 10, up to 500).
+- [ ] History cap stepper range is **1 to 20** (step 1). Default for fresh install is **9**.
 - [ ] Changing the cap takes effect on the next capture; older non-pinned items are pruned, pinned items survive.
 
 ## Settings — Shortcuts
