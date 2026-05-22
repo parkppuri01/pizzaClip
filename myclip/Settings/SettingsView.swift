@@ -3,7 +3,7 @@ import AppKit
 import KeyboardShortcuts
 
 struct SettingsView: View {
-    @AppStorage("historyCap") private var historyCap: Int = 10
+    @AppStorage("historyCap") private var historyCap: Int = 9
     @AppStorage("blacklist") private var blacklistJoined: String =
         "com.1password.1password,com.agilebits.onepassword7,com.bitwarden.desktop,com.apple.keychainaccess"
     @AppStorage(AppPaths.storageDirectoryDefaultsKey) private var customStorageDirectory: String = ""

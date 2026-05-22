@@ -16,7 +16,10 @@ struct PopupRow: View {
         HStack(spacing: 10) {
             leadingGlyph
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.system(size: 13)).lineLimit(1)
+                Text(title)
+                    .font(.system(size: 13))
+                    .lineLimit(1)
+                    .truncationMode(isPathTitle ? .middle : .tail)
                 Text(subtitle).font(.system(size: 11)).foregroundColor(AppColors.secondaryLabel).lineLimit(1)
             }
             Spacer()
@@ -75,15 +78,21 @@ struct PopupRow: View {
     private var title: String {
         switch item.type {
         case "image":
-            // Finder-copied image files store the original path in `text`;
-            // surface the filename instead of a generic "Image".
+            // Finder-copied images store the original file path in `text`;
+            // show the path verbatim (truncated in the middle if too long).
+            // Pure clipboard / screenshot captures (no source path) show a
+            // generic label so the user can tell them apart at a glance.
             if let path = item.text, !path.isEmpty {
-                return (path as NSString).lastPathComponent
+                return (path as NSString).abbreviatingWithTildeInPath
             }
-            return "Image"
+            return "Capture Image"
         case "file": return (item.text as NSString?)?.lastPathComponent ?? ""
         default: return (item.text ?? "").replacingOccurrences(of: "\n", with: " ")
         }
+    }
+
+    private var isPathTitle: Bool {
+        item.type == "image" && (item.text?.isEmpty == false)
     }
     private var subtitle: String {
         let d = Date(timeIntervalSince1970: Double(item.createdAt) / 1000)
