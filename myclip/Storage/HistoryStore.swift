@@ -24,8 +24,20 @@ public final class HistoryStore {
 
         var blobRelative: String? = nil
         var thumb: Data? = nil
-        if captured.kind == .image, let png = captured.imageData, let store = blobStore {
-            let written = try store.write(png: png)
+        if captured.kind == .image, let data = captured.imageData, let store = blobStore {
+            // Pull the file extension from the source path when this came from
+            // a Finder file copy (JPG/HEIC/GIF/…). For pure clipboard image
+            // payloads (screenshots, in-memory image data) there's no path so
+            // we default to PNG, which is what NSPasteboard.PasteboardType.png
+            // delivers.
+            let ext: String = {
+                if let path = captured.text, !path.isEmpty {
+                    let e = (path as NSString).pathExtension.lowercased()
+                    if !e.isEmpty { return e }
+                }
+                return "png"
+            }()
+            let written = try store.write(data: data, fileExtension: ext)
             blobRelative = written.relativePath
             thumb = written.thumbnailPNG
         }

@@ -3,7 +3,7 @@ import AppKit
 import KeyboardShortcuts
 
 struct SettingsView: View {
-    @AppStorage("historyCap") private var historyCap: Int = 200
+    @AppStorage("historyCap") private var historyCap: Int = 10
     @AppStorage("blacklist") private var blacklistJoined: String =
         "com.1password.1password,com.agilebits.onepassword7,com.bitwarden.desktop,com.apple.keychainaccess"
     @AppStorage(AppPaths.storageDirectoryDefaultsKey) private var customStorageDirectory: String = ""
@@ -31,7 +31,7 @@ struct SettingsView: View {
         Form {
             LabeledContent("History cap") {
                 HStack(spacing: 8) {
-                    Stepper(value: $historyCap, in: 20...500, step: 10) {
+                    Stepper(value: $historyCap, in: 1...20, step: 1) {
                         Text("\(historyCap) items")
                             .frame(minWidth: 70, alignment: .leading)
                             .monospacedDigit()

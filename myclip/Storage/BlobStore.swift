@@ -16,12 +16,23 @@ public final class BlobStore {
                                                  withIntermediateDirectories: true)
     }
 
+    /// Convenience for PNG payloads — the common case for screenshots / clipboard
+    /// image data that's already PNG-encoded.
     public func write(png: Data) throws -> WrittenBlob {
+        try write(data: png, fileExtension: "png")
+    }
+
+    /// Writes arbitrary image bytes verbatim with the supplied extension.
+    /// Used for Finder-copied image files so we don't re-encode JPG/HEIC/etc.
+    /// to PNG (which can 10× the storage size and drop alpha/animation).
+    /// Thumbnail is always PNG (small, alpha-supporting, universal).
+    public func write(data: Data, fileExtension: String) throws -> WrittenBlob {
         let id = UUID().uuidString
-        let relative = "\(id).png"
+        let ext = fileExtension.lowercased().isEmpty ? "png" : fileExtension.lowercased()
+        let relative = "\(id).\(ext)"
         let url = rootDirectory.appendingPathComponent(relative)
-        try png.write(to: url)
-        let thumb = makeThumbnail(from: png) ?? Data()
+        try data.write(to: url)
+        let thumb = makeThumbnail(from: data) ?? Data()
         return WrittenBlob(relativePath: relative, fileURL: url, thumbnailPNG: thumb)
     }
 
@@ -30,8 +41,8 @@ public final class BlobStore {
         try FileManager.default.removeItem(at: url)
     }
 
-    private func makeThumbnail(from png: Data) -> Data? {
-        guard let img = NSImage(data: png) else { return nil }
+    private func makeThumbnail(from data: Data) -> Data? {
+        guard let img = NSImage(data: data) else { return nil }
         let maxSide: CGFloat = 256
         let size = img.size
         let scale = min(maxSide / max(size.width, 1), maxSide / max(size.height, 1), 1)

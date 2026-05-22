@@ -14,7 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var historyCap: Int {
         let v = UserDefaults.standard.integer(forKey: "historyCap")
-        return v == 0 ? 200 : v
+        return v == 0 ? 10 : v
     }
     private var blacklistFromDefaults: Set<String> {
         let raw = UserDefaults.standard.string(forKey: "blacklist") ?? ""
@@ -23,9 +23,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UserDefaults.standard.register(defaults: [
-            "historyCap": 200,
+            "historyCap": 10,
             "blacklist": "com.1password.1password,com.agilebits.onepassword7,com.bitwarden.desktop,com.apple.keychainaccess",
         ])
+        // Migrate users who came from the old default range (50–500): clamp
+        // anything above the new max (20) down so the Settings stepper has a
+        // valid starting value.
+        let cap = UserDefaults.standard.integer(forKey: "historyCap")
+        if cap > 20 { UserDefaults.standard.set(20, forKey: "historyCap") }
         setUpStorage()
         setUpStatusItem()
         setUpMonitor()
