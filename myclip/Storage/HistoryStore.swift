@@ -1,6 +1,14 @@
 import Foundation
 import GRDB
 
+public extension Notification.Name {
+    /// Posted on the main thread whenever the persisted history changes via
+    /// `insert`, `delete`, `togglePin`, or `clearAll`. `prune` does not fire
+    /// its own notification because it is always called immediately after
+    /// `insert` from the monitor's onCapture closure.
+    static let myclipHistoryChanged = Notification.Name("myclipHistoryChanged")
+}
+
 public final class HistoryStore {
     private let queue: DatabaseWriter
     private let blobStore: BlobStore?
@@ -51,6 +59,7 @@ public final class HistoryStore {
             )
             try row.insert(db)
         }
+        broadcastChange()
     }
 
     public func topN(_ n: Int) throws -> [Item] {
@@ -85,6 +94,7 @@ public final class HistoryStore {
                 _ = try Item.deleteOne(db, key: id)
             }
         }
+        broadcastChange()
     }
 
     public func togglePin(id: String) throws {
@@ -93,6 +103,7 @@ public final class HistoryStore {
             item.pinned.toggle()
             try item.update(db)
         }
+        broadcastChange()
     }
 
     public func prune(cap: Int) throws {
@@ -122,6 +133,17 @@ public final class HistoryStore {
                 """)
             for path in paths { try? blobStore?.remove(relativePath: path) }
             try Item.deleteAll(db)
+        }
+        broadcastChange()
+    }
+
+    private func broadcastChange() {
+        if Thread.isMainThread {
+            NotificationCenter.default.post(name: .myclipHistoryChanged, object: nil)
+        } else {
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .myclipHistoryChanged, object: nil)
+            }
         }
     }
 

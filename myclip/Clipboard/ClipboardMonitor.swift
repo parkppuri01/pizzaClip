@@ -1,5 +1,6 @@
 import Foundation
 import AppKit
+import UniformTypeIdentifiers
 
 public final class ClipboardMonitor {
     private let pasteboard: PasteboardReader
@@ -53,7 +54,17 @@ public final class ClipboardMonitor {
         // overrides text because screenshots can include a stub string.
         if types.contains(.fileURL),
            let path = pasteboard.string(forType: .fileURL) {
-            onCapture(CapturedItem(kind: .file, text: path, sourceBundleID: bundle))
+            // If the copied file is an image, ingest the bytes too so it pastes
+            // as image data in apps that prefer images (chat, browser, image
+            // editors). We keep the source path in CapturedItem.text so the
+            // paste path can still expose the file URL for apps that prefer
+            // file references (Finder, Slack uploads).
+            if let png = ClipboardMonitor.imagePNGData(at: path) {
+                onCapture(CapturedItem(kind: .image, text: path,
+                                       imageData: png, sourceBundleID: bundle))
+            } else {
+                onCapture(CapturedItem(kind: .file, text: path, sourceBundleID: bundle))
+            }
             return
         }
         if types.contains(.png),
@@ -72,5 +83,25 @@ public final class ClipboardMonitor {
             onCapture(CapturedItem(kind: .text, text: text, sourceBundleID: bundle))
             return
         }
+    }
+
+    /// If `path` points to an image file ≤20 MB, returns its bytes re-encoded
+    /// as PNG (the canonical form our blob store + paste path expect).
+    private static func imagePNGData(at path: String) -> Data? {
+        let url = URL(fileURLWithPath: path)
+        let keys: Set<URLResourceKey> = [.contentTypeKey, .fileSizeKey]
+        guard let values = try? url.resourceValues(forKeys: keys),
+              values.contentType?.conforms(to: .image) == true else {
+            return nil
+        }
+        // Cap to avoid swallowing huge RAW / PSD files into memory.
+        if let size = values.fileSize, size > 20_000_000 { return nil }
+        guard let img = NSImage(contentsOf: url),
+              let tiff = img.tiffRepresentation,
+              let rep = NSBitmapImageRep(data: tiff),
+              let png = rep.representation(using: .png, properties: [:]) else {
+            return nil
+        }
+        return png
     }
 }

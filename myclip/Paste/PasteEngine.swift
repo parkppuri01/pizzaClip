@@ -21,6 +21,16 @@ public final class PasteEngine {
                     pb.setData(data, forType: .png)
                 }
             }
+            // If this image was captured from a Finder file copy, also expose
+            // the original file URL so apps that prefer file references
+            // (Finder paste, Slack uploads) pick up the file instead of the
+            // re-encoded PNG.
+            if let originalPath = item.text {
+                let fileURL = URL(fileURLWithPath: originalPath)
+                if FileManager.default.fileExists(atPath: fileURL.path) {
+                    pb.writeObjects([fileURL as NSURL])
+                }
+            }
         default: break
         }
     }

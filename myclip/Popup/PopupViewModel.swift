@@ -30,8 +30,16 @@ public final class PopupViewModel: ObservableObject {
     }
 
     public func reload() {
+        // Remember which item was highlighted before refetching so the user's
+        // selection sticks to the same row even when new captures arrive or
+        // pins float to the top.
+        let previousID = items.indices.contains(selectedIndex) ? items[selectedIndex].id : nil
         items = (try? store.search(query, limit: 200)) ?? []
-        selectedIndex = min(selectedIndex, max(0, items.count - 1))
+        if let previousID, let idx = items.firstIndex(where: { $0.id == previousID }) {
+            selectedIndex = idx
+        } else {
+            selectedIndex = min(selectedIndex, max(0, items.count - 1))
+        }
     }
 
     public func moveDown() {

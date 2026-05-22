@@ -17,15 +17,29 @@ final class PopupPanelController {
     private let pasteEngine: PasteEngine
     private let blobStore: BlobStore?
     private var keyMonitor: Any?
+    private var historyObserver: NSObjectProtocol?
 
     init(store: HistoryStore, viewModel: PopupViewModel, pasteEngine: PasteEngine, blobStore: BlobStore?) {
         self.store = store
         self.viewModel = viewModel
         self.pasteEngine = pasteEngine
         self.blobStore = blobStore
+
+        // While the popup is visible, refresh the list whenever the store
+        // changes — new captures arriving in the background, pins/deletes
+        // triggered from within the popup, etc.
+        historyObserver = NotificationCenter.default.addObserver(
+            forName: .myclipHistoryChanged, object: nil, queue: .main
+        ) { [weak self] _ in
+            guard self?.panel?.isVisible == true else { return }
+            self?.viewModel.reload()
+        }
     }
 
-    deinit { uninstallKeyMonitor() }
+    deinit {
+        uninstallKeyMonitor()
+        if let o = historyObserver { NotificationCenter.default.removeObserver(o) }
+    }
 
     func toggle(anchorRect: NSRect? = nil) {
         if let panel = panel, panel.isVisible { close(); return }
@@ -138,18 +152,17 @@ final class PopupPanelController {
     }
 
     func delete(_ item: Item) {
+        // The store posts .myclipHistoryChanged, which triggers viewModel.reload()
+        // — and reload() now keeps the highlight on the same item (or clamps to
+        // the new range if the deleted row was the one selected).
         try? store.delete(id: item.id)
-        viewModel.reload()
     }
 
     func togglePin(_ item: Item) {
+        // Same story as delete — reload runs via notification and the
+        // by-ID selection-restore in PopupViewModel keeps the highlight on
+        // this row even after it floats above non-pinned items.
         try? store.togglePin(id: item.id)
-        viewModel.reload()
-        // Keep the highlight on the same item — its row position changed since
-        // pinned items float to the top of `topNRespectingPins`.
-        if let newIdx = viewModel.items.firstIndex(where: { $0.id == item.id }) {
-            viewModel.selectedIndex = newIdx
-        }
     }
 
     func pasteDirect(slot: Int) {

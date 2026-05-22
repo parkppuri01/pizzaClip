@@ -74,7 +74,13 @@ struct PopupRow: View {
     }
     private var title: String {
         switch item.type {
-        case "image": return "Image"
+        case "image":
+            // Finder-copied image files store the original path in `text`;
+            // surface the filename instead of a generic "Image".
+            if let path = item.text, !path.isEmpty {
+                return (path as NSString).lastPathComponent
+            }
+            return "Image"
         case "file": return (item.text as NSString?)?.lastPathComponent ?? ""
         default: return (item.text ?? "").replacingOccurrences(of: "\n", with: " ")
         }
