@@ -2,13 +2,14 @@
 
 Run before any release tag. Tick each box as it passes; record any failure in a follow-up commit.
 
-App version: 0.1.0 · Last updated: 2026-05-23
+App version: 0.1.1 · Last updated: 2026-05-24
 
 ---
 
 ## Install & first launch
 
-- [ ] `./scripts/release.sh` produces `dist/myclip-0.1.0.{zip,dmg}` and installs `~/Applications/myclip.app`.
+- [ ] `./scripts/release.sh` produces `dist/myclip-0.1.1.{zip,dmg}` and installs `~/Applications/myclip.app`.
+- [ ] `defaults read ~/Applications/myclip.app/Contents/Info CFBundleShortVersionString` reports **0.1.1** (Info.plist now reads from `$(MARKETING_VERSION)` in project.yml).
 - [ ] `~/Applications/myclip.app` shows the custom clipboard icon in Finder (kill Finder if cached: `killall Finder`).
 - [ ] Spotlight (⌘ Space) finds "myclip" with the new icon.
 - [ ] Launch the app: no Dock icon appears, clipboard glyph shows in the menu bar.
@@ -24,13 +25,26 @@ App version: 0.1.0 · Last updated: 2026-05-23
 - [ ] Menu → "Open Popup" also opens the popup with the same slide-down animation.
 - [ ] Menu → "Grant Accessibility…" opens System Settings → Privacy & Security → Accessibility (no extra system prompt).
 
+### Pizza icon (0.1.1)
+
+- [ ] On fresh launch with empty history: icon is a thin gold crust ring (no slices).
+- [ ] After 1 copy: one beige slice at the 12 o'clock position. After 2: two adjacent slices clockwise. Continues clockwise as more items arrive.
+- [ ] At 8 items: full beige pizza inside the crust ring (no empty wedges).
+- [ ] On the 9th item: icon flips to a closed pizza box (rounded rectangle with a horizontal seam).
+- [ ] Removing items via popup ⌫ updates the icon back down through the slice states.
+- [ ] Settings → Clear all (or popup Clear all) → icon returns to the empty crust ring.
+- [ ] Toggle System Settings → Appearance Light/Dark — empty wedges stay transparent so the menu-bar background shows through correctly in both modes.
+
 ## Capture
 
 - [ ] Copy text in Safari → ⌘⇧V → popup shows it at top.
 - [ ] Copy the same text twice → only one history row exists (dedupe).
 - [ ] ⌘⇧⌃4 screenshot → image item labelled **"Capture Image"** with a real thumbnail.
-- [ ] ⌘C an image file in Finder (JPG / HEIC / PNG / GIF) → image item labelled with the **full path** (tilde-abbreviated, middle-truncated when long) and thumbnail. Pasting into Messages / Slack inserts the image; pasting into Finder copies the file.
-- [ ] ⌘C a non-image file in Finder (.txt / .pdf / etc.) → file row labelled with the filename; pasting into another Finder window creates a copy.
+- [ ] ⌘C an image file in Finder (JPG / HEIC / PNG / GIF) → image item labelled with just the **file name** (`sample.jpg`, not the full path) and thumbnail. Full path is still preserved on the pasteboard at paste time. Pasting into Messages / Slack inserts the image; pasting into Finder copies the file.
+- [ ] ⌘C a non-image file in Finder (.txt / .pdf / etc.) → file row labelled with the filename only; pasting into another Finder window creates a copy at the original path.
+- [ ] **No `file:///.file/id=…` ever appears** in row titles, even momentarily — Finder reference URLs are resolved at capture time (0.1.1 fix).
+- [ ] Copy the same file from Finder twice in a row → **one** row, not two (path-based dedupe, 0.1.1).
+- [ ] Take two screenshots in quick succession → one row each (content-signature dedupe at the monitor catches macOS firing changeCount twice for one shot; 0.1.1).
 - [ ] Verify blob storage retains original format: open `~/Library/Application Support/myclip/blobs/` and confirm `.jpg`/`.heic`/`.gif` files (not all converted to `.png`).
 - [ ] Copy in 1Password (or any blacklisted app) → no entry appears in history.
 - [ ] Copy a password from a manager that uses `org.nspasteboard.ConcealedType` → no entry appears.
@@ -40,7 +54,7 @@ App version: 0.1.0 · Last updated: 2026-05-23
 - [ ] Title bar at the top reads "MyClip — Clipboard History" with a **white** clipboard glyph to its left.
 - [ ] Close button (×) on the top-right has **no blue focus ring** — just a grey glyph.
 - [ ] Search field auto-receives focus on open — typing flows into it without clicking.
-- [ ] Footer line 1: `↵ Paste(or Num)` · `⌫ Delete` · `⌘P Pin` — symbols grey, action words in **coral** · right side: `⌘, Settings` grey.
+- [ ] Footer line 1: `↵ Paste(or Num)` · `⌫ Delete` · `⌘P Pin` — symbols grey, action words in **coral** · right side: 🗑 `Clear all` · `⌘, Settings`, both grey (0.1.1).
 - [ ] Footer line 2: small drive glyph + abbreviated storage path (e.g. `~/Library/Application Support/myclip`).
 - [ ] Slot badges 1–9 appear only on the 9 newest **non-pinned** items.
 - [ ] Pinned items show the coral pin glyph and sort above non-pinned.
@@ -65,6 +79,8 @@ App version: 0.1.0 · Last updated: 2026-05-23
 - [ ] Clicking a row picks it (same as ↵).
 - [ ] Clicking the storage path in the footer reveals the data folder in Finder.
 - [ ] Clicking `⌘, Settings` in the footer opens the Settings window and closes the popup.
+- [ ] Clicking 🗑 `Clear all` in the footer closes the popup and shows a warning NSAlert ("Clear all clipboard history?"). Confirming wipes history + blobs; cancelling leaves everything intact (0.1.1).
+- [ ] **Clicking any other window** while the popup is open closes the popup and lets that window take focus (resignKey auto-close, 0.1.1).
 - [ ] Right after pressing an arrow key, brief mouse motion does NOT clobber the keyboard selection (0.25s hover-ignore window).
 
 ## Hotkeys

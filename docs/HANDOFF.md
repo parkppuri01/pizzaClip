@@ -132,12 +132,16 @@ docs/
 - 5MB 텍스트 트런케이션 + truncated 플래그
 - Launch-at-Login 토글
 - Privacy 탭의 drag-drop `.app` 추가 UI (현재 콤마 구분 텍스트)
-- 다크/라이트 별도 아이콘 변형
 - HistoryStore의 dedupe filter 인덱스 최적화
 
 코드 리뷰가 짚었지만 미해결:
 - DB 쓰기가 메인 스레드에서 도는 점 (`ValueObservation` 또는 background queue로 옮길 여지)
 - `prune` 매 insert 후 호출 (가벼우니 acceptable, 추후 N회마다로 게이트 가능)
+
+다음 세션 후보로 논의됐던 거 (0.1.1 시점):
+
+- **Settings → "추가기능" 탭**: 오른쪽 ⌘ 키를 무지연 한/영 토글로 매핑. 기술 검토 완료 (CGEventTap + Carbon TIS API 직접 호출, ~5ms 지연). 필요 권한: 기존 Accessibility + 새로 Input Monitoring. 예상 작업량 1.5~3시간. opt-in 토글로 설계 추천. Karabiner / 가붕이와의 충돌 안내 필요
+- **GitHub remote 셋업**: 현재 git remote 비어 있어 PR/머지 워크플로 미적용. `gh repo create jekeun/myclip --private --source=. --push` 한 줄이면 됨. 셋업 후 feature branch + PR + squash merge 가능
 
 ## 8. 빌드 / 테스트 / 배포
 
@@ -163,7 +167,8 @@ open myclip.xcodeproj   # 그리고 ⌘R
 
 - **커밋 메시지**: conventional commits 스타일 (feat/fix/perf/refactor/chore/docs)
 - **본문**: 무엇/왜를 두세 문단으로 (저자: Claude Opus 4.7 자동 co-author 안 함, 이 프로젝트는 단독 개발자)
-- **테스트**: 모든 수정 후 `xcodebuild ... test`로 17개 통과 확인. 새 기능엔 TDD 권장 (Storage·Monitor는 그렇게 함)
+- **테스트**: 모든 수정 후 `xcodebuild ... test`로 25개 통과 확인 (0.1.1 기준). 새 기능엔 TDD 권장 (Storage·Monitor는 그렇게 함)
+- **버전 bump**: `project.yml`의 `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION` 두 곳만 수정. `Info.plist`는 `$(MARKETING_VERSION)` placeholder를 쓰므로 손대지 않음 (0.1.1에서 정리됨)
 - **xcodegen**: project.yml만 손대고 `xcodegen generate`로 .xcodeproj 재생성. .xcodeproj는 절대 직접 편집 금지
 - **xcodegen이 새 파일 자동 인식**: `myclip/` 트리에 파일 추가만 하면 자동으로 픽업
 
