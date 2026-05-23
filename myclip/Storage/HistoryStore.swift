@@ -22,6 +22,39 @@ public final class HistoryStore {
     public func insert(_ captured: CapturedItem) throws {
         let capturedMs = Int64(captured.createdAt.timeIntervalSince1970 * 1000)
 
+        // Cheap path: bump an existing non-pinned row's timestamp when the
+        // payload matches one we already have, instead of inserting a near-
+        // identical duplicate. Generalised over kinds:
+        //   - text  → same body text
+        //   - file  → same absolute path
+        //   - image → same source path (Finder copy); pure screenshots have
+        //             no text and skip this (each capture is independent).
+        // The file/image branch also matters because macOS sometimes emits
+        // two pasteboard changeCount increments for a single Finder copy —
+        // one carrying the resolved path, one the `.file/id=` ref URL. With
+        // both ticks producing the same resolved path, this dedupes them.
+        if let payload = captured.text, !payload.isEmpty {
+            let kindRaw = captured.kind.rawValue
+            let didBump: Bool = try queue.write { db in
+                if let existing = try Item
+                    .filter(Item.Columns.type == kindRaw
+                            && Item.Columns.text == payload
+                            && Item.Columns.pinned == false)
+                    .order(Item.Columns.createdAt.desc)
+                    .fetchOne(db) {
+                    var row = existing
+                    row.createdAt = capturedMs
+                    try row.update(db)
+                    return true
+                }
+                return false
+            }
+            if didBump {
+                broadcastChange()
+                return
+            }
+        }
+
         var blobRelative: String? = nil
         var thumb: Data? = nil
         if captured.kind == .image, let data = captured.imageData, let store = blobStore {
@@ -43,22 +76,6 @@ public final class HistoryStore {
         }
 
         try queue.write { db in
-            // Dedupe: bump the timestamp on an existing non-pinned text row with the
-            // same body rather than inserting a duplicate.
-            if captured.kind == .text, let text = captured.text {
-                if let existing = try Item
-                    .filter(Item.Columns.type == "text"
-                            && Item.Columns.text == text
-                            && Item.Columns.pinned == false)
-                    .order(Item.Columns.createdAt.desc)
-                    .fetchOne(db) {
-                    var bumped = existing
-                    bumped.createdAt = capturedMs
-                    try bumped.update(db)
-                    return
-                }
-            }
-
             let row = Item(
                 id: captured.id.uuidString,
                 type: captured.kind.rawValue,
@@ -78,6 +95,12 @@ public final class HistoryStore {
         try queue.read { db in
             try Item.order(Item.Columns.createdAt.desc).limit(n).fetchAll(db)
         }
+    }
+
+    /// Total number of rows. Cheap — runs a single SELECT COUNT(*). Used by
+    /// the status bar to pick the right pizza-icon state.
+    public func count() throws -> Int {
+        try queue.read { db in try Item.fetchCount(db) }
     }
 
     public func topNNonPinned(_ n: Int) throws -> [Item] {

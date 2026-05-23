@@ -1,6 +1,6 @@
 # Session Handoff — myclip
 
-마지막 업데이트: 2026-05-23
+마지막 업데이트: 2026-05-24
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
@@ -9,7 +9,7 @@
 macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts. 개인 사용 목적, ad-hoc 서명, Universal binary, macOS 13+.
 
 - **위치**: `/Users/parkjaekeun/DEV/myclip`
-- **현재 버전**: 0.1.0
+- **현재 버전**: 0.1.1
 - **브랜치**: `master` (단일 브랜치 운영)
 - **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → DMG/ZIP → ~/Applications 설치)
 
@@ -32,10 +32,15 @@ macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, Ke
 - 팝업 내부: ↑↓ 키보드 네비게이션, ↵ 또는 숫자 1~9 붙여넣기, ⌫ 삭제, ⌘P 핀, ⎋ 닫기
 - 마우스: hover로 highlight (스크롤 안 함), 휠 스크롤, 클릭으로 picking
 - 팝업 라이브 갱신: 열려있는 동안 다른 앱에서 ⌘C해도 즉시 반영
+- **팝업 포커스 잃으면 자동 close** (다른 창 클릭 시 — 0.1.1)
 - 상태바 아이콘: 좌클릭=팝업(슬라이드 다운 애니메이션), 우클릭=메뉴
+- **상태바 피자 아이콘 동적 표시** (0.1.1): 히스토리 0개 → 빈 크러스트 ring, 1~8개 → 12시부터 시계방향 베이지 슬라이스 누적, 9+ → 박스. `myclip/MenuBar/PizzaIcon.swift` Core Graphics 직접 그리기 (asset 0개)
 - Settings: ⌘, / 상태바 우클릭 / 팝업 푸터 클릭 모두 동일한 SwiftUI Settings 창
+- **팝업 푸터 Clear all 버튼** (0.1.1): 휴지통 + 라벨, 클릭 시 NSAlert 확인 후 wipe
 - 검색: SQLite FTS5 prefix 매치
 - 자동 정리: cap 초과 시 오래된 비핀부터 삭제 (블롭 파일까지 정리)
+- **파일 경로 해결** (0.1.1): Finder `.file/id=…` reference URL을 `NSURL.filePathURL`로 실제 경로로 해결. 해결 실패 시 capture 거부
+- **content-signature dedup** (0.1.1): monitor 레벨에서 같은 내용 연속 emit 차단 (macOS가 한 copy에 changeCount 두 번 올리는 경우 / 같은 파일 재캡처)
 
 ### 설계 결정 (논의 후 확정)
 
@@ -82,6 +87,8 @@ myclip/
 ├── DesignSystem/
 │   ├── Colors.swift           # 코랄 액센트 #D97757
 │   └── Theme.swift            # panelRadius, rowRadius 등
+├── MenuBar/
+│   └── PizzaIcon.swift        # Core Graphics 동적 상태바 아이콘 (0~8조각 + box)
 ├── AppIcon.icns               # 빌드 결과물에 들어가는 아이콘
 └── Info.plist                 # LSUIElement=YES, CFBundleIconFile=AppIcon
 ```

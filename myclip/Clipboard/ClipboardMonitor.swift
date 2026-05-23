@@ -8,6 +8,7 @@ public final class ClipboardMonitor {
     private let blacklistedBundleIDs: () -> Set<String>
     private let onCapture: (CapturedItem) -> Void
     private var lastChangeCount: Int
+    private var lastCapturedSignature: String?
     private var timer: Timer?
 
     public init(pasteboard: PasteboardReader,
@@ -50,41 +51,102 @@ public final class ClipboardMonitor {
         let bundle = frontmostBundleID()
         if let b = bundle, blacklistedBundleIDs().contains(b) { return }
 
-        // Order: file > image > text. A file in Finder also brings .string for the path; image
-        // overrides text because screenshots can include a stub string.
-        if types.contains(.fileURL),
-           let path = pasteboard.string(forType: .fileURL) {
-            // If the copied file is an image, ingest the raw bytes verbatim
-            // (preserving original format/quality — JPG stays JPG, HEIC stays
-            // HEIC, GIF stays animated) so it pastes as image data in apps
-            // that prefer images (chat, browser, image editors). The source
-            // path lands in CapturedItem.text so the paste path can also
-            // expose the file URL for apps that prefer file references
-            // (Finder, Slack uploads).
-            if let bytes = ClipboardMonitor.imageBytes(at: path) {
-                onCapture(CapturedItem(kind: .image, text: path,
-                                       imageData: bytes, sourceBundleID: bundle))
-            } else {
-                onCapture(CapturedItem(kind: .file, text: path, sourceBundleID: bundle))
+        guard let candidate = decode(types: types, bundle: bundle) else { return }
+        emit(candidate)
+    }
+
+    /// Builds a CapturedItem from the current pasteboard state, or returns nil
+    /// if nothing capture-worthy is present. Order: file > image > text. A
+    /// Finder copy carries both `.fileURL` and `.string`; when `.fileURL` is
+    /// present we *commit* to that branch (returning nil if resolution fails)
+    /// instead of falling through and accidentally capturing the URL string
+    /// as text.
+    private func decode(types: [NSPasteboard.PasteboardType],
+                        bundle: String?) -> CapturedItem? {
+        if types.contains(.fileURL) {
+            guard let raw = pasteboard.string(forType: .fileURL),
+                  let path = ClipboardMonitor.resolveFilePath(raw) else {
+                return nil
             }
-            return
+            // Image files get their raw bytes ingested verbatim (preserving
+            // original format/quality — JPG stays JPG, HEIC stays HEIC, GIF
+            // stays animated) so they paste as images in apps that prefer
+            // image data. The source path lands in `text` so the paste path
+            // can also expose the file URL for apps that prefer file refs.
+            if let bytes = ClipboardMonitor.imageBytes(at: path) {
+                return CapturedItem(kind: .image, text: path,
+                                    imageData: bytes, sourceBundleID: bundle)
+            }
+            return CapturedItem(kind: .file, text: path, sourceBundleID: bundle)
         }
         if types.contains(.png),
            let png = pasteboard.data(forType: .png) {
-            onCapture(CapturedItem(kind: .image, imageData: png, sourceBundleID: bundle))
-            return
+            return CapturedItem(kind: .image, imageData: png, sourceBundleID: bundle)
         }
         if types.contains(.tiff),
            let tiff = pasteboard.data(forType: .tiff),
            let rep = NSBitmapImageRep(data: tiff),
            let png = rep.representation(using: .png, properties: [:]) {
-            onCapture(CapturedItem(kind: .image, imageData: png, sourceBundleID: bundle))
-            return
+            return CapturedItem(kind: .image, imageData: png, sourceBundleID: bundle)
         }
         if let text = pasteboard.string(forType: .string), !text.isEmpty {
-            onCapture(CapturedItem(kind: .text, text: text, sourceBundleID: bundle))
-            return
+            return CapturedItem(kind: .text, text: text, sourceBundleID: bundle)
         }
+        return nil
+    }
+
+    /// Drops the candidate if it carries the same content as our previous
+    /// capture. Catches the case where a single user action (Finder file
+    /// copy, screenshot, etc.) fires multiple pasteboard changeCount
+    /// increments — once with bare data, again as macOS lazily promotes the
+    /// pasteboard with extra types or resolves a file reference URL. Without
+    /// this guard each of those increments emits a row.
+    private func emit(_ item: CapturedItem) {
+        let sig = ClipboardMonitor.signature(for: item)
+        if sig == lastCapturedSignature { return }
+        lastCapturedSignature = sig
+        onCapture(item)
+    }
+
+    /// Identity that's stable across the same logical content. Pathless
+    /// images (screenshots, in-memory bitmaps) hash a chunk of the bytes —
+    /// good enough to collapse back-to-back duplicates of a single copy
+    /// while still distinguishing genuinely different captures.
+    static func signature(for item: CapturedItem) -> String {
+        switch item.kind {
+        case .text:
+            return "t|\(item.text ?? "")"
+        case .file:
+            return "f|\(item.text ?? "")"
+        case .image:
+            if let path = item.text, !path.isEmpty {
+                return "ip|\(path)"
+            }
+            guard let data = item.imageData else { return "ib|empty" }
+            let head = data.prefix(64).map { String(format: "%02x", $0) }.joined()
+            return "ib|\(data.count)|\(head)"
+        }
+    }
+
+    /// Pasteboard `.fileURL` strings arrive in a few shapes:
+    /// - `/tmp/foo.txt` — plain absolute path (rare in production, common in tests)
+    /// - `file:///Users/foo/sample.jpg` — standard percent-encoded file URL
+    /// - `file:///.file/id=6571367.60554418` — Finder reference URL that needs
+    ///   `NSURL.filePathURL` resolution against the live filesystem to map
+    ///   back to a real path.
+    /// Returns the decoded absolute path, or nil if resolution fails. We
+    /// deliberately refuse to fall back to the URL's own `.path` for
+    /// unresolvable reference URLs — emitting `/.file/id=…` (or worse, the
+    /// raw `file://…` string) into the history would just create entries
+    /// that can never be pasted back.
+    static func resolveFilePath(_ raw: String) -> String? {
+        guard !raw.isEmpty else { return nil }
+        guard raw.hasPrefix("file://") else { return raw }
+        guard let url = URL(string: raw),
+              let resolved = (url as NSURL).filePathURL else { return nil }
+        let path = resolved.path
+        guard !path.isEmpty, !path.hasPrefix("/.file/id=") else { return nil }
+        return path
     }
 
     /// If `path` points to an image file ≤20 MB, returns its bytes verbatim

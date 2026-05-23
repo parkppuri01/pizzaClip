@@ -19,7 +19,7 @@ struct PopupRow: View {
                 Text(title)
                     .font(.system(size: 13))
                     .lineLimit(1)
-                    .truncationMode(isPathTitle ? .middle : .tail)
+                    .truncationMode(.tail)
                 Text(subtitle).font(.system(size: 11)).foregroundColor(AppColors.secondaryLabel).lineLimit(1)
             }
             Spacer()
@@ -79,20 +79,19 @@ struct PopupRow: View {
         switch item.type {
         case "image":
             // Finder-copied images store the original file path in `text`;
-            // show the path verbatim (truncated in the middle if too long).
+            // show only the file name (full path is too long to read in the
+            // row anyway, and is preserved on the pasteboard at paste time).
             // Pure clipboard / screenshot captures (no source path) show a
             // generic label so the user can tell them apart at a glance.
             if let path = item.text, !path.isEmpty {
-                return (path as NSString).abbreviatingWithTildeInPath
+                return (path as NSString).lastPathComponent
             }
             return "Capture Image"
-        case "file": return (item.text as NSString?)?.lastPathComponent ?? ""
-        default: return (item.text ?? "").replacingOccurrences(of: "\n", with: " ")
+        case "file":
+            return ((item.text ?? "") as NSString).lastPathComponent
+        default:
+            return (item.text ?? "").replacingOccurrences(of: "\n", with: " ")
         }
-    }
-
-    private var isPathTitle: Bool {
-        item.type == "image" && (item.text?.isEmpty == false)
     }
     private var subtitle: String {
         let d = Date(timeIntervalSince1970: Double(item.createdAt) / 1000)

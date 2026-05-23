@@ -6,6 +6,7 @@ struct PopupView: View {
     var onPick: (Item) -> Void
     var onClose: () -> Void
     var onSettings: () -> Void
+    var onClearAll: () -> Void
     @FocusState private var searchFocused: Bool
 
     private var slotForItem: [String: Int] {
@@ -113,6 +114,14 @@ struct PopupView: View {
                 shortcutLabel(symbol: "⌫", action: "Delete")
                 shortcutLabel(symbol: "⌘P", action: "Pin")
                 Spacer()
+                HStack(spacing: 4) {
+                    Image(systemName: "trash")
+                    Text("Clear all")
+                }
+                .foregroundColor(AppColors.secondaryLabel)
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onClearAll)
+                .help("Clear all clipboard history")
                 Text("⌘, Settings")
                     .foregroundColor(AppColors.secondaryLabel)
                     .contentShape(Rectangle())

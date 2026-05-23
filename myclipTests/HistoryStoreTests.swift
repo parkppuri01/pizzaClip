@@ -31,6 +31,64 @@ final class HistoryStoreTests: XCTestCase {
         XCTAssertEqual(top.count, 1, "identical text within history should dedupe")
     }
 
+    func test_insert_dedupesIdenticalFilePath() throws {
+        // macOS sometimes fires two pasteboard changeCount increments for a
+        // single Finder copy — both ticks resolve to the same absolute path,
+        // and we don't want two rows for one user action.
+        let store = try makeStore()
+        let path = "/Users/foo/Downloads/sample.pdf"
+        try store.insert(CapturedItem(kind: .file, text: path,
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_000)))
+        try store.insert(CapturedItem(kind: .file, text: path,
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_001)))
+
+        let top = try store.topN(10)
+        XCTAssertEqual(top.count, 1, "same file path should bump existing row, not duplicate")
+        XCTAssertEqual(top.first?.text, path)
+    }
+
+    func test_insert_dedupesIdenticalImagePath() throws {
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("imgdedupe-\(UUID().uuidString)")
+        let blobs = BlobStore(rootDirectory: tmp)
+        let queue = try DatabaseQueue()
+        let store = try HistoryStore(queue: queue, blobStore: blobs)
+
+        let png = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])  // PNG signature; BlobStore is fine with raw bytes
+        let path = "/Users/foo/Downloads/pic.png"
+        // First write goes through the blob branch as normal.
+        try store.insert(CapturedItem(kind: .image, text: path, imageData: png,
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_000)))
+        // Second write should NOT create a second row or a second blob file.
+        try store.insert(CapturedItem(kind: .image, text: path, imageData: png,
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_001)))
+
+        let top = try store.topN(10)
+        XCTAssertEqual(top.count, 1, "same image source path should dedupe to a single row")
+        let blobFiles = (try? FileManager.default.contentsOfDirectory(at: tmp,
+                            includingPropertiesForKeys: nil)) ?? []
+        XCTAssertEqual(blobFiles.count, 1, "no extra blob file should be written on dedupe")
+    }
+
+    func test_insert_screenshotsAreNotDeduped() throws {
+        // Pure screenshots have no source path (text == nil) — each capture
+        // is a fresh user action and gets its own row.
+        let tmp = FileManager.default.temporaryDirectory
+            .appendingPathComponent("shotdedupe-\(UUID().uuidString)")
+        let blobs = BlobStore(rootDirectory: tmp)
+        let queue = try DatabaseQueue()
+        let store = try HistoryStore(queue: queue, blobStore: blobs)
+
+        let png = Data([0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])
+        try store.insert(CapturedItem(kind: .image, imageData: png,
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_000)))
+        try store.insert(CapturedItem(kind: .image, imageData: png,
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_001)))
+
+        XCTAssertEqual(try store.topN(10).count, 2,
+                       "screenshots without source path should not dedupe")
+    }
+
     func test_togglePin_movesItemAboveNonPinned() throws {
         let store = try makeStore()
         try store.insert(CapturedItem(kind: .text, text: "a",

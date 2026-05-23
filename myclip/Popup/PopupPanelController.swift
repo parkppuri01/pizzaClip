@@ -18,6 +18,7 @@ final class PopupPanelController {
     private let blobStore: BlobStore?
     private var keyMonitor: Any?
     private var historyObserver: NSObjectProtocol?
+    private var resignKeyObserver: NSObjectProtocol?
 
     init(store: HistoryStore, viewModel: PopupViewModel, pasteEngine: PasteEngine, blobStore: BlobStore?) {
         self.store = store
@@ -39,6 +40,7 @@ final class PopupPanelController {
     deinit {
         uninstallKeyMonitor()
         if let o = historyObserver { NotificationCenter.default.removeObserver(o) }
+        if let o = resignKeyObserver { NotificationCenter.default.removeObserver(o) }
     }
 
     func toggle(anchorRect: NSRect? = nil) {
@@ -64,6 +66,22 @@ final class PopupPanelController {
                 self?.close(restorePreviousApp: false)
                 DispatchQueue.main.async {
                     NotificationCenter.default.post(name: .myclipOpenSettings, object: nil)
+                }
+            },
+            onClearAll: { [weak self] in
+                // Close the popup first — otherwise NSAlert taking key status
+                // would trip our resignKey observer and tear the popup down
+                // mid-confirmation. Same flow Settings uses (warn → post).
+                self?.close(restorePreviousApp: false)
+                DispatchQueue.main.async {
+                    let alert = NSAlert()
+                    alert.messageText = "Clear all clipboard history?"
+                    alert.alertStyle = .warning
+                    alert.addButton(withTitle: "Clear")
+                    alert.addButton(withTitle: "Cancel")
+                    if alert.runModal() == .alertFirstButtonReturn {
+                        NotificationCenter.default.post(name: .myclipClearAll, object: nil)
+                    }
                 }
             }
         )
@@ -106,6 +124,18 @@ final class PopupPanelController {
 
         self.panel = panel
         installKeyMonitor()
+
+        // Clicking another window resigns the panel's key status; treat that
+        // as "user moved on" and dismiss without reactivating the previously
+        // frontmost app (the click already raised whatever they clicked, so
+        // re-activating would steal focus back).
+        resignKeyObserver = NotificationCenter.default.addObserver(
+            forName: NSWindow.didResignKeyNotification,
+            object: panel,
+            queue: .main
+        ) { [weak self] _ in
+            self?.close(restorePreviousApp: false)
+        }
     }
 
     private func targetFrame(anchorRect: NSRect?) -> NSRect {
@@ -135,6 +165,10 @@ final class PopupPanelController {
     /// (e.g. the Settings window), so we don't yank focus away from that.
     func close(restorePreviousApp: Bool = true) {
         uninstallKeyMonitor()
+        if let o = resignKeyObserver {
+            NotificationCenter.default.removeObserver(o)
+            resignKeyObserver = nil
+        }
         panel?.orderOut(nil)
         panel = nil
         guard restorePreviousApp else { return }

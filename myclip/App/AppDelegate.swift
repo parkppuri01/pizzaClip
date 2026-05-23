@@ -53,6 +53,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(forName: .myclipOpenSettings, object: nil, queue: .main) { [weak self] _ in
             self?.showSwiftUISettingsWindow()
         }
+        // Status bar pizza reflects the current item count. Re-render every
+        // time the store changes (insert / delete / pin / clearAll all fire
+        // `.myclipHistoryChanged`). `prune` is silent but always runs right
+        // after insert from the monitor's onCapture closure, so by the time
+        // the notification reaches us the count is post-prune.
+        refreshStatusIcon()
+        NotificationCenter.default.addObserver(forName: .myclipHistoryChanged,
+                                               object: nil, queue: .main) { [weak self] _ in
+            self?.refreshStatusIcon()
+        }
+    }
+
+    private func refreshStatusIcon() {
+        let count = (try? store.count()) ?? 0
+        statusItem.button?.image = PizzaIcon.image(forCount: count)
     }
 
     /// Opens the SwiftUI `Settings` scene by synthesizing the Cmd+, keystroke
@@ -128,8 +143,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setUpStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         guard let button = statusItem.button else { return }
-        button.image = NSImage(systemSymbolName: "doc.on.clipboard",
-                               accessibilityDescription: "myclip")
+        button.image = PizzaIcon.image(forCount: 0)
         button.target = self
         button.action = #selector(statusItemClicked(_:))
         // Receive both mouse buttons so we can route left = popup, right = menu.
