@@ -2,14 +2,14 @@
 
 Run before any release tag. Tick each box as it passes; record any failure in a follow-up commit.
 
-App version: 0.1.3 · Last updated: 2026-05-26
+App version: 0.1.4 · Last updated: 2026-05-27
 
 ---
 
 ## Install & first launch
 
-- [ ] `./scripts/release.sh` produces `dist/pizzaClip-0.1.3.{zip,dmg}` and installs `~/Applications/pizzaClip.app`.
-- [ ] `defaults read ~/Applications/pizzaClip.app/Contents/Info CFBundleShortVersionString` reports **0.1.3** (Info.plist now reads from `$(MARKETING_VERSION)` in project.yml).
+- [ ] `./scripts/release.sh` produces `dist/pizzaClip-0.1.4.{zip,dmg}` and installs `~/Applications/pizzaClip.app`.
+- [ ] `defaults read ~/Applications/pizzaClip.app/Contents/Info CFBundleShortVersionString` reports **0.1.4** (Info.plist now reads from `$(MARKETING_VERSION)` in project.yml).
 - [ ] `~/Applications/pizzaClip.app` shows the custom clipboard icon in Finder (kill Finder if cached: `killall Finder`).
 - [ ] Spotlight (⌘ Space) finds "pizzaClip" with the new icon.
 - [ ] Launch the app: no Dock icon appears, clipboard glyph shows in the menu bar.
@@ -25,22 +25,24 @@ App version: 0.1.3 · Last updated: 2026-05-26
 - [ ] Menu → "Open Popup" also opens the popup with the same slide-down animation.
 - [ ] Menu → "Grant Accessibility…" opens System Settings → Privacy & Security → Accessibility (no extra system prompt).
 
-### Pizza icon (0.1.3 — PNG asset set)
+### Pizza icon (0.1.4 — PNG asset set, 11 stages)
 
 - [ ] On fresh launch with empty history: icon is **PizzaIcon0** (designed empty state).
 - [ ] After each copy 1…8: icon swaps to PizzaIcon1, PizzaIcon2, …, PizzaIcon8 in lockstep with the item count.
-- [ ] On the 9th item (and any count ≥ 9): icon is **PizzaIcon9** (full pizza, overflow state — no longer a "box").
-- [ ] Removing items via popup ⌫ steps the icon back down (e.g. 7 → 6 → 5 …).
+- [ ] On the 9th item: icon is **PizzaIcon9** (single pizza box — capacity reached).
+- [ ] On the 10th item and beyond: icon is **PizzaIcon10** (stacked pizza boxes — overflow). Removing items steps back through 9 → 8 → 7 ….
 - [ ] Settings → Clear all (or popup Clear all) → icon returns to PizzaIcon0.
 - [ ] Toggle System Settings → Appearance Light/Dark — PNG painted colors stay intact (template rendering disabled, so no auto-tint).
 
-### Pizza easter egg (0.1.3)
+### Pizza easter egg (0.1.4 — exact-match only)
 
-- [ ] Copy any text containing "pizza" (case-insensitive, e.g. `pizza`, `Pizza party`, `I love PIZZA`) → popup auto-opens and 🍕 emojis burst out from the bottom, peak around mid-height, then fall back down. Animation lasts ~2.4s.
+- [ ] Copy the literal single word **"pizza"** (case-insensitive, surrounding whitespace OK: `pizza`, `Pizza`, ` PIZZA `) → popup auto-opens and 🍕 emojis burst out from the bottom, peak around mid-height, then fall back down. Animation lasts ~2.4s.
+- [ ] Copy a sentence containing "pizza" (e.g. `Pizza party`, `I love PIZZA`) → **no auto-open, no burst** (0.1.4: substring matching removed because it was too eager).
 - [ ] Particles stay inside the popup's rounded rectangle (no escape past the chrome).
 - [ ] List rows and footer buttons remain interactive while pizzas are flying (overlay does not block hits).
-- [ ] Copy a second pizza-containing string while the popup is already open → a fresh burst starts immediately on top of any remaining particles from the previous one.
-- [ ] Copy the **same** "pizza" string twice in a row → second capture is dropped by the monitor signature dedupe, so no second burst (expected behavior).
+- [ ] After a burst plays, close the popup with ⎋ and re-open it via the menu-bar icon or ⌘⇧V → **no burst replay** (0.1.4 fix: stale burst trigger is cleared on each show).
+- [ ] Copy `pizza` again while the popup is already open → a fresh burst starts on top of any remaining particles from the previous one.
+- [ ] Copy `pizza` twice in a row → second capture is dropped by the monitor signature dedupe, so no second burst (expected behavior).
 - [ ] Copy a non-pizza string (e.g. `hello world`) → no auto-open, no burst.
 
 ## Capture

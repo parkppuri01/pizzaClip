@@ -1,15 +1,15 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-26
+마지막 업데이트: 2026-05-27
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
 ## 1. 프로젝트 한 줄 요약
 
-macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts. 개인 사용 목적, ad-hoc 서명, Universal binary, macOS 13+.
+macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts. 개인 사용 목적, **자체서명 cert(`projectJAM1s`) 서명**, Universal binary, macOS 13+.
 
 - **위치**: `/Users/parkjaekeun/DEV/myclip` (저장소 디렉토리는 그대로, 앱/번들 이름만 pizzaClip)
-- **현재 버전**: 0.1.3
+- **현재 버전**: 0.1.4
 - **브랜치**: `master` (단일 브랜치 운영)
 - **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → DMG/ZIP → ~/Applications 설치)
 
@@ -34,11 +34,11 @@ macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, Ke
 - 팝업 라이브 갱신: 열려있는 동안 다른 앱에서 ⌘C해도 즉시 반영
 - **팝업 포커스 잃으면 자동 close** (다른 창 클릭 시 — 0.1.1)
 - 상태바 아이콘: 좌클릭=팝업(슬라이드 다운 애니메이션), 우클릭=메뉴
-- **상태바 피자 아이콘 PNG 단계 표시** (0.1.3): 사용자 제공 PNG 10단계를 `pizzaClip/Resources/Assets.xcassets/PizzaIcon0~9.imageset` 으로 번들. 히스토리 0개 → PizzaIcon0, 1~8개 → PizzaIcon1~8, 9개+ → PizzaIcon9. 이전 Core Graphics 직접 드로잉은 제거됨. `template-rendering-intent: original` 로 painted 컬러 유지
+- **상태바 피자 아이콘 PNG 단계 표시** (0.1.4: 11단계로 확장): 사용자 제공 PNG 11단계를 `pizzaClip/Resources/Assets.xcassets/PizzaIcon0~10.imageset` 으로 번들. 히스토리 0개 → PizzaIcon0, 1~8개 → PizzaIcon1~8, 9개 → PizzaIcon9 (피자박스 한 개), 10개+ → PizzaIcon10 (피자박스 쌓인 이미지). 이전 Core Graphics 직접 드로잉은 제거됨. `template-rendering-intent: original` 로 painted 컬러 유지
 - **앱 아이콘 PNG → .icns 자동 빌드** (0.1.3): 사용자 제공 1024px `assets/pizzaClipAppIcon.png` 를 `sips`+`iconutil` 로 10개 사이즈 iconset → `pizzaClip/AppIcon.icns` 생성. Info.plist `CFBundleIconFile=AppIcon` 그대로
 - **팝업 타이틀바 아이콘 = 🍕 이모지 + "pizzaClip — Clipboard History"** (0.1.3에서 텍스트 rename)
 - **9 → 1 full paste 버튼** (0.1.2): 검색 박스 자리. 클릭 또는 바 0 키 → top-9 비핀 항목을 slot 9(오래된 것)부터 slot 1(최신)까지 순차로 이전 앱에 붙여넣기 (각 paste 사이 0.18s stagger)
-- **🍕 이스터에그** (0.1.3): 클립보드에 "pizza" 텍스트(대소문자 무시, 부분 매치) 들어오면 팝업 자동 오픈 + 🍕 이모지 48개가 팝콘 터지듯 바닥에서 튀어 올랐다가 중력으로 떨어지는 burst 애니메이션 (총 2.4초). SwiftUI `ForEach` + `.position` + `.rotationEffect`, `TimelineView(.animation)` 매 프레임 갱신, `.task(id:)` 로 트리거
+- **🍕 이스터에그** (0.1.4: exact match): 클립보드 텍스트가 **정확히 `pizza` 한 단어** (대소문자/주변 공백 무시) 일 때만 팝업 자동 오픈 + 🍕 이모지 48개가 팝콘 터지듯 바닥에서 튀어 올랐다가 중력으로 떨어지는 burst 애니메이션 (총 2.4초). 0.1.3 의 substring 매치는 너무 자주 발동해서 제거. 또한 팝업 재오픈 시 stale `pizzaBurstID` 재생되던 버그 fix — `show()` 진입 시 viewModel.pizzaBurstID = nil. SwiftUI `ForEach` + `.position` + `.rotationEffect`, `TimelineView(.animation)` 매 프레임 갱신, `.task(id:)` 로 트리거
 - Settings: ⌘, / 상태바 우클릭 / 팝업 푸터 클릭 모두 동일한 SwiftUI Settings 창 ("pizzaClip Settings" 타이틀)
 - **팝업 푸터 Clear all 버튼** (0.1.1): 휴지통 + 라벨, 클릭 시 NSAlert 확인 후 wipe
 - 검색: HistoryStore 레이어는 FTS5 그대로 유지(테스트도 통과). 팝업 UI 검색 박스는 cap≤20이라 의미가 없어 제거됨
@@ -60,6 +60,7 @@ macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, Ke
 | **Accessibility 권한 1회 prompt** | `prompt: true` 호출은 UserDefaults `didShowAccessibilityPrompt` 플래그로 가드. 이후 "Grant Accessibility…" 메뉴는 시스템 설정 직행 |
 | **앱 아이콘 위치** (0.1.3 갱신) | 소스 PNG는 `assets/pizzaClipAppIcon.png` (앱 번들 외부, xcodegen sources 제외). `.icns`는 release 시 `sips`+`iconutil` 로 빌드되어 `pizzaClip/AppIcon.icns` 에 들어감 |
 | **상태바 피자 아이콘 = 미리 그린 PNG** (0.1.3 변경) | 0.1.1의 Core Graphics 동적 드로잉은 깔끔했지만 사용자가 더 표현력 있는 PNG 디자인을 제공해서 Assets.xcassets 기반으로 전환. `PizzaIcon.swift` 는 카운트 → 이미지 이름 매핑만 |
+| **자체서명 cert `projectJAM1s` 사용** (0.1.4 도입) | 0.1.3 까지의 ad-hoc 서명은 cdhash 가 매 빌드마다 바뀌어서 TCC Accessibility grant 가 매번 revoke됐음. Keychain Access 자체서명 cert (Code Signing, 10년 유효) 로 전환하면 identity 기반 grant 라서 cdhash 가 바뀌어도 유지됨. project.yml `CODE_SIGN_STYLE: Manual`, `CODE_SIGN_IDENTITY: "projectJAM1s"`. 처음 한 번 TCC 등록한 뒤로는 release 마다 다시 grant 안 해도 됨 |
 | **이스터에그 burst = SwiftUI 진짜 View (Canvas X)** (0.1.3) | 처음엔 Canvas + `gc.draw(text:)` 로 구현했는데 macOS 13에서 emoji 가 그려지지 않는 케이스 발견. ForEach + Text + `.position` 으로 교체해 시각 보장. 48개 정도는 60fps 가능 |
 | **show + trigger race fix** (0.1.3) | `showWithPizzaBurst` 가 `show()` 직후 동기로 `triggerPizzaBurst()` 호출하면 SwiftUI 첫 mount 와 동시라 `.onChange` 가 놓침. `DispatchQueue.main.async` 로 한 틱 미루고 `PizzaBurst` 는 `.task(id:)` 로 mount + change 둘 다 잡음 |
 
@@ -135,6 +136,7 @@ docs/
   - **마이그레이션 노트**: 0.1.3 에서 디렉토리 이름이 `myclip` → `pizzaClip` 으로 변경. 기존 데이터 유지하려면 1회 수동 이동: `mv ~/Library/Application\ Support/myclip ~/Library/Application\ Support/pizzaClip`
 - **권한**: Accessibility 하나만 필요 (⌘V 합성용). 거부해도 클립보드까지는 들어감
 - **Bundle ID**: `com.jekeun.pizzaClip` (0.1.3 변경). 이전 `com.jekeun.myclip` 으로 받은 TCC grant / KeyboardShortcuts 설정 / UserDefaults 플래그는 새 ID 에서 재설정 필요
+- **코드사인**: 자체서명 `projectJAM1s` (0.1.4). cdhash 가 바뀌어도 TCC grant 유지. cert 갱신 만료: 2036-05-24
 - **마이그레이션 플래그**:
   - `didShowAccessibilityPrompt` — 권한 다이얼로그 1회 제한
   - `didMigrateCapTo9` — cap=10에서 9로 1회 마이그레이션
@@ -155,10 +157,8 @@ docs/
 
 다음 세션 후보로 논의됐던 거:
 
-- **자체서명 인증서로 코드사인 전환**: 현재 ad-hoc 사인이라 release 마다 cdhash 바뀌어서 TCC Accessibility grant 가 revoke됨. 0.1.3 에서 bundle ID 까지 바뀌어 더 명확해진 페인 포인트. 매번 `tccutil reset Accessibility com.jekeun.pizzaClip` + 시스템 설정 토글. 자체서명 인증서 (Keychain Access → Create Certificate, 무료) 만들어서 project.yml `CODE_SIGN_IDENTITY` 에 지정하면 identity 기반으로 TCC 유지됨. Developer ID ($99/년) 는 외부 배포 안 할 거면 오버킬
 - **Settings → "추가기능" 탭**: 오른쪽 ⌘ 키를 무지연 한/영 토글로 매핑. 기술 검토 완료 (CGEventTap + Carbon TIS API 직접 호출, ~5ms 지연). 필요 권한: 기존 Accessibility + 새로 Input Monitoring. 예상 작업량 1.5~3시간. opt-in 토글로 설계 추천
 - **GitHub remote 셋업**: 현재 git remote 비어 있음. `gh repo create jekeun/pizzaClip --private --source=. --push` 한 줄. 셋업 후 feature branch + PR + squash merge 가능
-- **0.1.2 + 0.1.3 커밋 정리**: 두 버전치 변경분 모두 미커밋. 0.1.3 은 대대적 rename + 이스터에그 + 새 아이콘 자원 → conventional commit 시리즈로 분할 추천 (예: `chore: rename myclip → pizzaClip`, `feat(menubar): switch to PNG pizza icons`, `feat(popup): pizza easter egg`, `chore(app): regenerate AppIcon.icns from new source PNG`, `chore: bump 0.1.3`)
 - **이스터에그 파티클 이미지 교체**: 사용자가 PNG 파일 줄 예정. `Text("🍕")` → `Image("...")` 로 1줄 교체. Particle struct 의 emoji 필드를 image name 으로 바꾸면 됨
 
 ## 8. 빌드 / 테스트 / 배포
@@ -190,7 +190,35 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 - **xcodegen**: project.yml만 손대고 `xcodegen generate`로 .xcodeproj 재생성. .xcodeproj는 절대 직접 편집 금지
 - **xcodegen이 새 파일 자동 인식**: `pizzaClip/` 트리에 파일 추가만 하면 자동으로 픽업 — **단 새 .swift 추가 후엔 `xcodegen generate` 한 번 더 돌려야 빌드에 포함됨** (0.1.3 PizzaBurst.swift 추가 시 첫 빌드가 "cannot find PizzaBurst in scope" 로 실패해서 확인)
 
-## 10. 세션 노트 — 2026-05-26 (0.1.3 작업 완료, 미커밋)
+## 10. 세션 노트 — 2026-05-27 (0.1.4 버그 픽스 + 자체서명)
+
+**0.1.3 사용 중 발견된 3개 버그 픽스**
+
+1. **이스터에그 너무 자주 발동**: `text.range(of: "pizza", options: .caseInsensitive) != nil` 로 substring 매치 → "Pizza party" 같은 문장도 트리거. **fix**: `text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "pizza"` 로 정확 단어 매치만 인정 (`AppDelegate.swift` onCapture)
+2. **팝업 재오픈 시 burst 재생**: `pizzaBurstID` 가 viewModel 에 남아있어서 새 popup 마운트 시 `.task(id:)` 가 또 발사. **fix**: `PopupPanelController.show()` 진입 시 `viewModel.pizzaBurstID = nil` 로 클리어. 정상 발동인 `showWithPizzaBurst` 는 그 다음에 새 UUID 를 set 하므로 영향 없음
+3. **자체서명 cert 도입**: 권한 문제로 paste 안 되던 증상이 cdhash 변경 + bundle ID 변경의 합쳐진 페인이었음. Keychain Access 자체서명 `projectJAM1s` 생성 (Code Signing, 10년) → 코드 서명 trust 설정 (Keychain Access → 인증서 정보 → 신뢰 → 코드 서명: 항상 신뢰) → project.yml `CODE_SIGN_STYLE: Manual`, `CODE_SIGN_IDENTITY: "projectJAM1s"`. 이후 빌드마다 cdhash 가 바뀌어도 identity 기반으로 TCC 유지됨
+
+**아이콘 자산 추가**
+- `PizzaIcon10.imageset` 추가 (사용자 제공 PNG, 1x 36×36 + 2x 72×72, `template-rendering-intent: original`)
+- `PizzaIcon.swift` 의 `min(9, count)` → `min(10, count)` 로 11단계 매핑
+- 의미: 0 = 빈 상태, 1~8 = 슬라이스 1~8개, 9 = 피자박스 1개 (capacity), 10+ = 피자박스 쌓임 (overflow)
+
+**Self-signed cert 만들기 (재현 메모)**
+- Keychain Access (`/Applications/Utilities/키체인 접근.app`) → 메뉴바 → 인증서 지원 → 인증서 생성…
+- 이름: `projectJAM1s`, Identity Type: Self Signed Root, Certificate Type: Code Signing, "기본값을 무시" 체크
+- Validity: 3650 일 (10년)
+- 생성 후 **로그인 키체인 → 내 인증서 → projectJAM1s 더블클릭 → 신뢰 섹션 → 코드 서명: 항상 신뢰**
+- `security find-identity -p codesigning -v` 로 인식 확인 (trust 설정 전엔 0개로 나옴)
+- 빌드 시 codesign 이 키체인 잠금해제 비번 묻는 다이얼로그 뜸 → 맥북 로그인 비번 + "항상 허용"
+
+**버전 / 배포**
+- 0.1.4 bump (`project.yml` MARKETING 0.1.4, CURRENT 5)
+- `./scripts/release.sh` 로 `dist/pizzaClip-0.1.4.{zip,dmg}` 생성, `~/Applications/pizzaClip.app` install
+- 첫 0.1.4 실행 시 TCC Accessibility 1회 grant 필요 (`tccutil reset Accessibility com.jekeun.pizzaClip` 후 시스템 설정 토글). 이후 0.1.5, 0.1.6… 빌드해도 동일 cert 로 서명되므로 grant 유지
+
+---
+
+## 11. 이전 세션 노트 — 2026-05-26 (0.1.3 작업 완료, 미커밋이었음)
 
 **변경된 동작 / 자산**
 - 앱/번들 전면 rename: `myclip` → `pizzaClip`
