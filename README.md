@@ -1,9 +1,9 @@
-# myclip
+# pizzaClip
 
 macOS 메뉴바 클립보드 히스토리 앱. 복사한 내용을 자동으로 기록하고, 단축키 한 번에 다시 꺼내 씁니다.
 
 <p align="center">
-  <img src="assets/myclip-icon.png" width="160" alt="myclip">
+  <img src="assets/pizzaClip-icon.png" width="160" alt="pizzaClip">
 </p>
 
 ## 무엇을 하나요
@@ -41,7 +41,7 @@ macOS 메뉴바 클립보드 히스토리 앱. 복사한 내용을 자동으로 
 
 ## 데이터 저장 위치
 
-`~/Library/Application Support/myclip/` (Settings → Storage에서 변경 가능)
+`~/Library/Application Support/pizzaClip/` (Settings → Storage에서 변경 가능)
 
 - `db.sqlite` — 텍스트·메타데이터·이미지 썸네일
 - `blobs/<uuid>.png` — 원본 이미지 PNG
@@ -57,7 +57,7 @@ macOS 메뉴바 클립보드 히스토리 앱. 복사한 내용을 자동으로 
 ```sh
 brew install xcodegen
 xcodegen generate
-xcodebuild -project myclip.xcodeproj -scheme myclip -destination 'platform=macOS' build
+xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip -destination 'platform=macOS' build
 ```
 
 `.xcodeproj`는 gitignore 됨 — `project.yml`이 단일 소스 오브 트루스.
@@ -65,7 +65,7 @@ xcodebuild -project myclip.xcodeproj -scheme myclip -destination 'platform=macOS
 ### 테스트
 
 ```sh
-xcodebuild -project myclip.xcodeproj -scheme myclip -destination 'platform=macOS' test
+xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip -destination 'platform=macOS' test
 ```
 
 17개 유닛 테스트 (HistoryStore · BlobStore · ClipboardMonitor · Pasteboard).
@@ -76,7 +76,7 @@ xcodebuild -project myclip.xcodeproj -scheme myclip -destination 'platform=macOS
 ./scripts/release.sh
 ```
 
-테스트 → Release 유니버설 빌드 → `dist/myclip-{버전}.{zip,dmg}` → `~/Applications/` 설치까지 한 번에.
+테스트 → Release 유니버설 빌드 → `dist/pizzaClip-{버전}.{zip,dmg}` → `~/Applications/` 설치까지 한 번에.
 
 ### 요구사항
 
@@ -86,15 +86,16 @@ xcodebuild -project myclip.xcodeproj -scheme myclip -destination 'platform=macOS
 
 ### 아키텍처
 
-- `myclip/App/` — `AppDelegate`, paths, status item (composition root)
-- `myclip/Clipboard/` — `ClipboardMonitor` polling + `PasteboardReader`
-- `myclip/Storage/` — GRDB SQLite + FTS5 (`HistoryStore`) + 파일 시스템 (`BlobStore`)
-- `myclip/Paste/` — `PasteEngine` (페이스트보드 쓰기 + ⌘V 합성)
-- `myclip/Popup/` — `NSPanel` 호스팅하는 SwiftUI `PopupView`
-- `myclip/Settings/` — SwiftUI `Settings` 씬 (General / Shortcuts / Privacy / Storage)
-- `myclip/Shortcuts/` — `KeyboardShortcuts.Name` 확장
-- `myclip/Permissions/` — Accessibility 헬퍼
-- `myclip/DesignSystem/` — 컬러·테마 상수
+- `pizzaClip/App/` — `AppDelegate`, paths, status item (composition root)
+- `pizzaClip/Clipboard/` — `ClipboardMonitor` polling + `PasteboardReader`
+- `pizzaClip/Storage/` — GRDB SQLite + FTS5 (`HistoryStore`) + 파일 시스템 (`BlobStore`)
+- `pizzaClip/Paste/` — `PasteEngine` (페이스트보드 쓰기 + ⌘V 합성)
+- `pizzaClip/Popup/` — `NSPanel` 호스팅하는 SwiftUI `PopupView`
+- `pizzaClip/Settings/` — SwiftUI `Settings` 씬 (General / Shortcuts / Privacy / Storage)
+- `pizzaClip/Shortcuts/` — `KeyboardShortcuts.Name` 확장
+- `pizzaClip/Permissions/` — Accessibility 헬퍼
+- `pizzaClip/DesignSystem/` — 컬러·테마 상수
+- `pizzaClip/MenuBar/` — 상태바 피자 아이콘 (`Assets.xcassets/PizzaIcon0~9.imageset` PNG 사용)
 
 설계 스펙: [`docs/superpowers/specs/2026-05-21-myclip-design.md`](docs/superpowers/specs/2026-05-21-myclip-design.md)
 구현 플랜: [`docs/superpowers/plans/2026-05-21-myclip.md`](docs/superpowers/plans/2026-05-21-myclip.md)

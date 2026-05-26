@@ -1,4 +1,4 @@
-name: myclip
+name: pizzaClip
 options:
   bundleIdPrefix: com.jekeun
   deploymentTarget:
@@ -7,8 +7,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "0.1.1"
-    CURRENT_PROJECT_VERSION: "2"
+    MARKETING_VERSION: "0.1.3"
+    CURRENT_PROJECT_VERSION: "4"
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
     CODE_SIGN_IDENTITY: "-"
@@ -20,40 +20,40 @@ packages:
     url: https://github.com/sindresorhus/KeyboardShortcuts
     from: "2.0.0"
 targets:
-  myclip:
+  pizzaClip:
     type: application
     platform: macOS
     sources:
-      - path: myclip
+      - path: pizzaClip
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.jekeun.myclip
+        PRODUCT_BUNDLE_IDENTIFIER: com.jekeun.pizzaClip
         GENERATE_INFOPLIST_FILE: NO
-        INFOPLIST_FILE: myclip/Info.plist
+        INFOPLIST_FILE: pizzaClip/Info.plist
     dependencies:
       - package: GRDB
         product: GRDB
       - package: KeyboardShortcuts
         product: KeyboardShortcuts
-  myclipTests:
+  pizzaClipTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - path: myclipTests
+      - path: pizzaClipTests
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES
-        PRODUCT_BUNDLE_IDENTIFIER: com.jekeun.myclipTests
+        PRODUCT_BUNDLE_IDENTIFIER: com.jekeun.pizzaClipTests
     dependencies:
-      - target: myclip
+      - target: pizzaClip
       - package: GRDB
         product: GRDB
 schemes:
-  myclip:
+  pizzaClip:
     build:
       targets:
-        myclip: all
-        myclipTests: [test]
+        pizzaClip: all
+        pizzaClipTests: [test]
     test:
       targets:
-        - myclipTests
+        - pizzaClipTests

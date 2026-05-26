@@ -1,0 +1,240 @@
+import AppKit
+import GRDB
+import KeyboardShortcuts
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    private var statusItem: NSStatusItem!
+    private var contextMenu: NSMenu!
+    private(set) var store: HistoryStore!
+    private var monitor: ClipboardMonitor!
+    private var popupController: PopupPanelController!
+    private var pasteEngine = PasteEngine()
+    private var viewModel: PopupViewModel!
+    private var blobStore: BlobStore?
+
+    private var historyCap: Int {
+        let v = UserDefaults.standard.integer(forKey: "historyCap")
+        return v == 0 ? 9 : v
+    }
+    private var blacklistFromDefaults: Set<String> {
+        let raw = UserDefaults.standard.string(forKey: "blacklist") ?? ""
+        return Set(raw.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty })
+    }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        UserDefaults.standard.register(defaults: [
+            "historyCap": 9,
+            "blacklist": "com.1password.1password,com.agilebits.onepassword7,com.bitwarden.desktop,com.apple.keychainaccess",
+        ])
+        // Migrations for users coming from previous default values:
+        //  - >20: clamp to 20 (Settings stepper now caps at 20)
+        //  - 10 once: previous default we shipped; nudge to the new 9 default
+        //    a single time so users who never customized see the new value.
+        //    A guarded flag prevents re-applying if a user later sets it back
+        //    to 10 on purpose.
+        let cap = UserDefaults.standard.integer(forKey: "historyCap")
+        if cap > 20 { UserDefaults.standard.set(20, forKey: "historyCap") }
+        if cap == 10, !UserDefaults.standard.bool(forKey: "didMigrateCapTo9") {
+            UserDefaults.standard.set(9, forKey: "historyCap")
+        }
+        UserDefaults.standard.set(true, forKey: "didMigrateCapTo9")
+        setUpStorage()
+        setUpStatusItem()
+        setUpMonitor()
+        setUpPopup()
+        // First-run-only system prompt. Subsequent launches never re-prompt.
+        Accessibility.promptOnceIfNeeded()
+        NotificationCenter.default.addObserver(forName: .pizzaClipClearAll, object: nil, queue: .main) { [weak self] _ in
+            try? self?.store.clearAll()
+        }
+        NotificationCenter.default.addObserver(forName: .pizzaClipExportHistory, object: nil, queue: .main) { [weak self] _ in
+            self?.exportHistoryToTextFile()
+        }
+        NotificationCenter.default.addObserver(forName: .pizzaClipOpenSettings, object: nil, queue: .main) { [weak self] _ in
+            self?.showSwiftUISettingsWindow()
+        }
+        // Status bar pizza reflects the current item count. Re-render every
+        // time the store changes (insert / delete / pin / clearAll all fire
+        // `.pizzaClipHistoryChanged`). `prune` is silent but always runs right
+        // after insert from the monitor's onCapture closure, so by the time
+        // the notification reaches us the count is post-prune.
+        refreshStatusIcon()
+        NotificationCenter.default.addObserver(forName: .pizzaClipHistoryChanged,
+                                               object: nil, queue: .main) { [weak self] _ in
+            self?.refreshStatusIcon()
+        }
+    }
+
+    private func refreshStatusIcon() {
+        let count = (try? store.count()) ?? 0
+        statusItem.button?.image = PizzaIcon.image(forCount: count)
+    }
+
+    /// Opens the SwiftUI `Settings` scene by synthesizing the Cmd+, keystroke
+    /// that macOS handles natively. We tried `NSApp.sendAction("showSettingsWindow:")`
+    /// first, but recent macOS releases log a "use SettingsLink" warning and
+    /// treat the selector as a no-op. The synthesized key event goes through
+    /// the same native dispatch as a real Cmd+, press, which we know works.
+    private func showSwiftUISettingsWindow() {
+        NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.async {
+            guard let event = NSEvent.keyEvent(
+                with: .keyDown,
+                location: .zero,
+                modifierFlags: .command,
+                timestamp: ProcessInfo.processInfo.systemUptime,
+                windowNumber: 0,
+                context: nil,
+                characters: ",",
+                charactersIgnoringModifiers: ",",
+                isARepeat: false,
+                keyCode: 0x2B   // virtual code for comma
+            ) else { return }
+            NSApp.postEvent(event, atStart: false)
+        }
+    }
+
+    private func exportHistoryToTextFile() {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "pizzaClip-history.txt"
+        panel.allowedContentTypes = [.plainText]
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+
+        do {
+            let items = try store.topNRespectingPins(10_000)
+            let df = DateFormatter()
+            df.dateFormat = "yyyy-MM-dd HH:mm:ss"
+            var out = "# pizzaClip history export · \(df.string(from: Date())) · \(items.count) items\n\n"
+            for item in items {
+                let date = Date(timeIntervalSince1970: Double(item.createdAt) / 1000)
+                var header = "--- \(df.string(from: date)) [\(item.type)]"
+                if item.pinned { header += " 📌" }
+                if let src = item.sourceBundle { header += " from \(src)" }
+                header += " ---\n"
+                out += header
+                switch item.type {
+                case "text": out += (item.text ?? "") + "\n\n"
+                case "file": out += "File: \(item.text ?? "")\n\n"
+                case "image": out += "Image blob: \(item.blobPath ?? "")\n\n"
+                default: out += "\n"
+                }
+            }
+            try out.write(to: url, atomically: true, encoding: .utf8)
+        } catch {
+            let alert = NSAlert()
+            alert.messageText = "Export failed"
+            alert.informativeText = error.localizedDescription
+            alert.runModal()
+        }
+    }
+
+    private func setUpStorage() {
+        do {
+            let queue = try DatabaseQueue(path: AppPaths.databaseURL.path)
+            let blobs = BlobStore(rootDirectory: AppPaths.blobsDirectory)
+            store = try HistoryStore(queue: queue, blobStore: blobs)
+        } catch {
+            NSLog("pizzaClip storage init failed: \(error). Falling back to in-memory.")
+            let queue = try! DatabaseQueue()
+            store = try! HistoryStore(queue: queue, blobStore: nil)
+        }
+    }
+
+    private func setUpStatusItem() {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        guard let button = statusItem.button else { return }
+        button.image = PizzaIcon.image(forCount: 0)
+        button.target = self
+        button.action = #selector(statusItemClicked(_:))
+        // Receive both mouse buttons so we can route left = popup, right = menu.
+        button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+
+        contextMenu = NSMenu()
+        contextMenu.addItem(NSMenuItem(title: "Open Popup",
+                                       action: #selector(openPopup), keyEquivalent: ""))
+        contextMenu.addItem(NSMenuItem(title: "Settings…",
+                                       action: #selector(openSettings),
+                                       keyEquivalent: ","))
+        contextMenu.addItem(.separator())
+        contextMenu.addItem(NSMenuItem(title: "Grant Accessibility…",
+                                       action: #selector(grantAccessibility),
+                                       keyEquivalent: ""))
+        contextMenu.addItem(.separator())
+        contextMenu.addItem(NSMenuItem(title: "Quit pizzaClip",
+                                       action: #selector(NSApplication.terminate(_:)),
+                                       keyEquivalent: ""))
+    }
+
+    private func setUpMonitor() {
+        monitor = ClipboardMonitor(
+            pasteboard: NSPasteboard.general,
+            frontmostBundleID: { NSWorkspace.shared.frontmostApplication?.bundleIdentifier },
+            blacklistedBundleIDs: { [weak self] in self?.blacklistFromDefaults ?? [] },
+            onCapture: { [weak self] item in
+                guard let self else { return }
+                do {
+                    try self.store.insert(item)
+                    try self.store.prune(cap: self.historyCap)
+                } catch {
+                    NSLog("pizzaClip insert failed: \(error)")
+                }
+                // Easter egg: any captured payload (text body, file path,
+                // image source path) that mentions "pizza" makes the popup
+                // appear and rain a fresh batch of 🍕 inside it.
+                if let text = item.text,
+                   text.range(of: "pizza", options: .caseInsensitive) != nil {
+                    self.popupController.showWithPizzaBurst(anchorRect: self.statusItemFrame)
+                }
+            }
+        )
+        monitor.start()
+    }
+
+    private func setUpPopup() {
+        let blobs = BlobStore(rootDirectory: AppPaths.blobsDirectory)
+        self.blobStore = blobs
+        self.viewModel = PopupViewModel(store: store)
+        self.popupController = PopupPanelController(
+            store: store,
+            viewModel: viewModel,
+            pasteEngine: pasteEngine,
+            blobStore: blobs
+        )
+
+        KeyboardShortcuts.onKeyDown(for: .togglePopup) { [weak self] in
+            self?.popupController.toggle(anchorRect: self?.statusItemFrame)
+        }
+        for n in 1...9 {
+            KeyboardShortcuts.onKeyDown(for: .slot(n)) { [weak self] in
+                self?.popupController.pasteDirect(slot: n)
+            }
+        }
+    }
+
+    /// Screen-space rect of the status bar icon button — used to anchor the popup.
+    private var statusItemFrame: NSRect? {
+        statusItem.button?.window?.frame
+    }
+
+    @objc private func statusItemClicked(_ sender: NSStatusBarButton) {
+        guard let event = NSApp.currentEvent else { return }
+        let isContextClick = event.type == .rightMouseUp
+            || event.modifierFlags.contains(.control)
+        if isContextClick {
+            // Temporarily attach the menu so NSStatusBar pops it under the icon,
+            // then detach so the next left-click reaches our action again.
+            statusItem.menu = contextMenu
+            statusItem.button?.performClick(nil)
+            statusItem.menu = nil
+        } else {
+            popupController.toggle(anchorRect: statusItemFrame)
+        }
+    }
+
+    @objc private func openPopup() { popupController.toggle(anchorRect: statusItemFrame) }
+    @objc private func openSettings() { showSwiftUISettingsWindow() }
+    @objc private func grantAccessibility() {
+        // Go straight to System Settings; never re-trigger the system prompt.
+        Accessibility.openSystemSettings()
+    }
+}

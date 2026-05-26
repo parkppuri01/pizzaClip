@@ -6,3 +6,6 @@ DerivedData/
 .build/
 xcuserdata/
 dist/
+
+# OMC tooling state (session memory, plans, logs)
+.omc/
