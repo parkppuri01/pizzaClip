@@ -7,11 +7,11 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "0.1.3"
-    CURRENT_PROJECT_VERSION: "4"
+    MARKETING_VERSION: "0.1.4"
+    CURRENT_PROJECT_VERSION: "5"
     DEVELOPMENT_TEAM: ""
-    CODE_SIGN_STYLE: Automatic
-    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "projectJAM1s"
 packages:
   GRDB:
     url: https://github.com/groue/GRDB.swift

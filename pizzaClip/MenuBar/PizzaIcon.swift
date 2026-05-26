@@ -5,7 +5,8 @@ import AppKit
 /// Maps history count → pre-rendered PNG in Assets.xcassets:
 ///   0     → PizzaIcon0 (empty)
 ///   1…8   → PizzaIcon1…PizzaIcon8 (1 through 8 slices)
-///   9+    → PizzaIcon9 (full pizza, overflow)
+///   9     → PizzaIcon9 (single pizza box — capacity reached)
+///   10+   → PizzaIcon10 (stacked pizza boxes — overflow)
 ///
 /// Loaded as `template-rendering-intent: original` so the painted cheese/crust
 /// colors survive instead of being collapsed by the menu-bar template tint.
@@ -13,7 +14,7 @@ enum PizzaIcon {
     static let defaultPointSize: CGFloat = 18
 
     static func image(forCount count: Int, size: CGFloat = defaultPointSize) -> NSImage {
-        let n = max(0, min(9, count))
+        let n = max(0, min(10, count))
         let name = "PizzaIcon\(n)"
         let image = NSImage(named: name) ?? NSImage(size: NSSize(width: size, height: size))
         image.size = NSSize(width: size, height: size)

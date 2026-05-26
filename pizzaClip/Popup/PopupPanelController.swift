@@ -67,6 +67,11 @@ final class PopupPanelController {
 
     func show(anchorRect: NSRect? = nil) {
         previousFrontmostBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        // Clear any stale easter-egg trigger from a previous session so a
+        // fresh popup mount doesn't replay the last burst. `showWithPizzaBurst`
+        // sets a new UUID *after* show() returns, so legitimate triggers
+        // survive this reset.
+        viewModel.pizzaBurstID = nil
         viewModel.reload()
 
         let view = PopupView(

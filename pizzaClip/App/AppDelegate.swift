@@ -178,11 +178,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 } catch {
                     NSLog("pizzaClip insert failed: \(error)")
                 }
-                // Easter egg: any captured payload (text body, file path,
-                // image source path) that mentions "pizza" makes the popup
-                // appear and rain a fresh batch of 🍕 inside it.
+                // Easter egg: only the literal single word "pizza" (case
+                // insensitive, surrounding whitespace ignored) triggers the
+                // burst. Substring matching turned out to be too eager — any
+                // sentence mentioning pizza in passing kept hijacking the
+                // popup.
                 if let text = item.text,
-                   text.range(of: "pizza", options: .caseInsensitive) != nil {
+                   text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "pizza" {
                     self.popupController.showWithPizzaBurst(anchorRect: self.statusItemFrame)
                 }
             }
