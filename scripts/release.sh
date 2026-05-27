@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Build a Release universal pizzaClip.app, package it as ZIP + DMG under dist/,
-# and install a fresh copy to ~/Applications.
+# and install a fresh copy to /Applications.
 #
 # Usage: ./scripts/release.sh
 
@@ -59,13 +59,12 @@ hdiutil create -volname "pizzaClip $VERSION" \
     "dist/pizzaClip-${VERSION}.dmg" >/dev/null
 rm -rf "$STAGING"
 
-echo "→ Installing to ~/Applications"
-mkdir -p ~/Applications
-rm -rf ~/Applications/pizzaClip.app
-cp -R "$APP" ~/Applications/
+echo "→ Installing to /Applications"
+rm -rf /Applications/pizzaClip.app
+cp -R "$APP" /Applications/
 
 echo ""
 echo "✓ Release $VERSION ready"
 ls -lh "dist/pizzaClip-${VERSION}.zip" "dist/pizzaClip-${VERSION}.dmg" \
     | awk '{printf "  %-9s  %s\n", $5, $NF}'
-echo "  installed → $HOME/Applications/pizzaClip.app"
+echo "  installed → /Applications/pizzaClip.app"
