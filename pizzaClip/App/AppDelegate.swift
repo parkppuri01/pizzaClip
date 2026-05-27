@@ -63,6 +63,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                                object: nil, queue: .main) { [weak self] _ in
             self?.refreshStatusIcon()
         }
+        // Right ⌘ → Hangul/Latin toggle. Off by default; user opts in from
+        // Settings → Shortcuts. The toggle change fires a notification so we
+        // can flip the event tap live without restarting.
+        if UserDefaults.standard.bool(forKey: "rightCommandHangulToggle") {
+            HangulToggler.shared.setEnabled(true)
+        }
+        NotificationCenter.default.addObserver(forName: .pizzaClipHangulToggleChanged,
+                                               object: nil, queue: .main) { notification in
+            guard let value = notification.object as? NSNumber else { return }
+            HangulToggler.shared.setEnabled(value.boolValue)
+        }
     }
 
     private func refreshStatusIcon() {

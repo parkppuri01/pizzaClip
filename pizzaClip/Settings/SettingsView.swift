@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import ApplicationServices
 import KeyboardShortcuts
 
 struct SettingsView: View {
@@ -7,6 +8,7 @@ struct SettingsView: View {
     @AppStorage("blacklist") private var blacklistJoined: String =
         "com.1password.1password,com.agilebits.onepassword7,com.bitwarden.desktop,com.apple.keychainaccess"
     @AppStorage(AppPaths.storageDirectoryDefaultsKey) private var customStorageDirectory: String = ""
+    @AppStorage("rightCommandHangulToggle") private var rightCommandHangulToggle = false
 
     var body: some View {
         TabView {
@@ -54,6 +56,26 @@ struct SettingsView: View {
             Section("Popup") {
                 KeyboardShortcuts.Recorder("Open popup:", name: .togglePopup)
             }
+            Section("Input source") {
+                Toggle(isOn: $rightCommandHangulToggle) {
+                    Text("Switch input source when right ⌘ is tapped")
+                }
+                .onChange(of: rightCommandHangulToggle) { newValue in
+                    if newValue && !AXIsProcessTrusted() {
+                        rightCommandHangulToggle = false
+                        promptForAccessibilityForHangulToggle()
+                        return
+                    }
+                    NotificationCenter.default.post(
+                        name: .pizzaClipHangulToggleChanged,
+                        object: NSNumber(value: newValue)
+                    )
+                }
+                Text("Cleanly tap the right Command key — no other keys held — to switch between Hangul and a Latin keyboard. Requires Accessibility permission and at least one Korean input source enabled in System Settings → Keyboard → Input Sources.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             Section("Direct paste — nth most-recent non-pinned") {
                 ForEach(1..<10) { n in
                     KeyboardShortcuts.Recorder("Slot \(n):", name: .slot(n))
@@ -61,6 +83,17 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+    }
+
+    private func promptForAccessibilityForHangulToggle() {
+        let alert = NSAlert()
+        alert.messageText = "Accessibility permission required"
+        alert.informativeText = "pizzaClip needs Accessibility access to observe the right ⌘ key. Grant it in System Settings → Privacy & Security → Accessibility, then re-enable this toggle."
+        alert.addButton(withTitle: "Open System Settings")
+        alert.addButton(withTitle: "Cancel")
+        if alert.runModal() == .alertFirstButtonReturn {
+            Accessibility.openSystemSettings()
+        }
     }
 
     // MARK: - Privacy
@@ -194,4 +227,5 @@ extension Notification.Name {
     static let pizzaClipClearAll = Notification.Name("pizzaClipClearAll")
     static let pizzaClipExportHistory = Notification.Name("pizzaClipExportHistory")
     static let pizzaClipOpenSettings = Notification.Name("pizzaClipOpenSettings")
+    static let pizzaClipHangulToggleChanged = Notification.Name("pizzaClipHangulToggleChanged")
 }
