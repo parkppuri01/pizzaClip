@@ -44,6 +44,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         setUpPopup()
         // First-run-only system prompt. Subsequent launches never re-prompt.
         Accessibility.promptOnceIfNeeded()
+        // One-time 0.1.5 → 0.1.6 migration alert: code-signing identity changed
+        // from self-signed `projectJAM1s` to Developer ID, which forces TCC to
+        // treat pizzaClip as a "different app" — existing users have to remove
+        // the old Accessibility entry and re-add. Guide them through it once.
+        showDeveloperIDMigrationAlertIfNeeded()
         NotificationCenter.default.addObserver(forName: .pizzaClipClearAll, object: nil, queue: .main) { [weak self] _ in
             try? self?.store.clearAll()
         }
@@ -190,13 +195,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     NSLog("pizzaClip insert failed: \(error)")
                 }
                 // Easter egg: only the literal single word "pizza" (case
-                // insensitive, surrounding whitespace ignored) triggers the
-                // burst. Substring matching turned out to be too eager — any
-                // sentence mentioning pizza in passing kept hijacking the
-                // popup.
-                if let text = item.text,
-                   text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "pizza" {
-                    self.popupController.showWithPizzaBurst(anchorRect: self.statusItemFrame)
+                // insensitive) or the Korean "피자" (exact, no case folding
+                // needed for Hangul) triggers the burst. Substring matching
+                // was too eager — any sentence mentioning pizza in passing
+                // kept hijacking the popup.
+                if let text = item.text {
+                    let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if trimmed.lowercased() == "pizza" || trimmed == "피자" {
+                        self.popupController.showWithPizzaBurst(anchorRect: self.statusItemFrame)
+                    }
                 }
             }
         )
@@ -249,5 +256,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func grantAccessibility() {
         // Go straight to System Settings; never re-trigger the system prompt.
         Accessibility.openSystemSettings()
+    }
+
+    private func showDeveloperIDMigrationAlertIfNeeded() {
+        let migrateKey = "didMigrateToDeveloperID"
+        let prevPromptKey = "didShowAccessibilityPrompt"
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: migrateKey) else { return }
+        defaults.set(true, forKey: migrateKey)
+        // Fresh installs go through the normal Accessibility.promptOnceIfNeeded
+        // path — skip the migration alert for them.
+        guard defaults.bool(forKey: prevPromptKey) else { return }
+
+        let alert = NSAlert()
+        alert.messageText = "권한 재승인이 필요합니다 (0.1.5 → 0.1.6)"
+        alert.informativeText = """
+            코드 서명을 자체서명 → Apple Developer ID 로 업그레이드했습니다.
+            macOS 보안 정책상 손쉬운 사용 권한을 1회 다시 부여해야 합니다.
+
+            1. 아래 "시스템 설정 열기" 클릭
+            2. 손쉬운 사용 목록에서 기존 pizzaClip 항목 선택 → "−" 로 제거
+            3. "+" 또는 자동 다이얼로그로 pizzaClip 다시 추가 → 토글 ON
+
+            이번 1회만 필요합니다. 이후 버전은 자동으로 유지됩니다.
+            """
+        alert.addButton(withTitle: "시스템 설정 열기")
+        alert.addButton(withTitle: "나중에")
+        if alert.runModal() == .alertFirstButtonReturn {
+            Accessibility.openSystemSettings()
+        }
     }
 }
