@@ -1,6 +1,6 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-27
+마지막 업데이트: 2026-05-28
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
@@ -9,9 +9,9 @@
 macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts. 개인 사용 목적, **자체서명 cert(`projectJAM1s`) 서명**, Universal binary, macOS 13+.
 
 - **위치**: `/Users/parkjaekeun/DEV/myclip` (저장소 디렉토리는 그대로, 앱/번들 이름만 pizzaClip)
-- **현재 버전**: 0.1.4
+- **현재 버전**: 0.1.5
 - **브랜치**: `master` (단일 브랜치 운영)
-- **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → DMG/ZIP → ~/Applications 설치)
+- **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → DMG/ZIP → **/Applications 설치**, 0.1.5에서 `~/Applications` → `/Applications` 로 전환)
 
 ## 2. 첫 진입 시 읽어야 할 것
 
@@ -39,6 +39,7 @@ macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, Ke
 - **팝업 타이틀바 아이콘 = 🍕 이모지 + "pizzaClip — Clipboard History"** (0.1.3에서 텍스트 rename)
 - **9 → 1 full paste 버튼** (0.1.2): 검색 박스 자리. 클릭 또는 바 0 키 → top-9 비핀 항목을 slot 9(오래된 것)부터 slot 1(최신)까지 순차로 이전 앱에 붙여넣기 (각 paste 사이 0.18s stagger)
 - **🍕 이스터에그** (0.1.4: exact match): 클립보드 텍스트가 **정확히 `pizza` 한 단어** (대소문자/주변 공백 무시) 일 때만 팝업 자동 오픈 + 🍕 이모지 48개가 팝콘 터지듯 바닥에서 튀어 올랐다가 중력으로 떨어지는 burst 애니메이션 (총 2.4초). 0.1.3 의 substring 매치는 너무 자주 발동해서 제거. 또한 팝업 재오픈 시 stale `pizzaBurstID` 재생되던 버그 fix — `show()` 진입 시 viewModel.pizzaBurstID = nil. SwiftUI `ForEach` + `.position` + `.rotationEffect`, `TimelineView(.animation)` 매 프레임 갱신, `.task(id:)` 로 트리거
+- **오른쪽 ⌘ 탭 → 한/영 토글** (0.1.5, 옵트인): Settings → Shortcuts → "Input source" 섹션 체크박스 ON 시 활성화. 오른쪽 ⌘ 키만 단독으로 눌렀다 뗐을 때 (다른 키·모디파이어 동반 없음) Carbon TIS API 로 한국어 ↔ Latin 키보드 입력 소스 전환. 우⌘+C 같은 chord 사용은 영향 없음. 체감 딜레이 ~10ms 이하 (Karabiner-Elements 수준)
 - Settings: ⌘, / 상태바 우클릭 / 팝업 푸터 클릭 모두 동일한 SwiftUI Settings 창 ("pizzaClip Settings" 타이틀)
 - **팝업 푸터 Clear all 버튼** (0.1.1): 휴지통 + 라벨, 클릭 시 NSAlert 확인 후 wipe
 - 검색: HistoryStore 레이어는 FTS5 그대로 유지(테스트도 통과). 팝업 UI 검색 박스는 cap≤20이라 의미가 없어 제거됨
@@ -63,6 +64,9 @@ macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, Ke
 | **자체서명 cert `projectJAM1s` 사용** (0.1.4 도입) | 0.1.3 까지의 ad-hoc 서명은 cdhash 가 매 빌드마다 바뀌어서 TCC Accessibility grant 가 매번 revoke됐음. Keychain Access 자체서명 cert (Code Signing, 10년 유효) 로 전환하면 identity 기반 grant 라서 cdhash 가 바뀌어도 유지됨. project.yml `CODE_SIGN_STYLE: Manual`, `CODE_SIGN_IDENTITY: "projectJAM1s"`. 처음 한 번 TCC 등록한 뒤로는 release 마다 다시 grant 안 해도 됨 |
 | **이스터에그 burst = SwiftUI 진짜 View (Canvas X)** (0.1.3) | 처음엔 Canvas + `gc.draw(text:)` 로 구현했는데 macOS 13에서 emoji 가 그려지지 않는 케이스 발견. ForEach + Text + `.position` 으로 교체해 시각 보장. 48개 정도는 60fps 가능 |
 | **show + trigger race fix** (0.1.3) | `showWithPizzaBurst` 가 `show()` 직후 동기로 `triggerPizzaBurst()` 호출하면 SwiftUI 첫 mount 와 동시라 `.onChange` 가 놓침. `DispatchQueue.main.async` 로 한 틱 미루고 `PizzaBurst` 는 `.task(id:)` 로 mount + change 둘 다 잡음 |
+| **CGEventTap session-level + listenOnly** (0.1.5 한/영 토글) | HID-level 탭은 Input Monitoring 권한 추가로 필요하지만 session-level + listenOnly 는 Accessibility 만으로 충분. 키 이벤트도 흘려보내기만 하므로 다른 단축키 시스템과 충돌 없음. release 트리거 (press X) 로 chord 와 솔로 탭 구분 |
+| **TIS 대상 = "ko" 언어 보유 여부로 분기** (0.1.5) | 입력 소스 ID 문자열 매칭 (e.g. `com.apple.inputmethod.Korean.2SetKorean`) 은 사용자가 다른 한국어 방식 (3벌식, 천지인 등) 을 쓰면 깨짐. `kTISPropertyInputSourceLanguages` 가 `["ko"]` 면 한국어 소스로 간주. 다중 한국어 소스 환경에서도 동작 |
+| **/Applications 설치** (0.1.5) | `~/Applications` 는 Spotlight·Launchpad 노출이 일관적이지 않음. 일반 사용자의 macOS 앱이라면 `/Applications` 가 표준 위치. admin 계정이면 sudo 없이 cp 됨. 비-admin 사용자는 권한 부족으로 실패할 수 있지만 이 프로젝트는 단일 사용자 (admin) 기준 |
 
 ## 4. 파일 맵
 
@@ -92,6 +96,8 @@ pizzaClip/
 ├── Settings/
 │   └── SettingsView.swift        # TabView (General/Shortcuts/Privacy/Storage) + 알림 이름들
 ├── Shortcuts/Shortcut.swift      # KeyboardShortcuts.Name 확장 (togglePopup, slot 1~9)
+├── InputSource/
+│   └── HangulToggler.swift       # 우⌘ tap → Carbon TIS 한국어↔Latin 입력 소스 토글 (0.1.5)
 ├── Permissions/Accessibility.swift # 1회 prompt, openSystemSettings
 ├── DesignSystem/
 │   ├── Colors.swift              # 코랄 액센트 #D97757
@@ -127,6 +133,7 @@ docs/
 | `.pizzaClipExportHistory` | Settings → Export to text 버튼 | AppDelegate → 텍스트 파일 작성 |
 | `.pizzaClipOpenSettings` | 팝업 푸터 ⌘, Settings 클릭 | AppDelegate → 합성 ⌘, 발사 |
 | `.pizzaClipHistoryChanged` | HistoryStore의 insert/delete/togglePin/clearAll | AppDelegate → status icon refresh + PopupPanelController (panel 보일 때만) → `viewModel.reload()` |
+| `.pizzaClipHangulToggleChanged` (0.1.5) | Settings → "Input source" 체크박스 변경 | AppDelegate → `HangulToggler.shared.setEnabled(bool)`. `object` 에 `NSNumber(value: bool)` 동봉 |
 
 ## 6. 데이터 & 권한
 
@@ -157,9 +164,10 @@ docs/
 
 다음 세션 후보로 논의됐던 거:
 
-- **Settings → "추가기능" 탭**: 오른쪽 ⌘ 키를 무지연 한/영 토글로 매핑. 기술 검토 완료 (CGEventTap + Carbon TIS API 직접 호출, ~5ms 지연). 필요 권한: 기존 Accessibility + 새로 Input Monitoring. 예상 작업량 1.5~3시간. opt-in 토글로 설계 추천
+- **Apple Developer Program 승인 대기 중** (2026-05-27 결제): 승인되면 `projectJAM1s` 자체서명 → Developer ID + notarization 으로 전환. project.yml `CODE_SIGN_IDENTITY` 를 Developer ID 로 바꾸고 `DEVELOPMENT_TEAM` 설정, release.sh 끝에 `xcrun notarytool submit … --wait` + `xcrun stapler staple` 추가. 외부 배포 시 "확인되지 않은 개발자" 워닝 사라짐
 - **GitHub remote 셋업**: 현재 git remote 비어 있음. `gh repo create jekeun/pizzaClip --private --source=. --push` 한 줄. 셋업 후 feature branch + PR + squash merge 가능
 - **이스터에그 파티클 이미지 교체**: 사용자가 PNG 파일 줄 예정. `Text("🍕")` → `Image("...")` 로 1줄 교체. Particle struct 의 emoji 필드를 image name 으로 바꾸면 됨
+- **release.sh 에 아이콘 자동 빌드 단계 추가**: 현재 `assets/pizzaClipAppIcon.png` → `pizzaClip/AppIcon.icns` 변환은 수동 (sips + iconutil). 소스 PNG 가 갱신될 때마다 잊고 release.sh 만 돌리면 옛 아이콘으로 빌드되는 함정. release.sh 의 "Building Release" 직전에 sips 10단계 + iconutil 단계 끼워넣으면 영구 해결
 
 ## 8. 빌드 / 테스트 / 배포
 
@@ -190,7 +198,59 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 - **xcodegen**: project.yml만 손대고 `xcodegen generate`로 .xcodeproj 재생성. .xcodeproj는 절대 직접 편집 금지
 - **xcodegen이 새 파일 자동 인식**: `pizzaClip/` 트리에 파일 추가만 하면 자동으로 픽업 — **단 새 .swift 추가 후엔 `xcodegen generate` 한 번 더 돌려야 빌드에 포함됨** (0.1.3 PizzaBurst.swift 추가 시 첫 빌드가 "cannot find PizzaBurst in scope" 로 실패해서 확인)
 
-## 10. 세션 노트 — 2026-05-27 (0.1.4 버그 픽스 + 자체서명)
+## 10. 세션 노트 — 2026-05-28 (0.1.5 한/영 토글 + /Applications + 새 앱 아이콘)
+
+**Settings → Shortcuts → "Input source" (옵트인 우⌘ 한/영 토글)**
+
+- 새 파일 `pizzaClip/InputSource/HangulToggler.swift` 약 135줄
+- 핵심: `CGEvent.tapCreate(tap: .cgSessionEventTap, place: .headInsertEventTap, options: .listenOnly, ...)` + `kCGEventFlagsChanged` / `kCGEventKeyDown` 마스크
+- 우⌘ vs 좌⌘ 구분: 키코드 54 + `event.flags.rawValue & 0x10` (NX_DEVICERCMDKEYMASK)
+- "clean tap" 판정: press 시 `dirtied = false`, 다른 키나 다른 모디파이어가 닿으면 `dirtied = true`. release 시 dirtied 가 false 면 트리거
+- TIS 호출: `TISCreateInputSourceList(filter, false)` 로 활성+선택 가능 키보드 소스 → `kTISPropertyInputSourceLanguages` 에 `"ko"` 포함 여부로 한국어 분기 → 현재와 반대 카테고리의 첫 소스로 `TISSelectInputSource`
+- AppDelegate 가 launch 시 `UserDefaults.standard.bool(forKey: "rightCommandHangulToggle")` 확인 + `.pizzaClipHangulToggleChanged` 옵저버 등록. 토글 ON 시 `AXIsProcessTrusted()` 체크해서 미부여면 alert + 시스템 설정 안내 후 자동 OFF
+- `tapDisabledByTimeout` / `tapDisabledByUserInput` 발사 시 자동 재활성화 (`CGEvent.tapEnable(tap: port, enable: true)`)
+
+**왜 session-level + listenOnly 인가**
+
+- HID-level (`kCGHIDEventTap`) 은 Input Monitoring TCC 권한이 따로 필요. session-level + listenOnly 는 Accessibility 만으로 충분
+- 사용자가 이미 paste 용 Accessibility 를 grant 한 상태라 추가 권한 다이얼로그 없음
+- 이벤트 흘려보내기만 하므로 (return passUnretained) 우⌘ 가 다른 시스템 단축키와 충돌하지 않음
+
+**체감 검증**
+
+- 사용자 피드백: "체감 아주좋아" — Karabiner-Elements 수준의 즉각 반응. 60Hz 한 프레임 (16ms) 안에 끝남
+
+**`/Applications` 설치 전환**
+
+- release.sh: `mkdir -p ~/Applications` 제거, `cp` 대상 `/Applications` 로
+- admin 그룹 멤버는 sudo 없이 쓰기 가능 (`ls -ld /Applications` → `drwxrwxr-x root admin`)
+- 부수효과: 기존 `~/Applications/pizzaClip.app` 잔류는 사용자 환경에 없어서 cleanup 불필요했음 (사전 확인 완료)
+- 실행 중 재설치 주의: `rm -rf /Applications/pizzaClip.app` 가 디스크 번들 지워도 메모리 프로세스는 살아있음. release 전 `pkill -x pizzaClip` 수동 권장 (release.sh 자체에 포함 안 함 — 사용자 모를 사이에 죽이지 않기 위해)
+
+**새 앱 아이콘 자산 갱신**
+
+- 사용자가 `pizzaClip/AppIcon.png` 위치에 새 1024px PNG (86KB) 떨어뜨림 — 빌드 시스템이 못 보는 위치라서 dead asset 상태였음
+- `assets/pizzaClipAppIcon.png` 로 옮기고 sips (16/32/64/128/256/512 + @2x 변형 10개) + `iconutil -c icns` 로 `pizzaClip/AppIcon.icns` 재생성
+- 240KB icns 갱신, `CFBundleIconFile=AppIcon` 매핑은 그대로
+
+**커밋 시리즈 (4개)**
+
+```
+4cb7b5b chore: bump 0.1.5
+2a76e43 feat(shortcuts): right ⌘ tap toggles Hangul/Latin input source
+1652d7c chore(app): refresh AppIcon from new 1024px source
+94f6f70 chore(release): install release builds to /Applications
+```
+
+**버전 / 배포**
+
+- 0.1.5 (`project.yml` MARKETING 0.1.5, CURRENT 6)
+- `./scripts/release.sh` 로 `dist/pizzaClip-0.1.5.{zip,dmg}` 생성, `/Applications/pizzaClip.app` 0.1.5 설치 + 실행
+- TCC Accessibility 는 0.1.4 → 0.1.5 path 변경에도 `projectJAM1s` identity 가 동일해서 grant 유지됨 (자체서명 cert 도입 효과)
+
+---
+
+## 11. 이전 세션 노트 — 2026-05-27 (0.1.4 버그 픽스 + 자체서명)
 
 **0.1.3 사용 중 발견된 3개 버그 픽스**
 
@@ -218,7 +278,7 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 
 ---
 
-## 11. 이전 세션 노트 — 2026-05-26 (0.1.3 작업 완료, 미커밋이었음)
+## 12. 이전 세션 노트 — 2026-05-26 (0.1.3 작업 완료, 미커밋이었음)
 
 **변경된 동작 / 자산**
 - 앱/번들 전면 rename: `myclip` → `pizzaClip`

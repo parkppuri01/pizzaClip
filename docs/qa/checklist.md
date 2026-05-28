@@ -2,15 +2,15 @@
 
 Run before any release tag. Tick each box as it passes; record any failure in a follow-up commit.
 
-App version: 0.1.4 · Last updated: 2026-05-27
+App version: 0.1.5 · Last updated: 2026-05-28
 
 ---
 
 ## Install & first launch
 
-- [ ] `./scripts/release.sh` produces `dist/pizzaClip-0.1.4.{zip,dmg}` and installs `~/Applications/pizzaClip.app`.
-- [ ] `defaults read ~/Applications/pizzaClip.app/Contents/Info CFBundleShortVersionString` reports **0.1.4** (Info.plist now reads from `$(MARKETING_VERSION)` in project.yml).
-- [ ] `~/Applications/pizzaClip.app` shows the custom clipboard icon in Finder (kill Finder if cached: `killall Finder`).
+- [ ] `./scripts/release.sh` produces `dist/pizzaClip-0.1.5.{zip,dmg}` and installs `/Applications/pizzaClip.app` (0.1.5: install path moved from `~/Applications` to `/Applications` so Spotlight / Launchpad pick it up alongside other apps; admin user can write without `sudo`).
+- [ ] `defaults read /Applications/pizzaClip.app/Contents/Info CFBundleShortVersionString` reports **0.1.5** (Info.plist reads from `$(MARKETING_VERSION)` in project.yml).
+- [ ] `/Applications/pizzaClip.app` shows the new pizzaClip app icon in Finder (kill Finder if cached: `killall Finder`).
 - [ ] Spotlight (⌘ Space) finds "pizzaClip" with the new icon.
 - [ ] Launch the app: no Dock icon appears, clipboard glyph shows in the menu bar.
 - [ ] System Accessibility prompt appears **exactly once** on first launch ever — even after relaunch it does not pop again (UserDefaults-gated).
@@ -112,6 +112,21 @@ App version: 0.1.4 · Last updated: 2026-05-27
 ## Settings — Shortcuts
 
 - [ ] All ten KeyboardShortcuts.Recorder fields (popup + slots 1–9) accept new bindings and apply immediately.
+
+### Input source (0.1.5 — right ⌘ Hangul toggle)
+
+- [ ] "Input source" section sits **between** "Popup" and "Direct paste" sections in the Shortcuts tab.
+- [ ] Default state on fresh install: checkbox **off**, no key tap is intercepted.
+- [ ] Enable the checkbox while Accessibility is **not** granted → an alert appears explaining the requirement; clicking "Open System Settings" opens the Accessibility pane; the checkbox is auto-reverted to **off**.
+- [ ] Grant Accessibility, then enable the checkbox → no alert, checkbox stays **on**.
+- [ ] In any text field (Safari URL bar, TextEdit, Slack, Notes…) cleanly tap **right ⌘** by itself → the active input source flips between Hangul and the Latin keyboard. Repeat tap flips back.
+- [ ] Type **right ⌘ + C** (or any chord using right ⌘) → behaves as the normal shortcut, **no** input source toggle fires.
+- [ ] Hold right ⌘ for a second, then release without pressing anything else → still toggles (clean tap detection works on slow release).
+- [ ] **Left ⌘** alone tap → does **not** toggle (only right ⌘ is the trigger).
+- [ ] Disable the checkbox → next right ⌘ tap is a no-op. Re-enable → toggle resumes without restart.
+- [ ] Quit and relaunch the app with the checkbox on → toggle is auto-armed on launch (state persists in UserDefaults under `rightCommandHangulToggle`).
+- [ ] System Settings → Keyboard → Input Sources has at least one Korean source (e.g. 2-Set Korean) **and** one Latin source (e.g. ABC) enabled. With only one input source available, tap does nothing (expected — nothing to toggle to).
+- [ ] Perceived latency: tap → switch feels instantaneous, well under 60 ms (one display frame at 60 Hz).
 
 ## Settings — Privacy
 
