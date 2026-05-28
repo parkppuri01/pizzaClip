@@ -23,17 +23,84 @@ final class HangulToggler {
     private var rightCmdDown = false
     private var dirtied = false
 
+    private var wantsEnabled = false
+    private var observersInstalled = false
+    private var retryTimer: Timer?
+
     private static let rightCmdKeyCode: Int64 = 54
     private static let rightCmdFlagBit: UInt64 = 0x10  // NX_DEVICERCMDKEYMASK
 
-    var isEnabled: Bool { tap != nil }
+    /// True iff the tap is actually running. Distinct from `wantsEnabled`,
+    /// which tracks the user's stated preference even when permission is
+    /// still missing.
+    var isRunning: Bool { tap != nil }
 
     func setEnabled(_ enabled: Bool) {
+        wantsEnabled = enabled
         if enabled {
             if tap == nil { startTap() }
+            installPermissionObserversIfNeeded()
+            if tap == nil {
+                startRetryTimer()
+            } else {
+                stopRetryTimer()
+            }
         } else {
             stopTap()
+            stopRetryTimer()
         }
+    }
+
+    // MARK: - Permission auto-recovery
+    //
+    // The tap requires Accessibility (TCC) permission. If the user hasn't
+    // granted it yet, `startTap()` silently fails. We watch two signals so
+    // the tap auto-installs the moment the grant flips on, sparing the
+    // user a second trip through pizzaClip's Settings to re-toggle the
+    // checkbox:
+    //
+    //  • DistributedNotificationCenter `com.apple.accessibility.api` —
+    //    undocumented but stable, fired by the system when TCC entries
+    //    change. Karabiner-Elements, Hammerspoon etc. rely on it.
+    //  • NSWorkspace `didActivateApplicationNotification` — belt and
+    //    suspenders, in case the distributed notification doesn't arrive.
+    //
+    // We also run a 2 s polling timer while in the "wanted but not yet
+    // running" state, so even on a machine that delivers neither signal
+    // the user sees auto-recovery within a few seconds.
+    private func installPermissionObserversIfNeeded() {
+        guard !observersInstalled else { return }
+        observersInstalled = true
+        let handler: (Notification) -> Void = { [weak self] _ in
+            self?.recheckPermissionAndRetry()
+        }
+        DistributedNotificationCenter.default().addObserver(
+            forName: NSNotification.Name("com.apple.accessibility.api"),
+            object: nil, queue: .main, using: handler
+        )
+        NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.didActivateApplicationNotification,
+            object: nil, queue: .main, using: handler
+        )
+    }
+
+    private func recheckPermissionAndRetry() {
+        guard wantsEnabled, tap == nil else { return }
+        guard AXIsProcessTrusted() else { return }
+        startTap()
+        if tap != nil { stopRetryTimer() }
+    }
+
+    private func startRetryTimer() {
+        guard retryTimer == nil else { return }
+        retryTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true) { [weak self] _ in
+            self?.recheckPermissionAndRetry()
+        }
+    }
+
+    private func stopRetryTimer() {
+        retryTimer?.invalidate()
+        retryTimer = nil
     }
 
     private func startTap() {
