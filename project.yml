@@ -7,11 +7,11 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "0.1.5"
-    CURRENT_PROJECT_VERSION: "6"
-    DEVELOPMENT_TEAM: ""
+    MARKETING_VERSION: "0.1.6"
+    CURRENT_PROJECT_VERSION: "7"
+    DEVELOPMENT_TEAM: "R684FN2S7J"
     CODE_SIGN_STYLE: Manual
-    CODE_SIGN_IDENTITY: "projectJAM1s"
+    CODE_SIGN_IDENTITY: "Developer ID Application: jaekeun park (R684FN2S7J)"
 packages:
   GRDB:
     url: https://github.com/groue/GRDB.swift
@@ -30,6 +30,12 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.jekeun.pizzaClip
         GENERATE_INFOPLIST_FILE: NO
         INFOPLIST_FILE: pizzaClip/Info.plist
+        ENABLE_HARDENED_RUNTIME: YES
+        OTHER_CODE_SIGN_FLAGS: "--timestamp"
+        CODE_SIGN_ENTITLEMENTS: pizzaClip/pizzaClip.entitlements
+      configs:
+        Release:
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
     dependencies:
       - package: GRDB
         product: GRDB
