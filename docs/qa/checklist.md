@@ -2,18 +2,22 @@
 
 Run before any release tag. Tick each box as it passes; record any failure in a follow-up commit.
 
-App version: 0.1.5 · Last updated: 2026-05-28
+App version: 0.1.6 · Last updated: 2026-05-29
 
 ---
 
 ## Install & first launch
 
-- [ ] `./scripts/release.sh` produces `dist/pizzaClip-0.1.5.{zip,dmg}` and installs `/Applications/pizzaClip.app` (0.1.5: install path moved from `~/Applications` to `/Applications` so Spotlight / Launchpad pick it up alongside other apps; admin user can write without `sudo`).
-- [ ] `defaults read /Applications/pizzaClip.app/Contents/Info CFBundleShortVersionString` reports **0.1.5** (Info.plist reads from `$(MARKETING_VERSION)` in project.yml).
+- [ ] `./scripts/release.sh` produces `dist/pizzaClip-0.1.6.{zip,dmg}` and installs `/Applications/pizzaClip.app`.
+- [ ] `defaults read /Applications/pizzaClip.app/Contents/Info CFBundleShortVersionString` reports **0.1.6** (Info.plist reads from `$(MARKETING_VERSION)` in project.yml).
+- [ ] `codesign -dvv /Applications/pizzaClip.app 2>&1 | grep -E "Authority|Runtime|flags"` shows `Developer ID Application: jaekeun park (R684FN2S7J)` + `flags=0x10000(runtime)` (0.1.6: Developer ID + hardened runtime + timestamped signature).
+- [ ] `spctl -a -t open --context context:primary-signature -v dist/pizzaClip-0.1.6.dmg` returns `accepted` / `source=Notarized Developer ID` (0.1.6: DMG itself is signed + notarized + stapled, not just the .app inside).
+- [ ] `xcrun stapler validate /Applications/pizzaClip.app` reports "The validate action worked!" (0.1.6: notarization ticket stapled).
 - [ ] `/Applications/pizzaClip.app` shows the new pizzaClip app icon in Finder (kill Finder if cached: `killall Finder`).
 - [ ] Spotlight (⌘ Space) finds "pizzaClip" with the new icon.
 - [ ] Launch the app: no Dock icon appears, clipboard glyph shows in the menu bar.
 - [ ] System Accessibility prompt appears **exactly once** on first launch ever — even after relaunch it does not pop again (UserDefaults-gated).
+- [ ] **(0.1.6) Developer ID migration alert**: an existing 0.1.5 user (with `didShowAccessibilityPrompt=true`) launching 0.1.6 for the first time sees an NSAlert "권한 재승인이 필요합니다 (0.1.5 → 0.1.6)" with steps to remove + re-add pizzaClip in Accessibility. Buttons: "시스템 설정 열기" (opens Accessibility pane) or "나중에" (dismiss). Flag `didMigrateToDeveloperID` set on first show — alert never appears again. Fresh installs do **not** see this alert.
 - [ ] `~/Library/Application Support/pizzaClip/db.sqlite` is created on first clipboard event. `blobs/` appears once an image is copied.
 - [ ] Quit and relaunch — no second prompt; menu bar icon comes back.
 
@@ -25,19 +29,20 @@ App version: 0.1.5 · Last updated: 2026-05-28
 - [ ] Menu → "Open Popup" also opens the popup with the same slide-down animation.
 - [ ] Menu → "Grant Accessibility…" opens System Settings → Privacy & Security → Accessibility (no extra system prompt).
 
-### Pizza icon (0.1.4 — PNG asset set, 11 stages)
+### Pizza icon (0.1.6 — PNG asset set, 10 stages)
 
 - [ ] On fresh launch with empty history: icon is **PizzaIcon0** (designed empty state).
-- [ ] After each copy 1…8: icon swaps to PizzaIcon1, PizzaIcon2, …, PizzaIcon8 in lockstep with the item count.
-- [ ] On the 9th item: icon is **PizzaIcon9** (single pizza box — capacity reached).
-- [ ] On the 10th item and beyond: icon is **PizzaIcon10** (stacked pizza boxes — overflow). Removing items steps back through 9 → 8 → 7 ….
+- [ ] After each copy 1…7: icon swaps to PizzaIcon1, PizzaIcon2, …, PizzaIcon7 in lockstep with the item count (slices 1 through 7).
+- [ ] On the 8th item: icon is **PizzaIcon8** (single pizza box, lid open — capacity reached). The old "8 slices" art is gone — the box appears one item earlier than in 0.1.5.
+- [ ] On the 9th item and beyond: icon is **PizzaIcon9** (stacked pizza boxes — overflow). Removing items steps back through 8 → 7 → 6 ….
 - [ ] Settings → Clear all (or popup Clear all) → icon returns to PizzaIcon0.
 - [ ] Toggle System Settings → Appearance Light/Dark — PNG painted colors stay intact (template rendering disabled, so no auto-tint).
 
-### Pizza easter egg (0.1.4 — exact-match only)
+### Pizza easter egg (0.1.6 — pizza + 피자 exact-match)
 
 - [ ] Copy the literal single word **"pizza"** (case-insensitive, surrounding whitespace OK: `pizza`, `Pizza`, ` PIZZA `) → popup auto-opens and 🍕 emojis burst out from the bottom, peak around mid-height, then fall back down. Animation lasts ~2.4s.
-- [ ] Copy a sentence containing "pizza" (e.g. `Pizza party`, `I love PIZZA`) → **no auto-open, no burst** (0.1.4: substring matching removed because it was too eager).
+- [ ] **(0.1.6)** Copy the literal Korean word **"피자"** (exact match, surrounding whitespace OK: `피자`, ` 피자 `) → same 🍕 burst as the English trigger.
+- [ ] Copy a sentence containing "pizza" / "피자" (e.g. `Pizza party`, `피자 먹자`, `I love PIZZA`) → **no auto-open, no burst** (exact match only).
 - [ ] Particles stay inside the popup's rounded rectangle (no escape past the chrome).
 - [ ] List rows and footer buttons remain interactive while pizzas are flying (overlay does not block hits).
 - [ ] After a burst plays, close the popup with ⎋ and re-open it via the menu-bar icon or ⌘⇧V → **no burst replay** (0.1.4 fix: stale burst trigger is cleared on each show).
@@ -125,6 +130,7 @@ App version: 0.1.5 · Last updated: 2026-05-28
 - [ ] **Left ⌘** alone tap → does **not** toggle (only right ⌘ is the trigger).
 - [ ] Disable the checkbox → next right ⌘ tap is a no-op. Re-enable → toggle resumes without restart.
 - [ ] Quit and relaunch the app with the checkbox on → toggle is auto-armed on launch (state persists in UserDefaults under `rightCommandHangulToggle`).
+- [ ] **(0.1.6) Permission auto-recovery**: launch pizzaClip with checkbox ON but Accessibility revoked → tap silently fails to install (logged). Open System Settings → Accessibility → toggle pizzaClip ON without touching pizzaClip's own checkbox. Within ~2 seconds the right-⌘ tap starts working — no need to come back to pizzaClip Settings and re-toggle the checkbox. Distributed notification `com.apple.accessibility.api` + NSWorkspace activation + 2 s polling all serve as recovery signals.
 - [ ] System Settings → Keyboard → Input Sources has at least one Korean source (e.g. 2-Set Korean) **and** one Latin source (e.g. ABC) enabled. With only one input source available, tap does nothing (expected — nothing to toggle to).
 - [ ] Perceived latency: tap → switch feels instantaneous, well under 60 ms (one display frame at 60 Hz).
 

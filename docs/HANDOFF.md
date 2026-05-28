@@ -1,17 +1,17 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-28
+마지막 업데이트: 2026-05-29
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
 ## 1. 프로젝트 한 줄 요약
 
-macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts. 개인 사용 목적, **자체서명 cert(`projectJAM1s`) 서명**, Universal binary, macOS 13+.
+macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts. 개인 사용 + 랜딩페이지 배포 목적, **Apple Developer ID 서명 + hardened runtime + notarize + staple** (0.1.6), Universal binary, macOS 13+.
 
 - **위치**: `/Users/parkjaekeun/DEV/myclip` (저장소 디렉토리는 그대로, 앱/번들 이름만 pizzaClip)
-- **현재 버전**: 0.1.5
+- **현재 버전**: 0.1.6
 - **브랜치**: `master` (단일 브랜치 운영)
-- **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → DMG/ZIP → **/Applications 설치**, 0.1.5에서 `~/Applications` → `/Applications` 로 전환)
+- **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → .app notarize → staple → DMG sign → DMG notarize → DMG staple → **/Applications 설치**. 0.1.6에서 Developer ID + 2-round notary 도입)
 
 ## 2. 첫 진입 시 읽어야 할 것
 
@@ -34,12 +34,15 @@ macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, Ke
 - 팝업 라이브 갱신: 열려있는 동안 다른 앱에서 ⌘C해도 즉시 반영
 - **팝업 포커스 잃으면 자동 close** (다른 창 클릭 시 — 0.1.1)
 - 상태바 아이콘: 좌클릭=팝업(슬라이드 다운 애니메이션), 우클릭=메뉴
-- **상태바 피자 아이콘 PNG 단계 표시** (0.1.4: 11단계로 확장): 사용자 제공 PNG 11단계를 `pizzaClip/Resources/Assets.xcassets/PizzaIcon0~10.imageset` 으로 번들. 히스토리 0개 → PizzaIcon0, 1~8개 → PizzaIcon1~8, 9개 → PizzaIcon9 (피자박스 한 개), 10개+ → PizzaIcon10 (피자박스 쌓인 이미지). 이전 Core Graphics 직접 드로잉은 제거됨. `template-rendering-intent: original` 로 painted 컬러 유지
+- **상태바 피자 아이콘 PNG 단계 표시** (0.1.6: 10단계로 정리): 사용자 제공 PNG 10단계를 `pizzaClip/Resources/Assets.xcassets/PizzaIcon0~9.imageset` 으로 번들. 히스토리 0개 → PizzaIcon0, 1~7개 → PizzaIcon1~7 (슬라이스 1~7개), 8개 → PizzaIcon8 (피자박스 한 개, 뚜껑 열린 상태), 9개+ → PizzaIcon9 (피자박스 쌓인 이미지). 이전 Core Graphics 직접 드로잉은 제거됨. `template-rendering-intent: original` 로 painted 컬러 유지. (0.1.5 까지의 "슬라이스 8개" 아이콘은 제거 — 8개 자리에 곧바로 박스 표시)
 - **앱 아이콘 PNG → .icns 자동 빌드** (0.1.3): 사용자 제공 1024px `assets/pizzaClipAppIcon.png` 를 `sips`+`iconutil` 로 10개 사이즈 iconset → `pizzaClip/AppIcon.icns` 생성. Info.plist `CFBundleIconFile=AppIcon` 그대로
 - **팝업 타이틀바 아이콘 = 🍕 이모지 + "pizzaClip — Clipboard History"** (0.1.3에서 텍스트 rename)
 - **9 → 1 full paste 버튼** (0.1.2): 검색 박스 자리. 클릭 또는 바 0 키 → top-9 비핀 항목을 slot 9(오래된 것)부터 slot 1(최신)까지 순차로 이전 앱에 붙여넣기 (각 paste 사이 0.18s stagger)
 - **🍕 이스터에그** (0.1.4: exact match): 클립보드 텍스트가 **정확히 `pizza` 한 단어** (대소문자/주변 공백 무시) 일 때만 팝업 자동 오픈 + 🍕 이모지 48개가 팝콘 터지듯 바닥에서 튀어 올랐다가 중력으로 떨어지는 burst 애니메이션 (총 2.4초). 0.1.3 의 substring 매치는 너무 자주 발동해서 제거. 또한 팝업 재오픈 시 stale `pizzaBurstID` 재생되던 버그 fix — `show()` 진입 시 viewModel.pizzaBurstID = nil. SwiftUI `ForEach` + `.position` + `.rotationEffect`, `TimelineView(.animation)` 매 프레임 갱신, `.task(id:)` 로 트리거
 - **오른쪽 ⌘ 탭 → 한/영 토글** (0.1.5, 옵트인): Settings → Shortcuts → "Input source" 섹션 체크박스 ON 시 활성화. 오른쪽 ⌘ 키만 단독으로 눌렀다 뗐을 때 (다른 키·모디파이어 동반 없음) Carbon TIS API 로 한국어 ↔ Latin 키보드 입력 소스 전환. 우⌘+C 같은 chord 사용은 영향 없음. 체감 딜레이 ~10ms 이하 (Karabiner-Elements 수준)
+- **권한 자동 복구** (0.1.6): 우⌘ 토글 ON 인 상태에서 Accessibility 권한이 없으면 tap 생성 실패 → 사용자가 시스템 설정에서 권한 부여하는 순간 자동으로 tap 재생성. 신호 3종: (1) DistributedNotificationCenter `com.apple.accessibility.api` 노티, (2) NSWorkspace 앱 activation, (3) 2초 폴링 (앞 둘이 안 와도 안전망). 사용자가 pizzaClip Settings 로 돌아와서 체크박스 재토글할 필요 없음
+- **Developer ID 마이그레이션 알림** (0.1.6, 1회): 기존 0.1.5 사용자가 0.1.6 처음 켤 때 NSAlert 1회 — "권한 재승인이 필요합니다" + "시스템 설정 열기" 버튼. UserDefaults `didMigrateToDeveloperID` 로 다시 안 뜸. `didShowAccessibilityPrompt` 가 false (= 신규 설치) 면 알림 스킵하고 그냥 표시 플래그만 set
+- **🍕 한글 '피자' 트리거** (0.1.6): 기존 영문 "pizza" exact match 외에 한국어 "피자" exact match 도 burst 발동 (부분 매치는 여전히 안 함 — "피자 먹자" 같은 문장은 트리거 X)
 - Settings: ⌘, / 상태바 우클릭 / 팝업 푸터 클릭 모두 동일한 SwiftUI Settings 창 ("pizzaClip Settings" 타이틀)
 - **팝업 푸터 Clear all 버튼** (0.1.1): 휴지통 + 라벨, 클릭 시 NSAlert 확인 후 wipe
 - 검색: HistoryStore 레이어는 FTS5 그대로 유지(테스트도 통과). 팝업 UI 검색 박스는 cap≤20이라 의미가 없어 제거됨
@@ -106,7 +109,7 @@ pizzaClip/
 │   └── PizzaIcon.swift           # NSImage(named: "PizzaIcon\(n)") 로딩만 (Core Graphics 드로잉 제거)
 ├── Resources/
 │   └── Assets.xcassets/
-│       └── PizzaIcon{0..9}.imageset/  # 사용자 제공 PNG @1x/@2x, template-rendering-intent: original
+│       └── PizzaIcon{0..9}.imageset/  # 10단계 PNG @1x/@2x, template-rendering-intent: original (0.1.6 부터 슬라이스 7개 + 박스 2단계)
 ├── AppIcon.icns                  # release.sh 가 sips+iconutil 로 빌드 (커밋 대상)
 └── Info.plist                    # LSUIElement=YES, CFBundleIconFile=AppIcon, CFBundle*=pizzaClip
 ```
@@ -164,8 +167,9 @@ docs/
 
 다음 세션 후보로 논의됐던 거:
 
-- **Apple Developer Program 승인 대기 중** (2026-05-27 결제): 승인되면 `projectJAM1s` 자체서명 → Developer ID + notarization 으로 전환. project.yml `CODE_SIGN_IDENTITY` 를 Developer ID 로 바꾸고 `DEVELOPMENT_TEAM` 설정, release.sh 끝에 `xcrun notarytool submit … --wait` + `xcrun stapler staple` 추가. 외부 배포 시 "확인되지 않은 개발자" 워닝 사라짐
-- **GitHub remote 셋업**: 현재 git remote 비어 있음. `gh repo create jekeun/pizzaClip --private --source=. --push` 한 줄. 셋업 후 feature branch + PR + squash merge 가능
+- **Sparkle 자동 업데이트 (0.1.7 예정)**: 랜딩페이지 배포의 후속 — 사용자가 한 번 깐 뒤로는 자동으로 새 버전 받게. Sparkle 2 SPM 의존성 추가, EdDSA 키쌍 (비공개키 키체인, 공개키 Info.plist `SUPublicEDKey`), `appcast.xml` (랜딩페이지 도메인 정적 호스팅, 권장), DMG 호스팅 (GitHub Releases), release.sh 가 `sign_update` 로 EdDSA 서명 + appcast 갱신 + gh release create 자동화. Settings → General 에 "Download updates automatically" 체크박스 1개. 기본 ON: 자동 다운로드 + 종료/재시작 시 자동 설치. 해제 시: 알림만 → 사용자가 "Install Update" 클릭
+- **GitHub remote 셋업**: 현재 git remote 비어 있음. `gh repo create jekeun/pizzaClip --public --source=. --push` (Sparkle DMG 호스팅 위해 public 권장). 또는 private 두고 release asset 만 따로 호스팅
+- **랜딩페이지 (Vercel)**: 도메인 + 다운로드 버튼 (GitHub Releases asset 직링크) + appcast.xml 정적 파일 호스팅. 0.1.6 처음 사용자가 받게 될 통로
 - **이스터에그 파티클 이미지 교체**: 사용자가 PNG 파일 줄 예정. `Text("🍕")` → `Image("...")` 로 1줄 교체. Particle struct 의 emoji 필드를 image name 으로 바꾸면 됨
 - **release.sh 에 아이콘 자동 빌드 단계 추가**: 현재 `assets/pizzaClipAppIcon.png` → `pizzaClip/AppIcon.icns` 변환은 수동 (sips + iconutil). 소스 PNG 가 갱신될 때마다 잊고 release.sh 만 돌리면 옛 아이콘으로 빌드되는 함정. release.sh 의 "Building Release" 직전에 sips 10단계 + iconutil 단계 끼워넣으면 영구 해결
 
@@ -198,7 +202,59 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 - **xcodegen**: project.yml만 손대고 `xcodegen generate`로 .xcodeproj 재생성. .xcodeproj는 절대 직접 편집 금지
 - **xcodegen이 새 파일 자동 인식**: `pizzaClip/` 트리에 파일 추가만 하면 자동으로 픽업 — **단 새 .swift 추가 후엔 `xcodegen generate` 한 번 더 돌려야 빌드에 포함됨** (0.1.3 PizzaBurst.swift 추가 시 첫 빌드가 "cannot find PizzaBurst in scope" 로 실패해서 확인)
 
-## 10. 세션 노트 — 2026-05-28 (0.1.5 한/영 토글 + /Applications + 새 앱 아이콘)
+## 10. 세션 노트 — 2026-05-29 (0.1.6 Developer ID + notarize + TCC 자동복구 + 한글 이스터에그 + 아이콘 10단계 정리)
+
+**Phase A 의 모든 작업** — 랜딩페이지 배포 준비 완료. Sparkle 자동업데이트는 0.1.7 로 분리.
+
+### 핵심 변경
+
+1. **상태바 피자 아이콘 11단계 → 10단계로 정리**: 슬라이스 8 아이콘 삭제, PizzaIcon9 (피자박스 뚜껑열림) 이 8개 자리로, PizzaIcon10 (박스 쌓임) 이 9+ 자리로. `PizzaIcon.swift` `min(10, count)` → `min(9, count)`
+2. **Apple Developer ID 인증서로 코드서명 전환**: `Developer ID Application: jaekeun park (R684FN2S7J)`. project.yml `CODE_SIGN_IDENTITY` 갱신, `ENABLE_HARDENED_RUNTIME: YES`, `OTHER_CODE_SIGN_FLAGS: "--timestamp"`, `CODE_SIGN_ENTITLEMENTS: pizzaClip/pizzaClip.entitlements` (빈 dict)
+3. **Release 구성에서 `CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO`** — Xcode 가 자동 주입하는 `com.apple.security.get-task-allow` 가 Release 빌드까지 따라와서 notary 가 거부 (`The executable requests the com.apple.security.get-task-allow entitlement`). per-config 설정으로 Debug 디버깅은 유지하면서 Release 만 클린
+4. **`release.sh` 가 2라운드 notary 수행**:
+   - 라운드 1: `.app` ZIP 묶어서 제출 → staple
+   - DMG 생성 (stapled .app 안에 들고)
+   - `codesign --sign Developer\ ID... --timestamp` 로 DMG 자체 서명
+   - 라운드 2: 서명된 DMG 제출 → staple
+   - 결과: `.app` 도 stapled, DMG 도 signed + notarized + stapled → 사용자 DMG 마운트 시 Gatekeeper 경고 없음
+5. **앱 전용 비번 + 키체인 프로파일 `pizzaClip notary`**: `xcrun notarytool store-credentials` 로 1회 등록. release.sh 는 `--keychain-profile "pizzaClip notary"` 로 참조 (비번 노출 X)
+6. **한글 '피자' 이스터에그**: `text.lowercased() == "pizza" || trimmed == "피자"`. Exact match 만, substring 트리거는 여전히 거부
+7. **TCC 권한 자동복구** (`HangulToggler`): `wantsEnabled` 추가로 사용자 의도 보존, `installPermissionObserversIfNeeded()` 가 DistributedNotificationCenter (`com.apple.accessibility.api`) + NSWorkspace activation 노티 listen + 2초 timer fallback. 권한 들어오는 순간 자동으로 `startTap()` 재시도
+8. **0.1.5 → 0.1.6 마이그레이션 알림**: `showDeveloperIDMigrationAlertIfNeeded()` — UserDefaults `didMigrateToDeveloperID` 가드, `didShowAccessibilityPrompt=true` (= 기존 사용자) 인 경우만 표시. "기존 항목 제거 후 재추가" 단계 안내
+
+### 디버깅 교훈
+
+1. **시계 동기화**: Apple `--timestamp` 서명은 시스템 시계가 정확해야 함 (오차 ~수 분). 19분 30초 어긋났더니 `timestamps differ by 1173 seconds` 거부. `sudo sntp -sS time.apple.com` 또는 시스템 설정 자동 동기화 토글로 fix. 해외 출장·노트북 절전 후엔 종종 어긋남
+2. **notary 거부 패턴 1 — get-task-allow**: 위 #3 참고. Xcode 의 base entitlements 자동 주입이 Release 까지 따라옴. per-config `CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO`
+3. **notarytool `--wait` 의 stdout 파싱 함정**: 출력에 "Current status: In Progress" 가 N번 반복되고 마지막에 "  status: Accepted" 가 옴. `awk '/status:/ {print $2}'` 는 첫 매치 "Current status:" 의 $2 = "status:" 를 잡아서 가짜 fail. 해결: `awk '$1 == "status:" {print $2; exit}'` 로 정확 매치
+4. **DMG staple 은 DMG 도 notarize 돼야 함**: ZIP-포장 .app 만 제출한 상태에서 `stapler staple <dmg>` 하면 `CloudKit Record not found` 로 실패. DMG cdhash 가 Apple 티켓 풀에 없기 때문. 두 옵션: (a) DMG staple 생략하고 .app 만 stapled 로 두기, (b) DMG 도 sign + notarize + staple. 옵션 B 가 macOS 사용자 UX 표준 → 채택
+5. **TCC identity 전환은 1회 reset 불가피**: `projectJAM1s` → Developer ID 는 시스템이 다른 앱으로 인식. 기존 grant 살릴 방법 없음. 이번 1회만 사용자가 시스템 설정에서 기존 항목 제거 후 재추가. 이후 0.1.7, 0.1.8 ... 은 Developer ID identity 유지라 grant 안 풀림
+
+### 새 파일
+
+- `pizzaClip/pizzaClip.entitlements` — 빈 dict (hardened runtime 호환)
+
+### 배포
+
+- 0.1.6 (`project.yml` MARKETING 0.1.6, CURRENT 7)
+- `dist/pizzaClip-0.1.6.{zip,dmg}` — DMG 사용자 받아서 마운트 → Gatekeeper 통과 → /Applications 드래그
+- `/Applications/pizzaClip.app` 자체도 stapled
+
+### 미커밋 (다음 세션에서 정리)
+
+이번 세션의 변경분 다수 미커밋. 제안 split:
+- `chore(menubar): drop 8-slice icon, shift box stages one earlier (10 stages)`
+- `feat(easter-egg): trigger on Korean '피자' as well as 'pizza'`
+- `feat(hangul-toggle): auto-recover when Accessibility grant arrives later`
+- `feat(launch): show one-time Developer ID migration alert for 0.1.5 users`
+- `chore(release): switch to Developer ID Application + hardened runtime + notarize`
+- `chore(release): 2-round notary for DMG (sign + submit + staple)`
+- `chore: bump 0.1.6`
+- `docs: 0.1.6 handoff + QA checklist refresh`
+
+---
+
+## 11. 이전 세션 노트 — 2026-05-28 (0.1.5 한/영 토글 + /Applications + 새 앱 아이콘)
 
 **Settings → Shortcuts → "Input source" (옵트인 우⌘ 한/영 토글)**
 
@@ -250,7 +306,7 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 
 ---
 
-## 11. 이전 세션 노트 — 2026-05-27 (0.1.4 버그 픽스 + 자체서명)
+## 12. 이전 세션 노트 — 2026-05-27 (0.1.4 버그 픽스 + 자체서명)
 
 **0.1.3 사용 중 발견된 3개 버그 픽스**
 
@@ -278,7 +334,7 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 
 ---
 
-## 12. 이전 세션 노트 — 2026-05-26 (0.1.3 작업 완료, 미커밋이었음)
+## 13. 이전 세션 노트 — 2026-05-26 (0.1.3 작업 완료, 미커밋이었음)
 
 **변경된 동작 / 자산**
 - 앱/번들 전면 rename: `myclip` → `pizzaClip`
