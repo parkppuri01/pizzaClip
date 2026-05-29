@@ -1,0 +1,66 @@
+---
+/** 블로그 목록 — 글 없으면 "준비 중" placeholder */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+
+const fmtDate = (d: Date) =>
+  `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(d.getDate()).padStart(2, "0")}`;
+---
+<BaseLayout title="Blog" description="pizzaClip 소개 글과 사용 팁을 차곡차곡 쌓아갑니다.">
+  <section class="section container">
+    <header class="page-head">
+      <h1>Blog</h1>
+      <p>피자클립 이야기와 사용 팁을 차곡차곡 쌓아갑니다.</p>
+    </header>
+
+    {posts.length === 0 ? (
+      <div class="empty">
+        <p class="empty__emoji" aria-hidden="true">🍕</p>
+        <h2>곧 찾아옵니다</h2>
+        <p>첫 번째 글을 굽고 있어요. 조금만 기다려 주세요!</p>
+      </div>
+    ) : (
+      <ul class="post-list">
+        {posts.map((post) => (
+          <li class="post-card">
+            <a href={`/blog/${post.id}`}>
+              <time datetime={post.data.date.toISOString()}>{fmtDate(post.data.date)}</time>
+              <h2>{post.data.title}</h2>
+              {post.data.description && <p>{post.data.description}</p>}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</BaseLayout>
+
+<style>
+  .empty {
+    text-align: center;
+    padding: clamp(2rem, 8vw, 5rem) 1rem;
+    background: var(--color-menu);
+    border-radius: var(--radius-card);
+  }
+  .empty__emoji { font-size: 3rem; }
+  .empty h2 { margin-top: 0.5rem; }
+  .empty p  { margin-top: 0.5rem; color: var(--color-ink); }
+
+  .post-list { display: grid; gap: 1.25rem; }
+  .post-card a {
+    display: block;
+    background: var(--color-surface);
+    border: var(--border-w) solid var(--color-menu);
+    border-radius: var(--radius-card);
+    padding: 1.5rem;
+    transition: transform 0.12s ease;
+  }
+  .post-card a:hover { transform: translateY(-2px); }
+  .post-card time { font-family: var(--font-en); color: var(--color-point); font-size: var(--fs-small); }
+  .post-card h2 { font-size: var(--fs-h3); margin-top: 0.4rem; }
+  .post-card p  { margin-top: 0.5rem; color: var(--color-text); }
+</style>

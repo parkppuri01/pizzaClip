@@ -1,0 +1,38 @@
+/* =========================================================================
+   PIZZA CLIP — 디자인 토큰 (design.md §1·§2·§4 그대로)
+   색·폰트·레이아웃 값의 단일 진실 소스. 값 바꾸려면 여기만 고친다.
+   ========================================================================= */
+:root {
+  /* ---- 컬러 (design.md §1) ---- */
+  --color-bg:       #FCF6EF; /* 크림 배경 */
+  --color-point:    #A2371F; /* 벽돌 빨강 — 포인트/CTA */
+  --color-menu:     #FFB703; /* 피자 옐로우 — 메뉴/카드 */
+  --color-ink:      #102138; /* 네이비 — 제목 */
+  --color-text:     #333333; /* 차콜 — 본문 */
+  /* 파생 */
+  --color-surface:  #ffffff; /* 화이트 카드 */
+  --color-on-menu:  var(--color-ink);
+  --color-on-point: var(--color-menu);
+
+  /* ---- 폰트 (design.md §2) ---- */
+  --font-en:    "OSP-DIN", "Pretendard", sans-serif;        /* 로고/메뉴/버튼/헤드라인 영문 */
+  --font-sans:  "Pretendard", "OSP-DIN", system-ui, sans-serif; /* 한글 본문·UI */
+  --font-serif: "리디바탕", "RIDIBatang", "Pretendard", serif;   /* 소개·블로그 본문 */
+
+  /* 타입 스케일 (모바일 우선, clamp 반응형) */
+  --fs-h1:    clamp(2.2rem, 6vw, 4rem);
+  --fs-h2:    clamp(1.6rem, 4vw, 2.4rem);
+  --fs-h3:    clamp(1.2rem, 3vw, 1.5rem);
+  --fs-body:  1rem;
+  --fs-small: 0.875rem;
+  --lh-tight: 1.15;
+  --lh-body:  1.6;
+
+  /* ---- 레이아웃 (design.md §4) ---- */
+  --maxw:        1080px;
+  --gutter:      clamp(1rem, 4vw, 2rem);
+  --section-gap: clamp(3rem, 8vw, 6rem);
+  --radius-card: 24px;
+  --radius-pill: 999px;
+  --border-w:    2px;
+}

@@ -22,3 +22,10 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# 디자인 원본(대용량) — 레포에 안 올림. 사이트가 쓰는 다운스케일본은 public/img/ 에 커밋됨.
+# 작은 디자인 문서(design.md·design.png·pizza web.png 목업)는 추적함.
+guide/Billboard 1910.png
+guide/Billboard 1910.jpg
+guide/pizza store.png
+guide/pizza store.jpg

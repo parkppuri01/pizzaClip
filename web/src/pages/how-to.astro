@@ -1,0 +1,109 @@
+---
+/** HOW TO — 설치 & 사용법 가이드 (앱 실제 동작 기준) */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Card from "../components/Card.astro";
+import Button from "../components/Button.astro";
+import { DOWNLOAD_URL } from "../consts.ts";
+
+const steps = [
+  {
+    n: "1",
+    title: "내려받고 설치하기",
+    body: "다운로드한 <code>.dmg</code>를 열고 pizzaClip을 <strong>응용 프로그램</strong> 폴더로 드래그하세요. 개발자 서명 + 공증이 되어 있어 별도 경고 없이 실행됩니다.",
+  },
+  {
+    n: "2",
+    title: "손쉬운 사용(Accessibility) 권한 켜기",
+    body: "붙여넣기(⌘V)를 대신 눌러주려면 권한이 필요해요. 처음 실행 시 안내가 뜨면 <strong>시스템 설정 → 개인정보 보호 및 보안 → 손쉬운 사용</strong>에서 pizzaClip을 켜주세요.",
+  },
+  {
+    n: "3",
+    title: "복사하면 자동으로 쌓여요",
+    body: "평소처럼 ⌘C 하세요. 텍스트·이미지·파일이 메뉴바 피자에 차곡차곡 담깁니다. 많이 담길수록 메뉴바 피자가 한 조각씩 늘어나요.",
+  },
+];
+
+const shortcuts = [
+  { keys: "⌘⇧V", desc: "클립보드 히스토리 팝업 열기" },
+  { keys: "⌘⌥⌃1 ~ 9", desc: "해당 번호 항목을 바로 붙여넣기" },
+  { keys: "↑ ↓ / 1~9", desc: "팝업 안에서 항목 이동·선택" },
+  { keys: "↵", desc: "선택한 항목 붙여넣기" },
+  { keys: "0", desc: "9 → 1 전체 순차 붙여넣기" },
+  { keys: "⌫", desc: "항목 삭제 · ⌘P 고정(핀)" },
+  { keys: "오른쪽 ⌘", desc: "한국어 ↔ 영문 입력 전환 (옵션 켰을 때)" },
+];
+---
+<BaseLayout title="How to" description="pizzaClip 설치와 사용법 — 단축키와 권한 설정까지 한 번에.">
+  <section class="section container">
+    <header class="page-head">
+      <h1>How to · 사용법</h1>
+      <p>설치부터 단축키까지, 1분이면 충분합니다.</p>
+    </header>
+
+    <!-- 설치 단계 -->
+    <ol class="steps">
+      {steps.map((s) => (
+        <li class="step">
+          <span class="step__n" aria-hidden="true">{s.n}</span>
+          <div>
+            <h2>{s.title}</h2>
+            <p set:html={s.body} />
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <!-- 단축키 표 -->
+    <Card variant="menu" class="shortcuts">
+      <h2>단축키 한눈에</h2>
+      <dl class="kbd-list">
+        {shortcuts.map((s) => (
+          <div class="kbd-row">
+            <dt><kbd>{s.keys}</kbd></dt>
+            <dd>{s.desc}</dd>
+          </div>
+        ))}
+      </dl>
+    </Card>
+
+    <div class="cta-row">
+      <Button href={DOWNLOAD_URL} variant="primary">Download</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .steps { display: grid; gap: 1.5rem; margin-bottom: var(--section-gap); }
+  .step  { display: flex; gap: 1.25rem; align-items: flex-start; }
+  .step__n {
+    flex: 0 0 auto;
+    width: 2.5rem; height: 2.5rem;
+    display: grid; place-items: center;
+    background: var(--color-point); color: var(--color-menu);
+    font-family: var(--font-en); font-weight: 700; font-size: 1.2rem;
+    border-radius: 999px;
+  }
+  .step h2 { font-size: var(--fs-h3); }
+  .step p  { margin-top: 0.4rem; }
+  .step :global(code) {
+    background: rgba(16,33,56,0.08); padding: 0.1em 0.4em; border-radius: 5px;
+    font-size: 0.9em;
+  }
+
+  .shortcuts h2 { margin-bottom: 1.25rem; }
+  .kbd-list { display: grid; gap: 0.6rem; }
+  .kbd-row  { display: grid; grid-template-columns: minmax(120px, 180px) 1fr; gap: 1rem; align-items: baseline; }
+  kbd {
+    font-family: var(--font-en);
+    background: var(--color-ink); color: var(--color-bg);
+    padding: 0.25em 0.6em; border-radius: 6px; font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .kbd-row dd { color: var(--color-ink); }
+
+  .cta-row { text-align: center; margin-top: var(--section-gap); }
+
+  @media (max-width: 640px) {
+    .kbd-row { grid-template-columns: 1fr; gap: 0.25rem; }
+  }
+</style>

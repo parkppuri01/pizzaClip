@@ -1,17 +1,173 @@
 ---
+/** 메인 랜딩 — web/guide/pizza web.png 목업 흐름 구현 */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Card from "../components/Card.astro";
+import Button from "../components/Button.astro";
+import { DOWNLOAD_URL, GITHUB_URL } from "../consts.ts";
 
+const features = [
+  { icon: "🍕", title: "다 기억해요", desc: "텍스트·이미지·파일까지 복사하는 족족 자동 저장. 그 전에 복사한 게 날아갈 일 없어요." },
+  { icon: "⚡", title: "1초 컷", desc: "⌘⇧V로 팝업, ⌘⌥⌃1~9로 원하는 항목 바로 붙여넣기. 마우스 없이 끝." },
+  { icon: "🇰🇷", title: "한/영 전환", desc: "오른쪽 ⌘ 키 한 번으로 한국어 ↔ 영문 입력 소스 토글. (켜고 끄는 옵션)" },
+  { icon: "🔒", title: "내 맥 안에서만", desc: "기록은 전부 이 맥 로컬에만 저장. 서버로 보내지 않습니다." },
+];
+
+const downloadChecks = [
+  "무료 — 그냥 받아서 쓰세요",
+  "macOS 13+ · Apple Silicon & Intel 유니버설",
+  "Apple 개발자 서명 + 공증 완료 (Gatekeeper 통과)",
+  "Sparkle 자동 업데이트 내장",
+];
 ---
+<BaseLayout>
+  <!-- ===== 히어로 ===== -->
+  <section class="section hero">
+    <div class="container hero__inner">
+      <div class="hero__copy">
+        <h1>맥 메뉴바에 사는<br />피자 한 판 🍕</h1>
+        <p class="hero__lead">
+          <strong>⌘C 한 모든 것</strong>을 기억하는 macOS 클립보드 히스토리.<br />
+          단축키 한 번이면 방금 것도, 아까 것도 다시 꺼내 씁니다.
+        </p>
+        <div class="hero__cta">
+          <Button href={DOWNLOAD_URL} variant="primary">Download</Button>
+          <Button href="/how-to" variant="secondary">How&nbsp;to</Button>
+          <Button href={GITHUB_URL} variant="tertiary">GitHub</Button>
+        </div>
+      </div>
+      <div class="hero__art">
+        <img src="/img/app-icon.png" width="220" height="220"
+             alt="pizzaClip 앱 아이콘 — 클립보드 문서 위를 구르는 피자 커터" />
+      </div>
+    </div>
+  </section>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+  <div class="slice" aria-hidden="true">🍕</div>
+
+  <!-- ===== 후킹 카드 ===== -->
+  <section class="section container">
+    <Card variant="menu" class="hook">
+      <h2>아직도 ⌘C → ⌘V만 쓰세요? 왜요?</h2>
+      <p>방금 복사한 것 때문에 <em>그 전에 복사한 게</em> 사라진 적, 다들 있잖아요.<br />
+         피자클립은 한 판 가득 들고 있다가, 필요할 때 한 조각씩 꺼내줍니다.</p>
+    </Card>
+  </section>
+
+  <div class="slice" aria-hidden="true">🍕</div>
+
+  <!-- ===== 광고판 이미지 ===== -->
+  <section class="section container">
+    <figure class="billboard">
+      <img src="/img/billboard.jpg" width="1400" height="933"
+           alt="피자클립 레트로 광고판" loading="lazy" />
+      <figcaption>STILL HAVEN'T TRIED THE PIZZA CLIP?</figcaption>
+    </figure>
+  </section>
+
+  <div class="slice" aria-hidden="true">🍕</div>
+
+  <!-- ===== 기능 소개 ===== -->
+  <section class="section container">
+    <Card variant="menu">
+      <h2 class="features__title">피자클립이 하는 일</h2>
+      <ul class="features">
+        {features.map((f) => (
+          <li class="feature">
+            <span class="feature__icon" aria-hidden="true">{f.icon}</span>
+            <div>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  </section>
+
+  <div class="slice" aria-hidden="true">🍕</div>
+
+  <!-- ===== 다운로드 카드 ===== -->
+  <section class="section container" id="download">
+    <Card variant="white" class="download">
+      <h2>어메이징, 피자클립 🍕</h2>
+      <ul class="download__checks">
+        {downloadChecks.map((c) => (<li>{c}</li>))}
+      </ul>
+      <Button href={DOWNLOAD_URL} variant="primary" class="download__btn">Download</Button>
+      <p class="download__note">
+        ※ 첫 정식 릴리스 준비 중 — 버튼이 릴리스 목록으로 연결될 수 있어요.
+      </p>
+    </Card>
+  </section>
+</BaseLayout>
+
+<style>
+  /* 히어로 */
+  .hero__inner {
+    display: flex;
+    align-items: center;
+    gap: clamp(2rem, 6vw, 4rem);
+    flex-wrap: wrap;
+  }
+  .hero__copy { flex: 1 1 320px; }
+  .hero__lead { font-size: 1.15rem; margin-top: 1.25rem; color: var(--color-text); }
+  .hero__cta  { display: flex; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
+  .hero__art  { flex: 0 0 auto; margin-inline: auto; }
+  .hero__art img { border-radius: 28px; box-shadow: 0 14px 40px rgba(16, 33, 56, 0.18); }
+
+  /* 피자 조각 디바이더 (인라인) */
+  .slice {
+    text-align: center;
+    font-size: 2rem;
+    line-height: 1;
+    margin-block: clamp(1rem, 4vw, 2rem);
+    user-select: none;
+  }
+
+  /* 후킹 카드 */
+  .hook h2 { font-size: var(--fs-h2); }
+  .hook p  { margin-top: 1rem; font-size: 1.1rem; }
+  .hook em { font-style: normal; color: var(--color-point); font-weight: 700; }
+
+  /* 광고판 */
+  .billboard img { border-radius: var(--radius-card); width: 100%; }
+  .billboard figcaption {
+    margin-top: 0.75rem;
+    text-align: center;
+    font-family: var(--font-en);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--color-point);
+  }
+
+  /* 기능 */
+  .features__title { margin-bottom: 1.5rem; }
+  .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+  .feature  { display: flex; gap: 0.9rem; align-items: flex-start; }
+  .feature__icon { font-size: 1.8rem; line-height: 1.2; }
+  .feature h3 { font-size: 1.15rem; }
+  .feature p  { margin-top: 0.3rem; color: var(--color-ink); opacity: 0.85; }
+
+  /* 다운로드 카드 */
+  .download { text-align: center; }
+  .download__checks {
+    display: inline-grid;
+    gap: 0.6rem;
+    text-align: left;
+    margin: 1.5rem auto;
+  }
+  .download__checks li { position: relative; padding-left: 1.8rem; }
+  .download__checks li::before {
+    content: "✓";
+    position: absolute; left: 0;
+    color: var(--color-point); font-weight: 700;
+  }
+  .download__btn  { font-size: 1.1rem; padding: 0.9em 2.4em; }
+  .download__note { margin-top: 1rem; font-size: var(--fs-small); opacity: 0.7; }
+
+  @media (max-width: 640px) {
+    .features { grid-template-columns: 1fr; }
+    .hero__copy { text-align: center; }
+    .hero__cta  { justify-content: center; }
+  }
+</style>

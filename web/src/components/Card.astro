@@ -1,0 +1,23 @@
+---
+/**
+ * Card — 큰 라운드 카드 2종 (design.md §3-4)
+ *  menu  : 옐로우 배경 (후킹/기능 섹션)
+ *  white : 화이트 배경 + 옐로우 테두리 (다운로드 카드)
+ */
+interface Props {
+  variant?: "menu" | "white";
+  class?: string;
+}
+const { variant = "menu", class: className } = Astro.props;
+const cls = `card card--${variant} ${className ?? ""}`.trim();
+---
+<div class={cls}><slot /></div>
+
+<style>
+  .card {
+    border-radius: var(--radius-card);
+    padding: clamp(1.5rem, 4vw, 3rem);
+  }
+  .card--menu  { background: var(--color-menu); color: var(--color-ink); }
+  .card--white { background: var(--color-surface); border: var(--border-w) solid var(--color-menu); }
+</style>

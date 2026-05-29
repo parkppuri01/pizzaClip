@@ -1,0 +1,25 @@
+/* =========================================================================
+   PIZZA CLIP — 웹폰트 (@font-face 격리)
+   - Pretendard: BaseLayout <head>의 jsDelivr CDN dynamic-subset 링크로 로드
+   - 리디바탕 / OSP-DIN: 아래 self-host (public/fonts/*.woff2)
+   조달 실패 시 이 파일만 손대면 됨. 전부 OFL 1.1 (웹임베드 자유).
+   ========================================================================= */
+
+@font-face {
+  font-family: "OSP-DIN";
+  src: url("/fonts/OSP-DIN.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  /* CLS 가드: OSP-DIN(condensed)이 늦게 떠도 폴백과 폭 차이로 점프 줄임 */
+  size-adjust: 95%;
+  ascent-override: 90%;
+}
+
+@font-face {
+  font-family: "리디바탕";
+  src: url("/fonts/RIDIBatang.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

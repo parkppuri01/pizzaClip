@@ -1,0 +1,20 @@
+# pizzaClip — robots.txt
+# 일반 크롤러 + AI 크롤러 모두 허용 (AEO/GEO: AI 검색 노출 목적)
+User-agent: *
+Allow: /
+
+# AI 크롤러 명시 허용
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Sitemap: 사이트맵 통합(@astrojs/sitemap)은 후속 작업. 추가되면 아래 주석 해제.
+# Sitemap: https://pizza-clip.com/sitemap-index.xml
