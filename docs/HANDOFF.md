@@ -167,7 +167,7 @@ docs/
 
 다음 세션 후보로 논의됐던 거:
 
-- ~~**Sparkle 자동 업데이트 (0.1.7 예정)**~~ → **앱쪽 0.1.7에서 완료** (§10 참고). 남은 것: GitHub repo + Vercel 도메인 확정 → `SUFeedURL` 채우기 + `gh release` 업로드 + appcast.xml 호스팅 자동화
+- ~~**Sparkle 자동 업데이트 (0.1.7 예정)**~~ → **앱쪽 0.1.7에서 완료** (§10 참고). ~~GitHub repo~~ → **생성됨: https://github.com/parkppuri01/pizzaClip (PUBLIC, master)**. 남은 것: Vercel 도메인 확정 → `SUFeedURL` 채우기 + `gh release` 업로드 + appcast.xml 호스팅 자동화
 - **GitHub remote 셋업**: 현재 git remote 비어 있음. `gh repo create jekeun/pizzaClip --public --source=. --push` (Sparkle DMG 호스팅 위해 public 권장). 또는 private 두고 release asset 만 따로 호스팅
 - **랜딩페이지 (Vercel)**: 도메인 + 다운로드 버튼 (GitHub Releases asset 직링크) + appcast.xml 정적 파일 호스팅. 0.1.6 처음 사용자가 받게 될 통로
 - **이스터에그 파티클 이미지 교체**: 사용자가 PNG 파일 줄 예정. `Text("🍕")` → `Image("...")` 로 1줄 교체. Particle struct 의 emoji 필드를 image name 으로 바꾸면 됨
@@ -254,7 +254,7 @@ Sparkle 은 **이미 Sparkle 이 박힌 앱만** 업데이트 가능. 0.1.6 엔 
 
 ### 남은 일 (호스팅 확정 후) — 사용자 입력 대기
 
-1. **GitHub repo**: owner/이름, public/private (Sparkle 무인증 다운로드엔 public 권장), 코드 vs asset-only.
+1. ~~**GitHub repo**~~ → **완료**: `parkppuri01/pizzaClip` (PUBLIC), 기본 브랜치 `master`. `origin` 은 **HTTPS** (`gh auth setup-git` 토큰 자격증명 사용 — SSH 키 미등록이라 git@ 푸시는 실패함, https 만 사용). 첫 릴리스 때 `DOWNLOAD_BASE_URL=https://github.com/parkppuri01/pizzaClip/releases/download/v<버전>` 로 release.sh 실행.
 2. **Vercel 도메인**: 확정 도메인, appcast.xml 최종 URL → `SUFeedURL` 교체, release.sh 의 appcast 푸시 방식.
 3. **enclosure 포맷 확정**: ZIP (Sparkle 자동설치용) / DMG (수동 다운로드용) 분리.
 4. **릴리스 노트**: appcast inline vs `sparkle:releaseNotesLink` 호스팅 (CHANGELOG 도입?).
