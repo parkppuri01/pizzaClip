@@ -1,17 +1,17 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-29
+마지막 업데이트: 2026-05-29 (0.1.7 Sparkle 작업 중 — 앱쪽 완료, 호스팅 미정)
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
 ## 1. 프로젝트 한 줄 요약
 
-macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts. 개인 사용 + 랜딩페이지 배포 목적, **Apple Developer ID 서명 + hardened runtime + notarize + staple** (0.1.6), Universal binary, macOS 13+.
+macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts, **Sparkle 2 자동업데이트** (0.1.7). 개인 사용 + 랜딩페이지 배포 목적, **Apple Developer ID 서명 + hardened runtime + notarize + staple** (0.1.6), Universal binary, macOS 13+.
 
 - **위치**: `/Users/parkjaekeun/DEV/myclip` (저장소 디렉토리는 그대로, 앱/번들 이름만 pizzaClip)
-- **현재 버전**: 0.1.6
+- **현재 버전**: 0.1.7 (`project.yml` MARKETING 0.1.7, CURRENT 8)
 - **브랜치**: `master` (단일 브랜치 운영)
-- **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → .app notarize → staple → DMG sign → DMG notarize → DMG staple → **/Applications 설치**. 0.1.6에서 Developer ID + 2-round notary 도입)
+- **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → **Sparkle 임베드 헬퍼 Developer ID 재서명** → .app notarize → staple → DMG sign → DMG notarize → DMG staple → **/Applications 설치** → **ZIP EdDSA 서명 + appcast `<item>` 생성**. 0.1.6 Developer ID + 2-round notary, 0.1.7 Sparkle 추가)
 
 ## 2. 첫 진입 시 읽어야 할 것
 
@@ -167,7 +167,7 @@ docs/
 
 다음 세션 후보로 논의됐던 거:
 
-- **Sparkle 자동 업데이트 (0.1.7 예정)**: 랜딩페이지 배포의 후속 — 사용자가 한 번 깐 뒤로는 자동으로 새 버전 받게. Sparkle 2 SPM 의존성 추가, EdDSA 키쌍 (비공개키 키체인, 공개키 Info.plist `SUPublicEDKey`), `appcast.xml` (랜딩페이지 도메인 정적 호스팅, 권장), DMG 호스팅 (GitHub Releases), release.sh 가 `sign_update` 로 EdDSA 서명 + appcast 갱신 + gh release create 자동화. Settings → General 에 "Download updates automatically" 체크박스 1개. 기본 ON: 자동 다운로드 + 종료/재시작 시 자동 설치. 해제 시: 알림만 → 사용자가 "Install Update" 클릭
+- ~~**Sparkle 자동 업데이트 (0.1.7 예정)**~~ → **앱쪽 0.1.7에서 완료** (§10 참고). 남은 것: GitHub repo + Vercel 도메인 확정 → `SUFeedURL` 채우기 + `gh release` 업로드 + appcast.xml 호스팅 자동화
 - **GitHub remote 셋업**: 현재 git remote 비어 있음. `gh repo create jekeun/pizzaClip --public --source=. --push` (Sparkle DMG 호스팅 위해 public 권장). 또는 private 두고 release asset 만 따로 호스팅
 - **랜딩페이지 (Vercel)**: 도메인 + 다운로드 버튼 (GitHub Releases asset 직링크) + appcast.xml 정적 파일 호스팅. 0.1.6 처음 사용자가 받게 될 통로
 - **이스터에그 파티클 이미지 교체**: 사용자가 PNG 파일 줄 예정. `Text("🍕")` → `Image("...")` 로 1줄 교체. Particle struct 의 emoji 필드를 image name 으로 바꾸면 됨
@@ -202,7 +202,67 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 - **xcodegen**: project.yml만 손대고 `xcodegen generate`로 .xcodeproj 재생성. .xcodeproj는 절대 직접 편집 금지
 - **xcodegen이 새 파일 자동 인식**: `pizzaClip/` 트리에 파일 추가만 하면 자동으로 픽업 — **단 새 .swift 추가 후엔 `xcodegen generate` 한 번 더 돌려야 빌드에 포함됨** (0.1.3 PizzaBurst.swift 추가 시 첫 빌드가 "cannot find PizzaBurst in scope" 로 실패해서 확인)
 
-## 10. 세션 노트 — 2026-05-29 (0.1.6 Developer ID + notarize + TCC 자동복구 + 한글 이스터에그 + 아이콘 10단계 정리)
+## 10. 세션 노트 — 2026-05-29 (0.1.7 Sparkle 2 자동업데이트 — 앱쪽 완료, 호스팅 미정)
+
+**범위 합의**: 앱쪽 Sparkle 통합 + 키 생성 + release.sh 서명 단계까지만. **사이트쪽(도메인/Vercel appcast 호스팅/gh release 업로드)은 이번 세션에서 제외** — repo·도메인 확정 후 진행.
+
+### 핵심 변경
+
+1. **Sparkle 2 SPM 의존성**: `project.yml` `packages:` 에 `Sparkle: github.com/sparkle-project/Sparkle from 2.6.0` + target dependency. 실제 resolve 된 버전 **2.9.2**. 버전 bump 0.1.7 / CURRENT 8.
+2. **EdDSA 키쌍 생성** (`generate_keys`):
+   - 비공개키 → **login 키체인** (account 기본값 `ed25519`). 이 맥에만 존재.
+   - 공개키 → Info.plist `SUPublicEDKey` = `KR0QzoAjNr4/Crb4N+2AEGL2GKvfX8PO/yTA3sTQolg=`
+   - **백업**: `~/pizzaClip-sparkle-PRIVATE-KEY-BACKUP.txt` (44 bytes, base64). ⚠️ **이 키를 잃으면 향후 모든 업데이트 서명 불가** → 1Password 등 안전한 곳에 옮기고 평문 파일은 삭제 권장. (repo 밖이라 git 추적 안 됨)
+   - CLI 도구 위치: `./build/SourcePackages/artifacts/sparkle/Sparkle/bin/{generate_keys,sign_update}` (SPM resolve 후 생김). 기존 키 조회 `generate_keys -p`, 백업 export `generate_keys -x <file>`.
+3. **Info.plist 키 추가**:
+   - `SUPublicEDKey` (위 공개키)
+   - `SUFeedURL` = `https://REPLACE-WITH-VERCEL-DOMAIN.invalid/appcast.xml` ⚠️ **플레이스홀더**. `.invalid` TLD라 백그라운드 체크는 조용히 실패. **도메인 확정되면 반드시 교체**. (메뉴 "Check for Updates…" 수동 클릭은 교체 전까진 에러 다이얼로그 뜸)
+   - `SUEnableAutomaticChecks=true`, `SUAutomaticallyUpdate=true` (기본 자동 다운로드+설치), `SUScheduledCheckInterval=86400` (24h)
+4. **AppDelegate** ([App/AppDelegate.swift](../pizzaClip/App/AppDelegate.swift)): `import Sparkle` + `SPUStandardUpdaterController(startingUpdater:true)` 프로퍼티 1개. context 메뉴 "Settings…" 다음에 "Check for Updates…" 항목 추가 — target = updaterController, action = `checkForUpdates(_:)`. 컨트롤러가 `canCheckForUpdates` 로 항목 자동 enable/disable.
+5. **Settings → General** ([Settings/SettingsView.swift](../pizzaClip/Settings/SettingsView.swift)): Section 3개(History/Updates/About)로 정리.
+   - **Updates**: "Download updates automatically" Toggle, `@AppStorage("SUAutomaticallyUpdate")` 기본 true. Sparkle 이 같은 defaults 키를 live 로 읽으므로 체크박스 토글이 곧바로 `automaticallyDownloadsUpdates` 를 구동.
+   - **About**: "Version" = `CFBundleShortVersionString (CFBundleVersion)` 표시 → 사용자가 Settings 에서 현재 버전 확인 가능 (이번 세션 요청 사항).
+6. **release.sh 확장** ([scripts/release.sh](../scripts/release.sh)):
+   - **(중요) Sparkle 임베드 헬퍼 Developer ID 재서명** — 빌드 직후, notary 제출 전. `sparkle_resign()` 가 bottom-up 으로 `XPCServices/Downloader.xpc`, `Installer.xpc`, `Updater.app`, `Autoupdate`, `Sparkle.framework` 순서로 `--options runtime --timestamp` 재서명 후 outer `.app` 를 빈 entitlements 로 재봉인. 이어서 `codesign --verify --deep --strict` 하드 체크.
+   - **ZIP EdDSA 서명**: notarize+staple 된 ZIP 을 `sign_update` 로 서명 → `sparkle:edSignature="…" length="…"` 출력.
+   - **appcast `<item>` 생성**: `dist/appcast-item-<버전>.xml` (sparkle:version=빌드번호, shortVersionString=마케팅버전, minimumSystemVersion=13.0, enclosure url=`${DOWNLOAD_BASE_URL}/pizzaClip-<버전>.zip`). `DOWNLOAD_BASE_URL` env 로 다운로드 호스트 주입 (기본 `.invalid` 플레이스홀더).
+   - gh release + Vercel 푸시는 스크립트 말미 **TODO 주석**으로만 (repo/도메인 미정).
+
+### 디버깅 교훈
+
+1. **`xcodebuild build` 는 임베드 프레임워크를 Developer ID 로 재서명하지 않는다** — Xcode Archive/Export 만 해줌. 그래서 빌드 직후 Sparkle 의 중첩 XPC/Updater.app/Autoupdate 가 **ad-hoc** (`flags=0x10002(adhoc,runtime)`, `TeamIdentifier=not set`) 상태 → notary 거부 대상. 해결: 위 #6 bottom-up 재서명. 재서명 후 전부 `flags=0x10000(runtime)` + Developer ID + secure Timestamp + TeamIdentifier 로 확인됨.
+2. **Sparkle 공식 문서의 "별도 서명 불필요" 는 Archive/Export 워크플로 한정** — 우리처럼 `xcodebuild build` + 수동 notary 파이프라인엔 해당 안 됨.
+3. **non-sandboxed + hardened runtime 엔 Sparkle 전용 entitlement 불필요** (sandbox 일 때만 XPC entitlement 필요). 기존 빈 entitlements 그대로 OK.
+
+### ⚠️ 0.1.6 → 0.1.7 은 자동 업데이트 안 됨
+
+Sparkle 은 **이미 Sparkle 이 박힌 앱만** 업데이트 가능. 0.1.6 엔 Sparkle 이 없으므로 **0.1.6 → 0.1.7 은 수동 재다운로드**(랜딩페이지 DMG). **0.1.7 → 0.1.8 이 첫 자동 업데이트 사이클**. (실사용자가 본인뿐이면 영향 미미.)
+
+### 검증
+
+- 유닛 테스트 25개 통과.
+- Release 유니버설 빌드 성공 + 재서명 후 `codesign --verify --deep --strict` 통과 (notary-ready). **실제 notary 제출은 이번 세션에서 안 함** (호스팅 미정이라 릴리스 미실행).
+
+### 미커밋 (다음 세션에서 정리)
+
+이번 세션 변경분 미커밋. 제안 split:
+- `feat(updates): integrate Sparkle 2 auto-update (updater + menu + Settings toggle)`
+- `feat(settings): show app version in General tab`
+- `chore(release): re-sign embedded Sparkle helpers + sign ZIP + emit appcast item`
+- `chore: bump 0.1.7`
+- `docs: 0.1.7 handoff (Sparkle app-side)`
+
+### 남은 일 (호스팅 확정 후) — 사용자 입력 대기
+
+1. **GitHub repo**: owner/이름, public/private (Sparkle 무인증 다운로드엔 public 권장), 코드 vs asset-only.
+2. **Vercel 도메인**: 확정 도메인, appcast.xml 최종 URL → `SUFeedURL` 교체, release.sh 의 appcast 푸시 방식.
+3. **enclosure 포맷 확정**: ZIP (Sparkle 자동설치용) / DMG (수동 다운로드용) 분리.
+4. **릴리스 노트**: appcast inline vs `sparkle:releaseNotesLink` 호스팅 (CHANGELOG 도입?).
+5. **첫 실제 release**: `DOWNLOAD_BASE_URL` set 하고 release.sh 실행 → gh release 업로드 → appcast 배포.
+
+---
+
+## 11. 이전 세션 노트 — 2026-05-29 (0.1.6 Developer ID + notarize + TCC 자동복구 + 한글 이스터에그 + 아이콘 10단계 정리)
 
 **Phase A 의 모든 작업** — 랜딩페이지 배포 준비 완료. Sparkle 자동업데이트는 0.1.7 로 분리.
 
@@ -254,7 +314,7 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 
 ---
 
-## 11. 이전 세션 노트 — 2026-05-28 (0.1.5 한/영 토글 + /Applications + 새 앱 아이콘)
+## 12. 이전 세션 노트 — 2026-05-28 (0.1.5 한/영 토글 + /Applications + 새 앱 아이콘)
 
 **Settings → Shortcuts → "Input source" (옵트인 우⌘ 한/영 토글)**
 
@@ -306,7 +366,7 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 
 ---
 
-## 12. 이전 세션 노트 — 2026-05-27 (0.1.4 버그 픽스 + 자체서명)
+## 13. 이전 세션 노트 — 2026-05-27 (0.1.4 버그 픽스 + 자체서명)
 
 **0.1.3 사용 중 발견된 3개 버그 픽스**
 
@@ -334,7 +394,7 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 
 ---
 
-## 13. 이전 세션 노트 — 2026-05-26 (0.1.3 작업 완료, 미커밋이었음)
+## 14. 이전 세션 노트 — 2026-05-26 (0.1.3 작업 완료, 미커밋이었음)
 
 **변경된 동작 / 자산**
 - 앱/번들 전면 rename: `myclip` → `pizzaClip`
