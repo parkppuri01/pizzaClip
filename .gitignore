@@ -9,3 +9,6 @@ dist/
 
 # OMC tooling state (session memory, plans, logs)
 .omc/
+
+# Claude Code 런타임 부산물 (스케줄러 lock 등)
+.claude/scheduled_tasks.lock
