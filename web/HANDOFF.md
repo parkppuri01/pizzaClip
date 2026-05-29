@@ -1,0 +1,95 @@
+# Web Handoff — pizza-clip.com (랜딩 사이트)
+
+마지막 업데이트: **2026-05-30** (사이트 개편 완료 — 카피 전면 교체 / INFO 페이지 신설 / 전역 90% 스케일 / 정렬 버그 수정 / 네비·버튼 폰트 확대 / 하단·GitHub 버튼 정리 / 네비 무줄바꿈. 전부 master 푸시 → Vercel 라이브.)
+
+> 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
+> 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
+
+---
+
+## 1. 사이트 현황 (라이브)
+
+- **호스팅**: Vercel, **Root Directory = `web`**, 도메인 `pizza-clip.com` (Cloudflare DNS, 회색 구름=DNS only). repo `parkppuri01/pizzaClip` **master 푸시 시 자동 재배포**.
+- **스택**: Astro **6.4.2** (TypeScript strict, **추가 런타임 의존성 0** — astro만).
+- **로컬 빌드**: `cd web && npm install && npm run build` (`dist/`·`node_modules`는 gitignore).
+- **로컬 미리보기**: 루트 `.claude/launch.json` 의 `web` 설정으로 preview_start (포트 **4321**). 또는 `npm run dev`.
+- **다운로드 링크**: `web/src/consts.ts` 의 `DOWNLOAD_URL` = `https://github.com/parkppuri01/pizzaClip/releases/latest/download/pizzaClip.dmg` — **클릭하면 최신 .dmg 바로 다운로드**(고정 파일명이라 버전 올라도 링크 수정 불필요. release.sh 가 매 릴리스마다 이 이름으로 업로드). `GITHUB_URL` = repo 주소.
+- **자동업데이트 appcast**: `web/public/appcast.xml` 이 `pizza-clip.com/appcast.xml` 로 서빙됨(Sparkle). **앱 release.sh(PUBLISH=1)가 자동 재생성**하므로 웹 작업 중 직접 손대지 말 것.
+
+## 2. 페이지 & 파일 구조
+
+```
+web/
+├── src/
+│   ├── consts.ts                 # 전역 상수: DOWNLOAD_URL / GITHUB_URL / SITE_* / NAV_LINKS
+│   ├── layouts/BaseLayout.astro  # <head> 메타·OG·canonical·폰트, Navbar/Footer 틀
+│   ├── components/
+│   │   ├── Navbar.astro           # 상단 옐로우 네비 (HOME/HOW TO/INFO + Download). 무줄바꿈+clamp
+│   │   ├── Footer.astro           # © 2026 pizzaClip · Team JAM, 메뉴 홈·사용법·깃허브
+│   │   ├── Button.astro           # 알약 버튼 3종 (primary/secondary/tertiary)
+│   │   ├── Card.astro             # 카드 2종 (menu=옐로우 / white=흰+옐로우테두리)
+│   │   └── SliceDivider.astro     # 🍕 누적 디바이더 (count prop: 1→2→3→…)
+│   ├── pages/
+│   │   ├── index.astro            # 홈: 히어로→후킹카드→광고판→기능→다운로드 (사이사이 SliceDivider 1~4)
+│   │   ├── how-to.astro           # 사용법: 설치 3단계 + 단축키 표
+│   │   ├── info.astro             # 정보: 전체 버전 릴리스노트 + Team JAM 소개
+│   │   └── blog/                  # 블로그 목록/상세 — 파일 보존, 현재 네비 미연결(차후 결정)
+│   ├── content/blog/hello.md      # 블로그 작성 템플릿 (draft:true)
+│   ├── content.config.ts          # Astro Content Layer (glob loader) — md 1개 떨구면 자동 등장
+│   └── styles/{tokens,fonts,global}.css  # 디자인 토큰·@font-face·리셋
+├── public/
+│   ├── img/{billboard.jpg, pizza-store.jpg}   # (app-icon.png 은 제거됨)
+│   ├── fonts/{RIDIBatang.woff2, OSP-DIN.woff2}
+│   ├── appcast.xml                # Sparkle 피드 (앱 release.sh 가 관리)
+│   └── robots.txt                 # AI 크롤러 허용 (sitemap 줄은 통합 후 주석 해제 예정)
+└── guide/                         # 디자인 원본 에셋 (design.md=SSOT, *.png/jpg 목업·소스)
+```
+
+- **디자인 SSOT**: `web/guide/design.md` (색 5종·폰트 3종·버튼·카드·🍕디바이더 규칙). 토큰 값 헷갈리면 여기 따름.
+- **컬러**: 크림 `#FCF6EF` / 벽돌빨강 `#A2371F`(포인트·CTA) / 피자옐로우 `#FFB703`(메뉴·카드) / 네이비 `#102138`(제목) / 차콜 `#333`(본문).
+- **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
+
+## 3. 완료된 작업
+
+### 2026-05-30 — 사이트 개편 (이번 세션, 커밋 3개)
+- `7a21a05` **feat(web): 랜딩 사이트 개편** — 카피·INFO·스케일·정렬 정비
+- `a71247c` **style(web): 네비 로고·메뉴 + 버튼 폰트 한 단계 확대**
+- `09cb042` **feat(web): 하단 다운로드·히어로 GitHub 버튼 제거 + 네비 줄바꿈 방지**
+
+무엇을 했나:
+- **전역 스케일 ~90% 축소**: `global.css` `html { font-size: 90% }` (root 14.4px) + `tokens.css` `--maxw: 970px`.
+- **네비 정리**: `HOME / HOW TO / INFO` (BLOG는 파일 보존하되 `NAV_LINKS`에서 제외). 폰트 확대(로고 1.6rem / 메뉴 1.2rem / 버튼 1.1rem, clamp 상한). **무줄바꿈**: `flex-wrap: nowrap` + `clamp()` 유동 크기 → 좁아지면 글자·버튼이 함께 줄며 한 줄 유지(375px에서도 무오버플로 확인).
+- **INFO 페이지 신설** (`info.astro`): 전체 버전 릴리스노트(v1.0.0~0.1.1을 일반 유저 문구로) + **Team JAM 소개**(jaekeun·mingyeol, 재미로 시작한 프로젝트 팀, 리디바탕 serif).
+- **카피 전면 교체**: 히어로("Mac 메뉴바에 배달된 피자 한판"·배달 컨셉), 후킹("언제까지 ⌘C, ⌘V 무한 반복…"), 기능 4개(⌘C의 무한 보관소 등 펀치라인), 하단 장점 4줄(0원·모든 Mac·애플 인증·자동 업데이트 — 개발 용어 제거).
+- **히어로 이미지 교체**: `guide/pizza store.jpg`(2205×2928, 7.4MB) → `public/img/pizza-store.jpg`(828×1100, **335KB**, `sips -Z 1100`). 기존 `app-icon.png` 삭제.
+- **디바이더 누적**: `SliceDivider.astro` 신설, 홈에서 위→아래 🍕 **1→2→3→4개**.
+- **푸터**: `© 2026 pizzaClip · Team JAM`, 메뉴 `홈·사용법·깃허브`만, 폰트 축소.
+- **버튼 정리**: how-to·info 하단 중복 다운로드 버튼 제거(상단 네비 버튼으로 충분), 히어로 GitHub 버튼 제거.
+
+### 2026-05-29 — 사이트 1차 완성 + 직접 다운로드
+- Astro 스캐폴드 + 디자인 토큰 + 공용 컴포넌트(Navbar/Footer/Button/Card) + 3페이지(home/how-to/blog) + 폰트 self-host + robots.txt.
+- 블로그 Content Layer 배선(`src/content/blog/*.md` 1개로 목록+상세 자동 생성, 검증됨).
+- 다운로드 버튼을 **고정이름 직접 다운로드**(`…/releases/latest/download/pizzaClip.dmg`)로 전환.
+- Vercel 배포 + 도메인 연결(Cloudflare 회색구름) 완료.
+
+## 4. 교훈 / 함정 (다음에 또 헤매지 않으려고)
+
+1. **Astro 스코프 스타일 × 컴포넌트 경계** ⚠️ 가장 중요: 부모 페이지의 `<style>`에서 `<Card class="x">`/`<Button class="y">`처럼 **자식 컴포넌트에 넘긴 class 를 그 컴포넌트 루트에 직접** 스타일하면 **안 먹힘**. (자식 컴포넌트 루트는 자식 파일의 scope 속성을 달아서 부모 scope 셀렉터와 안 맞음.) → 해결: ① 슬롯 안에 래퍼 div 를 두고 그걸 스타일(`.download__inner`, `.team-wrap`), ② `:global()` 사용(`.navbar :global(.navbar__cta)`). 슬롯 *내용*의 하위 요소(예: `.hook h2`, `.team__body`)는 부모 scope 가 정상 적용됨.
+2. **전역 스케일은 `html { font-size: % }`**: rem 기반 타입·간격이 일괄 축소됨. `clamp(min-rem, vw, max-rem)`도 rem 상·하한이 비례 축소.
+3. **preview 스크린샷 캡처 배율 artifact**: 일부 캡처가 콘텐츠를 한쪽으로 쏠려 좁게 보여줄 수 있음 → **DOM `getBoundingClientRect` 측정이 정답**. 정렬·폭은 측정으로 검증할 것.
+4. **viewport는 페이지 네비게이션 후 초기화**될 수 있음 → resize 후 다시 측정.
+5. **`scroll-behavior: smooth` 때문에 `window.scrollY` 즉시 읽기가 0** → 측정 직전 `document.documentElement.style.scrollBehavior='auto'`.
+
+## 5. 남은 웹 Task (우선순위)
+
+1. **실제 블로그 글** — `web/src/content/blog/*.md` 1개 떨구면 목록+상세 자동 생성. `hello.md`=템플릿(draft:true). 본문 폰트=리디바탕. **BLOG 네비 재노출 여부는 글 준비되면 결정** (현재 네비에서 뺀 상태, 파일은 보존).
+2. **AEO/GEO 심화** — `@astrojs/sitemap` 통합 + `public/robots.txt` 의 Sitemap 줄 활성화, `llms.txt` 추가, JSON-LD(SoftwareApplication / Article / FAQ).
+3. **폰트 최적화** — 리디바탕 woff2 서브셋(현재 447KB; 블로그 글 생기면 의미 커짐).
+4. **INFO 릴리스노트 유지** — 새 버전 낼 때 `info.astro` 의 `releases` 배열에 항목 추가(현재 1.0.0~0.1.1 수기). TeamJAM 소개 문구도 원하면 다듬기.
+5. **(선택)** 인트로 "커튼" 연출, 카피/이미지 추가 다듬기.
+
+## 6. 작업 컨벤션
+
+- 커밋: conventional commits(feat/style/fix/chore + `(web)` scope), 한국어 본문 2~3줄. **co-author 트레일러 없음**(단독/소규모 팀).
+- **단일 브랜치(master)** 운영 — 별도 머지 단계 없음. master 푸시 = 배포.
+- 수정 후 항상 `cd web && npm run build` 통과 확인. 가능하면 preview 로 데스크톱+모바일(375px) 정렬·무오버플로까지 검증.

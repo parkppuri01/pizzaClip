@@ -1,28 +1,17 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-30 (**🎉 v1.0.0 정식 출시 완료**: 빌드→공증 2라운드(.app+DMG, 둘 다 Accepted+staple)→GitHub 릴리스 v1.0.0→`pizza-clip.com/appcast.xml` 라이브→`/Applications` 설치까지 끝. 다운로드 버튼=고정이름 `pizzaClip.dmg` 직접다운로드, Sparkle 자동업데이트 라이브(설치본 build 10=최신, **다음 릴리스 build 11+부터 자동 적용**). **다음 세션 = 웹사이트 수정 작업** — §"다음 세션 준비" 참고)
+마지막 업데이트: 2026-05-30 (**🎉 v1.0.0 정식 출시 완료**: 빌드→공증 2라운드(.app+DMG, 둘 다 Accepted+staple)→GitHub 릴리스 v1.0.0→`pizza-clip.com/appcast.xml` 라이브→`/Applications` 설치까지 끝. 다운로드 버튼=고정이름 `pizzaClip.dmg` 직접다운로드, Sparkle 자동업데이트 라이브(설치본 build 10=최신, **다음 릴리스 build 11+부터 자동 적용**). 웹사이트(pizza-clip.com)는 **2026-05-30 개편 완료** — 웹 핸드오프는 [`web/HANDOFF.md`](../web/HANDOFF.md) 로 분리)
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
-## 0. 다음 세션 준비 — 웹사이트 수정 작업 🌐
+## 0. 웹사이트(`web/`)는 별도 핸드오프로 분리 🌐
 
-**다음 세션 주제 = `web/` 랜딩 사이트 수정.** 앱(v1.0.0)·자동업데이트·다운로드는 이미 라이브라 손댈 것 없음.
+랜딩 사이트(pizza-clip.com) 관련 **현황·구조·작업 기록·교훈·남은 task 는 모두 [`web/HANDOFF.md`](../web/HANDOFF.md) 로 옮겼습니다.** 웹 작업은 그 문서를 보세요.
 
-**사이트 현황 (라이브)**
-- 호스팅: Vercel, **Root Directory = `web`**, 도메인 `pizza-clip.com` (Cloudflare DNS, 회색구름/DNS only). repo `parkppuri01/pizzaClip` master 푸시 시 자동 재배포.
-- 스택: Astro 6.4.2 (TS strict, 추가 런타임 의존성 0). 페이지: `index`(홈), `how-to`(사용법), `blog`(목록/상세).
-- 로컬: `cd web && npm install && npm run build` (dist/, node_modules 는 gitignore).
-- 디자인 SSOT: `web/guide/design.md`. 토큰: `web/src/styles/{tokens,fonts,global}.css`. 공용: `web/src/components/{Navbar,Footer,Button,Card}.astro`, `web/src/layouts/BaseLayout.astro`. 전역 상수: `web/src/consts.ts`.
-- 다운로드 버튼/문구: ✅ **이번에 직접다운로드(`…/releases/latest/download/pizzaClip.dmg`)로 완료** — 더 손댈 것 없음.
+- 2026-05-30 사이트 개편 완료(카피 전면 교체 · INFO 페이지 신설 · 전역 90% 스케일 · 정렬 버그 수정 · 네비/버튼 폰트 확대 · 하단/GitHub 버튼 정리 · 네비 무줄바꿈) → master 푸시 → Vercel 라이브.
+- 진입: "pizza-clip.com 수정하자" → `cd web && npm run build` 통과 → master 푸시 = 자동배포.
 
-**남은 웹 작업 (우선순위 제안)**
-1. **실제 블로그 글** — 현재 "준비 중" placeholder. `web/src/content/blog/*.md` 1개 떨구면 목록+상세 자동 생성(검증됨). `hello.md` = 템플릿(`draft:true`). 본문 폰트 = 리디바탕.
-2. **AEO/GEO 심화** — `@astrojs/sitemap` 통합 + `public/robots.txt` 의 Sitemap 줄 활성화, `llms.txt` 추가, JSON-LD(SoftwareApplication / Article / FAQ).
-3. **카피/이미지/레이아웃 다듬기** — 히어로 문구, 광고판, 기능 카드 등 (사용자 주도 수정 예정).
-4. **폰트 최적화** — 리디바탕 woff2 서브셋(현재 447KB; 블로그 글 생기면).
-5. (선택) 인트로 "커튼" 연출.
-
-> 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
+(아래 §1 부터는 **앱(Swift) 핸드오프**입니다.)
 
 ---
 
@@ -344,30 +333,15 @@ Sparkle 은 **이미 Sparkle 이 박힌 앱만** 업데이트 가능. 0.1.6 엔 
 - `docs: GitHub repo 생성 반영` (053787d)
 - `chore(web): Astro 프로젝트 스캐폴드 (Vercel 호스팅용)` (f68435e)
 
-### 🌐 사이트 1차 완성 (2026-05-29 — plan-ralph 세션)
+### 🌐 사이트 1차 완성 (2026-05-29) → 상세는 web/HANDOFF.md
 
-랜딩 사이트를 `web/` (Astro 6.4.2)에 1차 구현 완료. **아직 git 미커밋 / Vercel 미배포** (다음 작업).
+랜딩 사이트 1차 구현(Astro 6.4.2 스캐폴드 · 디자인 토큰 · 공용 컴포넌트 · 3페이지 · 폰트 self-host · 블로그 Content Layer). 이후 Vercel 배포 + 도메인 연결 + 직접 다운로드 전환 완료. 2026-05-30 전면 개편까지 모두 라이브. **웹 관련 상세·구조·교훈·남은 task 는 [`web/HANDOFF.md`](../web/HANDOFF.md) 로 이전.**
 
-- **디자인 SSOT**: `web/guide/design.md` (design.png 분석본). 컬러 5색·폰트 3종·버튼 3종·카드 2종·메뉴바·🍕디바이더.
-- **만든 것**:
-  - 디자인 토큰: `src/styles/{tokens,fonts,global}.css` (design.md 값 그대로 + a11y 가드 `:focus-visible`/`prefers-reduced-motion`).
-  - 공용 컴포넌트: `src/layouts/BaseLayout.astro`(메타/canonical/og/폰트), `src/components/{Navbar,Footer,Button,Card}.astro`.
-  - 페이지: `src/pages/index.astro`(메인=pizza web.png 목업 충실 구현: 히어로→후킹카드→광고판→기능→다운로드), `how-to.astro`(실제 단축키 가이드), `blog/index.astro`(현재 "준비 중" placeholder), `blog/[...id].astro`(Astro 6 Content Layer, 본문=리디바탕).
-  - 블로그: `src/content.config.ts`(glob loader). **`src/content/blog/*.md` 1개 떨구면 목록+상세 자동 생성** (검증됨). `hello.md`는 작성 예시 템플릿(`draft:true`라 비공개).
-  - 폰트(전부 OFL 1.1, self-host/CDN): Pretendard(CDN dynamic-subset), 리디바탕(`public/fonts/RIDIBatang.woff2`), OSP-DIN(`public/fonts/OSP-DIN.woff2`, fontlibrary TTF→ttf2woff2 변환).
-  - 이미지: `public/img/{billboard.jpg(256KB),app-icon.png(40KB)}` (sips 다운스케일 ≤400KB). 원본은 `web/guide/`.
-  - `public/robots.txt`(AI 크롤러 허용; sitemap 줄은 통합 후 주석 해제).
-  - 추가 런타임 npm 의존성 0 (astro만). `npm run build` 통과(공개 3페이지). 데스크톱/모바일 + code-reviewer(APPROVE)로 검증.
-- **남은 사이트 작업(follow-up)**: ① git add+commit+push(폰트·이미지 포함) → Vercel 자동배포 확인, ② 리디바탕 woff2 서브셋(현재 447KB; 블로그 글 생길 때), ③ `@astrojs/sitemap` 통합 + robots Sitemap 줄 활성화, ④ JSON-LD/llms.txt(AEO/GEO 심화), ⑤ 실제 블로그 글 작성, ⑥ (선택) 인트로 "커튼" 연출.
-
-### ⚠️ 사이트 다음 = 앱 자동업데이트 배선 (아래 §"앱 배포 미완 항목"과 연결)
+### 인프라 메모 (이제 전부 라이브)
 
 - **GitHub repo**: `parkppuri01/pizzaClip` (PUBLIC, `master`). `origin` = **HTTPS** (`gh auth setup-git` 토큰; SSH 키 미등록이라 `git@` 푸시는 실패 → https 만 사용).
-- **도메인**: `pizza-clip.com` (Cloudflare 등록). → 사이트 URL + `SUFeedURL` = `https://pizza-clip.com/appcast.xml`.
-- **Vercel**: 프로젝트 `pizza-clip` (Hobby), 이 repo import, **Root Directory = `web`**, Preset Astro (셋업 진행 중). 서브폴더 자동감지되면 프리셋 드롭다운 잠김 = 정상. 안 잡히면 수동: Build Command `npm run build` / Output `dist` / Install `npm install`.
-  - 도메인 연결: Vercel Settings→Domains 에 `pizza-clip.com` 추가 → 받은 레코드를 Cloudflare DNS 에 **회색 구름(DNS only)** 으로 입력 (주황 구름=프록시면 SSL 충돌 "리다이렉트 너무 많음").
-- **`web/` 현재 상태**: 순정 Astro 6.4.2 (minimal, TS strict). `npm run build` OK. **기본 index 1장뿐 — 콘텐츠 비어있음(의도)**. node_modules/dist 는 gitignore.
-- 사이트가 결국 가져야 할 것: 홈+가이드+블로그, `web/public/appcast.xml`, AEO/GEO 기본기(robots.txt 에 GPTBot/ClaudeBot/PerplexityBot/Google-Extended 허용 + sitemap, `llms.txt`, JSON-LD SoftwareApplication/Article/FAQ).
+- **도메인/배포**: `pizza-clip.com` (Cloudflare DNS, **회색 구름=DNS only**; 주황 구름=프록시면 SSL 충돌) + Vercel(프로젝트 `pizza-clip`, **Root Directory = `web`**). `SUFeedURL` = `https://pizza-clip.com/appcast.xml`.
+- 웹 구조·작업 상세 → [`web/HANDOFF.md`](../web/HANDOFF.md).
 
 ### ✅ 앱 배포 미완 항목 — **전부 완료 (v1.0.0, 2026-05-30)**
 
