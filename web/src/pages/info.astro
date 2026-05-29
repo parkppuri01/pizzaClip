@@ -2,8 +2,7 @@
 /** INFO — 릴리스노트(전체 버전 히스토리) + Team JAM 소개 */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Card from "../components/Card.astro";
-import Button from "../components/Button.astro";
-import { DOWNLOAD_URL, GITHUB_URL } from "../consts.ts";
+import { GITHUB_URL } from "../consts.ts";
 
 // 전체 버전 히스토리 — 개발 용어 대신 일반 유저가 읽을 수 있는 말로.
 const releases = [
@@ -91,10 +90,6 @@ const releases = [
         </p>
       </Card>
     </div>
-
-    <div class="cta-row">
-      <Button href={DOWNLOAD_URL} variant="primary">Download</Button>
-    </div>
   </section>
 </BaseLayout>
 
@@ -136,6 +131,4 @@ const releases = [
     color: var(--color-ink);
   }
   .team__body strong { color: var(--color-point); }
-
-  .cta-row { text-align: center; margin-top: var(--section-gap); }
 </style>

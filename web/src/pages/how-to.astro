@@ -2,8 +2,6 @@
 /** HOW TO — 설치 & 사용법 가이드 (앱 실제 동작 기준) */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Card from "../components/Card.astro";
-import Button from "../components/Button.astro";
-import { DOWNLOAD_URL } from "../consts.ts";
 
 const steps = [
   {
@@ -65,10 +63,6 @@ const shortcuts = [
         ))}
       </dl>
     </Card>
-
-    <div class="cta-row">
-      <Button href={DOWNLOAD_URL} variant="primary">Download</Button>
-    </div>
   </section>
 </BaseLayout>
 
@@ -100,8 +94,6 @@ const shortcuts = [
     white-space: nowrap;
   }
   .kbd-row dd { color: var(--color-ink); }
-
-  .cta-row { text-align: center; margin-top: var(--section-gap); }
 
   @media (max-width: 640px) {
     .kbd-row { grid-template-columns: 1fr; gap: 0.25rem; }
