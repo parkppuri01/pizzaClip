@@ -3,20 +3,21 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Card from "../components/Card.astro";
 import Button from "../components/Button.astro";
+import SliceDivider from "../components/SliceDivider.astro";
 import { DOWNLOAD_URL, GITHUB_URL } from "../consts.ts";
 
 const features = [
-  { icon: "🍕", title: "다 기억해요", desc: "텍스트·이미지·파일까지 복사하는 족족 자동 저장. 그 전에 복사한 게 날아갈 일 없어요." },
-  { icon: "⚡", title: "1초 컷", desc: "⌘⇧V로 팝업, ⌘⌥⌃1~9로 원하는 항목 바로 붙여넣기. 마우스 없이 끝." },
-  { icon: "🇰🇷", title: "한/영 전환", desc: "오른쪽 ⌘ 키 한 번으로 한국어 ↔ 영문 입력 소스 토글. (켜고 끄는 옵션)" },
-  { icon: "🔒", title: "내 맥 안에서만", desc: "기록은 전부 이 맥 로컬에만 저장. 서버로 보내지 않습니다." },
+  { icon: "🍕", title: "⌘C의 무한 보관소", desc: "글자부터 이미지, 파일까지 복사하는 즉시 알아서 담아둡니다. 새로 복사했다고 이전 기록이 사라지던 답답함은 끝!" },
+  { icon: "⚡", title: "트랙패드 없는 키보드 워리어용", desc: "⌘ + ⇧ + V로 클립보드를 열고, 단축키(0~9)로 원하는 조각을 바로 골라 쓰세요. 진짜 1초 컷!" },
+  { icon: "🇰🇷", title: "Mac 유저 필수, 가려운 곳 긁기", desc: "잠자는 오른쪽 ⌘ 키 하나로 한/영 전환을 가볍게 해결하세요. 맥북 쓰면서 은근히 킹받던 입력 소스 전환 스트레스를 날려줍니다. (원치 않으면 언제든 켜고 끌 수 있는 옵션)" },
+  { icon: "🔒", title: "철저한 로컬 보안", desc: "복사한 비밀번호나 개인정보가 밖으로 샐까 걱정되셨나요? 모든 히스토리는 외부 서버를 타지 않고 오직 내 맥 안에서만 보관됩니다." },
 ];
 
 const downloadChecks = [
-  "무료 — 그냥 받아서 쓰세요",
-  "macOS 13+ · Apple Silicon & Intel 유니버설",
-  "Apple 개발자 서명 + 공증 완료 (Gatekeeper 통과)",
-  "Sparkle 자동 업데이트 내장",
+  "가격은 0원 — 조건 없이 받아서 쓰세요",
+  "내 맥북에 찰떡 — 기종 상관없이 모든 Mac에서 부드럽게 작동",
+  "안전해요 — 애플 인증 완료! 바이러스·보안 경고 걱정 없어요",
+  "알아서 업데이트 — 수동으로 안 챙겨도 늘 최신 상태",
 ];
 ---
 <BaseLayout>
@@ -24,10 +25,11 @@ const downloadChecks = [
   <section class="section hero">
     <div class="container hero__inner">
       <div class="hero__copy">
-        <h1>맥 메뉴바에 사는<br />피자 한 판 🍕</h1>
+        <h1>Mac 메뉴바에<br />배달된 피자 한판 🍕</h1>
         <p class="hero__lead">
-          <strong>⌘C 한 모든 것</strong>을 기억하는 macOS 클립보드 히스토리.<br />
-          단축키 한 번이면 방금 것도, 아까 것도 다시 꺼내 씁니다.
+          <strong>⌘C로 주문하고, 단축키 한 번으로 바로 배달받으세요.</strong><br />
+          방금 복사한 뜨끈한 텍스트부터 아까 아껴둔 이미지까지,<br />
+          식기 전에 메뉴바에서 쏙쏙 꺼내 씁니다.
         </p>
         <div class="hero__cta">
           <Button href={DOWNLOAD_URL} variant="primary">Download</Button>
@@ -36,24 +38,26 @@ const downloadChecks = [
         </div>
       </div>
       <div class="hero__art">
-        <img src="/img/app-icon.png" width="220" height="220"
-             alt="pizzaClip 앱 아이콘 — 클립보드 문서 위를 구르는 피자 커터" />
+        <img src="/img/pizza-store.jpg" width="828" height="1100"
+             alt="피자클립 — 메뉴바에서 꺼내 쓰는 피자 가게 일러스트" />
       </div>
     </div>
   </section>
 
-  <div class="slice" aria-hidden="true">🍕</div>
+  <SliceDivider count={1} />
 
   <!-- ===== 후킹 카드 ===== -->
   <section class="section container">
     <Card variant="menu" class="hook">
-      <h2>아직도 ⌘C → ⌘V만 쓰세요? 왜요?</h2>
-      <p>방금 복사한 것 때문에 <em>그 전에 복사한 게</em> 사라진 적, 다들 있잖아요.<br />
-         피자클립은 한 판 가득 들고 있다가, 필요할 때 한 조각씩 꺼내줍니다.</p>
+      <h2>언제까지 ⌘C, ⌘V 무한 반복하실 건가요?</h2>
+      <p class="hook__sub">방금 복사한 거 날려 먹고 ‘아…’ 한 적 있다면 집중!</p>
+      <p>방금 복사한 것 때문에 <em>이전 기록이 사라져</em> 다시 원본을 찾아 헤맨 경험, 다들 있으시죠?
+         피자클립은 당신의 복사 히스토리를 한 판 가득 저장해 둡니다.
+         이제 헤매지 말고 필요할 때마다 한 조각씩 가볍게 꺼내 쓰세요.</p>
     </Card>
   </section>
 
-  <div class="slice" aria-hidden="true">🍕</div>
+  <SliceDivider count={2} />
 
   <!-- ===== 광고판 이미지 ===== -->
   <section class="section container">
@@ -64,7 +68,7 @@ const downloadChecks = [
     </figure>
   </section>
 
-  <div class="slice" aria-hidden="true">🍕</div>
+  <SliceDivider count={3} />
 
   <!-- ===== 기능 소개 ===== -->
   <section class="section container">
@@ -84,19 +88,21 @@ const downloadChecks = [
     </Card>
   </section>
 
-  <div class="slice" aria-hidden="true">🍕</div>
+  <SliceDivider count={4} />
 
   <!-- ===== 다운로드 카드 ===== -->
   <section class="section container" id="download">
     <Card variant="white" class="download">
-      <h2>어메이징, 피자클립 🍕</h2>
-      <ul class="download__checks">
-        {downloadChecks.map((c) => (<li>{c}</li>))}
-      </ul>
-      <Button href={DOWNLOAD_URL} variant="primary" class="download__btn">Download</Button>
-      <p class="download__note">
-        macOS 13+ · Apple Silicon &amp; Intel 유니버설 · Apple 공증 완료 · 무료
-      </p>
+      <div class="download__inner">
+        <h2>어메이징, 피자클립 🍕</h2>
+        <ul class="download__checks">
+          {downloadChecks.map((c) => (<li>{c}</li>))}
+        </ul>
+        <Button href={DOWNLOAD_URL} variant="primary" class="download__btn">Download</Button>
+        <p class="download__note">
+          macOS 13 이상 · 모든 Mac 지원 · 무료
+        </p>
+      </div>
     </Card>
   </section>
 </BaseLayout>
@@ -112,20 +118,17 @@ const downloadChecks = [
   .hero__copy { flex: 1 1 320px; }
   .hero__lead { font-size: 1.15rem; margin-top: 1.25rem; color: var(--color-text); }
   .hero__cta  { display: flex; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
-  .hero__art  { flex: 0 0 auto; margin-inline: auto; }
-  .hero__art img { border-radius: 28px; box-shadow: 0 14px 40px rgba(16, 33, 56, 0.18); }
-
-  /* 피자 조각 디바이더 (인라인) */
-  .slice {
-    text-align: center;
-    font-size: 2rem;
-    line-height: 1;
-    margin-block: clamp(1rem, 4vw, 2rem);
-    user-select: none;
+  .hero__art  { flex: 0 0 auto; margin-inline: auto; max-width: min(300px, 72vw); }
+  .hero__art img {
+    width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 14px 40px rgba(16, 33, 56, 0.18);
   }
 
   /* 후킹 카드 */
   .hook h2 { font-size: var(--fs-h2); }
+  .hook p.hook__sub { margin-top: 0.75rem; font-weight: 700; color: var(--color-point); font-size: 1.05rem; }
   .hook p  { margin-top: 1rem; font-size: 1.1rem; }
   .hook em { font-style: normal; color: var(--color-point); font-weight: 700; }
 
@@ -148,13 +151,18 @@ const downloadChecks = [
   .feature h3 { font-size: 1.15rem; }
   .feature p  { margin-top: 0.3rem; color: var(--color-ink); opacity: 0.85; }
 
-  /* 다운로드 카드 */
-  .download { text-align: center; }
+  /* 다운로드 카드 — 슬롯 래퍼에 정렬을 줘야 Card 컴포넌트 경계를 넘어서도 적용됨 */
+  .download__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
   .download__checks {
-    display: inline-grid;
+    display: grid;
     gap: 0.6rem;
     text-align: left;
-    margin: 1.5rem auto;
+    margin: 1.5rem 0;
   }
   .download__checks li { position: relative; padding-left: 1.8rem; }
   .download__checks li::before {

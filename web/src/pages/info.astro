@@ -1,0 +1,141 @@
+---
+/** INFO — 릴리스노트(전체 버전 히스토리) + Team JAM 소개 */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Card from "../components/Card.astro";
+import Button from "../components/Button.astro";
+import { DOWNLOAD_URL, GITHUB_URL } from "../consts.ts";
+
+// 전체 버전 히스토리 — 개발 용어 대신 일반 유저가 읽을 수 있는 말로.
+const releases = [
+  {
+    version: "1.0.0",
+    label: "정식 출시 🎉",
+    notes: [
+      "복사한 텍스트·이미지·파일을 메뉴바에 차곡차곡 보관",
+      "단축키 한 번으로 원하는 항목 바로 붙여넣기",
+      "히스토리가 쌓일수록 메뉴바 피자가 한 조각씩 늘어나요",
+      "Apple 인증 완료로 설치 경고 없이 깔끔하게 실행",
+      "새 버전이 나오면 알아서 업데이트",
+    ],
+  },
+  {
+    version: "0.1.7",
+    label: "자동 업데이트 도입",
+    notes: ["앱이 스스로 최신 버전을 확인하고 받아오기 시작했어요."],
+  },
+  {
+    version: "0.1.6",
+    label: "Apple 인증 + 🍕 ‘피자’ 깜짝 연출",
+    notes: [
+      "Apple 개발자 인증을 받아 설치 시 보안 경고가 사라졌어요.",
+      "‘피자’ 또는 ‘pizza’를 복사하면 화면에 피자가 팡팡 터집니다.",
+    ],
+  },
+  {
+    version: "0.1.5",
+    label: "한/영 전환 추가",
+    notes: ["오른쪽 ⌘ 키 한 번으로 한국어 ↔ 영문 전환 (켜고 끌 수 있는 옵션)."],
+  },
+  {
+    version: "0.1.4",
+    label: "🍕 이스터에그",
+    notes: ["‘pizza’를 복사하면 피자가 튀어오르는 깜짝 애니메이션을 넣었어요."],
+  },
+  {
+    version: "0.1.3",
+    label: "새 앱 아이콘 · pizzaClip 으로 이름 정리",
+    notes: ["앱 아이콘과 메뉴바 피자 그림을 새로 단장했어요."],
+  },
+  {
+    version: "0.1.1",
+    label: "첫 공개",
+    notes: ["자동 복사 기록, 팝업, 핀 고정, 전체 비우기 등 기본기를 갖췄어요."],
+  },
+];
+---
+<BaseLayout title="Info" description="pizzaClip 릴리스노트와 만드는 사람들(Team JAM) 소개.">
+  <section class="section container">
+    <header class="page-head">
+      <h1>Info · 정보</h1>
+      <p>버전 기록과 만드는 사람들을 소개합니다.</p>
+    </header>
+
+    <!-- ===== 릴리스노트 ===== -->
+    <h2 class="block-title">릴리스노트</h2>
+    <ul class="releases">
+      {releases.map((r) => (
+        <li class="release">
+          <div class="release__head">
+            <span class="release__ver">v{r.version}</span>
+            <span class="release__label">{r.label}</span>
+          </div>
+          <ul class="release__notes">
+            {r.notes.map((n) => (<li>{n}</li>))}
+          </ul>
+        </li>
+      ))}
+    </ul>
+
+    <p class="releases__more">
+      자세한 변경 내역은 <a href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a>에서 볼 수 있어요.
+    </p>
+
+    <!-- ===== Team JAM 소개 ===== -->
+    <div class="team-wrap">
+      <Card variant="menu" class="team">
+        <h2>Team JAM 🍕</h2>
+        <p class="team__body">
+          pizzaClip을 만드는 <strong>Team JAM</strong>은 jaekeun과 mingyeol,
+          두 사람이 “재미로 한번 만들어 보자” 하고 꾸린 작은 프로젝트 팀입니다.
+          필요해서 만들고, 만드는 게 즐거워서 계속 만듭니다.
+        </p>
+      </Card>
+    </div>
+
+    <div class="cta-row">
+      <Button href={DOWNLOAD_URL} variant="primary">Download</Button>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .block-title { font-size: var(--fs-h2); margin-bottom: 1.5rem; }
+
+  .releases { display: grid; gap: 1rem; }
+  .release {
+    background: var(--color-surface);
+    border: var(--border-w) solid var(--color-menu);
+    border-radius: var(--radius-card);
+    padding: 1.25rem 1.5rem;
+  }
+  .release__head { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+  .release__ver {
+    font-family: var(--font-en);
+    font-weight: 700;
+    color: var(--color-point);
+    font-size: 1.2rem;
+  }
+  .release__label { font-weight: 700; color: var(--color-ink); }
+  .release__notes { margin-top: 0.75rem; display: grid; gap: 0.4rem; }
+  .release__notes li { position: relative; padding-left: 1.4rem; color: var(--color-text); }
+  .release__notes li::before {
+    content: "🍕";
+    position: absolute; left: 0;
+    font-size: 0.8em;
+  }
+
+  .releases__more { margin-top: 1.25rem; font-size: var(--fs-small); opacity: 0.8; }
+  .releases__more a { color: var(--color-point); text-decoration: underline; }
+
+  .team-wrap { margin-top: var(--section-gap); }
+  .team__body {
+    margin-top: 1rem;
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    line-height: 1.9;
+    color: var(--color-ink);
+  }
+  .team__body strong { color: var(--color-point); }
+
+  .cta-row { text-align: center; margin-top: var(--section-gap); }
+</style>

@@ -1,18 +1,23 @@
 ---
 /** Footer — 하단 정보 */
-import { NAV_LINKS, GITHUB_URL } from "../consts.ts";
-const year = new Date().getFullYear(); // 빌드 시점 연도 (자동 갱신)
+import { GITHUB_URL } from "../consts.ts";
+
+// 푸터 메뉴는 홈 · 사용법 · 깃허브만 (INFO 는 상단 네비에만 노출)
+const footerLinks = [
+  { href: "/", ko: "홈" },
+  { href: "/how-to", ko: "사용법" },
+];
 ---
 <footer class="footer">
   <div class="container footer__inner">
     <span class="footer__brand">🍕 PIZZA CLIP</span>
     <nav aria-label="하단 메뉴">
       <ul class="footer__links">
-        {NAV_LINKS.map((l) => (<li><a href={l.href}>{l.ko}</a></li>))}
-        <li><a href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a></li>
+        {footerLinks.map((l) => (<li><a href={l.href}>{l.ko}</a></li>))}
+        <li><a href={GITHUB_URL} target="_blank" rel="noopener">깃허브</a></li>
       </ul>
     </nav>
-    <small class="footer__copy">© {year} pizzaClip · 개인 프로젝트</small>
+    <small class="footer__copy">© 2026 pizzaClip · Team JAM</small>
   </div>
 </footer>
 
@@ -30,7 +35,7 @@ const year = new Date().getFullYear(); // 빌드 시점 연도 (자동 갱신)
     gap: 1rem 2rem;
   }
   .footer__brand { font-family: var(--font-en); font-weight: 700; font-size: 1.1rem; }
-  .footer__links { display: flex; gap: 1.25rem; flex-wrap: wrap; }
+  .footer__links { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: var(--fs-small); }
   .footer__links a:hover { color: var(--color-menu); }
   .footer__copy { margin-left: auto; opacity: 0.7; }
   @media (max-width: 640px) {

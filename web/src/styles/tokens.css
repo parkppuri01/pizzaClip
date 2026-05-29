@@ -29,7 +29,7 @@
   --lh-body:  1.6;
 
   /* ---- 레이아웃 (design.md §4) ---- */
-  --maxw:        1080px;
+  --maxw:        970px;
   --gutter:      clamp(1rem, 4vw, 2rem);
   --section-gap: clamp(3rem, 8vw, 6rem);
   --radius-card: 24px;

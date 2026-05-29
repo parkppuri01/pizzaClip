@@ -1,0 +1,25 @@
+---
+/**
+ * SliceDivider — 섹션 사이 🍕 디바이더.
+ * count 만큼 피자 조각을 늘려 표시한다 (1조각 → 2조각 → …, design.md §3-3 모티프).
+ * 장식용이라 aria-hidden.
+ */
+interface Props {
+  /** 피자 조각 개수 (1부터) */
+  count?: number;
+}
+const { count = 1 } = Astro.props;
+const slices = "🍕".repeat(Math.max(1, count));
+---
+<div class="slice" aria-hidden="true">{slices}</div>
+
+<style>
+  .slice {
+    text-align: center;
+    font-size: 1.8rem;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    margin-block: clamp(1rem, 4vw, 2rem);
+    user-select: none;
+  }
+</style>

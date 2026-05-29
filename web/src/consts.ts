@@ -13,8 +13,9 @@ export const SITE_DESC =
   "맥 메뉴바에 사는 피자 한 판. 복사한 건 다 기억하는 macOS 클립보드 히스토리 앱.";
 
 // 상단 네비 메뉴 (영문 라벨 + 한글 보조)
+// BLOG 는 차후 재개 예정 — 페이지 파일은 보존하되 네비에서만 뺀다.
 export const NAV_LINKS = [
   { href: "/", label: "HOME", ko: "홈" },
   { href: "/how-to", label: "HOW TO", ko: "사용법" },
-  { href: "/blog", label: "BLOG", ko: "블로그" },
+  { href: "/info", label: "INFO", ko: "정보" },
 ];
