@@ -39,7 +39,38 @@ if [ ! -d "$APP" ]; then
     exit 1
 fi
 
-echo "→ Verifying signature (Developer ID + hardened runtime)"
+SIGN_IDENTITY=$(grep "CODE_SIGN_IDENTITY:" project.yml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+
+# Re-sign Sparkle's embedded helpers with Developer ID + hardened runtime +
+# secure timestamp. A plain `xcodebuild build` (unlike Xcode's Archive/Export)
+# leaves the framework's nested XPC services, Updater.app and Autoupdate
+# *ad-hoc* signed (TeamIdentifier=not set), which Apple's notary service
+# rejects. We sign bottom-up (innermost first), then re-seal the outer .app.
+echo "→ Re-signing embedded Sparkle helpers (Developer ID + runtime + timestamp)"
+SPARKLE_FW="$APP/Contents/Frameworks/Sparkle.framework"
+SPARKLE_V=$(ls -d "$SPARKLE_FW"/Versions/[A-Z] 2>/dev/null | head -1)
+sparkle_resign() {
+    codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY" "$1" \
+        2>&1 | sed 's/^/    /'
+}
+if [ -d "$SPARKLE_FW" ] && [ -n "$SPARKLE_V" ]; then
+    sparkle_resign "$SPARKLE_V/XPCServices/Downloader.xpc"
+    sparkle_resign "$SPARKLE_V/XPCServices/Installer.xpc"
+    sparkle_resign "$SPARKLE_V/Updater.app"
+    sparkle_resign "$SPARKLE_V/Autoupdate"
+    sparkle_resign "$SPARKLE_FW"
+    # Re-seal the app last (nested changes invalidate the outer seal). Reapply
+    # the empty entitlements so Release stays free of get-task-allow.
+    codesign --force --options runtime --timestamp \
+        --entitlements pizzaClip/pizzaClip.entitlements \
+        --sign "$SIGN_IDENTITY" "$APP" 2>&1 | sed 's/^/    /'
+else
+    echo "✗ Sparkle.framework not found under $APP — aborting before notary" >&2
+    exit 1
+fi
+
+echo "→ Verifying signature (Developer ID + hardened runtime, deep)"
+codesign --verify --deep --strict "$APP" || { echo "✗ deep verify failed" >&2; exit 1; }
 codesign -dvv "$APP" 2>&1 | grep -E "Identifier=|Authority=|Timestamp=|flags=" || true
 
 mkdir -p dist
@@ -87,7 +118,6 @@ hdiutil create -volname "pizzaClip $VERSION" \
 rm -rf "$STAGING"
 
 echo "→ Signing DMG with Developer ID"
-SIGN_IDENTITY=$(grep "CODE_SIGN_IDENTITY:" project.yml | head -1 | sed 's/.*"\(.*\)".*/\1/')
 codesign --sign "$SIGN_IDENTITY" --timestamp "dist/pizzaClip-${VERSION}.dmg"
 
 echo "→ Submitting DMG to Apple notary service (2nd round, typically 1–5 min)"
@@ -114,6 +144,57 @@ spctl -a -t open --context context:primary-signature -vv "dist/pizzaClip-${VERSI
 echo "→ Installing to /Applications"
 rm -rf /Applications/pizzaClip.app
 cp -R "$APP" /Applications/
+
+# ── Sparkle auto-update: sign the ZIP + emit an appcast <item> ───────────────
+# The notarized+stapled ZIP above is exactly what Sparkle downloads and swaps in.
+# We EdDSA-sign it with the private key in the login Keychain (generated once via
+# Sparkle's generate_keys) and write a ready-to-paste appcast <item> to dist/.
+# Publishing — `gh release` upload + pushing appcast.xml to the Vercel domain — is
+# intentionally NOT automated yet: it needs the GitHub repo + Vercel domain, which
+# are still TBD. See the TODO block below.
+SIGN_UPDATE="./build/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update"
+ZIP="dist/pizzaClip-${VERSION}.zip"
+BUILD_NUMBER=$(grep "CURRENT_PROJECT_VERSION:" project.yml | head -1 | sed 's/.*"\([^"]*\)".*/\1/')
+# Base URL the ZIP will be downloaded from. Override once hosting is decided, e.g.
+#   DOWNLOAD_BASE_URL="https://github.com/<owner>/pizzaClip/releases/download/v${VERSION}" ./scripts/release.sh
+DOWNLOAD_BASE_URL="${DOWNLOAD_BASE_URL:-https://REPLACE-WITH-DOWNLOAD-HOST.invalid}"
+
+if [ -x "$SIGN_UPDATE" ]; then
+    echo "→ Signing ZIP for Sparkle (EdDSA)"
+    SIG_LINE=$("$SIGN_UPDATE" "$ZIP")
+    echo "    $SIG_LINE"
+
+    PUBDATE=$(LC_TIME=en_US.UTF-8 date -u "+%a, %d %b %Y %H:%M:%S +0000")
+    APPCAST_ITEM="dist/appcast-item-${VERSION}.xml"
+    cat > "$APPCAST_ITEM" <<EOF
+        <item>
+            <title>pizzaClip ${VERSION}</title>
+            <pubDate>${PUBDATE}</pubDate>
+            <sparkle:version>${BUILD_NUMBER}</sparkle:version>
+            <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <enclosure url="${DOWNLOAD_BASE_URL}/pizzaClip-${VERSION}.zip"
+                       type="application/octet-stream"
+                       ${SIG_LINE} />
+        </item>
+EOF
+    echo "    appcast <item> → $APPCAST_ITEM"
+else
+    echo "⚠ sign_update not found ($SIGN_UPDATE)."
+    echo "  Run: xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip \\"
+    echo "       -resolvePackageDependencies -derivedDataPath ./build"
+    echo "  Skipping Sparkle signing."
+fi
+
+# TODO — wire up once the GitHub repo + Vercel domain are confirmed:
+#   1. Upload binaries to a host Sparkle can fetch without auth, e.g. a public
+#      GitHub release:
+#        gh release create "v${VERSION}" "$ZIP" "dist/pizzaClip-${VERSION}.dmg" \
+#          --title "pizzaClip ${VERSION}" --notes-file dist/notes-${VERSION}.md
+#      and re-run with DOWNLOAD_BASE_URL set to that release's download base.
+#   2. Merge dist/appcast-item-${VERSION}.xml into the master appcast.xml and
+#      deploy to https://<vercel-domain>/appcast.xml.
+#   3. Set Info.plist SUFeedURL to that same https://<vercel-domain>/appcast.xml.
 
 echo ""
 echo "✓ Release $VERSION ready"
