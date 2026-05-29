@@ -1,6 +1,6 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-29 (0.1.7 앱쪽 완료 + GitHub repo 공개 + **web/ 랜딩 사이트 1차 완성**(홈·how-to·blog, 디자인 시스템, 폰트, 빌드 통과). **다음 = 사이트 git 커밋 + Vercel 배포 + 앱 자동업데이트 배선**)
+마지막 업데이트: 2026-05-29 (**0.1.8 앱쪽 완료**: 새 앱 아이콘(피자커터+문서) + 팝업 색상 컬러차트 리프레시(데이/나이트 적응형) + 자동업데이트 **실제 배선**(SUFeedURL=pizza-clip.com, release.sh 발행 자동화 PUBLISH=1, appcast 스켈레톤, 아이콘 자동빌드). master 커밋·푸시 완료. **다음 = ① Vercel 웹 배포(appcast 라이브) ② 첫 `PUBLISH=1 ./scripts/release.sh` 로 0.1.8 GitHub 릴리스 생성**)
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
@@ -202,6 +202,36 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 - **xcodegen**: project.yml만 손대고 `xcodegen generate`로 .xcodeproj 재생성. .xcodeproj는 절대 직접 편집 금지
 - **xcodegen이 새 파일 자동 인식**: `pizzaClip/` 트리에 파일 추가만 하면 자동으로 픽업 — **단 새 .swift 추가 후엔 `xcodegen generate` 한 번 더 돌려야 빌드에 포함됨** (0.1.3 PizzaBurst.swift 추가 시 첫 빌드가 "cannot find PizzaBurst in scope" 로 실패해서 확인)
 
+## 세션 노트 — 2026-05-29 (0.1.8 새 아이콘 + 팝업 색상 + 자동업데이트 실제 배선)
+
+**범위**: 앱쪽 대기열(§"앱 배포 미완 항목") 정리 + 사용자 요청 3건(아이콘 교체 / 팝업 색상 / 버전 표시 확인).
+
+### 핵심 변경 (커밋 4개, master 푸시 완료)
+1. `feat(app): new app icon (pizza-cutter on document) + auto-built icns` — 새 1024px PNG → `assets/pizzaClipAppIcon.png`, `AppIcon.icns` 재생성, `scripts/build-icon.sh` 신설.
+2. `feat(popup): brand color refresh — brick-red + amber, day/night adaptive` — `Colors.swift` 에 `Color(light:dark:)` 적응형 헬퍼. 2색 역할 분리: **벽돌색 #A2371F** = 선택/푸터 액션/틴트, **앰버 #FFB703** = 슬롯 배지·"0" 칩(네이비 글자)·핀. 라이트=진한 골드/벽돌, 다크=밝은 앰버/테라코타.
+3. `chore(release): wire live auto-update — SUFeedURL, appcast, publish + icon build` — Info.plist SUFeedURL=pizza-clip.com, `web/public/appcast.xml` 빈 스켈레톤, release.sh 에 아이콘 자동빌드 + DOWNLOAD_BASE_URL(GitHub) + PUBLISH=1 발행 블록.
+4. `chore: bump 0.1.8` — MARKETING 0.1.8 / CURRENT 9.
+
+### 버전 표시 (사용자 요청) — 이미 되어 있었음
+Settings → General → About → "Version" = `CFBundleShortVersionString (CFBundleVersion)`. 0.1.7 에서 추가됨. 추가 작업 없음.
+
+### 검증
+- 유닛 테스트 25개 통과 + Swift(적응형 색) 컴파일 OK.
+- **실제 앱 데이/나이트 팝업 캡처**로 색상 확인. 메뉴바 앱이라 자동 캡처가 까다로웠음 — 교훈 아래.
+
+### 디버깅 교훈 (메뉴바 앱 스크린샷)
+- `screencapture` CLI 는 호출 프로세스에 **화면 녹화 권한** 필요 → Bash 에선 "could not create image from display" 로 막힘.
+- computer-use `request_access` 는 **LSUIElement(accessory) 앱을 이름/번들ID 로 못 잡음** → 빌드 산출물 Info.plist 의 `LSUIElement` 를 false 로 플립 + ad-hoc 재서명하면 일반 앱으로 인식돼 허용됨.
+- computer-use 가 합성한 ⌘⇧V(전역 핫키)는 **Carbon 핫키를 트리거 못 함** + 노치로 메뉴바 아이콘 타겟 불안정 → 임시 `PIZZACLIP_AUTOSHOW=1` 런치 훅으로 팝업 자동표시 후 캡처(검증 끝나고 훅 제거함).
+- 외관 토글: `osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to ...'` 동작(권한 프롬프트 없었음).
+
+### ⚠️ 다음 (자동업데이트 라이브까지 남은 것)
+- **첫 릴리스 미실행**: `PUBLISH=1 ./scripts/release.sh` 로 0.1.8 GitHub 릴리스 + appcast 발행 (notarize ~10분, keychain 잠금해제). 실행 전엔 GitHub Release 0개라 사이트 다운로드 링크 404.
+- **Vercel 웹 배포 미확인**: appcast 가 `https://pizza-clip.com/appcast.xml` 로 실제 응답하려면 web/ 가 Vercel 에 배포돼 있어야 함(HANDOFF §"셋업 진행 중"). 미배포면 업데이트 체크가 조용히 실패.
+- 0.1.6→0.1.8 은 수동 재다운로드(0.1.6 엔 Sparkle 없음). **0.1.8→다음 이 첫 자동 사이클**.
+
+---
+
 ## 10. 세션 노트 — 2026-05-29 (0.1.7 Sparkle 2 자동업데이트 — 앱쪽 완료 + 호스팅 인프라 셋업: GitHub 공개 repo + web/ Astro + Vercel/도메인)
 
 **범위 합의**: 앱쪽 Sparkle 통합 + 키 생성 + release.sh 서명 단계까지만. **사이트쪽(도메인/Vercel appcast 호스팅/gh release 업로드)은 이번 세션에서 제외** — repo·도메인 확정 후 진행.
@@ -281,13 +311,13 @@ Sparkle 은 **이미 Sparkle 이 박힌 앱만** 업데이트 가능. 0.1.6 엔 
 
 자동업데이트를 **실제로 가동**하려면 아직 남은 것들:
 
-1. **`SUFeedURL` 교체** — `Info.plist` 에 `https://REPLACE-WITH-VERCEL-DOMAIN.invalid/appcast.xml` 플레이스홀더 상태. → `https://pizza-clip.com/appcast.xml` 로 교체 (안 바꾸면 업데이트 체크 자체가 안 됨).
-2. **release.sh 배포 자동화 미배선** — `sign_update` + appcast `<item>` 생성까진 됨. 남은 TODO: (a) `gh release create` 로 ZIP/DMG 업로드, (b) appcast.xml 을 `web/public/` 에 머지+커밋(→Vercel 자동배포), (c) `DOWNLOAD_BASE_URL` 주입. 채울 값: `DOWNLOAD_BASE_URL=https://github.com/parkppuri01/pizzaClip/releases/download/v<버전>`.
-3. **GitHub Release 0개** — 아직 릴리스 없음 → 사이트의 "최신 버전 받기"(`.../releases/latest`)는 첫 릴리스 전까지 404. 첫 `release.sh` 실행이 0.1.7 release 를 만듦.
-4. **appcast.xml 미존재** — 첫 release 때 `web/public/appcast.xml`(channel + 첫 item) 생성·커밋해야 SUFeedURL 이 실제 응답.
+1. ~~**`SUFeedURL` 교체**~~ → **완료 (0.1.8)**: `Info.plist` SUFeedURL = `https://pizza-clip.com/appcast.xml`.
+2. ~~**release.sh 배포 자동화 미배선**~~ → **완료 (0.1.8)**: `PUBLISH=1 ./scripts/release.sh` 가 (a) `gh release create`(없으면)/`upload`(있으면) 로 ZIP+DMG 업로드, (b) `web/public/appcast.xml` 을 서명된 `<item>` 으로 재생성(최신 1개), (c) appcast 커밋·푸시(→Vercel). `DOWNLOAD_BASE_URL` 기본값 = `https://github.com/parkppuri01/pizzaClip/releases/download/v<버전>`. 일반 `./scripts/release.sh` 는 발행 안 함(로컬 빌드/공증/설치만).
+3. **GitHub Release 아직 0개** — 사이트의 "최신 버전 받기"(`.../releases/latest`)는 첫 릴리스 전까지 404. **첫 `PUBLISH=1 ./scripts/release.sh` 실행이 0.1.8 release 를 만듦** (notarize ~10분 + keychain 잠금해제 필요).
+4. ~~**appcast.xml 미존재**~~ → **부분 완료 (0.1.8)**: `web/public/appcast.xml` 에 유효한 빈 채널 스켈레톤 커밋됨(첫 발행 전 404 방지). 실제 `<item>` 은 위 PUBLISH 실행이 채움. **단 Vercel 배포가 돼야 라이브** (아래 ⓘ).
 5. **enclosure 포맷** — ZIP=Sparkle 자동설치용(appcast 가 가리킴), DMG=수동 다운로드용. release.sh 가 둘 다 생성.
 6. **0.1.6→0.1.7 은 수동** — 0.1.6 엔 Sparkle 없음 → 기존 사용자 수동 재다운로드. **0.1.7→0.1.8 이 첫 자동 사이클**.
-7. **(선택) release.sh 아이콘 자동빌드** — `assets/pizzaClipAppIcon.png` → `.icns` 변환 여전히 수동 (소스 갱신 후 잊으면 옛 아이콘으로 빌드되는 함정).
+7. ~~**(선택) release.sh 아이콘 자동빌드**~~ → **완료 (0.1.8)**: `scripts/build-icon.sh`(sips 10단계 + iconutil) 신설, release.sh 가 빌드 직전 자동 호출. 이제 `assets/pizzaClipAppIcon.png` 만 바꾸면 됨.
 8. ~~**🔑 비공개 서명키 백업**~~ → **완료 (2026-05-29)**: 사용자가 키를 별도 안전한 곳에 적어두고 평문 파일 `~/pizzaClip-sparkle-PRIVATE-KEY-BACKUP.txt` 삭제함. (분실 시 향후 모든 업데이트 서명 영구 불가 — 백업본 잘 보관할 것.)
 
 ---
