@@ -30,5 +30,15 @@
 	<string>pizzaClip uses Apple events to paste into the previous application.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string></string>
+	<key>SUPublicEDKey</key>
+	<string>KR0QzoAjNr4/Crb4N+2AEGL2GKvfX8PO/yTA3sTQolg=</string>
+	<key>SUFeedURL</key>
+	<string>https://REPLACE-WITH-VERCEL-DOMAIN.invalid/appcast.xml</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUAutomaticallyUpdate</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>

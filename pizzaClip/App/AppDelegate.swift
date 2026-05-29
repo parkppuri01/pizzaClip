@@ -1,10 +1,18 @@
 import AppKit
 import GRDB
 import KeyboardShortcuts
+import Sparkle
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var contextMenu: NSMenu!
+    // Auto-update. Starts the updater immediately; checks run on the
+    // SUScheduledCheckInterval (24h) against SUFeedURL. Whether a found
+    // update downloads+installs silently vs. only notifies is driven by
+    // `automaticallyDownloadsUpdates`, which Sparkle reads live from the
+    // SUAutomaticallyUpdate default — bound to the Settings checkbox.
+    private let updaterController = SPUStandardUpdaterController(
+        startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
     private(set) var store: HistoryStore!
     private var monitor: ClipboardMonitor!
     private var popupController: PopupPanelController!
@@ -171,6 +179,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         contextMenu.addItem(NSMenuItem(title: "Settings…",
                                        action: #selector(openSettings),
                                        keyEquivalent: ","))
+        let checkForUpdatesItem = NSMenuItem(
+            title: "Check for Updates…",
+            action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
+            keyEquivalent: "")
+        // Target = the updater controller; it auto-enables/disables this item
+        // via canCheckForUpdates (e.g. greyed out while a check is in flight).
+        checkForUpdatesItem.target = updaterController
+        contextMenu.addItem(checkForUpdatesItem)
         contextMenu.addItem(.separator())
         contextMenu.addItem(NSMenuItem(title: "Grant Accessibility…",
                                        action: #selector(grantAccessibility),

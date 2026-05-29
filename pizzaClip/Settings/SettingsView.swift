@@ -9,6 +9,9 @@ struct SettingsView: View {
         "com.1password.1password,com.agilebits.onepassword7,com.bitwarden.desktop,com.apple.keychainaccess"
     @AppStorage(AppPaths.storageDirectoryDefaultsKey) private var customStorageDirectory: String = ""
     @AppStorage("rightCommandHangulToggle") private var rightCommandHangulToggle = false
+    // Shares Sparkle's own default key, so toggling here directly drives the
+    // updater (it reads automaticallyDownloadsUpdates live from this key).
+    @AppStorage("SUAutomaticallyUpdate") private var automaticallyDownloadUpdates = true
 
     var body: some View {
         TabView {
@@ -31,22 +34,43 @@ struct SettingsView: View {
 
     private var generalTab: some View {
         Form {
-            LabeledContent("History cap") {
-                HStack(spacing: 8) {
-                    Stepper(value: $historyCap, in: 1...20, step: 1) {
-                        Text("\(historyCap) items")
-                            .frame(minWidth: 70, alignment: .leading)
-                            .monospacedDigit()
+            Section("History") {
+                LabeledContent("History cap") {
+                    HStack(spacing: 8) {
+                        Stepper(value: $historyCap, in: 1...20, step: 1) {
+                            Text("\(historyCap) items")
+                                .frame(minWidth: 70, alignment: .leading)
+                                .monospacedDigit()
+                        }
                     }
                 }
+                Text("When the number of non-pinned items exceeds this cap, the oldest entries are deleted automatically. Pinned items are never auto-deleted.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Text("When the number of non-pinned items exceeds this cap, the oldest entries are deleted automatically. Pinned items are never auto-deleted.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
+            Section("Updates") {
+                Toggle(isOn: $automaticallyDownloadUpdates) {
+                    Text("Download updates automatically")
+                }
+                Text("When on, new versions download in the background and install on quit. When off, pizzaClip only notifies you and you click Install yourself. Updates are checked once a day either way — or any time via the menu bar's “Check for Updates…”.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            Section("About") {
+                LabeledContent("Version", value: appVersionString)
+            }
         }
         .formStyle(.grouped)
         .scrollDisabled(true)
+    }
+
+    private var appVersionString: String {
+        let info = Bundle.main.infoDictionary
+        let short = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = info?["CFBundleVersion"] as? String ?? "?"
+        return "\(short) (\(build))"
     }
 
     // MARK: - Shortcuts
