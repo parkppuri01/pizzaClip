@@ -206,10 +206,15 @@ if [ "${PUBLISH:-0}" = "1" ]; then
     echo "→ Publishing GitHub release v${VERSION}"
     NOTES="dist/notes-${VERSION}.md"
     [ -f "$NOTES" ] || printf 'pizzaClip %s\n' "$VERSION" > "$NOTES"
+    # Fixed-name DMG copy so the website can link to
+    #   …/releases/latest/download/pizzaClip.dmg
+    # (always the newest release, no per-release link edits). The copy keeps the
+    # stapled notarization ticket embedded in the versioned DMG.
+    cp -f "dist/pizzaClip-${VERSION}.dmg" "dist/pizzaClip.dmg"
     if gh release view "v${VERSION}" >/dev/null 2>&1; then
-        gh release upload "v${VERSION}" "$ZIP" "dist/pizzaClip-${VERSION}.dmg" --clobber
+        gh release upload "v${VERSION}" "$ZIP" "dist/pizzaClip-${VERSION}.dmg" "dist/pizzaClip.dmg" --clobber
     else
-        gh release create "v${VERSION}" "$ZIP" "dist/pizzaClip-${VERSION}.dmg" \
+        gh release create "v${VERSION}" "$ZIP" "dist/pizzaClip-${VERSION}.dmg" "dist/pizzaClip.dmg" \
             --title "pizzaClip ${VERSION}" --notes-file "$NOTES"
     fi
 
