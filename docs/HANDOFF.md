@@ -1,15 +1,37 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-29 (**0.1.8 앱쪽 완료**: 새 앱 아이콘(피자커터+문서) + 팝업 색상 컬러차트 리프레시(데이/나이트 적응형) + 자동업데이트 **실제 배선**(SUFeedURL=pizza-clip.com, release.sh 발행 자동화 PUBLISH=1, appcast 스켈레톤, 아이콘 자동빌드). master 커밋·푸시 완료. **다음 = ① Vercel 웹 배포(appcast 라이브) ② 첫 `PUBLISH=1 ./scripts/release.sh` 로 0.1.8 GitHub 릴리스 생성**)
+마지막 업데이트: 2026-05-30 (**🎉 v1.0.0 정식 출시 완료**: 빌드→공증 2라운드(.app+DMG, 둘 다 Accepted+staple)→GitHub 릴리스 v1.0.0→`pizza-clip.com/appcast.xml` 라이브→`/Applications` 설치까지 끝. 다운로드 버튼=고정이름 `pizzaClip.dmg` 직접다운로드, Sparkle 자동업데이트 라이브(설치본 build 10=최신, **다음 릴리스 build 11+부터 자동 적용**). **다음 세션 = 웹사이트 수정 작업** — §"다음 세션 준비" 참고)
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
+
+## 0. 다음 세션 준비 — 웹사이트 수정 작업 🌐
+
+**다음 세션 주제 = `web/` 랜딩 사이트 수정.** 앱(v1.0.0)·자동업데이트·다운로드는 이미 라이브라 손댈 것 없음.
+
+**사이트 현황 (라이브)**
+- 호스팅: Vercel, **Root Directory = `web`**, 도메인 `pizza-clip.com` (Cloudflare DNS, 회색구름/DNS only). repo `parkppuri01/pizzaClip` master 푸시 시 자동 재배포.
+- 스택: Astro 6.4.2 (TS strict, 추가 런타임 의존성 0). 페이지: `index`(홈), `how-to`(사용법), `blog`(목록/상세).
+- 로컬: `cd web && npm install && npm run build` (dist/, node_modules 는 gitignore).
+- 디자인 SSOT: `web/guide/design.md`. 토큰: `web/src/styles/{tokens,fonts,global}.css`. 공용: `web/src/components/{Navbar,Footer,Button,Card}.astro`, `web/src/layouts/BaseLayout.astro`. 전역 상수: `web/src/consts.ts`.
+- 다운로드 버튼/문구: ✅ **이번에 직접다운로드(`…/releases/latest/download/pizzaClip.dmg`)로 완료** — 더 손댈 것 없음.
+
+**남은 웹 작업 (우선순위 제안)**
+1. **실제 블로그 글** — 현재 "준비 중" placeholder. `web/src/content/blog/*.md` 1개 떨구면 목록+상세 자동 생성(검증됨). `hello.md` = 템플릿(`draft:true`). 본문 폰트 = 리디바탕.
+2. **AEO/GEO 심화** — `@astrojs/sitemap` 통합 + `public/robots.txt` 의 Sitemap 줄 활성화, `llms.txt` 추가, JSON-LD(SoftwareApplication / Article / FAQ).
+3. **카피/이미지/레이아웃 다듬기** — 히어로 문구, 광고판, 기능 카드 등 (사용자 주도 수정 예정).
+4. **폰트 최적화** — 리디바탕 woff2 서브셋(현재 447KB; 블로그 글 생기면).
+5. (선택) 인트로 "커튼" 연출.
+
+> 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
+
+---
 
 ## 1. 프로젝트 한 줄 요약
 
 macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts, **Sparkle 2 자동업데이트** (0.1.7). 개인 사용 + 랜딩페이지 배포 목적, **Apple Developer ID 서명 + hardened runtime + notarize + staple** (0.1.6), Universal binary, macOS 13+.
 
 - **위치**: `/Users/parkjaekeun/DEV/myclip` (저장소 디렉토리는 그대로, 앱/번들 이름만 pizzaClip)
-- **현재 버전**: 0.1.7 (`project.yml` MARKETING 0.1.7, CURRENT 8)
+- **현재 버전**: **1.0.0 (정식 출시)** (`project.yml` MARKETING 1.0.0, CURRENT 10)
 - **브랜치**: `master` (단일 브랜치 운영)
 - **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → **Sparkle 임베드 헬퍼 Developer ID 재서명** → .app notarize → staple → DMG sign → DMG notarize → DMG staple → **/Applications 설치** → **ZIP EdDSA 서명 + appcast `<item>` 생성**. 0.1.6 Developer ID + 2-round notary, 0.1.7 Sparkle 추가)
 
@@ -202,6 +224,32 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 - **xcodegen**: project.yml만 손대고 `xcodegen generate`로 .xcodeproj 재생성. .xcodeproj는 절대 직접 편집 금지
 - **xcodegen이 새 파일 자동 인식**: `pizzaClip/` 트리에 파일 추가만 하면 자동으로 픽업 — **단 새 .swift 추가 후엔 `xcodegen generate` 한 번 더 돌려야 빌드에 포함됨** (0.1.3 PizzaBurst.swift 추가 시 첫 빌드가 "cannot find PizzaBurst in scope" 로 실패해서 확인)
 
+## 세션 노트 — 2026-05-30 (🎉 v1.0.0 정식 출시 + 다운로드 직접화)
+
+**범위**: v1.0.0 정식 배포(공증 포함) + 다운로드 링크 직접다운로드화 + Sparkle 자동업데이트 라이브.
+
+### 한 일 (커밋·푸시 완료)
+1. `chore: bump 1.0.0` — MARKETING 1.0.0 / CURRENT 10. (0.1.8 은 바이너리 미배포라 건너뜀.)
+2. `feat(web): direct DMG download button + macOS/notary note` — 다운로드 버튼을 `…/releases/latest/download/pizzaClip.dmg`(고정 파일명) 로 변경 → 한 클릭에 최신 DMG 바로 받기, 버전 올라가도 링크 수정 불필요. 카드 문구 '준비 중' → macOS 호환/공증/무료. (`web/src/consts.ts`, `index.astro`)
+3. `chore(release): upload fixed-name pizzaClip.dmg` — release.sh 가 버전 DMG 외에 고정이름 `pizzaClip.dmg` 사본도 GitHub 릴리스에 업로드(스테이플 티켓 유지).
+4. `PUBLISH=1 ./scripts/release.sh` 실행 → v1.0.0 정식 릴리스.
+
+### 릴리스 결과 (라이브 검증됨)
+- 공증 2라운드(.app id `240a170c…`, DMG id `76b4eedc…`) 모두 **Accepted + staple**. Gatekeeper: `accepted, Notarized Developer ID`.
+- `/Applications/pizzaClip.app` = **1.0.0** 설치·실행됨.
+- GitHub 릴리스: <https://github.com/parkppuri01/pizzaClip/releases/tag/v1.0.0> — 자산 3개: `pizzaClip-1.0.0.dmg`(5.49MB), `pizzaClip-1.0.0.zip`(4.97MB, Sparkle 자동설치용), `pizzaClip.dmg`(고정 이름, 웹 버튼용).
+- 다운로드 버튼 → 302 → `…/v1.0.0/pizzaClip.dmg` → HTTP 200 정상.
+- `pizza-clip.com/appcast.xml` 라이브: v1.0.0 아이템(`sparkle:version=10`, `shortVersionString=1.0.0`, EdDSA 서명, enclosure=v1.0.0 zip). **자동업데이트 준비 완료** — 설치본이 build 10 이라 지금은 "최신", **다음 릴리스(build 11+)부터 자동 적용**.
+
+### 다음 버전 내는 법 (Sparkle 자동업데이트 사이클)
+1. `project.yml` MARKETING/CURRENT 올림 (예: `1.0.1` / `11`).
+2. `PUBLISH=1 ./scripts/release.sh` 한 방 → 공증 2라운드 + GitHub 릴리스 생성 + 고정 DMG 업로드 + `web/public/appcast.xml` 재생성·커밋·푸시(→Vercel) 전부 자동.
+3. 기존 1.0.0 사용자에게 자동 업데이트 내려감(하루 1회 체크 + 메뉴 "Check for Updates…").
+- ⚠️ 비공개 EdDSA 서명키 분실 주의(분실 시 향후 업데이트 서명 영구 불가). 백업 위치는 사용자 본인만 보관.
+- ⚠️ 공증 전 시스템 시계 동기화 필요(`--timestamp` 가 시계 어긋나면 거부). 해외/절전 후 주의.
+
+---
+
 ## 세션 노트 — 2026-05-29 (0.1.8 새 아이콘 + 팝업 색상 + 자동업데이트 실제 배선)
 
 **범위**: 앱쪽 대기열(§"앱 배포 미완 항목") 정리 + 사용자 요청 3건(아이콘 교체 / 팝업 색상 / 버전 표시 확인).
@@ -307,13 +355,15 @@ Sparkle 은 **이미 Sparkle 이 박힌 앱만** 업데이트 가능. 0.1.6 엔 
 - **`web/` 현재 상태**: 순정 Astro 6.4.2 (minimal, TS strict). `npm run build` OK. **기본 index 1장뿐 — 콘텐츠 비어있음(의도)**. node_modules/dist 는 gitignore.
 - 사이트가 결국 가져야 할 것: 홈+가이드+블로그, `web/public/appcast.xml`, AEO/GEO 기본기(robots.txt 에 GPTBot/ClaudeBot/PerplexityBot/Google-Extended 허용 + sitemap, `llms.txt`, JSON-LD SoftwareApplication/Article/FAQ).
 
-### ⚠️ 앱 배포 미완 항목 (사이트 다음에 마무리하면 자동업데이트 완성)
+### ✅ 앱 배포 미완 항목 — **전부 완료 (v1.0.0, 2026-05-30)**
+
+> 아래는 당시 미완 목록의 역사적 기록. **2026-05-30 v1.0.0 출시로 전 항목 해소됨** (위 v1.0.0 세션 노트 참고): SUFeedURL 라이브, release.sh 발행 자동화 검증, GitHub 릴리스 v1.0.0 생성(자산 3개), appcast 라이브, Vercel 배포 확인, 아이콘 자동빌드. 첫 자동 사이클은 v1.0.0→다음 버전.
 
 자동업데이트를 **실제로 가동**하려면 아직 남은 것들:
 
 1. ~~**`SUFeedURL` 교체**~~ → **완료 (0.1.8)**: `Info.plist` SUFeedURL = `https://pizza-clip.com/appcast.xml`.
 2. ~~**release.sh 배포 자동화 미배선**~~ → **완료 (0.1.8)**: `PUBLISH=1 ./scripts/release.sh` 가 (a) `gh release create`(없으면)/`upload`(있으면) 로 ZIP+DMG 업로드, (b) `web/public/appcast.xml` 을 서명된 `<item>` 으로 재생성(최신 1개), (c) appcast 커밋·푸시(→Vercel). `DOWNLOAD_BASE_URL` 기본값 = `https://github.com/parkppuri01/pizzaClip/releases/download/v<버전>`. 일반 `./scripts/release.sh` 는 발행 안 함(로컬 빌드/공증/설치만).
-3. **GitHub Release 아직 0개** — 사이트의 "최신 버전 받기"(`.../releases/latest`)는 첫 릴리스 전까지 404. **첫 `PUBLISH=1 ./scripts/release.sh` 실행이 0.1.8 release 를 만듦** (notarize ~10분 + keychain 잠금해제 필요).
+3. ~~**GitHub Release 0개**~~ → **완료 (v1.0.0)**: 릴리스 v1.0.0 생성, 자산 `pizzaClip-1.0.0.{dmg,zip}` + 고정이름 `pizzaClip.dmg`. 다운로드 버튼은 `…/releases/latest/download/pizzaClip.dmg` 직접다운로드.
 4. ~~**appcast.xml 미존재**~~ → **부분 완료 (0.1.8)**: `web/public/appcast.xml` 에 유효한 빈 채널 스켈레톤 커밋됨(첫 발행 전 404 방지). 실제 `<item>` 은 위 PUBLISH 실행이 채움. **단 Vercel 배포가 돼야 라이브** (아래 ⓘ).
 5. **enclosure 포맷** — ZIP=Sparkle 자동설치용(appcast 가 가리킴), DMG=수동 다운로드용. release.sh 가 둘 다 생성.
 6. **0.1.6→0.1.7 은 수동** — 0.1.6 엔 Sparkle 없음 → 기존 사용자 수동 재다운로드. **0.1.7→0.1.8 이 첫 자동 사이클**.
