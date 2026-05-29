@@ -33,7 +33,7 @@
 	<key>SUPublicEDKey</key>
 	<string>KR0QzoAjNr4/Crb4N+2AEGL2GKvfX8PO/yTA3sTQolg=</string>
 	<key>SUFeedURL</key>
-	<string>https://REPLACE-WITH-VERCEL-DOMAIN.invalid/appcast.xml</string>
+	<string>https://pizza-clip.com/appcast.xml</string>
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUAutomaticallyUpdate</key>

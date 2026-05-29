@@ -23,6 +23,9 @@ echo "→ Running tests"
 xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip \
     -destination 'platform=macOS' test -quiet 2>&1 | tail -3
 
+echo "→ Building app icon (.icns) from source PNG"
+./scripts/build-icon.sh | sed 's/^/    /'
+
 echo "→ Cleaning build/"
 rm -rf build
 
@@ -149,15 +152,15 @@ cp -R "$APP" /Applications/
 # The notarized+stapled ZIP above is exactly what Sparkle downloads and swaps in.
 # We EdDSA-sign it with the private key in the login Keychain (generated once via
 # Sparkle's generate_keys) and write a ready-to-paste appcast <item> to dist/.
-# Publishing — `gh release` upload + pushing appcast.xml to the Vercel domain — is
-# intentionally NOT automated yet: it needs the GitHub repo + Vercel domain, which
-# are still TBD. See the TODO block below.
+# Actually publishing it (GitHub release + live appcast push) happens in the
+# PUBLISH=1 block further down.
 SIGN_UPDATE="./build/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update"
 ZIP="dist/pizzaClip-${VERSION}.zip"
 BUILD_NUMBER=$(grep "CURRENT_PROJECT_VERSION:" project.yml | head -1 | sed 's/.*"\([^"]*\)".*/\1/')
-# Base URL the ZIP will be downloaded from. Override once hosting is decided, e.g.
-#   DOWNLOAD_BASE_URL="https://github.com/<owner>/pizzaClip/releases/download/v${VERSION}" ./scripts/release.sh
-DOWNLOAD_BASE_URL="${DOWNLOAD_BASE_URL:-https://REPLACE-WITH-DOWNLOAD-HOST.invalid}"
+# Base URL the ZIP will be downloaded from — the GitHub release we publish below.
+# Override via env if the host ever changes.
+GITHUB_REPO="${GITHUB_REPO:-parkppuri01/pizzaClip}"
+DOWNLOAD_BASE_URL="${DOWNLOAD_BASE_URL:-https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}}"
 
 if [ -x "$SIGN_UPDATE" ]; then
     echo "→ Signing ZIP for Sparkle (EdDSA)"
@@ -186,15 +189,58 @@ else
     echo "  Skipping Sparkle signing."
 fi
 
-# TODO — wire up once the GitHub repo + Vercel domain are confirmed:
-#   1. Upload binaries to a host Sparkle can fetch without auth, e.g. a public
-#      GitHub release:
-#        gh release create "v${VERSION}" "$ZIP" "dist/pizzaClip-${VERSION}.dmg" \
-#          --title "pizzaClip ${VERSION}" --notes-file dist/notes-${VERSION}.md
-#      and re-run with DOWNLOAD_BASE_URL set to that release's download base.
-#   2. Merge dist/appcast-item-${VERSION}.xml into the master appcast.xml and
-#      deploy to https://<vercel-domain>/appcast.xml.
-#   3. Set Info.plist SUFeedURL to that same https://<vercel-domain>/appcast.xml.
+# ── Publish (opt-in via PUBLISH=1) ───────────────────────────────────────────
+# A plain `./scripts/release.sh` builds, notarizes and installs locally — it does
+# NOT touch GitHub or the live site. Run `PUBLISH=1 ./scripts/release.sh` to also:
+#   1. create/refresh a public GitHub release with the ZIP + DMG (Sparkle pulls
+#      the ZIP from there — matches DOWNLOAD_BASE_URL above),
+#   2. regenerate web/public/appcast.xml from the freshly signed <item>,
+#   3. commit + push that appcast so Vercel redeploys https://pizza-clip.com.
+APPCAST="web/public/appcast.xml"
+if [ "${PUBLISH:-0}" = "1" ]; then
+    if [ ! -f "${APPCAST_ITEM:-/nonexistent}" ]; then
+        echo "✗ PUBLISH=1 but no signed appcast item — Sparkle signing must run first." >&2
+        exit 1
+    fi
+
+    echo "→ Publishing GitHub release v${VERSION}"
+    NOTES="dist/notes-${VERSION}.md"
+    [ -f "$NOTES" ] || printf 'pizzaClip %s\n' "$VERSION" > "$NOTES"
+    if gh release view "v${VERSION}" >/dev/null 2>&1; then
+        gh release upload "v${VERSION}" "$ZIP" "dist/pizzaClip-${VERSION}.dmg" --clobber
+    else
+        gh release create "v${VERSION}" "$ZIP" "dist/pizzaClip-${VERSION}.dmg" \
+            --title "pizzaClip ${VERSION}" --notes-file "$NOTES"
+    fi
+
+    echo "→ Regenerating $APPCAST (latest version)"
+    mkdir -p "$(dirname "$APPCAST")"
+    cat > "$APPCAST" <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>pizzaClip</title>
+        <link>https://pizza-clip.com/appcast.xml</link>
+        <description>pizzaClip updates</description>
+        <language>en</language>
+$(cat "$APPCAST_ITEM")
+    </channel>
+</rss>
+EOF
+
+    echo "→ Committing + pushing appcast (triggers Vercel deploy)"
+    git add "$APPCAST"
+    if git diff --cached --quiet; then
+        echo "    appcast unchanged — nothing to commit"
+    else
+        git commit -m "chore(release): publish appcast for ${VERSION}" >/dev/null
+        git push
+        echo "    pushed — Vercel redeploys https://pizza-clip.com/appcast.xml"
+    fi
+else
+    echo "ℹ Built + notarized + installed locally (not published)."
+    echo "  To publish (GitHub release + live appcast): PUBLISH=1 ./scripts/release.sh"
+fi
 
 echo ""
 echo "✓ Release $VERSION ready"

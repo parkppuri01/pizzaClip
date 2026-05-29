@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>pizzaClip</title>
+        <link>https://pizza-clip.com/appcast.xml</link>
+        <description>pizzaClip updates</description>
+        <language>en</language>
+        <!--
+          No <item> yet. The first `PUBLISH=1 ./scripts/release.sh` run replaces
+          this whole file with the channel above plus the signed <item> for the
+          released version. Until then Sparkle reads a valid, empty feed and
+          reports "you're up to date" instead of erroring.
+        -->
+    </channel>
+</rss>
