@@ -1,6 +1,6 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-29 (0.1.7 Sparkle 작업 중 — 앱쪽 완료, 호스팅 미정)
+마지막 업데이트: 2026-05-29 (0.1.7 앱쪽 완료 + GitHub repo 공개 + web/ Astro 스캐폴드 + Vercel/도메인 셋업. **다음 세션 = 사이트 제작**)
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
@@ -202,7 +202,7 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 - **xcodegen**: project.yml만 손대고 `xcodegen generate`로 .xcodeproj 재생성. .xcodeproj는 절대 직접 편집 금지
 - **xcodegen이 새 파일 자동 인식**: `pizzaClip/` 트리에 파일 추가만 하면 자동으로 픽업 — **단 새 .swift 추가 후엔 `xcodegen generate` 한 번 더 돌려야 빌드에 포함됨** (0.1.3 PizzaBurst.swift 추가 시 첫 빌드가 "cannot find PizzaBurst in scope" 로 실패해서 확인)
 
-## 10. 세션 노트 — 2026-05-29 (0.1.7 Sparkle 2 자동업데이트 — 앱쪽 완료, 호스팅 미정)
+## 10. 세션 노트 — 2026-05-29 (0.1.7 Sparkle 2 자동업데이트 — 앱쪽 완료 + 호스팅 인프라 셋업: GitHub 공개 repo + web/ Astro + Vercel/도메인)
 
 **범위 합의**: 앱쪽 Sparkle 통합 + 키 생성 + release.sh 서명 단계까지만. **사이트쪽(도메인/Vercel appcast 호스팅/gh release 업로드)은 이번 세션에서 제외** — repo·도메인 확정 후 진행.
 
@@ -243,22 +243,38 @@ Sparkle 은 **이미 Sparkle 이 박힌 앱만** 업데이트 가능. 0.1.6 엔 
 - 유닛 테스트 25개 통과.
 - Release 유니버설 빌드 성공 + 재서명 후 `codesign --verify --deep --strict` 통과 (notary-ready). **실제 notary 제출은 이번 세션에서 안 함** (호스팅 미정이라 릴리스 미실행).
 
-### 미커밋 (다음 세션에서 정리)
+### 커밋 완료 (master, origin 동기화됨)
 
-이번 세션 변경분 미커밋. 제안 split:
-- `feat(updates): integrate Sparkle 2 auto-update (updater + menu + Settings toggle)`
-- `feat(settings): show app version in General tab`
-- `chore(release): re-sign embedded Sparkle helpers + sign ZIP + emit appcast item`
-- `chore: bump 0.1.7`
-- `docs: 0.1.7 handoff (Sparkle app-side)`
+이번 세션 변경분은 모두 커밋·푸시됨 (워킹트리 깨끗, `master...origin/master`):
+- `feat(updates): Sparkle 2 자동업데이트 통합 + 버전 표시; 0.1.7` (280794e)
+- `chore(release): Sparkle 임베드 헬퍼 재서명 + ZIP EdDSA 서명 + appcast item` (3124bef)
+- `docs: 0.1.7 Sparkle 자동업데이트 핸드오프 노트` (950f7ef)
+- `docs: GitHub repo 생성 반영` (053787d)
+- `chore(web): Astro 프로젝트 스캐폴드 (Vercel 호스팅용)` (f68435e)
 
-### 남은 일 (호스팅 확정 후) — 사용자 입력 대기
+### 🌐 다음 세션 = 사이트 제작
 
-1. ~~**GitHub repo**~~ → **완료**: `parkppuri01/pizzaClip` (PUBLIC), 기본 브랜치 `master`. `origin` 은 **HTTPS** (`gh auth setup-git` 토큰 자격증명 사용 — SSH 키 미등록이라 git@ 푸시는 실패함, https 만 사용). 첫 릴리스 때 `DOWNLOAD_BASE_URL=https://github.com/parkppuri01/pizzaClip/releases/download/v<버전>` 로 release.sh 실행.
-2. **Vercel 도메인**: 확정 도메인, appcast.xml 최종 URL → `SUFeedURL` 교체, release.sh 의 appcast 푸시 방식.
-3. **enclosure 포맷 확정**: ZIP (Sparkle 자동설치용) / DMG (수동 다운로드용) 분리.
-4. **릴리스 노트**: appcast inline vs `sparkle:releaseNotesLink` 호스팅 (CHANGELOG 도입?).
-5. **첫 실제 release**: `DOWNLOAD_BASE_URL` set 하고 release.sh 실행 → gh release 업로드 → appcast 배포.
+호스팅 인프라는 이번 세션에서 다 깔아둠. 다음 세션은 **랜딩/가이드/블로그 콘텐츠 제작** (사용자에게 별도 가이드 있음 — 스택 디테일은 그 가이드 우선).
+
+- **GitHub repo**: `parkppuri01/pizzaClip` (PUBLIC, `master`). `origin` = **HTTPS** (`gh auth setup-git` 토큰; SSH 키 미등록이라 `git@` 푸시는 실패 → https 만 사용).
+- **도메인**: `pizza-clip.com` (Cloudflare 등록). → 사이트 URL + `SUFeedURL` = `https://pizza-clip.com/appcast.xml`.
+- **Vercel**: 프로젝트 `pizza-clip` (Hobby), 이 repo import, **Root Directory = `web`**, Preset Astro (셋업 진행 중). 서브폴더 자동감지되면 프리셋 드롭다운 잠김 = 정상. 안 잡히면 수동: Build Command `npm run build` / Output `dist` / Install `npm install`.
+  - 도메인 연결: Vercel Settings→Domains 에 `pizza-clip.com` 추가 → 받은 레코드를 Cloudflare DNS 에 **회색 구름(DNS only)** 으로 입력 (주황 구름=프록시면 SSL 충돌 "리다이렉트 너무 많음").
+- **`web/` 현재 상태**: 순정 Astro 6.4.2 (minimal, TS strict). `npm run build` OK. **기본 index 1장뿐 — 콘텐츠 비어있음(의도)**. node_modules/dist 는 gitignore.
+- 사이트가 결국 가져야 할 것: 홈+가이드+블로그, `web/public/appcast.xml`, AEO/GEO 기본기(robots.txt 에 GPTBot/ClaudeBot/PerplexityBot/Google-Extended 허용 + sitemap, `llms.txt`, JSON-LD SoftwareApplication/Article/FAQ).
+
+### ⚠️ 앱 배포 미완 항목 (사이트 다음에 마무리하면 자동업데이트 완성)
+
+자동업데이트를 **실제로 가동**하려면 아직 남은 것들:
+
+1. **`SUFeedURL` 교체** — `Info.plist` 에 `https://REPLACE-WITH-VERCEL-DOMAIN.invalid/appcast.xml` 플레이스홀더 상태. → `https://pizza-clip.com/appcast.xml` 로 교체 (안 바꾸면 업데이트 체크 자체가 안 됨).
+2. **release.sh 배포 자동화 미배선** — `sign_update` + appcast `<item>` 생성까진 됨. 남은 TODO: (a) `gh release create` 로 ZIP/DMG 업로드, (b) appcast.xml 을 `web/public/` 에 머지+커밋(→Vercel 자동배포), (c) `DOWNLOAD_BASE_URL` 주입. 채울 값: `DOWNLOAD_BASE_URL=https://github.com/parkppuri01/pizzaClip/releases/download/v<버전>`.
+3. **GitHub Release 0개** — 아직 릴리스 없음 → 사이트의 "최신 버전 받기"(`.../releases/latest`)는 첫 릴리스 전까지 404. 첫 `release.sh` 실행이 0.1.7 release 를 만듦.
+4. **appcast.xml 미존재** — 첫 release 때 `web/public/appcast.xml`(channel + 첫 item) 생성·커밋해야 SUFeedURL 이 실제 응답.
+5. **enclosure 포맷** — ZIP=Sparkle 자동설치용(appcast 가 가리킴), DMG=수동 다운로드용. release.sh 가 둘 다 생성.
+6. **0.1.6→0.1.7 은 수동** — 0.1.6 엔 Sparkle 없음 → 기존 사용자 수동 재다운로드. **0.1.7→0.1.8 이 첫 자동 사이클**.
+7. **(선택) release.sh 아이콘 자동빌드** — `assets/pizzaClipAppIcon.png` → `.icns` 변환 여전히 수동 (소스 갱신 후 잊으면 옛 아이콘으로 빌드되는 함정).
+8. **🔑 비공개 서명키 백업** — `~/pizzaClip-sparkle-PRIVATE-KEY-BACKUP.txt` **평문 아직 존재**. 1Password 등으로 옮기고 평문 삭제 필요. 분실 시 향후 모든 업데이트 서명 영구 불가.
 
 ---
 
