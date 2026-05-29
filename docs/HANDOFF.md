@@ -1,6 +1,6 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-29 (0.1.7 앱쪽 완료 + GitHub repo 공개 + web/ Astro 스캐폴드 + Vercel/도메인 셋업. **다음 세션 = 사이트 제작**)
+마지막 업데이트: 2026-05-29 (0.1.7 앱쪽 완료 + GitHub repo 공개 + **web/ 랜딩 사이트 1차 완성**(홈·how-to·blog, 디자인 시스템, 폰트, 빌드 통과). **다음 = 사이트 git 커밋 + Vercel 배포 + 앱 자동업데이트 배선**)
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
@@ -252,9 +252,23 @@ Sparkle 은 **이미 Sparkle 이 박힌 앱만** 업데이트 가능. 0.1.6 엔 
 - `docs: GitHub repo 생성 반영` (053787d)
 - `chore(web): Astro 프로젝트 스캐폴드 (Vercel 호스팅용)` (f68435e)
 
-### 🌐 다음 세션 = 사이트 제작
+### 🌐 사이트 1차 완성 (2026-05-29 — plan-ralph 세션)
 
-호스팅 인프라는 이번 세션에서 다 깔아둠. 다음 세션은 **랜딩/가이드/블로그 콘텐츠 제작** (사용자에게 별도 가이드 있음 — 스택 디테일은 그 가이드 우선).
+랜딩 사이트를 `web/` (Astro 6.4.2)에 1차 구현 완료. **아직 git 미커밋 / Vercel 미배포** (다음 작업).
+
+- **디자인 SSOT**: `web/guide/design.md` (design.png 분석본). 컬러 5색·폰트 3종·버튼 3종·카드 2종·메뉴바·🍕디바이더.
+- **만든 것**:
+  - 디자인 토큰: `src/styles/{tokens,fonts,global}.css` (design.md 값 그대로 + a11y 가드 `:focus-visible`/`prefers-reduced-motion`).
+  - 공용 컴포넌트: `src/layouts/BaseLayout.astro`(메타/canonical/og/폰트), `src/components/{Navbar,Footer,Button,Card}.astro`.
+  - 페이지: `src/pages/index.astro`(메인=pizza web.png 목업 충실 구현: 히어로→후킹카드→광고판→기능→다운로드), `how-to.astro`(실제 단축키 가이드), `blog/index.astro`(현재 "준비 중" placeholder), `blog/[...id].astro`(Astro 6 Content Layer, 본문=리디바탕).
+  - 블로그: `src/content.config.ts`(glob loader). **`src/content/blog/*.md` 1개 떨구면 목록+상세 자동 생성** (검증됨). `hello.md`는 작성 예시 템플릿(`draft:true`라 비공개).
+  - 폰트(전부 OFL 1.1, self-host/CDN): Pretendard(CDN dynamic-subset), 리디바탕(`public/fonts/RIDIBatang.woff2`), OSP-DIN(`public/fonts/OSP-DIN.woff2`, fontlibrary TTF→ttf2woff2 변환).
+  - 이미지: `public/img/{billboard.jpg(256KB),app-icon.png(40KB)}` (sips 다운스케일 ≤400KB). 원본은 `web/guide/`.
+  - `public/robots.txt`(AI 크롤러 허용; sitemap 줄은 통합 후 주석 해제).
+  - 추가 런타임 npm 의존성 0 (astro만). `npm run build` 통과(공개 3페이지). 데스크톱/모바일 + code-reviewer(APPROVE)로 검증.
+- **남은 사이트 작업(follow-up)**: ① git add+commit+push(폰트·이미지 포함) → Vercel 자동배포 확인, ② 리디바탕 woff2 서브셋(현재 447KB; 블로그 글 생길 때), ③ `@astrojs/sitemap` 통합 + robots Sitemap 줄 활성화, ④ JSON-LD/llms.txt(AEO/GEO 심화), ⑤ 실제 블로그 글 작성, ⑥ (선택) 인트로 "커튼" 연출.
+
+### ⚠️ 사이트 다음 = 앱 자동업데이트 배선 (아래 §"앱 배포 미완 항목"과 연결)
 
 - **GitHub repo**: `parkppuri01/pizzaClip` (PUBLIC, `master`). `origin` = **HTTPS** (`gh auth setup-git` 토큰; SSH 키 미등록이라 `git@` 푸시는 실패 → https 만 사용).
 - **도메인**: `pizza-clip.com` (Cloudflare 등록). → 사이트 URL + `SUFeedURL` = `https://pizza-clip.com/appcast.xml`.
@@ -274,7 +288,7 @@ Sparkle 은 **이미 Sparkle 이 박힌 앱만** 업데이트 가능. 0.1.6 엔 
 5. **enclosure 포맷** — ZIP=Sparkle 자동설치용(appcast 가 가리킴), DMG=수동 다운로드용. release.sh 가 둘 다 생성.
 6. **0.1.6→0.1.7 은 수동** — 0.1.6 엔 Sparkle 없음 → 기존 사용자 수동 재다운로드. **0.1.7→0.1.8 이 첫 자동 사이클**.
 7. **(선택) release.sh 아이콘 자동빌드** — `assets/pizzaClipAppIcon.png` → `.icns` 변환 여전히 수동 (소스 갱신 후 잊으면 옛 아이콘으로 빌드되는 함정).
-8. **🔑 비공개 서명키 백업** — `~/pizzaClip-sparkle-PRIVATE-KEY-BACKUP.txt` **평문 아직 존재**. 1Password 등으로 옮기고 평문 삭제 필요. 분실 시 향후 모든 업데이트 서명 영구 불가.
+8. ~~**🔑 비공개 서명키 백업**~~ → **완료 (2026-05-29)**: 사용자가 키를 별도 안전한 곳에 적어두고 평문 파일 `~/pizzaClip-sparkle-PRIVATE-KEY-BACKUP.txt` 삭제함. (분실 시 향후 모든 업데이트 서명 영구 불가 — 백업본 잘 보관할 것.)
 
 ---
 
