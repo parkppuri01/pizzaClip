@@ -100,11 +100,11 @@ struct PopupView: View {
         HStack(spacing: 10) {
             Text("0")
                 .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(.white)
+                .foregroundColor(AppColors.inkOnAmber)
                 .frame(width: 20, height: 20)
                 .background(
                     RoundedRectangle(cornerRadius: 5)
-                        .fill(AppColors.accent)
+                        .fill(AppColors.amberFill)
                 )
             Text("9 → 1 full paste")
                 .font(.system(size: 13, weight: .medium))

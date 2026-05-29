@@ -24,16 +24,16 @@ struct PopupRow: View {
             }
             Spacer()
             if item.pinned {
-                Image(systemName: "pin.fill").font(.system(size: 11)).foregroundColor(AppColors.accent)
+                Image(systemName: "pin.fill").font(.system(size: 11)).foregroundColor(AppColors.amber)
             }
             if let slot = slot {
                 Text("\(slot)")
                     .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(AppColors.accent)
+                    .foregroundColor(AppColors.amber)
                     .frame(width: 18, height: 18)
                     .overlay(
                         RoundedRectangle(cornerRadius: 5)
-                            .stroke(AppColors.accent.opacity(0.5), lineWidth: 1)
+                            .stroke(AppColors.amber.opacity(0.6), lineWidth: 1)
                     )
             }
         }
