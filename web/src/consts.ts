@@ -1,8 +1,9 @@
 /** 사이트 전역 상수 — 한 곳에서 관리 */
 
-// 최신 릴리스 다운로드 (첫 릴리스 전에는 releases 목록으로 랜딩)
+// 최신 릴리스 DMG 바로 다운로드. 고정 파일명(pizzaClip.dmg)이라 버전이 올라가도
+// 항상 최신 릴리스를 가리킴 — release.sh 가 매 릴리스마다 이 이름으로도 업로드한다.
 export const DOWNLOAD_URL =
-  "https://github.com/parkppuri01/pizzaClip/releases/latest";
+  "https://github.com/parkppuri01/pizzaClip/releases/latest/download/pizzaClip.dmg";
 
 export const GITHUB_URL = "https://github.com/parkppuri01/pizzaClip";
 
