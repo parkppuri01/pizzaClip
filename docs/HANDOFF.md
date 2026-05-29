@@ -26,6 +26,20 @@
 
 ---
 
+## 0.5 다음 앱 업데이트 예정사항 (TODO — **앱 수정 세션에서 처리**) 🔔
+
+> 사용자가 v1.0.0 출시 직후 요청(2026-05-30). **다음에 앱 코드를 만질 때 이 두 가지를 같이 처리하고, 세션 시작 시 사용자에게 먼저 상기시킬 것.** (바로 다음 예정 세션은 웹이라, 웹 끝나고 앱 손볼 때 적용.)
+
+1. **릴리스 노트 보여주기** — 지금은 Sparkle 업데이트 알림창에 버전 숫자만 뜸(appcast `<item>`에 설명 없음). 업데이트 팝업에 "이번에 바뀐 점"이 보이도록:
+   - `scripts/release.sh`의 appcast `<item>` 생성부에 `<description><![CDATA[ …HTML… ]]></description>` 또는 `<sparkle:releaseNotesLink>` 추가.
+   - 노트 소스: `dist/notes-<버전>.md`(이미 생성됨) 또는 CHANGELOG → HTML 변환. (어디서 가져올지 결정 필요.)
+
+2. **⌘P = "핀"이 아니라 "1번 슬롯 고정"으로 변경** — 현재 ⌘P는 pin(상단 부유 + 핀 아이콘, 슬롯 1~9 번호에서 제외). 요청: **⌘P 누르면 그 항목을 슬롯 1번에 고정**하고, 그 뒤로 복사되는 항목은 **2번부터** 쌓이도록(고정 항목이 1번 자리에서 안 밀려남).
+   - ⚠️ 구현 전 사용자에게 확인할 것: ① 고정은 **1개만**(1번 전용)인지 여러 개 가능(1,2,3…)인지 — 표현상 1개 같지만 확인. ② 기존 pin 개념을 완전히 대체할지(핀 아이콘/부유 동작 제거?). ③ 직접붙여넣기 `⌘⌥⌃1~9` / `0=9→1 전체붙여넣기`와의 상호작용. ④ 시각 표시(1번 배지 강조? 자물쇠 아이콘?).
+   - 관련 파일: `Popup/PopupPanelController.swift`(handleKey: ⌘P→togglePin), `Popup/PopupViewModel.swift`, `Storage/HistoryStore.swift`(pin/topN/슬롯 로직), `Storage/Item.swift`(pinned 필드), `Popup/PopupView.swift`·`PopupRow.swift`(슬롯 번호/핀 표시).
+
+---
+
 ## 1. 프로젝트 한 줄 요약
 
 macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts, **Sparkle 2 자동업데이트** (0.1.7). 개인 사용 + 랜딩페이지 배포 목적, **Apple Developer ID 서명 + hardened runtime + notarize + staple** (0.1.6), Universal binary, macOS 13+.
