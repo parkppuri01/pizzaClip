@@ -1,7 +1,6 @@
 ---
 /** INFO — 릴리스노트(전체 버전 히스토리) + Team JAM 소개 */
 import BaseLayout from "../layouts/BaseLayout.astro";
-import Card from "../components/Card.astro";
 import { GITHUB_URL } from "../consts.ts";
 
 // 전체 버전 히스토리 — 개발 용어 대신 일반 유저가 읽을 수 있는 말로.
@@ -79,16 +78,26 @@ const releases = [
       자세한 변경 내역은 <a href={GITHUB_URL} target="_blank" rel="noopener">GitHub</a>에서 볼 수 있어요.
     </p>
 
-    <!-- ===== Team JAM 소개 ===== -->
+    <!-- ===== Team jAm 소개 ===== -->
     <div class="team-wrap">
-      <Card variant="menu" class="team">
-        <h2>Team JAM 🍕</h2>
-        <p class="team__body">
-          pizzaClip을 만드는 <strong>Team JAM</strong>은 jaekeun과 mingyeol,
-          두 사람이 “재미로 한번 만들어 보자” 하고 꾸린 작은 프로젝트 팀입니다.
-          필요해서 만들고, 만드는 게 즐거워서 계속 만듭니다.
+      <section class="teamcard">
+        <h2 class="teamcard__title">Team jAm</h2>
+        <p class="teamcard__tagline">"모든 것은 장난스러운 상상에서 시작된다."</p>
+
+        <p class="teamcard__body">
+          <span class="brand">PIZZA&nbsp;CLIP</span> 을 개발한 '<strong>Team&nbsp;jAm</strong>'은
+          jae_keun과 min_gyeol, 두 사람이 가벼운 상상을 현실로 옮기며 시작한 작은 프로젝트 팀입니다.
         </p>
-      </Card>
+        <p class="teamcard__body">
+          우리가 필요해서 만들었고, 만드는 과정 자체가 즐거워서 오늘도 기분 좋은 상상을 더해가며 계속 만들고 있습니다.
+        </p>
+
+        <div class="teamcard__sign">
+          <span class="teamcard__en">"It all starts with a playful imagination."</span>
+          <img class="teamcard__logo" src="/img/jam-logo.png" width="60" height="60"
+               alt="Team jAm 로고" loading="lazy" />
+        </div>
+      </section>
     </div>
   </section>
 </BaseLayout>
@@ -122,13 +131,57 @@ const releases = [
   .releases__more { margin-top: 1.25rem; font-size: var(--fs-small); opacity: 0.8; }
   .releases__more a { color: var(--color-point); text-decoration: underline; }
 
+  /* ===== Team jAm 카드 (흰 카드 + 진회색 테두리) ===== */
   .team-wrap { margin-top: var(--section-gap); }
-  .team__body {
-    margin-top: 1rem;
-    font-family: var(--font-serif);
-    font-size: 1.15rem;
-    line-height: 1.9;
+  .teamcard {
+    background: var(--color-surface);
+    border: 1.5px solid #333;
+    border-radius: 28px;
+    padding: clamp(1.75rem, 4vw, 3rem);
     color: var(--color-ink);
   }
-  .team__body strong { color: var(--color-point); }
+  .teamcard__title {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    color: var(--color-ink);
+  }
+  .teamcard__tagline {
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: #9a9a9a;
+    font-size: var(--fs-small);
+  }
+  .teamcard__body {
+    margin-top: 1.5rem;
+    font-family: var(--font-sans);
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: var(--color-ink);
+  }
+  .teamcard__body .brand {
+    font-family: var(--font-en);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .teamcard__body strong { font-weight: 700; }
+  .teamcard__sign {
+    margin-top: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .teamcard__en {
+    font-weight: 700;
+    font-size: var(--fs-small);
+    color: var(--color-ink);
+  }
+  .teamcard__logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+  }
 </style>

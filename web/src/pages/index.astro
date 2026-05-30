@@ -89,6 +89,14 @@ const downloadChecks = [
 
   <SliceDivider count={4} />
 
+  <!-- ===== 매장 광고 사진 (Copy it while it's hot) ===== -->
+  <section class="section container">
+    <figure class="storefront">
+      <img src="/img/storefront.jpg" width="1400" height="933"
+           alt="피자클립 매장 광고 — “Copy it while it's hot” 포스터" loading="lazy" />
+    </figure>
+  </section>
+
   <!-- ===== 다운로드 카드 ===== -->
   <section class="section container" id="download">
     <Card variant="white" class="download">
@@ -140,6 +148,16 @@ const downloadChecks = [
     font-weight: 700;
     letter-spacing: 0.04em;
     color: var(--color-point);
+  }
+
+  /* 매장 광고 사진 — 가운데 정렬, 라운드 */
+  .storefront { text-align: center; }
+  .storefront img {
+    border-radius: var(--radius-card);
+    width: 100%;
+    height: auto;
+    display: block;
+    margin-inline: auto;
   }
 
   /* 기능 */
