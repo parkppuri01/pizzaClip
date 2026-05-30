@@ -35,4 +35,5 @@
   --radius-card: 24px;
   --radius-pill: 999px;
   --border-w:    2px;
+  --border-ink:  #333333; /* 카드·사진 테두리 색(차콜) */
 }
