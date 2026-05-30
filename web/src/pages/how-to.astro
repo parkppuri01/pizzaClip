@@ -54,6 +54,7 @@ const shortcuts = [
     <!-- 단축키 표 -->
     <Card variant="menu" class="shortcuts">
       <h2>단축키 한눈에</h2>
+      <br />
       <dl class="kbd-list">
         {shortcuts.map((s) => (
           <div class="kbd-row">
@@ -84,7 +85,7 @@ const shortcuts = [
     font-size: 0.9em;
   }
 
-  .shortcuts h2 { margin-bottom: 2.5rem; }
+  .shortcuts h2 { margin-bottom: 1.25rem; }
   .kbd-list { display: grid; gap: 0.6rem; }
   .kbd-row  { display: grid; grid-template-columns: minmax(120px, 180px) 1fr; gap: 1rem; align-items: baseline; }
   kbd {
