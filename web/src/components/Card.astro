@@ -18,6 +18,14 @@ const cls = `card card--${variant} ${className ?? ""}`.trim();
     border-radius: var(--radius-card);
     padding: clamp(1.5rem, 4vw, 3rem);
   }
-  .card--menu  { background: var(--color-menu); color: var(--color-ink); }
-  .card--white { background: var(--color-surface); border: var(--border-w) solid var(--color-menu); }
+  .card--menu  {
+    background: var(--color-menu);
+    color: var(--color-ink);
+    box-shadow: 12px 12px 0 0 var(--color-point); /* 빨간 오프셋 그림자 */
+  }
+  .card--white {
+    background: var(--color-surface);
+    border: var(--border-w) solid #111;           /* 검정 테두리 */
+    box-shadow: 12px 12px 0 0 #111;               /* 검정 오프셋 그림자 */
+  }
 </style>

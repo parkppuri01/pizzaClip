@@ -57,7 +57,7 @@ const isActive = (href: string) =>
     font-weight: 700;
     font-size: clamp(1.05rem, 3.6vw, 1.6rem);
     letter-spacing: 0.04em;
-    color: var(--color-ink);
+    color: var(--color-point); /* 로고 = 빨간색 */
     margin-right: auto;
     white-space: nowrap;
   }
@@ -85,6 +85,7 @@ const isActive = (href: string) =>
   /* 색 교차 (design.md: PIZZA=네이비, CLIP=빨강 …) */
   .navbar__link[data-color="ink"]   { color: var(--color-ink); }
   .navbar__link[data-color="point"] { color: var(--color-point); }
+  .navbar__link[href="/how-to"]     { color: #111; } /* HOW TO = 검정 */
   .navbar__link:hover    { opacity: 0.75; }
   .navbar__link.is-active { border-bottom-color: currentColor; }
 
