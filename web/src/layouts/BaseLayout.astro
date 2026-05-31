@@ -6,7 +6,7 @@
 import "../styles/global.css";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
-import { SITE_TITLE, SITE_DESC } from "../consts.ts";
+import { SITE_TITLE, SITE_DESC, DOWNLOAD_URL, GITHUB_URL } from "../consts.ts";
 
 interface Props {
   title?: string;
@@ -23,6 +23,39 @@ const {
 const pageTitle = title ? `${title} · ${SITE_TITLE}` : `${SITE_TITLE} — 맥 클립보드 히스토리 앱`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image, Astro.site);
+const siteUrl = Astro.site?.toString() ?? "https://pizza-clip.com/";
+
+// 구조화 데이터(JSON-LD): 검색·AI 엔진이 앱 정보를 정확히 이해하도록
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: SITE_TITLE,
+    applicationCategory: "UtilitiesApplication",
+    operatingSystem: "macOS",
+    description: SITE_DESC,
+    url: siteUrl,
+    downloadUrl: DOWNLOAD_URL,
+    image: ogImage.toString(),
+    inLanguage: "ko",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
+    author: { "@type": "Organization", name: "ProjectJAM", url: siteUrl },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_TITLE,
+    url: siteUrl,
+    inLanguage: "ko",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "ProjectJAM",
+    url: siteUrl,
+    sameAs: [GITHUB_URL],
+  },
+];
 ---
 <!doctype html>
 <html lang="ko">
@@ -32,6 +65,10 @@ const ogImage = new URL(image, Astro.site);
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#E63946" />
+
+    <!-- 네이버 사이트 소유확인 -->
+    <meta name="naver-site-verification" content="ae2a9984e7dcb6f0b55f9f630e79ffc8ae1907b0" />
 
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
@@ -44,7 +81,16 @@ const ogImage = new URL(image, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content="ko_KR" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- 구조화 데이터 (JSON-LD) -->
+    {jsonLd.map((schema) => (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    ))}
 
     <!-- Pretendard (한글 본문) — jsDelivr CDN dynamic-subset -->
     <link

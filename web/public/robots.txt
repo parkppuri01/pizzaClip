@@ -1,10 +1,24 @@
-# pizzaClip — robots.txt
-# 일반 크롤러 + AI 크롤러 모두 허용 (AEO/GEO: AI 검색 노출 목적)
+# PIZZA CLIP — https://pizza-clip.com
+# 일반 검색 + AI 검색 크롤러 모두 허용 (SEO + AEO/GEO)
+
 User-agent: *
 Allow: /
 
-# AI 크롤러 명시 허용
+# --- 네이버 / 다음 (국내 검색) ---
+User-agent: Yeti
+Allow: /
+
+User-agent: Daumoa
+Allow: /
+
+# --- AI 답변/생성 엔진 (AEO/GEO) ---
 User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
 Allow: /
 
 User-agent: ClaudeBot
@@ -16,5 +30,7 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-# Sitemap: 사이트맵 통합(@astrojs/sitemap)은 후속 작업. 추가되면 아래 주석 해제.
-# Sitemap: https://pizza-clip.com/sitemap-index.xml
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://pizza-clip.com/sitemap.xml
