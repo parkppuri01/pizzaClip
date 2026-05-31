@@ -97,8 +97,8 @@ xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip -destination 'platform
 - `pizzaClip/DesignSystem/` — 컬러·테마 상수
 - `pizzaClip/MenuBar/` — 상태바 피자 아이콘 (`Assets.xcassets/PizzaIcon0~9.imageset` PNG 사용)
 
-설계 스펙: [`docs/superpowers/specs/2026-05-21-myclip-design.md`](docs/superpowers/specs/2026-05-21-myclip-design.md)
-구현 플랜: [`docs/superpowers/plans/2026-05-21-myclip.md`](docs/superpowers/plans/2026-05-21-myclip.md)
+설계 스펙: [`docs/superpowers/specs/2026-05-21-pizzaClip-design.md`](docs/superpowers/specs/2026-05-21-pizzaClip-design.md)
+구현 플랜: [`docs/superpowers/plans/2026-05-21-pizzaClip.md`](docs/superpowers/plans/2026-05-21-pizzaClip.md)
 QA 체크리스트: [`docs/qa/checklist.md`](docs/qa/checklist.md)
 
 ### 라이선스

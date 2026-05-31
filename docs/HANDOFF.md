@@ -33,7 +33,7 @@
 
 macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts, **Sparkle 2 자동업데이트** (0.1.7). 개인 사용 + 랜딩페이지 배포 목적, **Apple Developer ID 서명 + hardened runtime + notarize + staple** (0.1.6), Universal binary, macOS 13+.
 
-- **위치**: `/Users/parkjaekeun/DEV/myclip` (저장소 디렉토리는 그대로, 앱/번들 이름만 pizzaClip)
+- **위치**: `/Users/parkjaekeun/DEV/ProjectJAM/pizzaClip`
 - **현재 버전**: **1.0.0 (정식 출시)** (`project.yml` MARKETING 1.0.0, CURRENT 10)
 - **브랜치**: `master` (단일 브랜치 운영)
 - **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → **Sparkle 임베드 헬퍼 Developer ID 재서명** → .app notarize → staple → DMG sign → DMG notarize → DMG staple → **/Applications 설치** → **ZIP EdDSA 서명 + appcast `<item>` 생성**. 0.1.6 Developer ID + 2-round notary, 0.1.7 Sparkle 추가)
@@ -45,8 +45,8 @@ macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, Ke
 | 1 | 이 파일 (`docs/HANDOFF.md`) — 최신 상태 |
 | 2 | `git log --oneline` — 시간순 진행 기록 |
 | 3 | `docs/qa/checklist.md` — 현재 동작 명세 (실행 가능한 형태) |
-| 4 | `docs/superpowers/specs/2026-05-21-myclip-design.md` — 초기 설계 의도 (역사적, 파일명은 옛 이름 유지) |
-| 5 | `docs/superpowers/plans/2026-05-21-myclip.md` — 초기 16-task 구현 플랜 (역사적, 이미 모두 완료) |
+| 4 | `docs/superpowers/specs/2026-05-21-pizzaClip-design.md` — 초기 설계 의도 (역사적) |
+| 5 | `docs/superpowers/plans/2026-05-21-pizzaClip.md` — 초기 16-task 구현 플랜 (역사적, 이미 모두 완료) |
 
 ## 3. 현재 기능 상태
 
@@ -148,7 +148,7 @@ pizzaClipTests/                   # 25개 XCTest (HistoryStore·BlobStore·Clipb
 docs/
 ├── HANDOFF.md                    # 이 파일
 ├── qa/checklist.md               # 수동 QA
-└── superpowers/{specs,plans}     # 역사적 문서 (파일명 myclip-* 그대로)
+└── superpowers/{specs,plans}     # 역사적 문서 (파일명 pizzaClip-*)
 ```
 
 ## 5. 알림 (Notification.Name) 인벤토리
@@ -201,7 +201,7 @@ docs/
 ## 8. 빌드 / 테스트 / 배포
 
 ```bash
-cd /Users/parkjaekeun/DEV/myclip
+cd /Users/parkjaekeun/DEV/ProjectJAM/pizzaClip
 
 # 프로젝트 생성 (.xcodeproj는 gitignored)
 xcodegen generate
@@ -501,7 +501,7 @@ Sparkle 은 **이미 Sparkle 이 박힌 앱만** 업데이트 가능. 0.1.6 엔 
   - Bundle ID: `com.jekeun.pizzaClip`, struct `PizzaClipApp`
   - Notification.Name 4종 `.myclip*` → `.pizzaClip*`
   - 사용자 표시 텍스트 (팝업 타이틀, Settings 타이틀, Quit 메뉴, Accessibility 알림 등), 데이터 경로 (`~/Library/Application Support/pizzaClip/`), 익스포트 파일명 (`pizzaClip-history.txt`), 로그 prefix 모두 갱신
-  - project.yml, Info.plist, release.sh, README.md, docs/qa/checklist.md 일괄 정리. `docs/superpowers/specs/2026-05-21-myclip-*.md` 는 역사적 파일이라 파일명 유지
+  - project.yml, Info.plist, release.sh, README.md, docs/qa/checklist.md 일괄 정리 (docs/superpowers 의 spec/plan 역사적 문서는 내용만 보존)
 - 상태바 피자 아이콘을 사용자 제공 PNG 10단계로 교체
   - `pizzaClip/Resources/Assets.xcassets/PizzaIcon{0..9}.imageset` (각 imageset 안에 PNG @1x + @2x, `template-rendering-intent: original`)
   - `MenuBar/PizzaIcon.swift` 는 Core Graphics 드로잉 코드 삭제, `NSImage(named: "PizzaIcon\(n)")` 로딩만
@@ -557,14 +557,14 @@ defaults delete com.jekeun.pizzaClip didShowAccessibilityPrompt 2>/dev/null || t
 
 ```
 macOS 메뉴바 클립보드 히스토리 앱 pizzaClip을 작업 중입니다.
-프로젝트는 /Users/parkjaekeun/DEV/myclip 에 있어요 (디렉토리 이름은 myclip 그대로).
+프로젝트는 /Users/parkjaekeun/DEV/ProjectJAM/pizzaClip 에 있어요.
 먼저 docs/HANDOFF.md 와 git log 를 읽어서 컨텍스트 잡고 시작해 주세요.
 이 세션에서 하고 싶은 작업: <여기에 구체적 요청 적기>
 ```
 
 또는 짧게:
 ```
-/Users/parkjaekeun/DEV/myclip 의 docs/HANDOFF.md 읽고 시작.
+/Users/parkjaekeun/DEV/ProjectJAM/pizzaClip 의 docs/HANDOFF.md 읽고 시작.
 오늘 할 일: <요청>
 ```
 

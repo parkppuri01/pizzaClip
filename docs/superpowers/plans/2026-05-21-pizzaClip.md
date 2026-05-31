@@ -1,25 +1,25 @@
-# myclip Implementation Plan
+# pizzaClip Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Build a macOS menu-bar clipboard history app (Swift + AppKit shell + SwiftUI) that captures text/image/file clipboard events, restores them via auto-paste, exposes ⌘⌥⌃1–9 direct-slot hotkeys, and presents a Claude-Desktop-styled popup.
 
-**Architecture:** AppKit composition root (`AppDelegate`) owns a non-activating `NSPanel` hosting a SwiftUI `PopupView`, a `ClipboardMonitor` polling `NSPasteboard.changeCount`, a `HistoryStore` backed by GRDB SQLite (FTS5), and a `PasteEngine` that activates the prior frontmost app and synthesizes ⌘V via `CGEvent`. Image blobs live in `~/Library/Application Support/myclip/blobs/`.
+**Architecture:** AppKit composition root (`AppDelegate`) owns a non-activating `NSPanel` hosting a SwiftUI `PopupView`, a `ClipboardMonitor` polling `NSPasteboard.changeCount`, a `HistoryStore` backed by GRDB SQLite (FTS5), and a `PasteEngine` that activates the prior frontmost app and synthesizes ⌘V via `CGEvent`. Image blobs live in `~/Library/Application Support/pizzaClip/blobs/`.
 
 **Tech Stack:** Swift 5.9+, SwiftUI, AppKit, GRDB.swift, KeyboardShortcuts (sindresorhus), XCTest. Target macOS 13+.
 
-**Spec:** `docs/superpowers/specs/2026-05-21-myclip-design.md`
+**Spec:** `docs/superpowers/specs/2026-05-21-pizzaClip-design.md`
 
 ---
 
 ## File Structure
 
 ```
-myclip/
-├── myclip.xcodeproj/
-├── myclip/
+pizzaClip/
+├── pizzaClip.xcodeproj/
+├── pizzaClip/
 │   ├── App/
-│   │   ├── myclipApp.swift            # @main App entry (NSApplicationDelegateAdaptor)
+│   │   ├── pizzaClipApp.swift            # @main App entry (NSApplicationDelegateAdaptor)
 │   │   └── AppDelegate.swift          # composition root, status item, hotkey wiring
 │   ├── Clipboard/
 │   │   ├── Pasteboard.swift           # protocol over NSPasteboard for testability
@@ -49,15 +49,15 @@ myclip/
 │   │   └── Theme.swift                # radii, spacing constants
 │   ├── Assets.xcassets
 │   └── Info.plist                     # LSUIElement = YES
-├── myclipTests/
+├── pizzaClipTests/
 │   ├── HistoryStoreTests.swift
 │   ├── ClipboardMonitorTests.swift
 │   ├── BlobStoreTests.swift
 │   └── Fakes/
 │       └── FakePasteboard.swift
 ├── docs/
-│   ├── superpowers/specs/2026-05-21-myclip-design.md
-│   ├── superpowers/plans/2026-05-21-myclip.md
+│   ├── superpowers/specs/2026-05-21-pizzaClip-design.md
+│   ├── superpowers/plans/2026-05-21-pizzaClip.md
 │   └── qa/checklist.md
 └── README.md
 ```
@@ -72,10 +72,10 @@ We use `xcodegen` (already installed via Homebrew) so the project is reproducibl
 
 **Files:**
 - Create: `project.yml`
-- Create: `myclip/App/myclipApp.swift`
-- Create: `myclip/App/AppDelegate.swift` (minimal stub for build)
-- Create: `myclip/Info.plist`
-- Create: `myclipTests/Placeholder.swift`
+- Create: `pizzaClip/App/pizzaClipApp.swift`
+- Create: `pizzaClip/App/AppDelegate.swift` (minimal stub for build)
+- Create: `pizzaClip/Info.plist`
+- Create: `pizzaClipTests/Placeholder.swift`
 - Create: `.gitignore`
 - Create: `README.md` (one-liner placeholder; expanded in Task 16)
 
@@ -94,7 +94,7 @@ xcuserdata/
 - [ ] **Step 2: Write `project.yml`**
 
 ```yaml
-name: myclip
+name: pizzaClip
 options:
   bundleIdPrefix: com.jekeun
   deploymentTarget:
@@ -116,51 +116,51 @@ packages:
     url: https://github.com/sindresorhus/KeyboardShortcuts
     from: "2.0.0"
 targets:
-  myclip:
+  pizzaClip:
     type: application
     platform: macOS
     sources:
-      - path: myclip
+      - path: pizzaClip
     info:
-      path: myclip/Info.plist
+      path: pizzaClip/Info.plist
       properties:
         LSUIElement: true
-        CFBundleName: myclip
-        CFBundleDisplayName: myclip
+        CFBundleName: pizzaClip
+        CFBundleDisplayName: pizzaClip
         CFBundleShortVersionString: "0.1.0"
         CFBundleVersion: "1"
         NSHumanReadableCopyright: ""
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.jekeun.myclip
+        PRODUCT_BUNDLE_IDENTIFIER: com.jekeun.pizzaClip
         GENERATE_INFOPLIST_FILE: NO
-        INFOPLIST_FILE: myclip/Info.plist
+        INFOPLIST_FILE: pizzaClip/Info.plist
     dependencies:
       - package: GRDB
         product: GRDB
       - package: KeyboardShortcuts
         product: KeyboardShortcuts
-  myclipTests:
+  pizzaClipTests:
     type: bundle.unit-test
     platform: macOS
     sources:
-      - path: myclipTests
+      - path: pizzaClipTests
     dependencies:
-      - target: myclip
+      - target: pizzaClip
 schemes:
-  myclip:
+  pizzaClip:
     build:
       targets:
-        myclip: all
-        myclipTests: [test]
+        pizzaClip: all
+        pizzaClipTests: [test]
     test:
       targets:
-        - myclipTests
+        - pizzaClipTests
 ```
 
 - [ ] **Step 3: Write minimal `Info.plist`**
 
-Path: `myclip/Info.plist`
+Path: `pizzaClip/Info.plist`
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -188,26 +188,26 @@ Path: `myclip/Info.plist`
   <key>LSUIElement</key>
   <true/>
   <key>NSAppleEventsUsageDescription</key>
-  <string>myclip uses Apple events to paste into the previous application.</string>
+  <string>pizzaClip uses Apple events to paste into the previous application.</string>
 </dict>
 </plist>
 ```
 
-- [ ] **Step 4: Stub `myclipApp.swift` and `AppDelegate.swift`**
+- [ ] **Step 4: Stub `pizzaClipApp.swift` and `AppDelegate.swift`**
 
-`myclip/App/myclipApp.swift`:
+`pizzaClip/App/pizzaClipApp.swift`:
 
 ```swift
 import SwiftUI
 
 @main
-struct MyclipApp: App {
+struct PizzaClipApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     var body: some Scene { Settings { EmptyView() } }
 }
 ```
 
-`myclip/App/AppDelegate.swift`:
+`pizzaClip/App/AppDelegate.swift`:
 
 ```swift
 import AppKit
@@ -221,7 +221,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 - [ ] **Step 5: Placeholder test so the test target compiles**
 
-`myclipTests/Placeholder.swift`:
+`pizzaClipTests/Placeholder.swift`:
 
 ```swift
 import XCTest
@@ -236,9 +236,9 @@ final class PlaceholderTests: XCTestCase {
 `README.md`:
 
 ```markdown
-# myclip
+# pizzaClip
 
-macOS clipboard history app. See `docs/superpowers/specs/2026-05-21-myclip-design.md`.
+macOS clipboard history app. See `docs/superpowers/specs/2026-05-21-pizzaClip-design.md`.
 
 ## Generate Xcode project
 
@@ -246,7 +246,7 @@ macOS clipboard history app. See `docs/superpowers/specs/2026-05-21-myclip-desig
 
 ## Build
 
-    xcodebuild -project myclip.xcodeproj -scheme myclip -destination 'platform=macOS' build
+    xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip -destination 'platform=macOS' build
 ```
 
 - [ ] **Step 7: Generate and build**
@@ -254,7 +254,7 @@ macOS clipboard history app. See `docs/superpowers/specs/2026-05-21-myclip-desig
 Run:
 ```bash
 xcodegen generate
-xcodebuild -project myclip.xcodeproj -scheme myclip -destination 'platform=macOS' build -quiet
+xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip -destination 'platform=macOS' build -quiet
 ```
 
 Expected: `Generated project` line from xcodegen, then `BUILD SUCCEEDED` from xcodebuild.
@@ -262,7 +262,7 @@ Expected: `Generated project` line from xcodegen, then `BUILD SUCCEEDED` from xc
 - [ ] **Step 8: Run tests to confirm test target works**
 
 ```bash
-xcodebuild -project myclip.xcodeproj -scheme myclip -destination 'platform=macOS' test -quiet 2>&1 | tail -20
+xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip -destination 'platform=macOS' test -quiet 2>&1 | tail -20
 ```
 
 Expected: `** TEST SUCCEEDED **`, 1 test passes.
@@ -278,23 +278,23 @@ git commit -m "chore: scaffold xcodegen project with GRDB and KeyboardShortcuts"
 
 ## Task 2: Menu-bar shell in AppDelegate
 
-The `myclipApp.swift` stub from Task 1 already routes to `AppDelegate`. This task fleshes out `AppDelegate` to install the menu bar status item.
+The `pizzaClipApp.swift` stub from Task 1 already routes to `AppDelegate`. This task fleshes out `AppDelegate` to install the menu bar status item.
 
 **Files:**
-- Modify: `myclip/App/AppDelegate.swift`
+- Modify: `pizzaClip/App/AppDelegate.swift`
 
 - [ ] **Step 1: Verify scaffold still builds**
 
-Run: `xcodebuild -project myclip.xcodeproj -scheme myclip build -quiet`
+Run: `xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip build -quiet`
 Expected: BUILD SUCCEEDED.
 
-- [ ] **Step 2: Keep `myclipApp.swift` as-is from Task 1**
+- [ ] **Step 2: Keep `pizzaClipApp.swift` as-is from Task 1**
 
 ```swift
 import SwiftUI
 
 @main
-struct MyclipApp: App {
+struct PizzaClipApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
 
     var body: some Scene {
@@ -317,7 +317,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
             button.image = NSImage(systemSymbolName: "doc.on.clipboard",
-                                   accessibilityDescription: "myclip")
+                                   accessibilityDescription: "pizzaClip")
         }
 
         let menu = NSMenu()
@@ -328,7 +328,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                 action: #selector(openSettings),
                                 keyEquivalent: ","))
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit myclip",
+        menu.addItem(NSMenuItem(title: "Quit pizzaClip",
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
         statusItem.menu = menu
@@ -351,7 +351,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 Cmd-R in Xcode. Expected:
 - No Dock icon appears.
 - A clipboard glyph appears in the menu bar.
-- Clicking it shows Open Popup / Settings… / Quit myclip.
+- Clicking it shows Open Popup / Settings… / Quit pizzaClip.
 
 - [ ] **Step 5: Commit**
 
@@ -365,10 +365,10 @@ git commit -m "feat: menu-bar shell with status item and placeholder menu"
 ## Task 3: `Pasteboard` protocol + `FakePasteboard` (testable seam)
 
 **Files:**
-- Create: `myclip/Clipboard/Pasteboard.swift`
-- Create: `myclip/Clipboard/CapturedItem.swift`
-- Create: `myclipTests/Fakes/FakePasteboard.swift`
-- Create: `myclipTests/PasteboardTests.swift`
+- Create: `pizzaClip/Clipboard/Pasteboard.swift`
+- Create: `pizzaClip/Clipboard/CapturedItem.swift`
+- Create: `pizzaClipTests/Fakes/FakePasteboard.swift`
+- Create: `pizzaClipTests/PasteboardTests.swift`
 
 - [ ] **Step 1: Write `PasteboardReader` protocol**
 
@@ -429,7 +429,7 @@ public struct CapturedItem: Equatable {
 ```swift
 import XCTest
 import AppKit
-@testable import myclip
+@testable import pizzaClip
 
 final class PasteboardTests: XCTestCase {
     func test_fakePasteboard_reportsChangeCountAndTypes() {
@@ -447,7 +447,7 @@ final class PasteboardTests: XCTestCase {
 - [ ] **Step 4: Run the test, watch it fail**
 
 In Xcode: Cmd-U. Or:
-`xcodebuild -project myclip.xcodeproj -scheme myclip test -destination 'platform=macOS' -only-testing:myclipTests/PasteboardTests`
+`xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip test -destination 'platform=macOS' -only-testing:pizzaClipTests/PasteboardTests`
 
 Expected: FAIL — `FakePasteboard` undefined.
 
@@ -455,7 +455,7 @@ Expected: FAIL — `FakePasteboard` undefined.
 
 ```swift
 import AppKit
-@testable import myclip
+@testable import pizzaClip
 
 final class FakePasteboard: PasteboardReader {
     private(set) var changeCount: Int = 0
@@ -502,10 +502,10 @@ git commit -m "feat: Pasteboard protocol + CapturedItem + FakePasteboard"
 ## Task 4: `HistoryStore` schema + insert/topN (TDD)
 
 **Files:**
-- Create: `myclip/Storage/Schema.swift`
-- Create: `myclip/Storage/Item.swift`
-- Create: `myclip/Storage/HistoryStore.swift`
-- Create: `myclipTests/HistoryStoreTests.swift`
+- Create: `pizzaClip/Storage/Schema.swift`
+- Create: `pizzaClip/Storage/Item.swift`
+- Create: `pizzaClip/Storage/HistoryStore.swift`
+- Create: `pizzaClipTests/HistoryStoreTests.swift`
 
 - [ ] **Step 1: Write `Item.swift`**
 
@@ -572,7 +572,7 @@ enum Schema {
 ```swift
 import XCTest
 import GRDB
-@testable import myclip
+@testable import pizzaClip
 
 final class HistoryStoreTests: XCTestCase {
     private func makeStore() throws -> HistoryStore {
@@ -692,8 +692,8 @@ git commit -m "feat: HistoryStore with insert, topN, delete + dedupe rule"
 ## Task 5: `HistoryStore` pin + prune (TDD)
 
 **Files:**
-- Modify: `myclip/Storage/HistoryStore.swift`
-- Modify: `myclipTests/HistoryStoreTests.swift`
+- Modify: `pizzaClip/Storage/HistoryStore.swift`
+- Modify: `pizzaClipTests/HistoryStoreTests.swift`
 
 - [ ] **Step 1: Add failing tests**
 
@@ -786,15 +786,15 @@ git commit -m "feat: pin + prune on HistoryStore"
 ## Task 6: `BlobStore` for image payloads + thumbnail (TDD)
 
 **Files:**
-- Create: `myclip/Storage/BlobStore.swift`
-- Create: `myclipTests/BlobStoreTests.swift`
+- Create: `pizzaClip/Storage/BlobStore.swift`
+- Create: `pizzaClipTests/BlobStoreTests.swift`
 
 - [ ] **Step 1: Write the failing test**
 
 ```swift
 import XCTest
 import AppKit
-@testable import myclip
+@testable import pizzaClip
 
 final class BlobStoreTests: XCTestCase {
     private func tmpDir() -> URL {
@@ -1002,9 +1002,9 @@ git commit -m "feat: BlobStore + image payload wiring in HistoryStore"
 ## Task 7: `HistoryStore` FTS5 search (TDD)
 
 **Files:**
-- Modify: `myclip/Storage/Schema.swift`
-- Modify: `myclip/Storage/HistoryStore.swift`
-- Modify: `myclipTests/HistoryStoreTests.swift`
+- Modify: `pizzaClip/Storage/Schema.swift`
+- Modify: `pizzaClip/Storage/HistoryStore.swift`
+- Modify: `pizzaClipTests/HistoryStoreTests.swift`
 
 - [ ] **Step 1: Add failing search tests**
 
@@ -1098,15 +1098,15 @@ git commit -m "feat: FTS5 search on HistoryStore"
 ## Task 8: `ClipboardMonitor` — classifier + drop rules (TDD)
 
 **Files:**
-- Create: `myclip/Clipboard/ClipboardMonitor.swift`
-- Create: `myclipTests/ClipboardMonitorTests.swift`
+- Create: `pizzaClip/Clipboard/ClipboardMonitor.swift`
+- Create: `pizzaClipTests/ClipboardMonitorTests.swift`
 
 - [ ] **Step 1: Write failing tests**
 
 ```swift
 import XCTest
 import AppKit
-@testable import myclip
+@testable import pizzaClip
 
 final class ClipboardMonitorTests: XCTestCase {
     func test_textPaste_emitsTextItem() {
@@ -1301,8 +1301,8 @@ git commit -m "feat: ClipboardMonitor with classifier and drop rules"
 ## Task 9: Wire `ClipboardMonitor` + `HistoryStore` into `AppDelegate`
 
 **Files:**
-- Modify: `myclip/App/AppDelegate.swift`
-- Create: `myclip/App/AppPaths.swift`
+- Modify: `pizzaClip/App/AppDelegate.swift`
+- Create: `pizzaClip/App/AppPaths.swift`
 
 - [ ] **Step 1: Create `AppPaths.swift`**
 
@@ -1313,7 +1313,7 @@ enum AppPaths {
     static var supportDirectory: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory,
                                             in: .userDomainMask).first!
-        let dir = base.appendingPathComponent("myclip", isDirectory: true)
+        let dir = base.appendingPathComponent("pizzaClip", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         return dir
     }
@@ -1353,7 +1353,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             let blobs = BlobStore(rootDirectory: AppPaths.blobsDirectory)
             store = try HistoryStore(queue: queue, blobStore: blobs)
         } catch {
-            NSLog("myclip storage init failed: \(error). Falling back to in-memory.")
+            NSLog("pizzaClip storage init failed: \(error). Falling back to in-memory.")
             let queue = try! DatabaseQueue()
             store = try! HistoryStore(queue: queue, blobStore: nil)
         }
@@ -1362,14 +1362,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func setUpStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.image = NSImage(systemSymbolName: "doc.on.clipboard",
-                                           accessibilityDescription: "myclip")
+                                           accessibilityDescription: "pizzaClip")
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Open Popup",
                                 action: #selector(openPopup), keyEquivalent: ""))
         menu.addItem(NSMenuItem(title: "Settings…",
                                 action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(.separator())
-        menu.addItem(NSMenuItem(title: "Quit myclip",
+        menu.addItem(NSMenuItem(title: "Quit pizzaClip",
                                 action: #selector(NSApplication.terminate(_:)),
                                 keyEquivalent: "q"))
         statusItem.menu = menu
@@ -1386,7 +1386,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                     try self.store.insert(item)
                     try self.store.prune(cap: 200)
                 } catch {
-                    NSLog("myclip insert failed: \(error)")
+                    NSLog("pizzaClip insert failed: \(error)")
                 }
             }
         )
@@ -1403,7 +1403,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 Run the app (Cmd-R). With the app running:
 1. Copy text in any app (e.g., Safari URL bar).
 2. Stop the app from Xcode.
-3. In Terminal: `sqlite3 ~/Library/Application\ Support/myclip/db.sqlite 'SELECT type, substr(text,1,40) FROM items;'`
+3. In Terminal: `sqlite3 ~/Library/Application\ Support/pizzaClip/db.sqlite 'SELECT type, substr(text,1,40) FROM items;'`
 
 Expected: at least one row with `text` showing what you copied.
 
@@ -1419,7 +1419,7 @@ git commit -m "feat: wire monitor + store into AppDelegate with persistent DB"
 ## Task 10: `PasteEngine` — clipboard write + activate + ⌘V
 
 **Files:**
-- Create: `myclip/Paste/PasteEngine.swift`
+- Create: `pizzaClip/Paste/PasteEngine.swift`
 
 This is mostly manual-QA territory (synthesizing ⌘V can't be meaningfully unit-tested without an integration harness).
 
@@ -1478,7 +1478,7 @@ public final class PasteEngine {
 
 - [ ] **Step 2: Build**
 
-`xcodebuild -project myclip.xcodeproj -scheme myclip build -quiet`
+`xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip build -quiet`
 Expected: BUILD SUCCEEDED.
 
 - [ ] **Step 3: Commit**
@@ -1493,11 +1493,11 @@ git commit -m "feat: PasteEngine with payload write and synthesized cmd+V"
 ## Task 11: Global popup hotkey + `PopupPanelController` (focus-preserving panel)
 
 **Files:**
-- Create: `myclip/Shortcuts/Shortcut.swift`
-- Create: `myclip/Popup/PopupPanelController.swift`
-- Create: `myclip/Popup/PopupView.swift` (placeholder)
-- Create: `myclip/Popup/PopupViewModel.swift`
-- Modify: `myclip/App/AppDelegate.swift`
+- Create: `pizzaClip/Shortcuts/Shortcut.swift`
+- Create: `pizzaClip/Popup/PopupPanelController.swift`
+- Create: `pizzaClip/Popup/PopupView.swift` (placeholder)
+- Create: `pizzaClip/Popup/PopupViewModel.swift`
+- Modify: `pizzaClip/App/AppDelegate.swift`
 
 - [ ] **Step 1: Define shortcut names**
 
@@ -1757,9 +1757,9 @@ git commit -m "feat: NSPanel popup + global hotkey + slot direct-paste"
 ## Task 12: Popup keyboard handling (↑ ↓ ↵ ⌫ ⌘P ⎋)
 
 **Files:**
-- Modify: `myclip/Popup/PopupView.swift`
-- Modify: `myclip/Popup/PopupViewModel.swift`
-- Modify: `myclip/Popup/PopupPanelController.swift`
+- Modify: `pizzaClip/Popup/PopupView.swift`
+- Modify: `pizzaClip/Popup/PopupViewModel.swift`
+- Modify: `pizzaClip/Popup/PopupPanelController.swift`
 
 - [ ] **Step 1: Add `KeyHandlerView`**
 
@@ -1977,11 +1977,11 @@ git commit -m "feat: popup keyboard nav, delete, pin, paste-on-enter"
 ## Task 13: Apply Claude Desktop visual style
 
 **Files:**
-- Create: `myclip/DesignSystem/Colors.swift`
-- Create: `myclip/DesignSystem/Theme.swift`
-- Modify: `myclip/Popup/PopupView.swift`
-- Modify: `myclip/Popup/PopupRow.swift`
-- Modify: `myclip/Popup/PopupPanelController.swift`
+- Create: `pizzaClip/DesignSystem/Colors.swift`
+- Create: `pizzaClip/DesignSystem/Theme.swift`
+- Modify: `pizzaClip/Popup/PopupView.swift`
+- Modify: `pizzaClip/Popup/PopupRow.swift`
+- Modify: `pizzaClip/Popup/PopupPanelController.swift`
 
 - [ ] **Step 1: Add design system constants**
 
@@ -2127,9 +2127,9 @@ git commit -m "feat: Claude-style visuals — material, accent, search field, sl
 ## Task 14: Accessibility permission gating
 
 **Files:**
-- Create: `myclip/Permissions/Accessibility.swift`
-- Modify: `myclip/App/AppDelegate.swift`
-- Modify: `myclip/Paste/PasteEngine.swift`
+- Create: `pizzaClip/Permissions/Accessibility.swift`
+- Modify: `pizzaClip/App/AppDelegate.swift`
+- Modify: `pizzaClip/Paste/PasteEngine.swift`
 
 - [ ] **Step 1: Add helper**
 
@@ -2167,14 +2167,14 @@ public func pasteIntoPreviousApp(bundleID: String?) {
         app.activate(options: [.activateIgnoringOtherApps])
     }
     guard hasAccessibility else {
-        NotificationCenter.default.post(name: .myclipNeedsAccessibility, object: nil)
+        NotificationCenter.default.post(name: .pizzaClipNeedsAccessibility, object: nil)
         return
     }
     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { self.sendCommandV() }
 }
 
 extension Notification.Name {
-    static let myclipNeedsAccessibility = Notification.Name("myclipNeedsAccessibility")
+    static let pizzaClipNeedsAccessibility = Notification.Name("pizzaClipNeedsAccessibility")
 }
 ```
 
@@ -2187,11 +2187,11 @@ if !Accessibility.isTrusted(prompt: true) {
     NSLog("Accessibility permission not granted; auto-paste disabled until granted.")
 }
 NotificationCenter.default.addObserver(
-    forName: .myclipNeedsAccessibility, object: nil, queue: .main
+    forName: .pizzaClipNeedsAccessibility, object: nil, queue: .main
 ) { _ in
     let alert = NSAlert()
     alert.messageText = "Enable Accessibility for auto-paste"
-    alert.informativeText = "myclip needs Accessibility access to type ⌘V into the previous app. The clipboard already holds your selection — you can ⌘V manually too."
+    alert.informativeText = "pizzaClip needs Accessibility access to type ⌘V into the previous app. The clipboard already holds your selection — you can ⌘V manually too."
     alert.addButton(withTitle: "Open System Settings")
     alert.addButton(withTitle: "Later")
     if alert.runModal() == .alertFirstButtonReturn {
@@ -2216,9 +2216,9 @@ git commit -m "feat: graceful Accessibility permission prompt and fallback"
 ## Task 15: Settings window
 
 **Files:**
-- Create: `myclip/Settings/SettingsWindow.swift`
-- Create: `myclip/Settings/SettingsView.swift`
-- Modify: `myclip/App/AppDelegate.swift`
+- Create: `pizzaClip/Settings/SettingsWindow.swift`
+- Create: `pizzaClip/Settings/SettingsView.swift`
+- Modify: `pizzaClip/App/AppDelegate.swift`
 
 - [ ] **Step 1: `SettingsView`**
 
@@ -2264,7 +2264,7 @@ struct SettingsView: View {
                     alert.addButton(withTitle: "Clear")
                     alert.addButton(withTitle: "Cancel")
                     if alert.runModal() == .alertFirstButtonReturn {
-                        NotificationCenter.default.post(name: .myclipClearAll, object: nil)
+                        NotificationCenter.default.post(name: .pizzaClipClearAll, object: nil)
                     }
                 }
             }
@@ -2275,7 +2275,7 @@ struct SettingsView: View {
 }
 
 extension Notification.Name {
-    static let myclipClearAll = Notification.Name("myclipClearAll")
+    static let pizzaClipClearAll = Notification.Name("pizzaClipClearAll")
 }
 ```
 
@@ -2292,7 +2292,7 @@ final class SettingsWindowController {
         if let w = window { w.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true); return }
         let host = NSHostingController(rootView: SettingsView())
         let w = NSWindow(contentViewController: host)
-        w.title = "myclip Settings"
+        w.title = "pizzaClip Settings"
         w.styleMask = [.titled, .closable, .miniaturizable]
         w.setContentSize(NSSize(width: 540, height: 420))
         w.center()
@@ -2330,7 +2330,7 @@ In `setUpMonitor`, replace `self?.blacklist ?? []` with `self?.blacklistFromDefa
 In `applicationDidFinishLaunching`, observe the clear-all notification:
 
 ```swift
-NotificationCenter.default.addObserver(forName: .myclipClearAll, object: nil, queue: .main) { [weak self] _ in
+NotificationCenter.default.addObserver(forName: .pizzaClipClearAll, object: nil, queue: .main) { [weak self] _ in
     try? self?.store.clearAll()
 }
 ```
@@ -2376,7 +2376,7 @@ git commit -m "feat: Settings window with general/shortcuts/privacy/storage tabs
 - [ ] **Step 1: Write QA checklist**
 
 ```markdown
-# myclip Manual QA Checklist
+# pizzaClip Manual QA Checklist
 
 Run before any release tag.
 
@@ -2398,13 +2398,13 @@ Run before any release tag.
 - [ ] **Step 2: Write README**
 
 ```markdown
-# myclip
+# pizzaClip
 
 A personal macOS clipboard history app. Menu bar only. Text, images (incl. screenshots), and file references.
 
 ## Build
 
-Open `myclip.xcodeproj` in Xcode 15+ and run. macOS 13+ required.
+Open `pizzaClip.xcodeproj` in Xcode 15+ and run. macOS 13+ required.
 
 ## Permissions
 
@@ -2417,7 +2417,7 @@ Open `myclip.xcodeproj` in Xcode 15+ and run. macOS 13+ required.
 
 ## Data
 
-Stored at `~/Library/Application Support/myclip/`. No network calls.
+Stored at `~/Library/Application Support/pizzaClip/`. No network calls.
 ```
 
 - [ ] **Step 3: Run full QA checklist**
