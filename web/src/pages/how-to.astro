@@ -209,6 +209,9 @@ const faqJsonLd = {
     gap: 2rem;
     margin-bottom: var(--section-gap);
     align-items: start;
+    /* 영상 표시 크기 ~70% 로 축소 + 가운데 정렬 */
+    max-width: 70%;
+    margin-inline: auto;
   }
   .demo { margin: 0; }
   .demo__frame { width: 100%; }
@@ -248,7 +251,7 @@ const faqJsonLd = {
   .faq__item dd { margin: 0.4rem 0 0; color: var(--color-ink); line-height: 1.6; }
 
   @media (max-width: 640px) {
-    .demos { grid-template-columns: 1fr; gap: 2.5rem; }
+    .demos { grid-template-columns: 1fr; gap: 2.5rem; max-width: 100%; }
     .kbd-row { grid-template-columns: 1fr; gap: 0.25rem; }
   }
 </style>
