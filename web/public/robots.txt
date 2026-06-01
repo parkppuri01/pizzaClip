@@ -33,4 +33,4 @@ Allow: /
 User-agent: Applebot-Extended
 Allow: /
 
-Sitemap: https://pizza-clip.com/sitemap.xml
+Sitemap: https://pizza-clip.com/sitemap-index.xml
