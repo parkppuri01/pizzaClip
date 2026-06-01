@@ -118,10 +118,12 @@ web/
 
 > **블로그 기능 폐기 (2026-06-01 결정)**: 블로그는 더 이상 사용하지 않기로 함. 네비에서 뺀 상태였고, 이제 재개 계획 없음. 남아있는 블로그 관련 파일(`src/pages/blog/`, `src/content/blog/hello.md`, `src/content.config.ts`)은 차후 정리 대상 — 당장 동작에 영향 없음.
 
-1. **HOW TO 페이지 콘텐츠 강화** — 현재 `how-to.astro` 는 설치 3단계 + 단축키 표 위주. 보강 거리: 실제 사용 흐름 예시(⌘C 쌓기→⌘⇧V 팝업→숫자/↵ 붙여넣기), 직접붙여넣기(⌘⌥⌃1~9)·0=전체붙여넣기 설명, 한/영 토글·이스터에그 같은 숨은 기능 소개, 스크린샷/GIF, FAQ(권한·자동업데이트 등). 분량이 늘면 섹션·목차 구조도 고려.
-2. **AEO/GEO 심화** — `@astrojs/sitemap` 통합 + `public/robots.txt` 의 Sitemap 줄 활성화(현재 `sitemap.xml` 을 가리키지만 실제 생성기 미설치), JSON-LD(SoftwareApplication / FAQ). `llms.txt` 는 이미 추가됨(`public/llms.txt`).
-3. **INFO 릴리스노트 유지** — 새 버전 낼 때 `info.astro` 의 `releases` 배열에 항목 추가(현재 1.0.0~0.1.1 수기). TeamJAM 소개 문구도 원하면 다듬기.
-4. **(선택)** 인트로 "커튼" 연출, 카피/이미지 추가 다듬기.
+1. **INFO 릴리스노트 유지** — 새 버전 낼 때 `info.astro` 의 `releases` 배열에 항목 추가(현재 1.0.0~0.1.1 수기). TeamJAM 소개 문구도 원하면 다듬기.
+2. **GA4 다운로드 전환 추적(선택)** — 현재 GA4는 페이지뷰만. 다운로드 버튼 클릭 이벤트(`gtag('event', ...)`) 미설정.
+3. **(선택)** 인트로 "커튼" 연출, 카피/이미지 추가 다듬기.
+
+> ✅ **HOW TO 콘텐츠 강화 완료(2026-06-02)** — 히어로 목업 이미지 + 동작 데모 영상 2종 + "이런 것도 돼요" 팁 + FAQ(FAQPage 구조화 데이터 포함) 추가. 기존 설치 3단계·단축키 표는 유지.
+> ✅ **AEO/GEO sitemap 완료(2026-06-02)** — `@astrojs/sitemap` 통합, 낡은 수기 `public/sitemap.xml` 제거, robots.txt 가 자동 생성본(`sitemap-index.xml`) 가리키도록 수정. JSON-LD(SoftwareApplication/WebSite/Organization)는 BaseLayout 에 이미 있었고, FAQPage 는 how-to 에 추가됨. `llms.txt` 도 이미 있음.
 
 ## 6. 작업 컨벤션
 
