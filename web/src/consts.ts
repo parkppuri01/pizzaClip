@@ -7,6 +7,10 @@ export const DOWNLOAD_URL =
 
 export const GITHUB_URL = "https://github.com/parkppuri01/pizzaClip";
 
+// Team JAM 소셜 계정
+export const INSTAGRAM_URL = "https://www.instagram.com/team___jam/";
+export const THREADS_URL = "https://www.threads.com/@team___jam";
+
 // 사이트 기본 메타
 export const SITE_TITLE = "PIZZA CLIP";
 export const SITE_DESC =
