@@ -1,6 +1,6 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-05-31** (비주얼 디테일 개편 — 섹션 디바이더 이미지화 / info Team jAm 카드 재디자인(리디바탕·로고) / 매장 광고 사진 추가 / 메인 카드 제목 교체 / 네비 로고 빨강·HOW TO 검정 / 카드·사진에 차콜 테두리 + 단단한 오프셋 그림자(노랑=빨강·흰=차콜). 전부 master 푸시 → Vercel 라이브.)
+마지막 업데이트: **2026-06-01** (① 🍕 이모지 파비콘 풀세트 정비 — favicon.ico 16/32/48 멀티사이즈 + apple-touch 180(크림배경) + android 192/512 png, BaseLayout `<head>` 링크 연결. ② Google Analytics(GA4) `G-30DB0P1HWL` gtag.js 를 BaseLayout `<head>` 상단에 삽입(`is:inline` 로 원문 보존, 전 페이지 자동 적용). ③ 푸터에 Team JAM 소셜(인스타/스레드) **공식 로고 SVG** 추가 — `instagram.com/team___jam/` , `threads.com/@team___jam`, currentColor 크림색+hover 노란색. 전부 master 푸시 → Vercel 라이브. 이전: 2026-05-31 비주얼 디테일 개편.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
@@ -33,7 +33,7 @@ web/
 │   │   ├── index.astro            # 홈: 히어로→후킹카드→광고판→기능→다운로드 (사이사이 SliceDivider 1~4)
 │   │   ├── how-to.astro           # 사용법: 설치 3단계 + 단축키 표
 │   │   ├── info.astro             # 정보: 전체 버전 릴리스노트 + Team JAM 소개
-│   │   └── blog/                  # 블로그 목록/상세 — 파일 보존, 현재 네비 미연결(차후 결정)
+│   │   └── blog/                  # 블로그 — 폐기됨(2026-06-01), 미연결. 차후 파일 정리 대상
 │   ├── content/blog/hello.md      # 블로그 작성 템플릿 (draft:true)
 │   ├── content.config.ts          # Astro Content Layer (glob loader) — md 1개 떨구면 자동 등장
 │   └── styles/{tokens,fonts,global}.css  # 디자인 토큰·@font-face·리셋
@@ -51,6 +51,20 @@ web/
 - **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
 
 ## 3. 완료된 작업
+
+### 2026-06-01 — 파비콘·GA4·소셜 (커밋 4개)
+- `520b6ed` feat(web): 🍕 이모지 파비콘 풀세트 (멀티사이즈 ico + apple-touch + android png)
+- `692a86f` feat(web): Google Analytics(GA4) 측정 태그 삽입
+- `1453f66` feat(web): 푸터 SNS 공식 인스타/스레드 로고로 교체 + 주소 정정
+  - (그 전 `520b6ed` 직전에 푸터 SNS 1차로 텍스트 링크 추가 → 이 커밋에서 로고로 교체)
+
+무엇을 했나:
+- **파비콘**: 어제 favicon.svg 는 이미 삭제, .ico 를 🍕 이모지로 통일. 맥 로컬에서 생성(swiftc 로 NSAttributedString 1024px 렌더 → sips 리사이즈 → 순수 파이썬으로 멀티사이즈 ico 패킹, 외부 변환 도구 없음). 산출: `public/favicon.ico`(16/32/48), `apple-touch-icon.png`(180, 크림배경 #FCF6EF+여백 ─ 애플이 투명을 검정으로 칠하므로), `android-chrome-192/512.png`(투명). BaseLayout `<head>` 66~70줄 부근에 link 4종.
+- **GA4**: 측정ID `G-30DB0P1HWL`. gtag.js 스니펫을 BaseLayout `<head>` 상단(charset/viewport 직후)에 삽입. 두 번째 인라인 스크립트엔 **`is:inline`** 필수(없으면 Astro 가 번들링해서 gtag 깨짐). BaseLayout 공통이라 3페이지 전부 자동 적용. 다운로드 버튼 클릭 이벤트(전환) 추적은 아직 미설정 — 페이지뷰만 집계됨.
+- **푸터 소셜**: `consts.ts` 에 `INSTAGRAM_URL`/`THREADS_URL` 추가, `Footer.astro` 에 `.footer__social` nav + 공식 로고 인라인 SVG(22×22, fill=currentColor). hover 시 노란색(--color-menu)+불투명. 원본 SVG 는 `web/guide/{instagram,threads}.svg`(Simple Icons).
+- 검증: `npm run build` 통과 + preview(launch.json `web`, 포트 4321)로 푸터 캡처·링크 주소 확인. **참고**: preview_screenshot 이 캡처 직전 스크롤을 맨 위로 리셋하는 글리치 있음 → 푸터 보려면 `window.scrollTo(0, scrollHeight)` 후 바로 캡처하거나 eval 로 직접 측정.
+
+⚠️ 다음 세션 정리거리(이번 세션이 만든 것 아님, 워킹트리에 남아있음): `web/HANDOFF.md`·`web/src/styles/global.css` 수정분, **블로그 파일 4개 삭제**(`content.config.ts`, `content/blog/hello.md`, `pages/blog/[...id].astro`, `pages/blog/index.astro`), `.claude/settings.local.json`. 의도 여부 확인 후 커밋 or `git checkout` 으로 결정 필요.
 
 ### 2026-05-31 — 비주얼 디테일 개편 (커밋 8개)
 - `ac3efc8` feat(web): 피자 디바이더 이미지화 + info Team jAm 카드 + 매장 광고 사진
@@ -102,11 +116,12 @@ web/
 
 ## 5. 남은 웹 Task (우선순위)
 
-1. **실제 블로그 글** — `web/src/content/blog/*.md` 1개 떨구면 목록+상세 자동 생성. `hello.md`=템플릿(draft:true). 본문 폰트=리디바탕. **BLOG 네비 재노출 여부는 글 준비되면 결정** (현재 네비에서 뺀 상태, 파일은 보존).
-2. **AEO/GEO 심화** — `@astrojs/sitemap` 통합 + `public/robots.txt` 의 Sitemap 줄 활성화, `llms.txt` 추가, JSON-LD(SoftwareApplication / Article / FAQ).
-3. **폰트 최적화** — 리디바탕 woff2 서브셋(현재 447KB; 블로그 글 생기면 의미 커짐).
-4. **INFO 릴리스노트 유지** — 새 버전 낼 때 `info.astro` 의 `releases` 배열에 항목 추가(현재 1.0.0~0.1.1 수기). TeamJAM 소개 문구도 원하면 다듬기.
-5. **(선택)** 인트로 "커튼" 연출, 카피/이미지 추가 다듬기.
+> **블로그 기능 폐기 (2026-06-01 결정)**: 블로그는 더 이상 사용하지 않기로 함. 네비에서 뺀 상태였고, 이제 재개 계획 없음. 남아있는 블로그 관련 파일(`src/pages/blog/`, `src/content/blog/hello.md`, `src/content.config.ts`)은 차후 정리 대상 — 당장 동작에 영향 없음.
+
+1. **HOW TO 페이지 콘텐츠 강화** — 현재 `how-to.astro` 는 설치 3단계 + 단축키 표 위주. 보강 거리: 실제 사용 흐름 예시(⌘C 쌓기→⌘⇧V 팝업→숫자/↵ 붙여넣기), 직접붙여넣기(⌘⌥⌃1~9)·0=전체붙여넣기 설명, 한/영 토글·이스터에그 같은 숨은 기능 소개, 스크린샷/GIF, FAQ(권한·자동업데이트 등). 분량이 늘면 섹션·목차 구조도 고려.
+2. **AEO/GEO 심화** — `@astrojs/sitemap` 통합 + `public/robots.txt` 의 Sitemap 줄 활성화(현재 `sitemap.xml` 을 가리키지만 실제 생성기 미설치), JSON-LD(SoftwareApplication / FAQ). `llms.txt` 는 이미 추가됨(`public/llms.txt`).
+3. **INFO 릴리스노트 유지** — 새 버전 낼 때 `info.astro` 의 `releases` 배열에 항목 추가(현재 1.0.0~0.1.1 수기). TeamJAM 소개 문구도 원하면 다듬기.
+4. **(선택)** 인트로 "커튼" 연출, 카피/이미지 추가 다듬기.
 
 ## 6. 작업 컨벤션
 
