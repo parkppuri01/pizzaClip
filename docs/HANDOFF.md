@@ -176,27 +176,14 @@ docs/
   - `didShowAccessibilityPrompt` — 권한 다이얼로그 1회 제한
   - `didMigrateCapTo9` — cap=10에서 9로 1회 마이그레이션
 
-## 7. 알려진 미구현 / 후속 거리
+## 7. 다음 버전 범위 (확정)
 
-스펙에 있었지만 미구현 또는 단순화된 부분:
+**다음 앱 업데이트에 진행할 것은 §0.5 의 두 가지뿐이다.**
 
-- Multi-monitor 마우스 추종 (현재 `NSScreen.main` 사용)
-- 5MB 텍스트 트런케이션 + truncated 플래그
-- Launch-at-Login 토글
-- Privacy 탭의 drag-drop `.app` 추가 UI (현재 콤마 구분 텍스트)
-- HistoryStore의 dedupe filter 인덱스 최적화
+1. 업데이트 알림창에 릴리스 노트(바뀐 점) 표시 — §0.5 참고
+2. ⌘P = "1번 슬롯 고정" 으로 변경 — §0.5 참고
 
-코드 리뷰가 짚었지만 미해결:
-- DB 쓰기가 메인 스레드에서 도는 점 (`ValueObservation` 또는 background queue로 옮길 여지)
-- `prune` 매 insert 후 호출 (가벼우니 acceptable, 추후 N회마다로 게이트 가능)
-
-다음 세션 후보로 논의됐던 거:
-
-- ~~**Sparkle 자동 업데이트 (0.1.7 예정)**~~ → **앱쪽 0.1.7에서 완료** (§10 참고). ~~GitHub repo~~ → **생성됨: https://github.com/parkppuri01/pizzaClip (PUBLIC, master)**. 남은 것: Vercel 도메인 확정 → `SUFeedURL` 채우기 + `gh release` 업로드 + appcast.xml 호스팅 자동화
-- **GitHub remote 셋업**: 현재 git remote 비어 있음. `gh repo create jekeun/pizzaClip --public --source=. --push` (Sparkle DMG 호스팅 위해 public 권장). 또는 private 두고 release asset 만 따로 호스팅
-- **랜딩페이지 (Vercel)**: 도메인 + 다운로드 버튼 (GitHub Releases asset 직링크) + appcast.xml 정적 파일 호스팅. 0.1.6 처음 사용자가 받게 될 통로
-- **이스터에그 파티클 이미지 교체**: 사용자가 PNG 파일 줄 예정. `Text("🍕")` → `Image("...")` 로 1줄 교체. Particle struct 의 emoji 필드를 image name 으로 바꾸면 됨
-- **release.sh 에 아이콘 자동 빌드 단계 추가**: 현재 `assets/pizzaClipAppIcon.png` → `pizzaClip/AppIcon.icns` 변환은 수동 (sips + iconutil). 소스 PNG 가 갱신될 때마다 잊고 release.sh 만 돌리면 옛 아이콘으로 빌드되는 함정. release.sh 의 "Building Release" 직전에 sips 10단계 + iconutil 단계 끼워넣으면 영구 해결
+> 이전에 "후속 거리 / 다음 세션 후보" 로 적어두었던 항목들(멀티모니터 마우스 추종, 5MB 텍스트 트런케이션, Launch-at-Login 토글, Privacy 탭 drag-drop UI, dedupe 인덱스 최적화, DB 메인스레드 쓰기, prune 게이팅, 이스터에그 파티클 이미지 교체, release.sh 아이콘 자동 빌드 등)은 **2026-06-02 사용자 결정으로 범위에서 제외**했다. 나중에 다시 필요해지면 그때 새로 올린다.
 
 ## 8. 빌드 / 테스트 / 배포
 
