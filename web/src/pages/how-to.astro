@@ -21,6 +21,22 @@ const steps = [
   },
 ];
 
+// 실제 동작 데모 영상 (public/video/*.mp4)
+const demos = [
+  {
+    src: "/video/menubar-icon.mp4",
+    ratio: "1 / 1",
+    title: "메뉴바 피자가 차오릅니다",
+    body: "복사한 게 쌓일수록 메뉴바 아이콘이 한 조각씩 늘어나요. 지금 몇 개나 담겼는지 한눈에 보여요.",
+  },
+  {
+    src: "/video/capture.mp4",
+    ratio: "1080 / 680",
+    title: "⌘C 한 번이면 자동 보관",
+    body: "따로 저장 버튼이 없어요. 평소처럼 복사만 하면 텍스트·이미지·파일이 알아서 히스토리에 담깁니다.",
+  },
+];
+
 const shortcuts = [
   { keys: "⌘⇧V", desc: "클립보드 히스토리 팝업 열기" },
   { keys: "⌘⌥⌃1 ~ 9", desc: "해당 번호 항목을 바로 붙여넣기" },
@@ -30,6 +46,40 @@ const shortcuts = [
   { keys: "⌫", desc: "항목 삭제 · ⌘P 고정(핀)" },
   { keys: "오른쪽 ⌘", desc: "한국어 ↔ 영문 입력 전환 (옵션 켰을 때)" },
 ];
+
+// 자주 묻는 질문 — 본문 표시 + AEO용 FAQPage 구조화 데이터로도 사용
+const faqs = [
+  {
+    q: "유료인가요?",
+    a: "아니요, 완전 무료입니다. 광고도 결제도 없어요.",
+  },
+  {
+    q: "어떤 Mac에서 쓸 수 있나요?",
+    a: "macOS 13(Ventura) 이상이면 Intel·Apple Silicon 모두 동작합니다. 유니버설 바이너리예요.",
+  },
+  {
+    q: "왜 손쉬운 사용 권한이 필요한가요?",
+    a: "선택한 항목을 대신 붙여넣기(⌘V) 해주려면 키 입력 권한이 필요합니다. 권한을 안 줘도 클립보드에 담기는 것까지는 동작해요.",
+  },
+  {
+    q: "복사한 내용이 어디로 전송되나요?",
+    a: "전송되지 않습니다. 모든 기록은 내 Mac 안에만 저장되고 외부 서버로 나가지 않아요.",
+  },
+  {
+    q: "업데이트는 어떻게 되나요?",
+    a: "앱이 자동으로 새 버전을 확인하고 알려줍니다. 직접 다시 받을 필요 없어요.",
+  },
+];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: { "@type": "Answer", text: f.a },
+  })),
+};
 ---
 <BaseLayout title="How to" description="pizzaClip 설치와 사용법 — 단축키와 권한 설정까지 한 번에.">
   <section class="section container">
@@ -37,6 +87,11 @@ const shortcuts = [
       <h1>How to · 사용법</h1>
       <p>설치부터 단축키까지, 1분이면 충분합니다.</p>
     </header>
+
+    <!-- 히어로 비주얼 -->
+    <figure class="hero-shot framed">
+      <img src="/img/howto-hero.jpg" alt="맥북 화면에 띄운 pizzaClip 광고판 목업" width="1600" height="1200" loading="eager" />
+    </figure>
 
     <!-- 설치 단계 -->
     <ol class="steps">
@@ -51,6 +106,22 @@ const shortcuts = [
       ))}
     </ol>
 
+    <!-- 눈으로 보는 동작 데모 -->
+    <h2 class="block-title">눈으로 보는 pizzaClip</h2>
+    <div class="demos">
+      {demos.map((d) => (
+        <figure class="demo">
+          <div class="demo__frame framed" style={`aspect-ratio:${d.ratio}`}>
+            <video src={d.src} autoplay loop muted playsinline preload="metadata"></video>
+          </div>
+          <figcaption>
+            <h3>{d.title}</h3>
+            <p>{d.body}</p>
+          </figcaption>
+        </figure>
+      ))}
+    </div>
+
     <!-- 단축키 표 -->
     <Card variant="menu" class="shortcuts">
       <h2>단축키 한눈에</h2>
@@ -64,10 +135,50 @@ const shortcuts = [
         ))}
       </dl>
     </Card>
+
+    <!-- 숨은 기능 한 스푼 -->
+    <div class="tips">
+      <h2 class="block-title">이런 것도 돼요</h2>
+      <ul class="tip-list">
+        <li><strong>전체 순차 붙여넣기</strong> — 팝업에서 <kbd>0</kbd>을 누르면 9번부터 1번까지 한 번에 차례로 붙습니다. 여러 항목을 양식에 채울 때 편해요.</li>
+        <li><strong>한/영 전환</strong> — 설정에서 켜면 오른쪽 ⌘ 키만 톡 눌러 한국어 ↔ 영문 입력을 전환할 수 있어요.</li>
+        <li><strong>🍕 이스터에그</strong> — 클립보드에 정확히 “pizza” 또는 “피자”를 복사하면… 직접 확인해 보세요.</li>
+      </ul>
+    </div>
+
+    <!-- FAQ -->
+    <h2 class="block-title">자주 묻는 질문</h2>
+    <dl class="faq">
+      {faqs.map((f) => (
+        <div class="faq__item">
+          <dt>{f.q}</dt>
+          <dd>{f.a}</dd>
+        </div>
+      ))}
+    </dl>
   </section>
+
+  <!-- AEO/GEO: FAQ 구조화 데이터 -->
+  <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
 </BaseLayout>
 
 <style>
+  /* 공통 프레임: 사이트 사진/카드와 동일한 차콜 테두리 + 단단한 오프셋 그림자 */
+  .framed {
+    border: 2px solid var(--border-ink);
+    box-shadow: 8px 8px 0 var(--border-ink);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background: #000;
+  }
+
+  .hero-shot {
+    margin: 0 0 var(--section-gap);
+    max-width: 760px;
+    margin-inline: auto;
+  }
+  .hero-shot img { display: block; width: 100%; height: auto; }
+
   .steps { display: grid; gap: 1.5rem; margin-bottom: var(--section-gap); }
   .step  { display: flex; gap: 1.25rem; align-items: flex-start; }
   .step__n {
@@ -85,6 +196,29 @@ const shortcuts = [
     font-size: 0.9em;
   }
 
+  .block-title {
+    font-size: var(--fs-h2, 1.6rem);
+    text-align: center;
+    margin: var(--section-gap) 0 1.5rem;
+  }
+
+  /* 데모 영상 */
+  .demos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: var(--section-gap);
+    align-items: start;
+  }
+  .demo { margin: 0; }
+  .demo__frame { width: 100%; }
+  .demo__frame video {
+    display: block; width: 100%; height: 100%; object-fit: cover;
+  }
+  .demo figcaption { margin-top: 1rem; }
+  .demo figcaption h3 { font-size: var(--fs-h3); }
+  .demo figcaption p  { margin-top: 0.35rem; color: var(--color-ink); }
+
   .shortcuts h2 { margin-bottom: 1.25rem; }
   .kbd-list { display: grid; gap: 0.6rem; }
   .kbd-row  { display: grid; grid-template-columns: minmax(120px, 180px) 1fr; gap: 1rem; align-items: baseline; }
@@ -96,7 +230,25 @@ const shortcuts = [
   }
   .kbd-row dd { color: var(--color-ink); }
 
+  /* 팁 */
+  .tips { margin-bottom: var(--section-gap); }
+  .tip-list { display: grid; gap: 0.9rem; max-width: 640px; margin-inline: auto; }
+  .tip-list li { line-height: 1.6; }
+  .tip-list kbd { font-size: 0.85rem; padding: 0.1em 0.45em; }
+
+  /* FAQ */
+  .faq { max-width: 700px; margin-inline: auto; display: grid; gap: 0.75rem; }
+  .faq__item {
+    border: 2px solid var(--border-ink);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    background: #fff;
+  }
+  .faq__item dt { font-weight: 700; color: var(--color-title, var(--color-ink)); }
+  .faq__item dd { margin: 0.4rem 0 0; color: var(--color-ink); line-height: 1.6; }
+
   @media (max-width: 640px) {
+    .demos { grid-template-columns: 1fr; gap: 2.5rem; }
     .kbd-row { grid-template-columns: 1fr; gap: 0.25rem; }
   }
 </style>
