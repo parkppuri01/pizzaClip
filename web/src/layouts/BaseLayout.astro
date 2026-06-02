@@ -11,13 +11,13 @@ import { SITE_TITLE, SITE_DESC, DOWNLOAD_URL, GITHUB_URL } from "../consts.ts";
 interface Props {
   title?: string;
   description?: string;
-  /** og 이미지 (사이트 루트 기준 경로). 기본 = 브랜드 광고판 */
+  /** og 이미지 (사이트 루트 기준 경로). 기본 = 홈 광고판 OG */
   image?: string;
 }
 const {
   title,
   description = SITE_DESC,
-  image = "/img/billboard.jpg",
+  image = "/img/og-home.jpg",
 } = Astro.props;
 
 const pageTitle = title ? `${title} · ${SITE_TITLE}` : `${SITE_TITLE} — 맥 클립보드 히스토리 앱`;
