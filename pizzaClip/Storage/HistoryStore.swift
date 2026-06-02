@@ -84,7 +84,8 @@ public final class HistoryStore {
                 thumbPng: thumb,
                 sourceBundle: captured.sourceBundleID,
                 createdAt: capturedMs,
-                pinned: false
+                pinned: false,
+                pinnedAt: nil
             )
             try row.insert(db)
         }
@@ -103,20 +104,15 @@ public final class HistoryStore {
         try queue.read { db in try Item.fetchCount(db) }
     }
 
-    public func topNNonPinned(_ n: Int) throws -> [Item] {
-        try queue.read { db in
-            try Item
-                .filter(Item.Columns.pinned == false)
-                .order(Item.Columns.createdAt.desc)
-                .limit(n)
-                .fetchAll(db)
-        }
-    }
-
     public func topNRespectingPins(_ n: Int) throws -> [Item] {
         try queue.read { db in
+            // Pinned items first, ordered by *when* they were pinned (earliest
+            // pin = slot 1), then non-pinned by recency. This is the exact
+            // order the popup numbers its slots in.
             try Item
-                .order(Item.Columns.pinned.desc, Item.Columns.createdAt.desc)
+                .order(Item.Columns.pinned.desc,
+                       Item.Columns.pinnedAt.asc,
+                       Item.Columns.createdAt.desc)
                 .limit(n)
                 .fetchAll(db)
         }
@@ -136,6 +132,9 @@ public final class HistoryStore {
         try queue.write { db in
             guard var item = try Item.fetchOne(db, key: id) else { return }
             item.pinned.toggle()
+            // Stamp the pin time so multiple pins keep a stable slot order
+            // (first-pinned = slot 1). Cleared on unpin.
+            item.pinnedAt = item.pinned ? Int64(Date().timeIntervalSince1970 * 1000) : nil
             try item.update(db)
         }
         broadcastChange()

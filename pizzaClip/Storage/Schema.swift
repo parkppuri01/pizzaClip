@@ -36,6 +36,16 @@ enum Schema {
                 END;
             """)
         }
+        // v3: remember *when* an item was pinned so multiple pins keep a
+        // stable order — the popup numbers pinned rows 1, 2, 3… by pin time,
+        // and fresh captures stack below them. Existing pinned rows are
+        // backfilled with their created_at so they retain a sensible order.
+        m.registerMigration("v3-pinned-at") { db in
+            try db.alter(table: "items") { t in
+                t.add(column: "pinned_at", .integer)
+            }
+            try db.execute(sql: "UPDATE items SET pinned_at = created_at WHERE pinned = 1")
+        }
         return m
     }
 }

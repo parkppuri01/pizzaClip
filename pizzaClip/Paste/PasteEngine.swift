@@ -63,45 +63,6 @@ public final class PasteEngine {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { self.sendCommandV() }
     }
 
-    /// Paste a sequence of items into the previously frontmost app, one
-    /// after the other. Each step: write to pasteboard → synthesize ⌘V,
-    /// staggered so the target app finishes processing one paste before the
-    /// next pasteboard rewrite arrives. The final pasteboard state is
-    /// `items.last`.
-    public func pasteSequence(_ items: [Item], blobStore: BlobStore?, bundleID: String?) {
-        guard !items.isEmpty else { return }
-
-        if let id = bundleID,
-           let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first {
-            app.activate(options: [.activateIgnoringOtherApps])
-        }
-        // Without Accessibility we can't synthesize ⌘V. Don't silently leave
-        // a single item on the pasteboard — that's confusing UX (looks like
-        // the feature half-worked). Skip the paste entirely and surface a
-        // notification so the user knows to grant the permission.
-        guard Accessibility.isTrusted() else {
-            PasteEngine.notifyMissingAccessibility(action: "9 → 1 full paste")
-            return
-        }
-        // 0.18s per item is enough for most editors (Notes, TextEdit, VSCode,
-        // browsers) to finish processing the previous paste before the next
-        // pasteboard write arrives. Tighter values cause some apps to drop
-        // intermediate pastes.
-        let perItemDelay: TimeInterval = 0.18
-        for (i, item) in items.enumerated() {
-            let when = DispatchTime.now() + 0.10 + Double(i) * perItemDelay
-            DispatchQueue.main.asyncAfter(deadline: when) { [weak self] in
-                guard let self else { return }
-                self.write(item, blobStore: blobStore)
-                // Tiny gap so the pasteboard write commits before the
-                // synthesized ⌘V keystroke is dispatched.
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.03) {
-                    self.sendCommandV()
-                }
-            }
-        }
-    }
-
     /// Alerts the user when a paste action is invoked without the
     /// Accessibility permission needed to synthesize ⌘V. Ad-hoc rebuilds
     /// revoke TCC grants (cdhash changes), so this catches the common case
@@ -126,10 +87,9 @@ public final class PasteEngine {
         let src = CGEventSource(stateID: .combinedSessionState)
         // Explicitly press and release the CMD key around V. Setting only
         // `event.flags = .maskCommand` without ever emitting a real cmd-down
-        // event works for a single paste, but rapid-succession ⌘V (e.g. the
-        // 9 → 1 full-paste sequence) drops the 2nd+ event because macOS
-        // tracks modifier-key state internally and the synthetic V keystrokes
-        // never look like real ⌘-V to it.
+        // event works for a single paste, but rapid-succession ⌘V drops the
+        // 2nd+ event because macOS tracks modifier-key state internally and the
+        // synthetic V keystrokes never look like real ⌘-V to it.
         let cmdDown = CGEvent(keyboardEventSource: src, virtualKey: 0x37, keyDown: true)   // left ⌘
         let vDown = CGEvent(keyboardEventSource: src, virtualKey: 0x09, keyDown: true)
         vDown?.flags = .maskCommand

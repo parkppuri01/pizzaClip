@@ -4,6 +4,14 @@ public final class PopupViewModel: ObservableObject {
     @Published public var items: [Item] = []
     @Published public var selectedIndex: Int = 0
 
+    /// 자물쇠 state: when true, the popup stays open even after it loses focus —
+    /// only the ✕ button closes it. Persisted so the popup reopens in whatever
+    /// lock state the user last left it in (survives an app restart).
+    @Published public var isLocked = UserDefaults.standard.bool(forKey: "popupPanelLocked") {
+        didSet { UserDefaults.standard.set(isLocked, forKey: Self.lockedDefaultsKey) }
+    }
+    private static let lockedDefaultsKey = "popupPanelLocked"
+
     /// Set true by keyboard navigation. Observed once by the view to drive a
     /// `scrollTo`, then reset by the consumer. Hover-driven selection never
     /// flips this on, so mouse-driven highlight stays put without scrolling.
@@ -71,9 +79,5 @@ public final class PopupViewModel: ObservableObject {
     public func selectedItem() -> Item? {
         guard items.indices.contains(selectedIndex) else { return nil }
         return items[selectedIndex]
-    }
-
-    public func topNNonPinned(_ n: Int) throws -> [Item] {
-        try store.topNNonPinned(n)
     }
 }

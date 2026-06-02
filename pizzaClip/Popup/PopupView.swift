@@ -7,12 +7,15 @@ struct PopupView: View {
     var onClose: () -> Void
     var onSettings: () -> Void
     var onClearAll: () -> Void
-    var onPasteAll: () -> Void
 
+    /// Slot numbers run down the visible list in display order — pinned items
+    /// first (they float to the top, ordered by when they were pinned), then
+    /// the most-recent non-pinned items. So a pinned item literally *is* slot
+    /// 1, and fresh captures stack below it from the next free number.
     private var slotForItem: [String: Int] {
         var map: [String: Int] = [:]
         var n = 1
-        for item in vm.items where !item.pinned && n <= 9 {
+        for item in vm.items where n <= 9 {
             map[item.id] = n; n += 1
         }
         return map
@@ -29,7 +32,7 @@ struct PopupView: View {
 
             VStack(spacing: 0) {
                 titleBar
-                fullPasteRow
+                Divider().overlay(AppColors.separator)
                 ScrollViewReader { proxy in
                     ScrollView {
                         LazyVStack(alignment: .leading, spacing: 2) {
@@ -75,54 +78,53 @@ struct PopupView: View {
     }
 
     private var titleBar: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             Text("🍕")
                 .font(.system(size: 13))
             Text("pizzaClip — Clipboard History")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(AppColors.secondaryLabel)
+                .font(.system(size: 13, weight: .semibold))
             Spacer()
-            // Plain Image instead of Button — sidesteps SwiftUI's default
-            // keyboard-focus ring (the blue selection look the user saw).
-            Image(systemName: "xmark.circle.fill")
-                .font(.system(size: 13))
-                .foregroundStyle(AppColors.secondaryLabel)
-                .contentShape(Rectangle())
-                .onTapGesture(perform: onClose)
-                .help("Close (Esc)")
+            if !vm.items.isEmpty {
+                Text("\(vm.items.count)")
+                    .font(.system(size: 11, weight: .bold))
+                    .foregroundStyle(AppColors.inkOnAmber)
+                    .padding(.horizontal, 7).padding(.vertical, 2)
+                    .background(AppColors.amberFill, in: Capsule())
+            }
+            lockButton
+            closeButton
         }
-        .padding(.horizontal, 14)
-        .padding(.top, 10)
-        .padding(.bottom, 6)
+        .padding(.horizontal, 14).padding(.vertical, 10)
     }
 
-    private var fullPasteRow: some View {
-        HStack(spacing: 10) {
-            Text("0")
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundColor(AppColors.inkOnAmber)
-                .frame(width: 20, height: 20)
-                .background(
-                    RoundedRectangle(cornerRadius: 5)
-                        .fill(AppColors.amberFill)
-                )
-            Text("9 → 1 full paste")
-                .font(.system(size: 13, weight: .medium))
-                .foregroundStyle(.primary)
-            Spacer()
-            Image(systemName: "arrow.down.to.line")
-                .foregroundColor(AppColors.secondaryLabel)
+    /// 자물쇠 toggle. Unlocked = faded open padlock (default): the popup closes
+    /// when you click away. Locked = solid white padlock: the popup stays open
+    /// until you press ✕. `.focusable(false)` keeps the blue focus ring off.
+    private var lockButton: some View {
+        Button { vm.isLocked.toggle() } label: {
+            Image(systemName: vm.isLocked ? "lock.fill" : "lock.open")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(vm.isLocked ? Color.white : Color.white.opacity(0.4))
+                .frame(width: 18, height: 18)
+                .contentShape(Rectangle())
         }
-        .padding(.horizontal, 12).padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Color(NSColor.controlBackgroundColor).opacity(0.6))
-        )
-        .padding(.horizontal, 12)
-        .padding(.bottom, 8)
-        .contentShape(Rectangle())
-        .onTapGesture(perform: onPasteAll)
-        .help("Paste items 9 → 1 sequentially into the previous app")
+        .buttonStyle(.plain)
+        .focusable(false)
+        .help(vm.isLocked ? "잠금: 다른 창을 눌러도 닫히지 않아요 (✕로 닫기)"
+                          : "잠금 해제: 다른 창을 누르면 닫혀요")
+    }
+
+    private var closeButton: some View {
+        Button(action: onClose) {
+            Image(systemName: "xmark")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundStyle(.secondary)
+                .frame(width: 18, height: 18)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .focusable(false)
+        .help("Close (Esc)")
     }
 
     private var footer: some View {

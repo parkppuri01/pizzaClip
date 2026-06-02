@@ -103,6 +103,48 @@ final class HistoryStoreTests: XCTestCase {
         XCTAssertTrue(ordered.first?.pinned == true)
     }
 
+    func test_multiplePins_orderedByPinTime_thenNonPinnedByRecency() throws {
+        // Pin order, not copy order, decides slots: the first item you pin is
+        // slot 1, the next is slot 2, and so on — then non-pinned items follow
+        // by recency. (This is what the popup numbers its rows by.)
+        let store = try makeStore()
+        try store.insert(CapturedItem(kind: .text, text: "a",
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_000)))
+        try store.insert(CapturedItem(kind: .text, text: "b",
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_001)))
+        try store.insert(CapturedItem(kind: .text, text: "c",
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_002)))
+        let aID = try XCTUnwrap(store.topN(10).first(where: { $0.text == "a" })?.id)
+        let bID = try XCTUnwrap(store.topN(10).first(where: { $0.text == "b" })?.id)
+
+        // Pin b first, then a — a small gap guarantees distinct pin timestamps.
+        try store.togglePin(id: bID)
+        Thread.sleep(forTimeInterval: 0.003)
+        try store.togglePin(id: aID)
+
+        let ordered = try store.topNRespectingPins(10).map(\.text)
+        // b pinned first → slot 1; a pinned second → slot 2; c non-pinned last.
+        XCTAssertEqual(ordered, ["b", "a", "c"])
+    }
+
+    func test_unpin_clearsPinTimeAndDropsBackToRecency() throws {
+        let store = try makeStore()
+        try store.insert(CapturedItem(kind: .text, text: "a",
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_000)))
+        try store.insert(CapturedItem(kind: .text, text: "b",
+                                      createdAt: Date(timeIntervalSince1970: 1_700_000_001)))
+        let aID = try XCTUnwrap(store.topN(10).first(where: { $0.text == "a" })?.id)
+
+        try store.togglePin(id: aID)   // a floats to top
+        try store.togglePin(id: aID)   // unpin — back to recency order
+
+        let unpinned = try XCTUnwrap(store.topNRespectingPins(10).first(where: { $0.text == "a" }))
+        XCTAssertFalse(unpinned.pinned)
+        XCTAssertNil(unpinned.pinnedAt, "unpinning must clear the pin timestamp")
+        XCTAssertEqual(try store.topNRespectingPins(10).map(\.text), ["b", "a"],
+                       "with nothing pinned, plain recency order returns")
+    }
+
     func test_prune_dropsOldestNonPinned_keepsPinned() throws {
         let store = try makeStore()
         for i in 0..<5 {

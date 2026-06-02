@@ -104,8 +104,7 @@ final class PopupPanelController {
                         NotificationCenter.default.post(name: .pizzaClipClearAll, object: nil)
                     }
                 }
-            },
-            onPasteAll: { [weak self] in self?.pasteAllReverse() }
+            }
         )
         let hosting = NSHostingView(rootView: view)
 
@@ -136,6 +135,9 @@ final class PopupPanelController {
 
         NSApp.activate(ignoringOtherApps: true)
         panel.makeKeyAndOrderFront(nil)
+        // Don't auto-focus any control (the lock / ✕ buttons) — otherwise the
+        // first one grabs key focus on open and shows a blue focus ring.
+        panel.makeFirstResponder(nil)
 
         NSAnimationContext.runAnimationGroup { ctx in
             ctx.duration = 0.18
@@ -150,13 +152,15 @@ final class PopupPanelController {
         // Clicking another window resigns the panel's key status; treat that
         // as "user moved on" and dismiss without reactivating the previously
         // frontmost app (the click already raised whatever they clicked, so
-        // re-activating would steal focus back).
+        // re-activating would steal focus back). UNLESS the user locked the
+        // popup (자물쇠 잠금) — then it stays open until the ✕ button closes it.
         resignKeyObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.didResignKeyNotification,
             object: panel,
             queue: .main
         ) { [weak self] _ in
-            self?.close(restorePreviousApp: false)
+            guard let self, !self.viewModel.isLocked else { return }
+            self.close(restorePreviousApp: false)
         }
     }
 
@@ -224,37 +228,23 @@ final class PopupPanelController {
     func pasteDirect(slot: Int) {
         guard slot >= 1, slot <= 9 else { return }
         previousFrontmostBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
-        guard let items = try? viewModel.topNNonPinned(9),
+        // Slot order matches the popup's visible list: pinned items first (by
+        // pin order), then the most-recent non-pinned. So ⌘⌥⌃1 pastes the same
+        // item the popup labels "1", whether or not slot 1 is a pinned entry.
+        guard let items = try? store.topNRespectingPins(9),
               items.indices.contains(slot - 1) else { return }
         let item = items[slot - 1]
         pasteEngine.write(item, blobStore: blobStore)
         pasteEngine.pasteIntoPreviousApp(bundleID: previousFrontmostBundleID)
     }
 
-    /// Paste the top-9 non-pinned items into the previous app in
-    /// chronological copy order: slot 9 (oldest) first, then 8, 7, …, 1
-    /// (most recent) last. Triggered by bare `0` inside the popup or by
-    /// clicking the "9 → 1 full paste" row.
-    func pasteAllReverse() {
-        let prev = previousFrontmostBundleID
-        guard let topItems = try? viewModel.topNNonPinned(9), !topItems.isEmpty else {
-            close(); return
-        }
-        // topItems[0] is the most recent (slot 1). Reverse so the oldest of
-        // the top 9 lands in the target app first.
-        let sequence = Array(topItems.reversed())
-        close()
-        pasteEngine.pasteSequence(sequence, blobStore: blobStore, bundleID: prev)
-    }
-
-    /// Slot paste from inside an open popup — picks the Nth non-pinned row of
-    /// the currently displayed list (matches the visible slot badges). Reuses
-    /// the previousFrontmostBundleID recorded on open instead of re-reading
-    /// frontmost (which is now ourselves).
+    /// Slot paste from inside an open popup — picks the Nth visible row, which
+    /// matches the slot badges (pinned rows included, since pins now occupy
+    /// the top slots). Reuses the previousFrontmostBundleID recorded on open
+    /// instead of re-reading frontmost (which is now ourselves).
     private func paste(slotInPopup n: Int) {
-        let nonPinned = viewModel.items.filter { !$0.pinned }
-        guard nonPinned.indices.contains(n - 1) else { return }
-        pick(nonPinned[n - 1])
+        guard viewModel.items.indices.contains(n - 1) else { return }
+        pick(viewModel.items[n - 1])
     }
 
     // MARK: - Keyboard handling
@@ -303,21 +293,15 @@ final class PopupPanelController {
                 }
                 return true   // swallow even when nothing is selected
             }
-            // Bare digit (no Cmd/Opt/Ctrl/Shift):
-            //   0      → paste 9 → 1 full sequence
-            //   1 - 9  → paste the Nth non-pinned row of the visible list
+            // Bare digit 1–9 (no Cmd/Opt/Ctrl/Shift) → paste the Nth visible
+            // row of the list, matching the slot badges.
             let interfering: NSEvent.ModifierFlags = [.command, .option, .control, .shift]
             let hasInterfering = !event.modifierFlags.intersection(interfering).isEmpty
             if !hasInterfering,
                let chars = event.charactersIgnoringModifiers, chars.count == 1,
-               let digit = Int(chars) {
-                if digit == 0 {
-                    pasteAllReverse()
-                    return true
-                } else if (1...9).contains(digit) {
-                    paste(slotInPopup: digit)
-                    return true
-                }
+               let digit = Int(chars), (1...9).contains(digit) {
+                paste(slotInPopup: digit)
+                return true
             }
             return false
         }

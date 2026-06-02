@@ -12,6 +12,7 @@ public struct Item: Identifiable, Equatable, FetchableRecord, PersistableRecord,
     public var sourceBundle: String?
     public var createdAt: Int64  // unix ms
     public var pinned: Bool
+    public var pinnedAt: Int64?  // unix ms when pinned; nil when not pinned
 
     enum Columns {
         static let id = Column("id")
@@ -22,6 +23,7 @@ public struct Item: Identifiable, Equatable, FetchableRecord, PersistableRecord,
         static let sourceBundle = Column("source_bundle")
         static let createdAt = Column("created_at")
         static let pinned = Column("pinned")
+        static let pinnedAt = Column("pinned_at")
     }
 
     enum CodingKeys: String, CodingKey {
@@ -33,5 +35,6 @@ public struct Item: Identifiable, Equatable, FetchableRecord, PersistableRecord,
         case sourceBundle = "source_bundle"
         case createdAt = "created_at"
         case pinned
+        case pinnedAt = "pinned_at"
     }
 }
