@@ -94,6 +94,19 @@ const faqJsonLd = {
       <img src="/img/howto-hero.png" alt="맥북 화면에 ‘Dive into PIZZA CLIP’ 이 떠 있는 목업" width="1600" height="666" loading="eager" />
     </figure>
 
+    <!-- 사용법 영상 (YouTube) -->
+    <h2 class="block-title block-title--lead">영상으로 한눈에 보기 🎬</h2>
+    <figure class="video framed">
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/1BI6V5HHdtE"
+        title="pizzaClip 사용법 영상"
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+    </figure>
+
     <!-- 설치 단계 -->
     <ol class="steps">
       {steps.map((s) => (
@@ -184,6 +197,15 @@ const faqJsonLd = {
     margin-inline: auto;
   }
   .hero-shot img { display: block; width: 100%; height: auto; }
+
+  /* 사용법 영상 (16:9 반응형, 사이트 공통 프레임) */
+  .block-title--lead { margin-top: 0; }  /* 히어로 하단 여백으로 충분 */
+  .video {
+    margin: 0 auto var(--section-gap);
+    max-width: 760px;
+    aspect-ratio: 16 / 9;
+  }
+  .video iframe { display: block; width: 100%; height: 100%; border: 0; }
 
   .steps { display: grid; gap: 3rem; margin-bottom: var(--section-gap); }
   /* 번호 배지 → 제목 → 설명 → 사진 을 세로로 가운데 정렬 */
