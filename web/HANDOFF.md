@@ -121,6 +121,10 @@ web/
 1. **INFO 릴리스노트 유지** — 새 버전 낼 때 `info.astro` 의 `releases` 배열에 항목 추가(현재 1.0.0~0.1.1 수기). TeamJAM 소개 문구도 원하면 다듬기.
 2. **GA4 다운로드 전환 추적(선택)** — 현재 GA4는 페이지뷰만. 다운로드 버튼 클릭 이벤트(`gtag('event', ...)`) 미설정.
 3. **(선택)** 인트로 "커튼" 연출, 카피/이미지 추가 다듬기.
+4. **동적 OG 이미지** (2026-06-02 요청) — 현재 OG는 `BaseLayout.astro`의 단일 정적 이미지(`og:image`/`twitter:image`, line 95/101). 사용자 불만: 링크 붙여넣을 때마다 **항상 같은 이미지**라 마케팅 효율↓. → "매 붙여넣기마다 랜덤"으로 만들고 싶어함.
+   - ⚠️ **제약(중요)**: 소셜 플랫폼(카톡/iMessage/트위터/디스코드)은 **URL 단위로 OG 이미지를 캐시**함. 같은 `pizza-clip.com` 주소면 누가 붙여도 캐시된 같은 이미지가 나옴 → **"매 붙여넣기마다 다른 이미지"는 단일 URL로는 불가능.** 이 점을 사용자에게 다시 확인하고 기대치 맞출 것.
+   - 현실적 구현안: ① **동적 생성 OG** — Vercel OG(`@vercel/og`) 또는 Satori 로 버전/카피/문구를 이미지에 자동 렌더(릴리스·캠페인마다 새 비주얼 손쉽게). Vercel 호스팅이라 궁합 좋음. ② **페이지별 OG** — 랜딩/INFO/HOW-TO 각 페이지에 다른 `image` prop 전달(`BaseLayout`이 이미 `image` 파라미터 받음 → 페이지에서 넘기기만 하면 됨).
+   - 관련 파일: `src/layouts/BaseLayout.astro`(`ogImage` 구성부 line 25/39/95/101), 정적 이미지는 `public/`.
 
 > ✅ **HOW TO 콘텐츠 강화 완료(2026-06-02)** — 히어로 목업 이미지 + 동작 데모 영상 2종 + "이런 것도 돼요" 팁 + FAQ(FAQPage 구조화 데이터 포함) 추가. 기존 설치 3단계·단축키 표는 유지.
 > ✅ **AEO/GEO sitemap 완료(2026-06-02)** — `@astrojs/sitemap` 통합, 낡은 수기 `public/sitemap.xml` 제거, robots.txt 가 자동 생성본(`sitemap-index.xml`) 가리키도록 수정. JSON-LD(SoftwareApplication/WebSite/Organization)는 BaseLayout 에 이미 있었고, FAQPage 는 how-to 에 추가됨. `llms.txt` 도 이미 있음.
