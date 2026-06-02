@@ -150,31 +150,55 @@ final class HangulToggler {
     }
 
     private func handle(type: CGEventType, event: CGEvent) {
-        // macOS disables long-blocking taps. Re-enable if the system kicks us.
+        // macOS can silently disable a session tap under heavy input (or if a
+        // callback runs long). While it's disabled, mid-gesture events are
+        // dropped — so we don't just re-enable it, we also clear any half-seen
+        // right-⌘ state. Otherwise a lost key-down/up leaves our bookkeeping
+        // out of sync and the *next* clean tap gets eaten. This stale-state
+        // trap is the main cause of the "every so often it just doesn't
+        // switch" symptom.
         if type == .tapDisabledByTimeout || type == .tapDisabledByUserInput {
+            rightCmdDown = false
+            dirtied = false
             if let port = tap { CGEvent.tapEnable(tap: port, enable: true) }
             return
         }
+
+        // Trust the event's live device-flag for right ⌘ over our own running
+        // state — that way a dropped key-up can never leave us permanently
+        // stuck thinking the key is still held.
+        let rightCmdHeldNow = (event.flags.rawValue & Self.rightCmdFlagBit) != 0
+
         switch type {
         case .flagsChanged:
             let keycode = event.getIntegerValueField(.keyboardEventKeycode)
             if keycode == Self.rightCmdKeyCode {
-                let isRightCmdHeld = (event.flags.rawValue & Self.rightCmdFlagBit) != 0
-                if isRightCmdHeld {
+                if rightCmdHeldNow {
+                    // Right ⌘ pressed — arm a fresh gesture.
                     rightCmdDown = true
                     dirtied = false
                 } else {
+                    // Right ⌘ released — fire only if nothing else was touched
+                    // while it was held.
                     let wasCleanTap = rightCmdDown && !dirtied
                     rightCmdDown = false
                     if wasCleanTap {
                         DispatchQueue.main.async { Self.toggleInputSource() }
                     }
                 }
-            } else if rightCmdDown {
-                // Some other modifier changed while right ⌘ was held; treat as chord.
-                dirtied = true
+            } else {
+                // A different modifier changed. If right ⌘ is genuinely held,
+                // this turns the gesture into a chord (no toggle). If the live
+                // flag says right ⌘ is *not* held but we still think it is, we
+                // missed its key-up — drop the stale state without firing.
+                if rightCmdHeldNow {
+                    dirtied = true
+                } else {
+                    rightCmdDown = false
+                }
             }
         case .keyDown:
+            // Any real key pressed while right ⌘ is down → chord, not a tap.
             if rightCmdDown { dirtied = true }
         default:
             break
