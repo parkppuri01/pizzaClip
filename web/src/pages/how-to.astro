@@ -97,7 +97,19 @@ const faqJsonLd = {
     </div>
   </section>
 
-  <!-- 풀스크린 스냅 인트로 ② 사용법 영상 -->
+  <!-- 풀스크린 스냅 인트로 ②·③ 큰 글자 패널 (색이 확 바뀜) -->
+  <section class="snap snap-word snap-word--a">
+    <div class="snap__inner container">
+      <p class="big-word">복사하면</p>
+    </div>
+  </section>
+  <section class="snap snap-word snap-word--b">
+    <div class="snap__inner container">
+      <p class="big-word">전부 기억해요 🍕</p>
+    </div>
+  </section>
+
+  <!-- 풀스크린 스냅 인트로 ④ 사용법 영상 -->
   <section class="snap snap-video" id="videoPanel">
     <div class="snap__inner container">
       <h2 class="block-title block-title--lead">영상으로 한눈에 보기 🎬</h2>
@@ -237,6 +249,24 @@ const faqJsonLd = {
     scroll-snap-stop: always;
     padding: 5rem 0 2rem;           /* 상단 sticky 네비(64px) 여유 */
   }
+  /* 패널마다 화면 전체 단색 배경이 확 바뀜 (레퍼런스 느낌) */
+  .snap-hero    { background: var(--color-bg); }   /* 크림 */
+  .snap-word--a { background: var(--color-menu); } /* 피자 옐로우 */
+  .snap-word--b { background: var(--color-point); }/* 벽돌 빨강 */
+  .snap-video   { background: var(--color-ink); }  /* 네이비 */
+
+  /* 큰 글자 패널 */
+  .big-word {
+    margin: 0;
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: clamp(2.8rem, 11vw, 7.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.015em;
+    text-align: center;
+  }
+  .snap-word--a .big-word { color: var(--color-ink); } /* 옐로우 위 네이비 */
+  .snap-word--b .big-word { color: var(--color-bg); }  /* 빨강 위 크림 */
   .snap__inner {
     display: flex;
     flex-direction: column;
@@ -250,6 +280,14 @@ const faqJsonLd = {
   .snap.is-active .snap__inner { opacity: 1; transform: none; }
 
   .snap-hero .page-head { margin-bottom: 0; text-align: center; }
+  .snap-hero h1 { font-size: clamp(2.6rem, 8vw, 5.5rem); }
+
+  /* 네이비 영상 패널: 제목은 크림, 영상은 은은한 글로우 */
+  .snap-video .block-title { color: var(--color-bg); }
+  .snap-video .video.framed {
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  }
   .hero-shot {
     margin: 0;
     max-width: min(900px, 92vw);
