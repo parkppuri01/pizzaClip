@@ -94,11 +94,10 @@ const faqJsonLd = {
       <img src="/img/howto-hero.png" alt="맥북 화면에 ‘Dive into PIZZA CLIP’ 이 떠 있는 목업" width="1600" height="666" loading="eager" />
     </figure>
 
-    <!-- 사용법 영상 (YouTube) — 스크롤 진입 시 커튼이 열리며 음소거 자동재생 -->
+    <!-- 사용법 영상 (YouTube) -->
     <h2 class="block-title block-title--lead">영상으로 한눈에 보기 🎬</h2>
-    <figure class="video framed video-stage" id="videoStage">
+    <figure class="video framed">
       <iframe
-        id="howtoVideo"
         src="https://www.youtube-nocookie.com/embed/1BI6V5HHdtE?rel=0&playsinline=1"
         title="pizzaClip 사용법 영상"
         loading="lazy"
@@ -106,10 +105,6 @@ const faqJsonLd = {
         referrerpolicy="strict-origin-when-cross-origin"
         allowfullscreen
       ></iframe>
-      <div class="curtain curtain--left" aria-hidden="true">
-        <span class="curtain__tag">🍕 PIZZA CLIP</span>
-      </div>
-      <div class="curtain curtain--right" aria-hidden="true"></div>
     </figure>
 
     <!-- 설치 단계 -->
@@ -184,37 +179,6 @@ const faqJsonLd = {
 
   <!-- AEO/GEO: FAQ 구조화 데이터 -->
   <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
-
-  <!-- 사용법 영상: 스크롤 진입 시 커튼 열기 + 음소거 자동재생 -->
-  <script>
-    const stage = document.getElementById("videoStage");
-    const iframe = document.getElementById("howtoVideo");
-    if (stage && iframe) {
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (!reduce) stage.classList.add("armed"); // 커튼 닫아두기(영상은 화면 아래라 안 보임)
-      let played = false;
-      const reveal = () => {
-        if (played) return;
-        played = true;
-        window.removeEventListener("scroll", onScroll);
-        // 음소거 자동재생: src 에 autoplay=1&mute=1 붙여 재로드
-        const base = iframe.src.split("?")[0];
-        iframe.src = base + "?autoplay=1&mute=1&rel=0&playsinline=1";
-        stage.classList.add("open"); // 커튼 열기(CSS transition)
-      };
-      const inView = () => {
-        const r = stage.getBoundingClientRect();
-        const vh = window.innerHeight || document.documentElement.clientHeight;
-        // 영상이 화면 안으로 충분히 들어오면 발동
-        return r.top < vh * 0.7 && r.bottom > vh * 0.25;
-      };
-      const onScroll = () => {
-        if (inView()) reveal();
-      };
-      window.addEventListener("scroll", onScroll, { passive: true });
-      onScroll(); // 로드 시 이미 보이면 바로 발동
-    }
-  </script>
 </BaseLayout>
 
 <style>
@@ -243,34 +207,6 @@ const faqJsonLd = {
     position: relative;
   }
   .video iframe { display: block; width: 100%; height: 100%; border: 0; }
-
-  /* 커튼: 기본은 숨김(JS 없으면 영상 그대로 노출) */
-  .curtain {
-    position: absolute; top: 0; bottom: 0; width: 50.5%;
-    z-index: 2; display: none;
-    background:
-      repeating-linear-gradient(90deg, rgba(0,0,0,.22) 0 2px, rgba(0,0,0,0) 2px 24px),
-      linear-gradient(180deg, #8d2f1a, #A2371F 60%, #6f2415);
-    transition: transform 1s cubic-bezier(.66,0,.2,1);
-    will-change: transform;
-  }
-  .curtain--left  { left: 0;  box-shadow: inset -16px 0 28px rgba(0,0,0,.35); }
-  .curtain--right { right: 0; box-shadow: inset 16px 0 28px rgba(0,0,0,.35); }
-  .curtain__tag {
-    position: absolute; top: 50%; right: 0; transform: translate(50%, -50%);
-    font-family: var(--font-en); font-weight: 700; white-space: nowrap;
-    color: var(--color-menu); font-size: clamp(0.9rem, 2.4vw, 1.3rem);
-    letter-spacing: 0.04em; text-shadow: 0 2px 6px rgba(0,0,0,.4);
-  }
-  /* JS 가 켜지면 커튼을 닫아 둠(영상은 화면 아래라 깜빡임 없음) */
-  .video-stage.armed .curtain { display: block; }
-  /* 스크롤 진입 → 양옆으로 열림 */
-  .video-stage.armed.open .curtain--left  { transform: translateX(-100%); }
-  .video-stage.armed.open .curtain--right { transform: translateX(100%); }
-
-  @media (prefers-reduced-motion: reduce) {
-    .curtain { transition: none; }
-  }
 
   .steps { display: grid; gap: 3rem; margin-bottom: var(--section-gap); }
   /* 번호 배지 → 제목 → 설명 → 사진 을 세로로 가운데 정렬 */
