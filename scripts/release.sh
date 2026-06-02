@@ -162,10 +162,38 @@ BUILD_NUMBER=$(grep "CURRENT_PROJECT_VERSION:" project.yml | head -1 | sed 's/.*
 GITHUB_REPO="${GITHUB_REPO:-parkppuri01/pizzaClip}"
 DOWNLOAD_BASE_URL="${DOWNLOAD_BASE_URL:-https://github.com/${GITHUB_REPO}/releases/download/v${VERSION}}"
 
+# Minimal Markdown → HTML for the Sparkle "what's new" panel. Handles the few
+# things release notes actually use: `#`/`##` headings, `-`/`*` bullets, and
+# blank-line-separated paragraphs. Everything is HTML-escaped so stray &/</>
+# in the notes can't break rendering. Anything fancier than this isn't worth a
+# dependency for a one-screen changelog.
+md_to_html() {
+    awk '
+        function esc(s) { gsub(/&/,"\\&amp;",s); gsub(/</,"\\&lt;",s); gsub(/>/,"\\&gt;",s); return s }
+        function closelist() { if (inlist) { print "</ul>"; inlist=0 } }
+        BEGIN { inlist=0 }
+        { line=$0; sub(/\r$/,"",line) }
+        line ~ /^[[:space:]]*$/ { closelist(); next }
+        line ~ /^## /  { closelist(); sub(/^## /,"",line); print "<h3>" esc(line) "</h3>"; next }
+        line ~ /^# /   { closelist(); sub(/^# /,"",line);  print "<h2>" esc(line) "</h2>"; next }
+        line ~ /^[-*] / { if (!inlist){print "<ul>"; inlist=1} sub(/^[-*] /,"",line); print "<li>" esc(line) "</li>"; next }
+        { closelist(); print "<p>" esc(line) "</p>" }
+        END { closelist() }
+    ' "$1"
+}
+
 if [ -x "$SIGN_UPDATE" ]; then
     echo "→ Signing ZIP for Sparkle (EdDSA)"
     SIG_LINE=$("$SIGN_UPDATE" "$ZIP")
     echo "    $SIG_LINE"
+
+    # Release notes shown inside the Sparkle update dialog AND used as the
+    # GitHub release body below — one source, written in Markdown at
+    # dist/notes-<version>.md. Fall back to a one-liner so a forgotten notes
+    # file never breaks the build.
+    NOTES="dist/notes-${VERSION}.md"
+    [ -f "$NOTES" ] || printf '# pizzaClip %s\n\n- 버그 수정 및 개선\n' "$VERSION" > "$NOTES"
+    NOTES_HTML=$(md_to_html "$NOTES")
 
     PUBDATE=$(LC_TIME=en_US.UTF-8 date -u "+%a, %d %b %Y %H:%M:%S +0000")
     APPCAST_ITEM="dist/appcast-item-${VERSION}.xml"
@@ -176,12 +204,15 @@ if [ -x "$SIGN_UPDATE" ]; then
             <sparkle:version>${BUILD_NUMBER}</sparkle:version>
             <sparkle:shortVersionString>${VERSION}</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+${NOTES_HTML}
+]]></description>
             <enclosure url="${DOWNLOAD_BASE_URL}/pizzaClip-${VERSION}.zip"
                        type="application/octet-stream"
                        ${SIG_LINE} />
         </item>
 EOF
-    echo "    appcast <item> → $APPCAST_ITEM"
+    echo "    appcast <item> (+ release notes) → $APPCAST_ITEM"
 else
     echo "⚠ sign_update not found ($SIGN_UPDATE)."
     echo "  Run: xcodebuild -project pizzaClip.xcodeproj -scheme pizzaClip \\"
@@ -204,8 +235,8 @@ if [ "${PUBLISH:-0}" = "1" ]; then
     fi
 
     echo "→ Publishing GitHub release v${VERSION}"
-    NOTES="dist/notes-${VERSION}.md"
-    [ -f "$NOTES" ] || printf 'pizzaClip %s\n' "$VERSION" > "$NOTES"
+    # $NOTES was created + used for the Sparkle <description> in the signing
+    # block above; reuse the same file as the GitHub release body.
     # Fixed-name DMG copy so the website can link to
     #   …/releases/latest/download/pizzaClip.dmg
     # (always the newest release, no per-release link edits). The copy keeps the
