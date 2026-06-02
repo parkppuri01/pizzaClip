@@ -83,51 +83,49 @@ const faqJsonLd = {
 };
 ---
 <BaseLayout title="How to" description="pizzaClip 설치와 사용법 — 단축키와 권한 설정까지 한 번에." image="/img/og-howto.jpg">
-  <!-- 풀스크린 스냅 인트로 ① 히어로 -->
-  <section class="snap snap-hero is-active">
-    <div class="snap__inner container">
-      <header class="page-head">
-        <h1>How to · 사용법</h1>
-        <p>설치부터 단축키까지, 1분이면 충분합니다.</p>
-      </header>
-      <figure class="hero-shot">
-        <img src="/img/howto-hero.png" alt="맥북 화면에 ‘Dive into PIZZA CLIP’ 이 떠 있는 목업" width="1600" height="666" loading="eager" />
-      </figure>
-      <span class="scroll-cue" aria-hidden="true">스크롤해서 더 보기 <span class="scroll-cue__arrow">↓</span></span>
+  <!-- 인트로: 한 자리에 고정된 채 히어로 → 영상 크로스페이드 -->
+  <section class="intro" id="intro">
+    <div class="intro__sticky">
+      <!-- 히어로 (글자 + 맥북) -->
+      <div class="intro__layer intro__hero">
+        <header class="page-head">
+          <h1>How to · 사용법</h1>
+          <p>설치부터 단축키까지, 1분이면 충분합니다.</p>
+        </header>
+        <figure class="hero-shot">
+          <img src="/img/howto-hero.png" alt="맥북 화면에 ‘Dive into PIZZA CLIP’ 이 떠 있는 목업" width="1600" height="666" loading="eager" />
+        </figure>
+        <span class="scroll-cue" aria-hidden="true">스크롤해서 더 보기 <span class="scroll-cue__arrow">↓</span></span>
+      </div>
+      <!-- 영상 (같은 자리에 나타남) -->
+      <div class="intro__layer intro__video">
+        <h2 class="block-title block-title--lead">영상으로 한눈에 보기 🎬</h2>
+        <figure class="video framed">
+          <iframe
+            id="howtoVideo"
+            src="https://www.youtube-nocookie.com/embed/1BI6V5HHdtE?rel=0&playsinline=1"
+            title="pizzaClip 사용법 영상"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
+        </figure>
+      </div>
     </div>
   </section>
 
-  <!-- 풀스크린 스냅 인트로 ②·③ 큰 글자 패널 (색이 확 바뀜) -->
-  <section class="snap snap-word snap-word--a">
-    <div class="snap__inner container">
-      <p class="big-word">복사하면</p>
-    </div>
-  </section>
-  <section class="snap snap-word snap-word--b">
-    <div class="snap__inner container">
-      <p class="big-word">전부 기억해요 🍕</p>
-    </div>
-  </section>
+  <!-- JS 꺼진 환경: 핀/페이드 해제하고 히어로·영상 그대로 노출 -->
+  <noscript>
+    <style>
+      .intro { height: auto; }
+      .intro__sticky { position: static; height: auto; display: block; padding-bottom: 0; }
+      .intro__layer { opacity: 1 !important; }
+      .intro__video { margin-top: 3rem; }
+    </style>
+  </noscript>
 
-  <!-- 풀스크린 스냅 인트로 ④ 사용법 영상 -->
-  <section class="snap snap-video" id="videoPanel">
-    <div class="snap__inner container">
-      <h2 class="block-title block-title--lead">영상으로 한눈에 보기 🎬</h2>
-      <figure class="video framed">
-        <iframe
-          id="howtoVideo"
-          src="https://www.youtube-nocookie.com/embed/1BI6V5HHdtE?rel=0&playsinline=1"
-          title="pizzaClip 사용법 영상"
-          loading="lazy"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          referrerpolicy="strict-origin-when-cross-origin"
-          allowfullscreen
-        ></iframe>
-      </figure>
-    </div>
-  </section>
-
-  <!-- 일반 스크롤 본문 -->
+  <!-- 일반 스크롤 본문 (인트로 끝나면 자석처럼 따라붙음) -->
   <section class="section container">
     <!-- 설치 단계 -->
     <ol class="steps">
@@ -202,27 +200,36 @@ const faqJsonLd = {
   <!-- AEO/GEO: FAQ 구조화 데이터 -->
   <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
 
-  <!-- 풀스크린 인트로: 화면 중앙에 온 패널 활성화 + 영상 패널이면 음소거 자동재생 -->
+  <!-- 인트로: 스크롤 진행도에 따라 히어로 → 영상 제자리 크로스페이드 + 음소거 자동재생 -->
   <script>
-    const panels = Array.from(document.querySelectorAll(".snap"));
-    const video = document.getElementById("howtoVideo");
-    let videoStarted = false;
-    const update = () => {
-      const mid = (window.innerHeight || document.documentElement.clientHeight) / 2;
-      for (const p of panels) {
-        const r = p.getBoundingClientRect();
-        const active = r.top <= mid && r.bottom >= mid; // 패널이 화면 중앙을 덮는가
-        p.classList.toggle("is-active", active);
-        if (active && p.id === "videoPanel" && video && !videoStarted) {
-          videoStarted = true;
-          const base = video.src.split("?")[0];
-          video.src = base + "?autoplay=1&mute=1&rel=0&playsinline=1";
+    const intro = document.getElementById("intro");
+    const heroLayer = intro && intro.querySelector(".intro__hero");
+    const videoLayer = intro && intro.querySelector(".intro__video");
+    const iframe = document.getElementById("howtoVideo");
+    if (intro && heroLayer && videoLayer) {
+      let started = false;
+      const onScroll = () => {
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        const total = Math.max(intro.offsetHeight - vh, 1);     // 스크롤 가능 거리
+        const scrolled = Math.min(Math.max(-intro.getBoundingClientRect().top, 0), total);
+        const p = scrolled / total;                              // 0~1
+        const t = Math.min(p / 0.5, 1);                          // 앞 절반 구간에서 전환 완료
+        heroLayer.style.opacity = String(1 - t);
+        heroLayer.style.transform = "scale(" + (1 - 0.05 * t) + ")";
+        heroLayer.style.pointerEvents = t > 0.5 ? "none" : "auto";
+        videoLayer.style.opacity = String(t);
+        videoLayer.style.transform = "scale(" + (0.97 + 0.03 * t) + ")";
+        videoLayer.style.pointerEvents = t > 0.5 ? "auto" : "none";
+        if (t > 0.5 && !started && iframe) {
+          started = true;
+          const base = iframe.src.split("?")[0];
+          iframe.src = base + "?autoplay=1&mute=1&rel=0&playsinline=1";
         }
-      }
-    };
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    update();
+      };
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll);
+      onScroll();
+    }
   </script>
 </BaseLayout>
 
@@ -236,62 +243,36 @@ const faqJsonLd = {
     background: #000;
   }
 
-  /* ===== 풀스크린 스냅 인트로 (히어로 + 영상) ===== */
-  /* html 스크롤에 근접 스냅 — 이 페이지에서만 적용(스코프 스타일은 how-to 에만 로드) */
-  :global(html) { scroll-snap-type: y proximity; }
-
-  .snap {
-    min-height: 100svh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    padding: 5rem 0 2rem;           /* 상단 sticky 네비(64px) 여유 */
+  /* ===== 인트로: 한 자리에 고정된 채 히어로 → 영상 크로스페이드 ===== */
+  .intro {
+    position: relative;
+    height: 165vh;          /* 이 거리만큼 스크롤하는 동안 제자리 전환이 일어남 */
   }
-  /* 패널마다 화면 전체 단색 배경이 확 바뀜 (레퍼런스 느낌) */
-  .snap-hero    { background: var(--color-bg); }   /* 크림 */
-  .snap-word--a { background: var(--color-menu); } /* 피자 옐로우 */
-  .snap-word--b { background: var(--color-point); }/* 벽돌 빨강 */
-  .snap-video   { background: var(--color-ink); }  /* 네이비 */
-
-  /* 큰 글자 패널 */
-  .big-word {
-    margin: 0;
-    font-family: var(--font-sans);
-    font-weight: 800;
-    font-size: clamp(2.8rem, 11vw, 7.5rem);
-    line-height: 1.04;
-    letter-spacing: -0.015em;
-    text-align: center;
+  .intro__sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    padding: 4.5rem 1rem 2rem;   /* 상단 sticky 네비 여유 */
   }
-  .snap-word--a .big-word { color: var(--color-ink); } /* 옐로우 위 네이비 */
-  .snap-word--b .big-word { color: var(--color-bg); }  /* 빨강 위 크림 */
-  .snap__inner {
+  /* 히어로·영상을 같은 그리드 셀에 겹쳐 둠 → 같은 자리에서 교체 */
+  .intro__layer {
+    grid-area: 1 / 1;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 1.5rem;
-    /* 진입 애니메이션 */
-    opacity: 0;
-    transform: translateY(28px);
-    transition: opacity .7s ease, transform .7s ease;
+    will-change: opacity, transform;
   }
-  .snap.is-active .snap__inner { opacity: 1; transform: none; }
+  .intro__video { opacity: 0; pointer-events: none; }  /* 처음엔 숨김, JS 가 스크롤로 페이드인 */
 
-  .snap-hero .page-head { margin-bottom: 0; text-align: center; }
-  .snap-hero h1 { font-size: clamp(2.6rem, 8vw, 5.5rem); }
-
-  /* 네이비 영상 패널: 제목은 크림, 영상은 은은한 글로우 */
-  .snap-video .block-title { color: var(--color-bg); }
-  .snap-video .video.framed {
-    border-color: rgba(255, 255, 255, 0.14);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
-  }
-  .hero-shot {
-    margin: 0;
-    max-width: min(900px, 92vw);
-  }
+  .intro__hero .page-head { margin-bottom: 0; text-align: center; }
+  .intro__hero h1 { font-size: clamp(2.4rem, 7vw, 4.6rem); }
+  .hero-shot { margin: 0; max-width: min(860px, 90vw); }
   .hero-shot img { display: block; width: 100%; height: auto; }
 
   .scroll-cue {
@@ -304,19 +285,16 @@ const faqJsonLd = {
   .scroll-cue__arrow { display: inline-block; animation: cueBounce 1.6s ease-in-out infinite; }
   @keyframes cueBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
 
-  /* 사용법 영상 (16:9, 화면 높이에 맞춰 풀스크린 느낌) */
+  /* 사용법 영상 (16:9, 화면에 맞춤) */
   .block-title--lead { margin-top: 0; }
   .video {
     margin: 0 auto;
-    /* 가로·세로 모두 화면 안에 들어오도록 (제목+네비 공간 확보) */
-    width: min(92vw, calc(62svh * 16 / 9), 1100px);
+    width: min(92vw, calc(60svh * 16 / 9), 1100px);
     aspect-ratio: 16 / 9;
-    position: relative;
   }
   .video iframe { display: block; width: 100%; height: 100%; border: 0; }
 
   @media (prefers-reduced-motion: reduce) {
-    .snap__inner { opacity: 1; transform: none; transition: none; }
     .scroll-cue__arrow { animation: none; }
   }
 
