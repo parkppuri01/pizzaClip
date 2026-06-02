@@ -290,7 +290,8 @@ const faqJsonLd = {
   .block-title--lead { margin-top: 0; }
   .video {
     margin: 0 auto;
-    width: min(92vw, calc(60svh * 16 / 9), 1100px);
+    /* 표시 크기 ≈ 직전의 70% (작게 = 더 쨍하게) */
+    width: min(64vw, calc(42svh * 16 / 9), 770px);
     aspect-ratio: 16 / 9;
   }
   .video iframe,
