@@ -36,12 +36,6 @@ const demos = [
     title: "메뉴바 피자가 차오릅니다",
     body: "복사한 게 쌓일수록 메뉴바 아이콘이 한 조각씩 늘어나요. 지금 몇 개나 담겼는지 한눈에 보여요.",
   },
-  {
-    src: "/img/howto-demo-2.gif",
-    ratio: "1 / 1",
-    title: "복사하면 자동으로 담겨요",
-    body: "따로 저장 버튼이 없어요. 평소처럼 ⌘C 하면 텍스트·이미지·파일이 알아서 히스토리에 쌓입니다.",
-  },
 ];
 
 const shortcuts = [
@@ -221,20 +215,15 @@ const faqJsonLd = {
     margin: var(--section-gap) 0 1.5rem;
   }
 
-  /* 데모 (GIF) */
+  /* 데모 (GIF) — 단일 GIF 가운데 배치 */
   .demos {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    display: flex;
+    justify-content: center;
     margin-bottom: var(--section-gap);
-    align-items: start;
-    /* 컬럼은 넓게 두어 캡션 줄바꿈 방지 + 가운데 정렬 */
-    max-width: 58%;
-    margin-inline: auto;
   }
-  /* GIF 는 작게(≈210px) 고정, 캡션은 컬럼 폭(넓게) 사용 → 문장 안 깨짐 */
-  .demo { margin: 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .demo__frame { width: 100%; max-width: 210px; }
+  /* .demo 는 캡션 줄바꿈 방지용 폭 확보, GIF 자체는 더 작게(≈170px) */
+  .demo { margin: 0; width: 320px; max-width: 100%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .demo__frame { width: 100%; max-width: 170px; }
   .demo__frame img {
     display: block; width: 100%; height: 100%; object-fit: cover;
   }
