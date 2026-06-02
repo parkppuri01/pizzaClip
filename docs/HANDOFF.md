@@ -1,6 +1,6 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-05-30 (**🎉 v1.0.0 정식 출시 완료**: 빌드→공증 2라운드(.app+DMG, 둘 다 Accepted+staple)→GitHub 릴리스 v1.0.0→`pizza-clip.com/appcast.xml` 라이브→`/Applications` 설치까지 끝. 다운로드 버튼=고정이름 `pizzaClip.dmg` 직접다운로드, Sparkle 자동업데이트 라이브(설치본 build 10=최신, **다음 릴리스 build 11+부터 자동 적용**). 웹사이트(pizza-clip.com)는 **2026-05-30 개편 완료** — 웹 핸드오프는 [`web/HANDOFF.md`](../web/HANDOFF.md) 로 분리)
+마지막 업데이트: 2026-06-03 (**앱 수정 6건 완료 — 미배포(코드만)**: ① `0` 전체붙여넣기 기능 완전 제거 ② ⌘P = 다중 슬롯 고정(`pinned_at` 순서, 스키마 v3) ③ 우⌘ 한/영 토글 안정화(탭 비활성 시 상태 리셋) ④ Sparkle 업데이트 창 릴리스 노트 표시(appcast `<description>`) ⑤ PIC.kle 헤더 이식(자물쇠 잠금·노란 카운트 배지·X·구분선) — 자물쇠=포커스 잃어도 안 닫기(UserDefaults 저장). 빌드+테스트 27개 통과. **아직 버전 bump/릴리스 안 함** — 다음 릴리스 때 1.0.1로 올리면 자동업데이트로 배포됨. 이전: 2026-05-30 v1.0.0 정식 출시. 웹 핸드오프는 [`web/HANDOFF.md`](../web/HANDOFF.md) 로 분리)
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
@@ -15,22 +15,20 @@
 
 ---
 
-## 0.5 다음 앱 업데이트 예정사항 (TODO — **앱 수정 세션에서 처리**) 🔔
+## 0.5 다음 앱 업데이트 예정사항 — ✅ 전부 완료 (2026-06-03)
 
-> 사용자가 v1.0.0 출시 직후 요청(2026-05-30, 3번은 2026-06-02 추가). **다음에 앱 코드를 만질 때 이 세 가지를 같이 처리하고, 세션 시작 시 사용자에게 먼저 상기시킬 것.** (바로 다음 예정 세션은 웹이라, 웹 끝나고 앱 손볼 때 몰아서 적용.)
+> 2026-05-30~06-02 요청분 + 06-03 추가 2건, **총 6건 모두 구현 완료**. 빌드+테스트 27개 통과. **버전 bump/릴리스는 아직 안 함** — 다음 릴리스(예: 1.0.1)때 `PUBLISH=1 ./scripts/release.sh` 로 자동업데이트 배포. 상세는 아래 "세션 노트 — 2026-06-03" 참고.
 
-1. **릴리스 노트 보여주기** — 지금은 Sparkle 업데이트 알림창에 버전 숫자만 뜸(appcast `<item>`에 설명 없음). 업데이트 팝업에 "이번에 바뀐 점"이 보이도록:
-   - `scripts/release.sh`의 appcast `<item>` 생성부에 `<description><![CDATA[ …HTML… ]]></description>` 또는 `<sparkle:releaseNotesLink>` 추가.
-   - 노트 소스: `dist/notes-<버전>.md`(이미 생성됨) 또는 CHANGELOG → HTML 변환. (어디서 가져올지 결정 필요.)
+| # | 항목 | 결과 |
+|---|---|---|
+| 1 | Sparkle 업데이트 창에 릴리스 노트 표시 | ✅ `release.sh` appcast `<item>`에 `<description CDATA>` + `dist/notes-<버전>.md`(GitHub 릴리스 노트와 동일 소스) Markdown→HTML 변환 |
+| 2 | ⌘P = "슬롯 고정"으로 변경 | ✅ **다중 고정** — 핀 순서대로 1,2,3…번, 나머지는 그 뒤. `pinned_at`(스키마 v3) 기반. 전역 `⌘⌥⌃1~9`도 슬롯 일치 |
+| 3 | 팝업 자동 닫힘 끄기 | ✅ **PIC.kle 자물쇠 버튼으로 구현**(아래 6번에 흡수, Settings 토글 대신 헤더 자물쇠) |
+| 4 | `0` 전체붙여넣기 기능 완전 삭제 | ✅ UI(9→1 full paste 줄) + `0`키 + 내부 함수(`pasteAllReverse`/`pasteSequence`)까지 제거 |
+| 5 | 우⌘ 한/영 토글 불안정 수정 | ✅ 탭 비활성(timeout/userInput) 시 상태 리셋 + 실시간 플래그 자가복구 → "한 번씩 안 됨" 해결. **딜레이·자모분리는 실기기 재확인 필요**(OS 조합 특성) |
+| 6 | PIC.kle 헤더 이식(자물쇠·카운트배지·X·구분선) | ✅ 타이틀 폰트13/primary, 노란 카운트 배지, 자물쇠 잠금(UserDefaults `popupPanelLocked` 저장), X 닫기, 타이틀 아래 구분선, `.focusable(false)`+`makeFirstResponder(nil)`로 포커스링 제거 |
 
-2. **⌘P = "핀"이 아니라 "1번 슬롯 고정"으로 변경** — 현재 ⌘P는 pin(상단 부유 + 핀 아이콘, 슬롯 1~9 번호에서 제외). 요청: **⌘P 누르면 그 항목을 슬롯 1번에 고정**하고, 그 뒤로 복사되는 항목은 **2번부터** 쌓이도록(고정 항목이 1번 자리에서 안 밀려남).
-   - ⚠️ 구현 전 사용자에게 확인할 것: ① 고정은 **1개만**(1번 전용)인지 여러 개 가능(1,2,3…)인지 — 표현상 1개 같지만 확인. ② 기존 pin 개념을 완전히 대체할지(핀 아이콘/부유 동작 제거?). ③ 직접붙여넣기 `⌘⌥⌃1~9` / `0=9→1 전체붙여넣기`와의 상호작용. ④ 시각 표시(1번 배지 강조? 자물쇠 아이콘?).
-   - 관련 파일: `Popup/PopupPanelController.swift`(handleKey: ⌘P→togglePin), `Popup/PopupViewModel.swift`, `Storage/HistoryStore.swift`(pin/topN/슬롯 로직), `Storage/Item.swift`(pinned 필드), `Popup/PopupView.swift`·`PopupRow.swift`(슬롯 번호/핀 표시).
-
-3. **팝업 자동 닫힘 끄는 토글** (2026-06-02 요청) — 현재 팝업은 다른 창으로 포커스가 가면(=key window 상실) 자동으로 닫힘. 요청: **Settings에 "포커스 잃어도 팝업 안 닫기" 토글**을 두고, 켜면 다른 창을 클릭해도 팝업이 떠 있도록.
-   - 구현 위치: `Popup/PopupPanelController.swift:155` 의 `NSWindow.didResignKeyNotification` 옵저버 → `close(restorePreviousApp: false)` 호출부. 토글 ON이면 이 자동 close를 스킵.
-   - 설정 저장: `@AppStorage`(예: `keepPopupOpenOnFocusLoss`) + `SettingsView.swift` General 또는 Shortcuts 탭에 체크박스. (형식은 0.1.5 "Input source" 토글 패턴 참고.)
-   - ⚠️ 확인할 것: ① 토글 ON일 때 팝업을 어떻게 닫나(⎋ / ⌘⇧V 다시 / 상태바 클릭만으로). ② 다른 앱에 붙여넣기(picking) 후에는 토글과 무관하게 닫을지. ③ 토글 ON 상태에서 ⌘V 합성 시 포커스 복원(`restorePreviousApp`) 동작과의 상호작용.
+> 7번째 작업 1건이 더 대기 중(사용자가 "위 6건 다 하고" 진행한다고 함, 2026-06-03). 내용은 다음 세션에서 받을 것.
 
 ---
 
@@ -183,11 +181,11 @@ docs/
 
 ## 7. 다음 버전 범위 (확정)
 
-**다음 앱 업데이트에 진행할 것은 §0.5 의 세 가지뿐이다.**
+**§0.5 의 6건은 전부 완료(2026-06-03, 미릴리스).** 다음에 할 일:
 
-1. 업데이트 알림창에 릴리스 노트(바뀐 점) 표시 — §0.5 참고
-2. ⌘P = "1번 슬롯 고정" 으로 변경 — §0.5 참고
-3. 팝업 자동 닫힘(포커스 상실 시) 끄는 토글 — §0.5 참고
+1. **(대기) 7번째 작업** — 사용자가 "위 6건 다 하고" 진행한다고 한 추가 수정 1건. 내용은 다음 세션에서 받을 것.
+2. **릴리스** — 7번째까지 끝나면 `project.yml` MARKETING/CURRENT bump(예: 1.0.1/11) → `PUBLISH=1 ./scripts/release.sh` 로 자동업데이트 배포. 이번 릴리스 노트엔 위 6건을 `dist/notes-1.0.1.md` 에 적으면 업데이트 창 + GitHub 릴리스에 같이 나옴.
+3. **실기기 재확인** — 한/영 토글의 "딜레이/자모분리"가 남았는지(코드 수정으로 "한 번씩 안 됨"은 해결, 나머지는 OS 조합 특성과 얽혀 실사용 확인 필요).
 
 > 이전에 "후속 거리 / 다음 세션 후보" 로 적어두었던 항목들(멀티모니터 마우스 추종, 5MB 텍스트 트런케이션, Launch-at-Login 토글, Privacy 탭 drag-drop UI, dedupe 인덱스 최적화, DB 메인스레드 쓰기, prune 게이팅, 이스터에그 파티클 이미지 교체, release.sh 아이콘 자동 빌드 등)은 **2026-06-02 사용자 결정으로 범위에서 제외**했다. 나중에 다시 필요해지면 그때 새로 올린다.
 
@@ -215,10 +213,35 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 
 - **커밋 메시지**: conventional commits 스타일 (feat/fix/perf/refactor/chore/docs)
 - **본문**: 무엇/왜를 두세 문단으로 (저자: Claude Opus 4.7 자동 co-author 안 함, 이 프로젝트는 단독 개발자)
-- **테스트**: 모든 수정 후 `xcodebuild ... test`로 25개 통과 확인. 새 기능엔 TDD 권장 (Storage·Monitor는 그렇게 함)
+- **테스트**: 모든 수정 후 `xcodebuild ... test`로 **27개** 통과 확인(2026-06-03 멀티핀 2개 추가). 새 기능엔 TDD 권장 (Storage·Monitor는 그렇게 함)
 - **버전 bump**: `project.yml`의 `MARKETING_VERSION` + `CURRENT_PROJECT_VERSION` 두 곳만 수정. `Info.plist`는 `$(MARKETING_VERSION)` placeholder를 쓰므로 손대지 않음 (0.1.1에서 정리됨)
 - **xcodegen**: project.yml만 손대고 `xcodegen generate`로 .xcodeproj 재생성. .xcodeproj는 절대 직접 편집 금지
 - **xcodegen이 새 파일 자동 인식**: `pizzaClip/` 트리에 파일 추가만 하면 자동으로 픽업 — **단 새 .swift 추가 후엔 `xcodegen generate` 한 번 더 돌려야 빌드에 포함됨** (0.1.3 PizzaBurst.swift 추가 시 첫 빌드가 "cannot find PizzaBurst in scope" 로 실패해서 확인)
+
+## 세션 노트 — 2026-06-03 (앱 수정 6건: 0제거 / ⌘P 멀티핀 / 한영 안정화 / 릴리스노트 / PIC.kle 헤더)
+
+**범위**: §0.5 대기 3건 + 세션 중 추가 3건(0 전체붙여넣기 삭제, 한/영 안정화, PIC.kle 헤더 이식) = 총 6건. **빌드+테스트 27개 통과, 미릴리스(코드만).**
+
+### 한 일 (파일별)
+
+1. **`0` 전체붙여넣기 완전 삭제** — `PopupView`(9→1 full paste 행 제거), `PopupPanelController`(`0`키 분기 + `pasteAllReverse()` 제거, `paste(slotInPopup:)`는 보이는 N번째 행을 집도록 단순화), `PasteEngine`(`pasteSequence()` 제거), `PopupViewModel`(`topNNonPinned` 래퍼 제거), `HistoryStore`(`topNNonPinned` 미사용으로 제거). 팝업 안 `1~9`·전역 `⌘⌥⌃1~9`는 유지.
+2. **⌘P = 다중 슬롯 고정** — 핀 순서대로 1,2,3…번을 차지하고 나머지는 그 뒤로. 핀 순서 기억용 **`pinned_at` 컬럼 추가(`Schema` v3 마이그레이션 — 기존 핀은 `created_at`으로 백필)**, `Item.pinnedAt: Int64?`, `HistoryStore.togglePin`(핀 시 타임스탬프 set/해제 시 nil)·`topNRespectingPins`(정렬 `pinned DESC, pinned_at ASC, created_at DESC`). `PopupView.slotForItem`는 이제 핀 포함 보이는 순서대로 1~9 번호. `pasteDirect`(전역)도 `topNRespectingPins` 기반으로 슬롯 일치. 고정 항목은 팝업에서 **📌 + 번호** 동시 표시. 테스트 2개 추가(`test_multiplePins_orderedByPinTime…`, `test_unpin_clearsPinTime…`).
+3. **우⌘ 한/영 토글 안정화** (`HangulToggler`) — **원인**: macOS가 입력 폭주 시 세션 탭을 잠깐 비활성화(`tapDisabledByTimeout/UserInput`)하는데, 그때 오른쪽 ⌘ 누름/뗌 이벤트가 유실되면 `rightCmdDown`/`dirtied` 상태가 어긋나 **다음 깨끗한 탭 한 번이 먹힘**("한 번씩 안 됨"). **수정**: 탭 비활성 콜백에서 상태 리셋 후 재활성화 + 매 이벤트의 실시간 우⌘ 디바이스 플래그(`rightCmdHeldNow`)로 어긋남 자가복구(놓친 key-up이 있어도 stuck 안 됨). ⚠️ **딜레이·자모분리**는 입력소스 전환이 조합 중에 일어나는 OS 특성과 얽혀 있어 코드만으로 100% 보장 못 함 → 실기기 관찰 필요.
+4. **Sparkle 릴리스 노트 표시** (`scripts/release.sh`) — appcast `<item>`에 `<description><![CDATA[…HTML…]]></description>` 추가. 소스 = `dist/notes-<버전>.md`(GitHub 릴리스 본문과 **동일 파일** 재사용). 스크립트 안 `md_to_html`(awk) 가 `#`/`##` 제목·`-`/`*` 불릿·문단을 가벼운 HTML로 변환(&<> 이스케이프 포함). 노트 파일 없으면 한 줄 기본값으로 폴백.
+5. **PIC.kle 헤더 이식**(자매앱 `/Users/parkjaekeun/DEV/ProjectJAM/pic.kle` 참고) — `PopupView` 타이틀 폰트 13/primary색, 우상단 **노란 카운트 배지**(`amberFill`+`inkOnAmber`, 항목수, 0개면 숨김) → **자물쇠 버튼**(`lock.open` 반투명/`lock.fill` 불투명, `vm.isLocked` 토글) → **X 닫기**(`xmark`, 기존 `onClose` 콜백 재사용) 순. 타이틀 바로 아래 `Divider().overlay(separator)` 추가. `PopupViewModel.isLocked`(`@Published`, UserDefaults **`popupPanelLocked`** 저장→앱 재시작해도 유지). `PopupPanelController`: resignKey 핸들러에서 **`isLocked`면 close 스킵**, 패널 열 때 `makeFirstResponder(nil)`+버튼 `.focusable(false)`로 **파란 포커스링 제거**.
+
+### 설계 메모 / 교훈
+
+- **닫기 배선**: PIC.kle은 ✕를 알림(`pickleCloseHistoryPanel`)으로 처리하지만, pizzaClip은 이미 `PopupView(onClose:)` 콜백이 배선돼 있어 **그걸 재사용**(별도 Notification.Name·AppDelegate 옵저버 불필요). 동작 동일, 코드 더 적음.
+- **§0.5 3번(자동닫힘 토글)은 6번(PIC.kle 자물쇠)으로 흡수** — Settings 토글 대신 헤더 자물쇠가 더 직관적이라 사용자가 후자 선택.
+- **`amberFill`/`inkOnAmber` 색 토큰** — 1번에서 `0`줄 지우며 미사용이 됐다가 5번 카운트 배지로 다시 사용. 안 지우길 잘함.
+- **커밋**: 파일 얽힘(팝업 3파일이 1·2·5번에 공유) 때문에 팝업/스토리지를 한 덩어리로 묶고, 한/영·release·docs는 분리. (아래 커밋 목록)
+
+### 미릴리스 — 다음 릴리스 때 할 것
+
+- `project.yml` MARKETING/CURRENT bump → `dist/notes-1.0.1.md` 작성(위 6건) → `PUBLISH=1 ./scripts/release.sh`. (이번 세션은 코드+커밋까지만.)
+
+---
 
 ## 세션 노트 — 2026-05-30 (🎉 v1.0.0 정식 출시 + 다운로드 직접화)
 
