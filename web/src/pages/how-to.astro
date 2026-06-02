@@ -83,30 +83,40 @@ const faqJsonLd = {
 };
 ---
 <BaseLayout title="How to" description="pizzaClip 설치와 사용법 — 단축키와 권한 설정까지 한 번에." image="/img/og-howto.jpg">
+  <!-- 풀스크린 스냅 인트로 ① 히어로 -->
+  <section class="snap snap-hero is-active">
+    <div class="snap__inner container">
+      <header class="page-head">
+        <h1>How to · 사용법</h1>
+        <p>설치부터 단축키까지, 1분이면 충분합니다.</p>
+      </header>
+      <figure class="hero-shot">
+        <img src="/img/howto-hero.png" alt="맥북 화면에 ‘Dive into PIZZA CLIP’ 이 떠 있는 목업" width="1600" height="666" loading="eager" />
+      </figure>
+      <span class="scroll-cue" aria-hidden="true">스크롤해서 더 보기 <span class="scroll-cue__arrow">↓</span></span>
+    </div>
+  </section>
+
+  <!-- 풀스크린 스냅 인트로 ② 사용법 영상 -->
+  <section class="snap snap-video" id="videoPanel">
+    <div class="snap__inner container">
+      <h2 class="block-title block-title--lead">영상으로 한눈에 보기 🎬</h2>
+      <figure class="video framed">
+        <iframe
+          id="howtoVideo"
+          src="https://www.youtube-nocookie.com/embed/1BI6V5HHdtE?rel=0&playsinline=1"
+          title="pizzaClip 사용법 영상"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+      </figure>
+    </div>
+  </section>
+
+  <!-- 일반 스크롤 본문 -->
   <section class="section container">
-    <header class="page-head">
-      <h1>How to · 사용법</h1>
-      <p>설치부터 단축키까지, 1분이면 충분합니다.</p>
-    </header>
-
-    <!-- 히어로 비주얼 (배경 투명 PNG — 프레임 없이 띄움) -->
-    <figure class="hero-shot">
-      <img src="/img/howto-hero.png" alt="맥북 화면에 ‘Dive into PIZZA CLIP’ 이 떠 있는 목업" width="1600" height="666" loading="eager" />
-    </figure>
-
-    <!-- 사용법 영상 (YouTube) -->
-    <h2 class="block-title block-title--lead">영상으로 한눈에 보기 🎬</h2>
-    <figure class="video framed">
-      <iframe
-        src="https://www.youtube-nocookie.com/embed/1BI6V5HHdtE?rel=0&playsinline=1"
-        title="pizzaClip 사용법 영상"
-        loading="lazy"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        referrerpolicy="strict-origin-when-cross-origin"
-        allowfullscreen
-      ></iframe>
-    </figure>
-
     <!-- 설치 단계 -->
     <ol class="steps">
       {steps.map((s) => (
@@ -179,6 +189,29 @@ const faqJsonLd = {
 
   <!-- AEO/GEO: FAQ 구조화 데이터 -->
   <script type="application/ld+json" set:html={JSON.stringify(faqJsonLd)} />
+
+  <!-- 풀스크린 인트로: 화면 중앙에 온 패널 활성화 + 영상 패널이면 음소거 자동재생 -->
+  <script>
+    const panels = Array.from(document.querySelectorAll(".snap"));
+    const video = document.getElementById("howtoVideo");
+    let videoStarted = false;
+    const update = () => {
+      const mid = (window.innerHeight || document.documentElement.clientHeight) / 2;
+      for (const p of panels) {
+        const r = p.getBoundingClientRect();
+        const active = r.top <= mid && r.bottom >= mid; // 패널이 화면 중앙을 덮는가
+        p.classList.toggle("is-active", active);
+        if (active && p.id === "videoPanel" && video && !videoStarted) {
+          videoStarted = true;
+          const base = video.src.split("?")[0];
+          video.src = base + "?autoplay=1&mute=1&rel=0&playsinline=1";
+        }
+      }
+    };
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    update();
+  </script>
 </BaseLayout>
 
 <style>
@@ -191,22 +224,63 @@ const faqJsonLd = {
     background: #000;
   }
 
+  /* ===== 풀스크린 스냅 인트로 (히어로 + 영상) ===== */
+  /* html 스크롤에 근접 스냅 — 이 페이지에서만 적용(스코프 스타일은 how-to 에만 로드) */
+  :global(html) { scroll-snap-type: y proximity; }
+
+  .snap {
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    padding: 5rem 0 2rem;           /* 상단 sticky 네비(64px) 여유 */
+  }
+  .snap__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    /* 진입 애니메이션 */
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity .7s ease, transform .7s ease;
+  }
+  .snap.is-active .snap__inner { opacity: 1; transform: none; }
+
+  .snap-hero .page-head { margin-bottom: 0; text-align: center; }
   .hero-shot {
-    margin: 0 0 var(--section-gap);
-    max-width: 900px;
-    margin-inline: auto;
+    margin: 0;
+    max-width: min(900px, 92vw);
   }
   .hero-shot img { display: block; width: 100%; height: auto; }
 
-  /* 사용법 영상 (16:9 반응형, 사이트 공통 프레임) */
-  .block-title--lead { margin-top: 0; }  /* 히어로 하단 여백으로 충분 */
+  .scroll-cue {
+    margin-top: 0.5rem;
+    font-family: var(--font-en);
+    font-size: 0.95rem; letter-spacing: 0.04em;
+    color: var(--color-point);
+    display: inline-flex; align-items: center; gap: 0.4rem;
+  }
+  .scroll-cue__arrow { display: inline-block; animation: cueBounce 1.6s ease-in-out infinite; }
+  @keyframes cueBounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(5px); } }
+
+  /* 사용법 영상 (16:9, 화면 높이에 맞춰 풀스크린 느낌) */
+  .block-title--lead { margin-top: 0; }
   .video {
-    margin: 0 auto var(--section-gap);
-    max-width: 760px;
+    margin: 0 auto;
+    /* 가로·세로 모두 화면 안에 들어오도록 (제목+네비 공간 확보) */
+    width: min(92vw, calc(62svh * 16 / 9), 1100px);
     aspect-ratio: 16 / 9;
     position: relative;
   }
   .video iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .snap__inner { opacity: 1; transform: none; transition: none; }
+    .scroll-cue__arrow { animation: none; }
+  }
 
   .steps { display: grid; gap: 3rem; margin-bottom: var(--section-gap); }
   /* 번호 배지 → 제목 → 설명 → 사진 을 세로로 가운데 정렬 */
