@@ -181,11 +181,15 @@ docs/
 
 ## 7. 다음 버전 범위 (확정)
 
-**§0.5 의 6건은 전부 완료 + v1.1.0 정식 배포(2026-06-03).** 다음에 할 일:
+**§0.5 의 6건은 전부 완료 + v1.1.0 정식 배포(2026-06-03).** 다음 버전(다음 세션) 예정 작업:
 
-1. **(대기) 7번째 작업** — 사용자가 "위 6건 다 하고" 진행한다고 한 추가 수정 1건. 내용은 다음 세션에서 받을 것. 이건 v1.1.1 또는 1.2.0 으로 별도 릴리스.
-2. **실기기 재확인** — 한/영 토글의 "딜레이/자모분리"가 남았는지(코드 수정으로 "한 번씩 안 됨"은 해결, 나머지는 OS 조합 특성과 얽혀 실사용 확인 필요).
-3. **다음 릴리스 패턴** — `project.yml` MARKETING/CURRENT bump → `dist/notes-<버전>.md` 작성 → `PUBLISH=1 ./scripts/release.sh`. (1.1.0 때 build=11 까지 씀, 다음은 12+.)
+1. **🌐 다국어(언어 선택) — 영문 / 한글** (2026-06-03 요청) — 현재 UI 문구가 전부 영어 하드코딩. Settings 에 **언어 선택**을 두고 영어 ↔ 한국어 전환 가능하게.
+   - ⚠️ 구현 전 확인할 것: ① 기본값(시스템 언어 따라감? vs 영어 고정?) ② "System / English / 한국어" 3택인지 "English / 한국어" 2택인지 ③ 적용 범위(팝업·Settings·메뉴바 메뉴·NSAlert 다이얼로그·툴팁 전부인지) ④ 변경 즉시 반영인지 재시작 필요인지.
+   - 구현 방향(택1): (a) **표준 `.lstrings`/`String(localized:)` + `Localizable.strings`(en/ko)** — `AppLanguage` enum + `@AppStorage` 로 `UserDefaults.AppleLanguages` 오버라이드(앱 한정 언어). SwiftUI 텍스트는 `Bundle` 스위칭 or 재시작. (b) 가벼운 자체 `L10n` 헬퍼(딕셔너리 기반) + `@AppStorage("appLanguage")` → 즉시 반영 쉬움. **자매앱 PIC.kle 에 비슷한 패턴 있으면 그거 참고**(헤더 이식처럼).
+   - 손볼 곳(문구가 박힌 파일): `Popup/PopupView.swift`·`PopupRow.swift`, `Settings/SettingsView.swift`, `App/AppDelegate.swift`(상태바 메뉴 타이틀·마이그레이션 NSAlert), `Paste/PasteEngine.swift`(권한 alert), `Permissions/Accessibility.swift`, `InputSource/HangulToggler.swift`(help). 양이 꽤 됨 → 문자열 인벤토리부터 뽑고 시작 권장.
+2. **(대기) 7번째 작업** — 사용자가 "위 6건 다 하고" 진행한다고 한 추가 수정 1건. 내용 미정(다음 세션에서 받을 것).
+3. **실기기 재확인** — 한/영 토글의 "딜레이/자모분리"가 남았는지(코드 수정으로 "한 번씩 안 됨"은 해결, 나머지는 OS 조합 특성과 얽혀 실사용 확인 필요).
+4. **다음 릴리스 패턴** — `project.yml` MARKETING/CURRENT bump → `dist/notes-<버전>.md` 작성 → `PUBLISH=1 ./scripts/release.sh`. (1.1.0 때 build=11 까지 씀, 다음은 12+.)
 
 > 이전에 "후속 거리 / 다음 세션 후보" 로 적어두었던 항목들(멀티모니터 마우스 추종, 5MB 텍스트 트런케이션, Launch-at-Login 토글, Privacy 탭 drag-drop UI, dedupe 인덱스 최적화, DB 메인스레드 쓰기, prune 게이팅, 이스터에그 파티클 이미지 교체, release.sh 아이콘 자동 빌드 등)은 **2026-06-02 사용자 결정으로 범위에서 제외**했다. 나중에 다시 필요해지면 그때 새로 올린다.
 
