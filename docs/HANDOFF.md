@@ -1,6 +1,6 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-06-03 (**앱 수정 6건 완료 — 미배포(코드만)**: ① `0` 전체붙여넣기 기능 완전 제거 ② ⌘P = 다중 슬롯 고정(`pinned_at` 순서, 스키마 v3) ③ 우⌘ 한/영 토글 안정화(탭 비활성 시 상태 리셋) ④ Sparkle 업데이트 창 릴리스 노트 표시(appcast `<description>`) ⑤ PIC.kle 헤더 이식(자물쇠 잠금·노란 카운트 배지·X·구분선) — 자물쇠=포커스 잃어도 안 닫기(UserDefaults 저장). 빌드+테스트 27개 통과. **아직 버전 bump/릴리스 안 함** — 다음 릴리스 때 1.0.1로 올리면 자동업데이트로 배포됨. 이전: 2026-05-30 v1.0.0 정식 출시. 웹 핸드오프는 [`web/HANDOFF.md`](../web/HANDOFF.md) 로 분리)
+마지막 업데이트: 2026-06-03 (**🎉 v1.1.0 배포 완료**: 앱 수정 6건 — ① `0` 전체붙여넣기 기능 완전 제거 ② ⌘P = 다중 슬롯 고정(`pinned_at` 순서, 스키마 v3) ③ 우⌘ 한/영 토글 안정화(탭 비활성 시 상태 리셋) ④ Sparkle 업데이트 창 릴리스 노트 표시(appcast `<description>`) ⑤ PIC.kle 헤더 이식(자물쇠 잠금·노란 카운트 배지·X·구분선) — 자물쇠=포커스 잃어도 안 닫기(UserDefaults 저장). **`PUBLISH=1 ./scripts/release.sh` 로 정식 배포**: 공증 2라운드 Accepted+staple → GitHub 릴리스 v1.1.0(자산 3개) → `pizza-clip.com/appcast.xml` 라이브(`sparkle:version=11`, 릴리스 노트 포함) → `/Applications` 1.1.0 설치. **1.0.0(build 10) 사용자에게 첫 자동업데이트 사이클로 내려감.** 이전: 2026-05-30 v1.0.0 출시. 웹 핸드오프는 [`web/HANDOFF.md`](../web/HANDOFF.md) 로 분리)
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
 
@@ -17,7 +17,7 @@
 
 ## 0.5 다음 앱 업데이트 예정사항 — ✅ 전부 완료 (2026-06-03)
 
-> 2026-05-30~06-02 요청분 + 06-03 추가 2건, **총 6건 모두 구현 완료**. 빌드+테스트 27개 통과. **버전 bump/릴리스는 아직 안 함** — 다음 릴리스(예: 1.0.1)때 `PUBLISH=1 ./scripts/release.sh` 로 자동업데이트 배포. 상세는 아래 "세션 노트 — 2026-06-03" 참고.
+> 2026-05-30~06-02 요청분 + 06-03 추가 2건, **총 6건 모두 구현 완료 + v1.1.0 정식 배포**(공증·GitHub 릴리스·appcast 라이브·`/Applications` 설치까지). 빌드+테스트 27개 통과. 상세는 아래 "세션 노트 — 2026-06-03" 참고.
 
 | # | 항목 | 결과 |
 |---|---|---|
@@ -181,11 +181,11 @@ docs/
 
 ## 7. 다음 버전 범위 (확정)
 
-**§0.5 의 6건은 전부 완료(2026-06-03, 미릴리스).** 다음에 할 일:
+**§0.5 의 6건은 전부 완료 + v1.1.0 정식 배포(2026-06-03).** 다음에 할 일:
 
-1. **(대기) 7번째 작업** — 사용자가 "위 6건 다 하고" 진행한다고 한 추가 수정 1건. 내용은 다음 세션에서 받을 것.
-2. **릴리스** — 7번째까지 끝나면 `project.yml` MARKETING/CURRENT bump(예: 1.0.1/11) → `PUBLISH=1 ./scripts/release.sh` 로 자동업데이트 배포. 이번 릴리스 노트엔 위 6건을 `dist/notes-1.0.1.md` 에 적으면 업데이트 창 + GitHub 릴리스에 같이 나옴.
-3. **실기기 재확인** — 한/영 토글의 "딜레이/자모분리"가 남았는지(코드 수정으로 "한 번씩 안 됨"은 해결, 나머지는 OS 조합 특성과 얽혀 실사용 확인 필요).
+1. **(대기) 7번째 작업** — 사용자가 "위 6건 다 하고" 진행한다고 한 추가 수정 1건. 내용은 다음 세션에서 받을 것. 이건 v1.1.1 또는 1.2.0 으로 별도 릴리스.
+2. **실기기 재확인** — 한/영 토글의 "딜레이/자모분리"가 남았는지(코드 수정으로 "한 번씩 안 됨"은 해결, 나머지는 OS 조합 특성과 얽혀 실사용 확인 필요).
+3. **다음 릴리스 패턴** — `project.yml` MARKETING/CURRENT bump → `dist/notes-<버전>.md` 작성 → `PUBLISH=1 ./scripts/release.sh`. (1.1.0 때 build=11 까지 씀, 다음은 12+.)
 
 > 이전에 "후속 거리 / 다음 세션 후보" 로 적어두었던 항목들(멀티모니터 마우스 추종, 5MB 텍스트 트런케이션, Launch-at-Login 토글, Privacy 탭 drag-drop UI, dedupe 인덱스 최적화, DB 메인스레드 쓰기, prune 게이팅, 이스터에그 파티클 이미지 교체, release.sh 아이콘 자동 빌드 등)은 **2026-06-02 사용자 결정으로 범위에서 제외**했다. 나중에 다시 필요해지면 그때 새로 올린다.
 
@@ -237,9 +237,11 @@ open pizzaClip.xcodeproj   # 그리고 ⌘R
 - **`amberFill`/`inkOnAmber` 색 토큰** — 1번에서 `0`줄 지우며 미사용이 됐다가 5번 카운트 배지로 다시 사용. 안 지우길 잘함.
 - **커밋**: 파일 얽힘(팝업 3파일이 1·2·5번에 공유) 때문에 팝업/스토리지를 한 덩어리로 묶고, 한/영·release·docs는 분리. (아래 커밋 목록)
 
-### 미릴리스 — 다음 릴리스 때 할 것
+### 배포 (v1.1.0, 같은 세션에서 진행)
 
-- `project.yml` MARKETING/CURRENT bump → `dist/notes-1.0.1.md` 작성(위 6건) → `PUBLISH=1 ./scripts/release.sh`. (이번 세션은 코드+커밋까지만.)
+- `project.yml` MARKETING 1.1.0 / CURRENT 11 bump → `dist/notes-1.1.0.md`(사용자 문구로 6건) 작성 → `PUBLISH=1 ./scripts/release.sh` 실행.
+- 결과(라이브 검증됨): 공증 2라운드(.app + DMG id `7fe0919c…`) 모두 **Accepted + staple**, Gatekeeper `Notarized Developer ID`. GitHub 릴리스 <https://github.com/parkppuri01/pizzaClip/releases/tag/v1.1.0> 자산 3개. `pizza-clip.com/appcast.xml` 에 `sparkle:version=11` + `<description>`(릴리스 노트 HTML) 라이브. 커밋 6개 + appcast 커밋까지 origin/master 푸시 완료. `/Applications/pizzaClip.app` = 1.1.0.
+- **첫 자동업데이트 사이클**: 1.0.0(build 10) 사용자가 하루 1회 체크 또는 메뉴 "Check for Updates…" 로 1.1.0 받음. 이때 업데이트 창에 위 릴리스 노트가 처음으로 표시됨(④ 기능 검증 포인트).
 
 ---
 
