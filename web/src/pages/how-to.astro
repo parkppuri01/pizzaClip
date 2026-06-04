@@ -101,15 +101,15 @@ const faqJsonLd = {
       <div class="intro__layer intro__video">
         <h2 class="block-title block-title--lead">피자클립🍕튜토리얼</h2>
         <figure class="video framed">
-          <video
+          <iframe
             id="howtoVideo"
-            src="/video/tutorial.mp4"
-            poster="/img/tutorial-poster.jpg"
-            preload="metadata"
-            muted
-            playsinline
-            controls
-          ></video>
+            src="https://www.youtube-nocookie.com/embed/9nhJBjU_JtQ?rel=0&playsinline=1"
+            title="피자클립 튜토리얼"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
         </figure>
       </div>
     </div>
@@ -222,9 +222,9 @@ const faqJsonLd = {
         videoLayer.style.pointerEvents = t > 0.5 ? "auto" : "none";
         if (t > 0.5 && !started && media) {
           started = true;
-          media.muted = true; // 음소거여야 자동재생 허용됨
-          const pr = media.play();
-          if (pr && pr.catch) pr.catch(() => {}); // 자동재생 차단돼도 에러 무시(컨트롤로 재생 가능)
+          // 음소거 자동재생: 유튜브 임베드 src 에 autoplay=1&mute=1 부여
+          const base = media.src.split("?")[0];
+          media.src = base + "?autoplay=1&mute=1&rel=0&playsinline=1";
         }
       };
       window.addEventListener("scroll", onScroll, { passive: true });
