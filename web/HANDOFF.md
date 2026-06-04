@@ -1,6 +1,6 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-01** (① 🍕 이모지 파비콘 풀세트 정비 — favicon.ico 16/32/48 멀티사이즈 + apple-touch 180(크림배경) + android 192/512 png, BaseLayout `<head>` 링크 연결. ② Google Analytics(GA4) `G-30DB0P1HWL` gtag.js 를 BaseLayout `<head>` 상단에 삽입(`is:inline` 로 원문 보존, 전 페이지 자동 적용). ③ 푸터에 Team JAM 소셜(인스타/스레드) **공식 로고 SVG** 추가 — `instagram.com/team___jam/` , `threads.com/@team___jam`, currentColor 크림색+hover 노란색. 전부 master 푸시 → Vercel 라이브. 이전: 2026-05-31 비주얼 디테일 개편.)
+마지막 업데이트: **2026-06-03** (HOW TO 페이지 대개편 + 페이지별 동적 OG + 사용법 영상 인트로. 자세히는 §3 최신 항목. 이전: 2026-06-01 파비콘·GA4·소셜.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
@@ -51,6 +51,24 @@ web/
 - **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
 
 ## 3. 완료된 작업
+
+### 2026-06-03 — HOW TO 페이지 대개편 + 동적 OG + 사용법 영상 인트로
+
+**무엇을 했나 (모두 master 푸시·라이브):**
+- **HOW TO 실사진 개편**(`d63748a`,`b35d274`): 설치 3단계에 실제 화면 사진(Applications 드래그 / '열기' 클릭 / 손쉬운 사용 권한 — `guide/howto_guide/{1-2,1,2}.png` → `public/img/howto-step-1~3.jpg`), 데모 GIF, FAQ 5문항 + **FAQPage 구조화 데이터(AEO)** 추가. 단계 레이아웃은 번호→제목→설명→사진 세로 가운데 정렬.
+- **히어로 투명 PNG**(`c38f4bb`): 배경 제거된 맥북 목업(`guide/howto_guide/0-dive.png`) → `public/img/howto-hero.png`(투명 유지 위해 png, 프레임 제거).
+- **페이지별 동적 OG 이미지**(`f5b2c8c`): `guide/og_image{1,2,3}` → 1200×630 최적화. HOME=지하철 광고판(`og-home.jpg`), HOW TO=맥북 목업 크림합성(`og-howto.jpg`), INFO=자판기 간판(`og-info.jpg`). BaseLayout 기본 og를 `og-home.jpg`로, how-to/info는 `image` prop 지정.
+- **데모 GIF**(`7784ff8`,`82abef0`): 두 개 중 왼쪽(메뉴바 차오름)만 사용, 작게(170px) + ffmpeg 팔레트 2-pass로 경량화(`public/img/howto-demo-1.gif`).
+- **사용법 영상 + 인트로 연출**(`4e6bfb8`→`ab3496e`): HOW TO 상단에 사용법 영상 임베드. 연출은 시행착오 끝에 **"제자리 크로스페이드"** 로 확정 — 히어로(글자+맥북)가 sticky로 한 자리에 고정된 채 스크롤하면 사르륵 사라지고 **같은 자리에 영상이 떠오름**(밑에서 올라오는 슬라이드 ❌), 그 아래 본문이 이어짐. 영상 나타날 때 **음소거 자동재생**. (중간에 커튼·풀스크린 색 스냅 패널을 시도했다 "과하다"고 전부 롤백 → 크로스페이드가 사용자 확정안.)
+- **영상 소스 우여곡절**(`29bf111`,`b73c23d`,`3fcef8d`,`3897c32`): 유튜브 채널 삭제 → 자체 호스팅 mp4 임시 → 채널 복구되어 **새 유튜브 임베드 `9nhJBjU_JtQ`**("피자클립🍕튜토리얼")로 최종 복귀. 영상 표시 크기 100%, 제목 "피자클립🍕튜토리얼".
+
+**현재 HOW TO 구조**: (인트로: 히어로↔영상 크로스페이드) → 설치 3단계(사진) → 데모 GIF → 단축키 표 → 팁 → FAQ.
+
+**교훈 (다음 세션 주의):**
+- **preview(헤드리스)는 `requestAnimationFrame`/`IntersectionObserver`/CSS transition 이 진행 안 됨** → 스크롤 연출은 rAF 비의존(`scroll` 이벤트 + `getBoundingClientRect`)로 짜고, 검증은 DOM 측정(opacity/transform 목표값을 transition 끄고 읽기)으로. preview_screenshot 은 스크롤을 맨 위로 리셋하는 글리치 있어 스크롤 위치 캡처가 빈 화면/엉뚱하게 나옴 → DOM 측정 신뢰.
+- **git add 함정(2회 발생)**: `git rm` 으로 이미 스테이징한 삭제 파일을 `git add` 에 또 지정하면 pathspec 불일치로 **git add 전체가 실패** → 정작 코드 변경이 스테이징 안 된 채 커밋되어 핵심 변경 누락. **삭제는 git rm 으로 끝내고 add 목록에 다시 넣지 말 것.** 커밋 후 `git show --stat` 로 의도한 파일이 들어갔는지 항상 확인.
+- **유튜브 임베드 가능 여부**는 `curl -s -o /dev/null -w "%{http_code}" "https://www.youtube.com/oembed?url=<url>&format=json"` 로 사전 확인 — **200=공개/임베드 OK, 404/401=비공개·임베드 차단**(임베드 페이지 자체는 200이라 속지 말 것). 비공개면 코드 문제 아님 → YouTube Studio 에서 공개/일부공개 + 퍼가기 허용.
+- **GIF/mp4 경량화**: gif=ffmpeg 팔레트 2-pass(`palettegen`+`paletteuse=dither=bayer`), mp4=`-c:v libx264 -crf 30 -movflags +faststart -pix_fmt yuv420p`. **원본 대용량 소스(`guide/howto_guide/*`, `guide/og_image*`, `guide/튜토리얼.mp4`)는 레포 비대화 방지로 미커밋** — 로컬에만 보관, 최적화 산출물만 `public/` 에 커밋.
 
 ### 2026-06-01 — 파비콘·GA4·소셜 (커밋 4개)
 - `520b6ed` feat(web): 🍕 이모지 파비콘 풀세트 (멀티사이즈 ico + apple-touch + android png)
