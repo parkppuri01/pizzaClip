@@ -1,6 +1,6 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-03** (HOW TO 페이지 대개편 + 페이지별 동적 OG + 사용법 영상 인트로. 자세히는 §3 최신 항목. 이전: 2026-06-01 파비콘·GA4·소셜.)
+마지막 업데이트: **2026-06-05** (① INFO 릴리스노트 v1.1.0 추가 ② 다운로드 버튼 GA4 전환 이벤트 추적 ③ **appcast 노크 카운트로 앱 일일 활성 기기(DAU) 집계** — Edge 미들웨어+Upstash KV, `/api/stats` 조회. 자세히는 §5-5. 이전: 2026-06-03 HOW TO 대개편+동적 OG+영상 인트로.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
@@ -37,6 +37,8 @@ web/
 │   ├── content/blog/hello.md      # 블로그 작성 템플릿 (draft:true)
 │   ├── content.config.ts          # Astro Content Layer (glob loader) — md 1개 떨구면 자동 등장
 │   └── styles/{tokens,fonts,global}.css  # 디자인 토큰·@font-face·리셋
+├── middleware.js                 # Edge 미들웨어: /appcast.xml 노크 → KV INCR (DAU 집계, §5-5)
+├── api/stats.js                  # Vercel 함수: /api/stats?key= → 최근 30일 노크 수 JSON
 ├── public/
 │   ├── img/{billboard.jpg, pizza-store.jpg, storefront.jpg,   # 사진(차콜 2px 테두리)
 │   │        slice-1~4.png, jam-logo.png}                       # 피자 디바이더 4종 · JAM 로고
@@ -143,6 +145,20 @@ web/
    - ⚠️ **제약(중요)**: 소셜 플랫폼(카톡/iMessage/트위터/디스코드)은 **URL 단위로 OG 이미지를 캐시**함. 같은 `pizza-clip.com` 주소면 누가 붙여도 캐시된 같은 이미지가 나옴 → **"매 붙여넣기마다 다른 이미지"는 단일 URL로는 불가능.** 이 점을 사용자에게 다시 확인하고 기대치 맞출 것.
    - 현실적 구현안: ① **동적 생성 OG** — Vercel OG(`@vercel/og`) 또는 Satori 로 버전/카피/문구를 이미지에 자동 렌더(릴리스·캠페인마다 새 비주얼 손쉽게). Vercel 호스팅이라 궁합 좋음. ② **페이지별 OG** — 랜딩/INFO/HOW-TO 각 페이지에 다른 `image` prop 전달(`BaseLayout`이 이미 `image` 파라미터 받음 → 페이지에서 넘기기만 하면 됨).
    - 관련 파일: `src/layouts/BaseLayout.astro`(`ogImage` 구성부 line 25/39/95/101), 정적 이미지는 `public/`.
+5. ✅ **완료 (2026-06-05, 라이브 검증됨) — 📊 활성 유저(DAU) 카운팅 = appcast 노크 세기**. 설치본 Sparkle 이 **하루 1번** `pizza-clip.com/appcast.xml` 을 두드림(업데이트 확인) → **그 노크 수 ≈ 일일 활성 기기 수**.
+   - **구현(Edit 함수 대신 Edge 미들웨어 채택 — 더 안전)**: `web/middleware.js` 가 `/appcast.xml` 요청을 가로채 Upstash(KV)에 `knock:YYYY-MM-DD`(KST) 카운터를 **INCR**(REST `…/incr/…`, `@vercel/edge` 의 `next()`+`context.waitUntil` 로 **비동기**). 응답은 **기존 정적 `public/appcast.xml` 그대로** 서빙 → 카운트가 실패/미설정이어도 **자동업데이트 피드 안 깨짐**. **rewrite 안 씀**(정적 파일이 있으면 vercel.json `rewrites`=afterFiles 라 안 걸림 → 미들웨어가 정답). URL·앱·release.sh **무수정**.
+   - **저장소**: Upstash Redis(Vercel Marketplace, **Free** 플랜, DB명 `upstash-kv-sky-candle`, region Washington DC). `pizza-clip` 프로젝트에 prefix `KV` 로 연결 → env `KV_REST_API_URL`/`KV_REST_API_TOKEN` 자동 주입. 미들웨어는 `KV_*` 우선, `UPSTASH_*` 폴백.
+   - **조회**: `https://pizza-clip.com/api/stats?key=<STATS_KEY>` → `{today, last30dTotal, byDay}` JSON(최근 30일, KST 일별). `web/api/stats.js`(Vercel Node 함수). ⚠️ **레포 public 이라** 비밀값은 코드에 두지 말고 env `STATS_KEY` 로만 보호(설정 시 `?key` 일치 필수, 미설정이면 누구나 조회).
+   - **검증**: 노크 전 today=0 → `/appcast.xml` 5회 curl → today=5 (캐시 `x-vercel-cache: HIT` 여도 미들웨어 정상 카운트 확인). 단, 이 **테스트 노크 5건이 2026-06-05 에 섞여 있음**(Upstash REPL 에서 `DEL knock:2026-06-05` 로 0 초기화 가능).
+   - **한계**: 방식 1(요청 수 그대로) — 기기 중복제거 없음, **대략치**. 한 기기가 하루 여러 번(재실행/수동 체크) 두드리면 중복 카운트. 정밀히 필요하면 방식 2(앱이 익명 UUID 동봉 → `SADD dau:<날짜> <uuid>` 로 유니크 집계)로 업그레이드. **무료 한도**(Upstash Free 일 10k 커맨드)는 개인 앱 규모에 차고 넘침.
+   - <details><summary>(역사적) 요청 당시 메모</summary>
+
+   - ✅ **확정 방향(방식 1, 가벼움)**: **요청 수 그대로 카운트**(익명 식별자 없음, 대략치로 충분). 정확한 기기별 중복제거(방식 2: 앱이 익명 UUID 동봉)는 나중에 필요해지면 업그레이드.
+   - ✅ **확정 방향(방식 1, 가벼움)**: **요청 수 그대로 카운트**(익명 식별자 없음, 대략치로 충분). 정확한 기기별 중복제거(방식 2: 앱이 익명 UUID 동봉)는 나중에 필요해지면 업그레이드.
+   - ⚠️ **핵심 제약 — URL 은 절대 바꾸지 말 것**: 기존 설치본은 SUFeedURL 이 `appcast.xml` 로 **이미 박혀있음**. 새 주소(`/api/appcast`)로 바꾸면 **앱 업데이트한 사람만** 잡힘 → **기존 사용자 누락**. 따라서 **주소는 `appcast.xml` 그대로 두고, 그 요청만 함수로 가로채는(rewrite)** 방식이어야 기존 사용자까지 즉시 카운트됨. **앱쪽 수정 0** (순수 웹 작업).
+   - 구현 3요소: ① **가로채는 함수**(`appcast.xml` 요청 → 카운트 +1 후 **현재 release.sh 가 생성하는 최신 XML 내용 그대로 응답**) ② **저장소**(Vercel KV/Upstash Redis 에 `count:YYYY-MM-DD` 날짜별 카운터 INCR — Hobby 무료한도 충분) ③ Vercel **rewrite 설정**으로 `/appcast.xml` → 함수 라우팅. ⚠️ 함수가 항상 **최신 appcast 내용**을 돌려주도록 연결할 것(릴리스마다 XML 바뀜).
+   - 참고: Vercel **Web Analytics**(`@vercel/analytics`, Analytics 탭 Get Started)는 **웹 페이지뷰**용이라 XML 노크는 못 셈 → 이 용도엔 부적합. (랜딩 방문자만 궁금하면 그건 그것대로 설치 가능, 단 프레임워크는 **Astro** 선택.)
+   </details>
 
 > ✅ **HOW TO 콘텐츠 강화 완료(2026-06-02)** — 히어로 목업 이미지 + 동작 데모 영상 2종 + "이런 것도 돼요" 팁 + FAQ(FAQPage 구조화 데이터 포함) 추가. 기존 설치 3단계·단축키 표는 유지.
 > ✅ **AEO/GEO sitemap 완료(2026-06-02)** — `@astrojs/sitemap` 통합, 낡은 수기 `public/sitemap.xml` 제거, robots.txt 가 자동 생성본(`sitemap-index.xml`) 가리키도록 수정. JSON-LD(SoftwareApplication/WebSite/Organization)는 BaseLayout 에 이미 있었고, FAQPage 는 how-to 에 추가됨. `llms.txt` 도 이미 있음.
