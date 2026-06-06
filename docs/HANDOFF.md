@@ -37,7 +37,7 @@
 macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts, **Sparkle 2 자동업데이트** (0.1.7). 개인 사용 + 랜딩페이지 배포 목적, **Apple Developer ID 서명 + hardened runtime + notarize + staple** (0.1.6), Universal binary, macOS 13+.
 
 - **위치**: `/Users/parkjaekeun/DEV/ProjectJAM/pizzaClip`
-- **현재 버전**: **1.0.0 (정식 출시)** (`project.yml` MARKETING 1.0.0, CURRENT 10)
+- **현재 버전**: **1.2.0 (정식 출시, 2026-06-07)** (`project.yml` MARKETING 1.2.0, CURRENT 12) — 다국어(영/한)·개인정보 앱목록 UI·잠금 붙여넣기 포커스 복귀. GitHub 릴리스 v1.2.0 + 라이브 appcast 반영 완료. 다음 build 13+.
 - **브랜치**: `master` (단일 브랜치 운영)
 - **빌드 스크립트**: `./scripts/release.sh` (테스트 → Release 빌드 → **Sparkle 임베드 헬퍼 Developer ID 재서명** → .app notarize → staple → DMG sign → DMG notarize → DMG staple → **/Applications 설치** → **ZIP EdDSA 서명 + appcast `<item>` 생성**. 0.1.6 Developer ID + 2-round notary, 0.1.7 Sparkle 추가)
 
