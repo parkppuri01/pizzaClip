@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+    <channel>
+        <title>PICkle</title>
+        <link>https://pizza-clip.com/pickle/appcast.xml</link>
+        <description>PICkle updates</description>
+        <language>en</language>
+        <!--
+          첫 릴리스 전까지는 비어 있습니다(아이템 없음 = "업데이트 없음").
+          앱은 이 피드를 읽고 "최신입니다"로 판단합니다.
+          실제 0.5.0 배포 시 scripts/sparkle-appcast.sh가 만든
+          <item>...</item> 블록을 아래에 추가하세요.
+          (DMG/ZIP은 https://github.com/parkppuri01/pickle/releases 에 업로드)
+        -->
+    </channel>
+</rss>
