@@ -4,6 +4,8 @@ import AppKit
 private let relativeDateFormatter: RelativeDateTimeFormatter = {
     let f = RelativeDateTimeFormatter()
     f.unitsStyle = .abbreviated
+    // 상대 시간("2분 전" vs "2m ago")도 앱 언어 설정을 따르게 한다.
+    f.locale = AppLocale.current
     return f
 }()
 
@@ -86,7 +88,7 @@ struct PopupRow: View {
             if let path = item.text, !path.isEmpty {
                 return (path as NSString).lastPathComponent
             }
-            return "Capture Image"
+            return L("Capture Image", "캡처 이미지")
         case "file":
             return ((item.text ?? "") as NSString).lastPathComponent
         default:

@@ -57,7 +57,7 @@ public final class PasteEngine {
         // rebuilds that revoke the TCC grant. Surface an alert so the cause
         // is obvious instead of "paste hotkey just doesn't work."
         guard Accessibility.isTrusted() else {
-            PasteEngine.notifyMissingAccessibility(action: "Paste")
+            PasteEngine.notifyMissingAccessibility(action: L("Paste", "붙여넣기"))
             return
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { self.sendCommandV() }
@@ -72,11 +72,14 @@ public final class PasteEngine {
     private static func notifyMissingAccessibility(action: String) {
         DispatchQueue.main.async {
             let alert = NSAlert()
-            alert.messageText = "pizzaClip needs Accessibility to paste"
-            alert.informativeText = "Couldn't run \"\(action)\" — the paste keystroke requires Accessibility. Grant it in System Settings → Privacy & Security → Accessibility, then quit and relaunch pizzaClip."
+            alert.messageText = L("pizzaClip needs Accessibility to paste",
+                                  "붙여넣으려면 손쉬운 사용 권한이 필요합니다")
+            alert.informativeText = L(
+                "Couldn't run \"\(action)\" — the paste keystroke requires Accessibility. Grant it in System Settings → Privacy & Security → Accessibility, then quit and relaunch pizzaClip.",
+                "\"\(action)\" 동작을 실행할 수 없습니다 — 붙여넣기 입력에는 손쉬운 사용 권한이 필요합니다. 시스템 설정 → 개인정보 보호 및 보안 → 손쉬운 사용에서 권한을 준 뒤 pizzaClip을 종료 후 다시 실행하세요.")
             alert.alertStyle = .warning
-            alert.addButton(withTitle: "Open Settings")
-            alert.addButton(withTitle: "Cancel")
+            alert.addButton(withTitle: L("Open Settings", "설정 열기"))
+            alert.addButton(withTitle: L("Cancel", "취소"))
             if alert.runModal() == .alertFirstButtonReturn {
                 Accessibility.openSystemSettings()
             }

@@ -146,7 +146,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             try out.write(to: url, atomically: true, encoding: .utf8)
         } catch {
             let alert = NSAlert()
-            alert.messageText = "Export failed"
+            alert.messageText = L("Export failed", "내보내기 실패")
             alert.informativeText = error.localizedDescription
             alert.runModal()
         }
@@ -174,13 +174,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         button.sendAction(on: [.leftMouseUp, .rightMouseUp])
 
         contextMenu = NSMenu()
-        contextMenu.addItem(NSMenuItem(title: "Open Popup",
+        contextMenu.addItem(NSMenuItem(title: L("Open Popup", "팝업 열기"),
                                        action: #selector(openPopup), keyEquivalent: ""))
-        contextMenu.addItem(NSMenuItem(title: "Settings…",
+        contextMenu.addItem(NSMenuItem(title: L("Settings…", "설정…"),
                                        action: #selector(openSettings),
                                        keyEquivalent: ","))
         let checkForUpdatesItem = NSMenuItem(
-            title: "Check for Updates…",
+            title: L("Check for Updates…", "업데이트 확인…"),
             action: #selector(SPUStandardUpdaterController.checkForUpdates(_:)),
             keyEquivalent: "")
         // Target = the updater controller; it auto-enables/disables this item
@@ -188,11 +188,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         checkForUpdatesItem.target = updaterController
         contextMenu.addItem(checkForUpdatesItem)
         contextMenu.addItem(.separator())
-        contextMenu.addItem(NSMenuItem(title: "Grant Accessibility…",
+        contextMenu.addItem(NSMenuItem(title: L("Grant Accessibility…", "손쉬운 사용 권한 부여…"),
                                        action: #selector(grantAccessibility),
                                        keyEquivalent: ""))
         contextMenu.addItem(.separator())
-        contextMenu.addItem(NSMenuItem(title: "Quit pizzaClip",
+        contextMenu.addItem(NSMenuItem(title: L("Quit pizzaClip", "pizzaClip 종료"),
                                        action: #selector(NSApplication.terminate(_:)),
                                        keyEquivalent: ""))
     }
@@ -285,8 +285,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         guard defaults.bool(forKey: prevPromptKey) else { return }
 
         let alert = NSAlert()
-        alert.messageText = "권한 재승인이 필요합니다 (0.1.5 → 0.1.6)"
-        alert.informativeText = """
+        alert.messageText = L("Accessibility re-approval required (0.1.5 → 0.1.6)",
+                              "권한 재승인이 필요합니다 (0.1.5 → 0.1.6)")
+        alert.informativeText = L(
+            """
+            The code signature was upgraded from self-signed to an Apple Developer ID.
+            macOS security policy requires you to grant Accessibility permission once more.
+
+            1. Click "Open System Settings" below
+            2. In the Accessibility list, select the old pizzaClip entry → remove it with "−"
+            3. Re-add pizzaClip with "+" (or the automatic dialog) → turn the toggle ON
+
+            This is only needed once. Later versions keep the permission automatically.
+            """,
+            """
             코드 서명을 자체서명 → Apple Developer ID 로 업그레이드했습니다.
             macOS 보안 정책상 손쉬운 사용 권한을 1회 다시 부여해야 합니다.
 
@@ -295,9 +307,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             3. "+" 또는 자동 다이얼로그로 pizzaClip 다시 추가 → 토글 ON
 
             이번 1회만 필요합니다. 이후 버전은 자동으로 유지됩니다.
-            """
-        alert.addButton(withTitle: "시스템 설정 열기")
-        alert.addButton(withTitle: "나중에")
+            """)
+        alert.addButton(withTitle: L("Open System Settings", "시스템 설정 열기"))
+        alert.addButton(withTitle: L("Later", "나중에"))
         if alert.runModal() == .alertFirstButtonReturn {
             Accessibility.openSystemSettings()
         }

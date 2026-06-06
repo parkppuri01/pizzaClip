@@ -183,11 +183,21 @@ docs/
 
 **§0.5 의 6건은 전부 완료 + v1.1.0 정식 배포(2026-06-03).** 다음 버전(다음 세션) 예정 작업:
 
-1. **🌐 다국어(언어 선택) — 영문 / 한글** (2026-06-03 요청) — 현재 UI 문구가 전부 영어 하드코딩. Settings 에 **언어 선택**을 두고 영어 ↔ 한국어 전환 가능하게.
-   - ⚠️ 구현 전 확인할 것: ① 기본값(시스템 언어 따라감? vs 영어 고정?) ② "System / English / 한국어" 3택인지 "English / 한국어" 2택인지 ③ 적용 범위(팝업·Settings·메뉴바 메뉴·NSAlert 다이얼로그·툴팁 전부인지) ④ 변경 즉시 반영인지 재시작 필요인지.
-   - 구현 방향(택1): (a) **표준 `.lstrings`/`String(localized:)` + `Localizable.strings`(en/ko)** — `AppLanguage` enum + `@AppStorage` 로 `UserDefaults.AppleLanguages` 오버라이드(앱 한정 언어). SwiftUI 텍스트는 `Bundle` 스위칭 or 재시작. (b) 가벼운 자체 `L10n` 헬퍼(딕셔너리 기반) + `@AppStorage("appLanguage")` → 즉시 반영 쉬움. **자매앱 PIC.kle 에 비슷한 패턴 있으면 그거 참고**(헤더 이식처럼).
-   - 손볼 곳(문구가 박힌 파일): `Popup/PopupView.swift`·`PopupRow.swift`, `Settings/SettingsView.swift`, `App/AppDelegate.swift`(상태바 메뉴 타이틀·마이그레이션 NSAlert), `Paste/PasteEngine.swift`(권한 alert), `Permissions/Accessibility.swift`, `InputSource/HangulToggler.swift`(help). 양이 꽤 됨 → 문자열 인벤토리부터 뽑고 시작 권장.
-2. **(대기) 7번째 작업** — 사용자가 "위 6건 다 하고" 진행한다고 한 추가 수정 1건. 내용 미정(다음 세션에서 받을 것).
+1. **🌐 다국어(언어 선택) — 영문 / 한글** — ✅ **구현 완료 (2026-06-07)**. 빌드+테스트 27개 통과.
+   - ✅ **결정 확정(2026-06-04)**: ① 기본값 = **시스템 언어 따라감** ② 선택지 = **3택 "System / English / 한국어"** ③ 적용 범위 = **전부** ④ 반영 = **재시작 필요**.
+   - **구현 방식(채택)**: 위 (a)/(b) 중 **자체 헬퍼 방식(b의 변형)** 으로 감. `UserDefaults.AppleLanguages` 오버라이드/.lproj 리소스 대신, 호출 지점에 영·한을 함께 적는 `L("English","한국어")` 함수. 새 파일 **`pizzaClip/Localization/L10n.swift`**: `enum AppLanguage{system/en/ko}`, `enum AppLocale`(`isKorean`= 시작 시 1회 계산, system은 `Locale.preferredLanguages` 따름; `current` Locale 제공), 전역 `func L(_:_:)`. **재시작 필요**라 `AppLocale.isKorean`을 `static let`으로 1회 고정(AppKit 메뉴/Alert가 세션 도중 반쪽만 바뀌는 것 방지).
+   - **언어 피커**: `SettingsView` General 탭 맨 위 `Section("Language")` + `@AppStorage("appLanguage")`. 변경 시 `showLanguageRestartAlert()`(재시작 안내).
+   - **현지화한 곳(전부)**: `SettingsView.swift`(탭·섹션·토글·버튼·NSAlert·NSOpenPanel 전부), `AppDelegate.swift`(상태바 메뉴 5개·Export 실패 alert·0.1.5→0.1.6 마이그레이션 alert를 영/한 병기), `PopupView.swift`(타이틀·자물쇠/X help·footer 단축키 라벨·Clear all·Settings·Reveal), `PopupRow.swift`("Capture Image" + 상대시간 포매터 `locale=AppLocale.current`), `PasteEngine.swift`(붙여넣기 권한 alert + action "Paste"/"붙여넣기"), `PopupPanelController.swift`(Clear all 확인 alert). `HangulToggler.swift`/`Accessibility.swift`는 NSLog/시스템 프롬프트뿐이라 제외. 숫자/이모지/경로는 번역 대상 아님.
+   - ⚠️ **실기기 확인 필요(다음 세션)**: 시스템=한국어인 맥에서 첫 실행 시 한국어로 뜨는지, Settings에서 English/한국어 전환→재시작 후 반영되는지, 메뉴바/팝업/Alert 모두 적용되는지.
+2. **🔒 7번째 작업 — 잠금 중 붙여넣기 시 팝업 유지** — ✅ **구현 완료 (2026-06-07)**. 빌드+테스트 통과.
+   - **수정 내용**: 붙여넣기 경로가 `PopupPanelController.pick()` 한 곳으로 모임(숫자키·클립클릭·Enter 전부 경유). 여기서 `if !viewModel.isLocked { close() }` 로 **잠금 중엔 붙여넣되 닫지 않게** 변경. 포커스 잃을 때(resignKey)는 기존부터 잠금 가드 있음.
+   - ✅ **확정 동작(2026-06-04 사용자 결정)**: 잠금 중 **닫힘을 막는 건 붙여넣기(숫자키·클립클릭·Enter) 뿐**. **ESC·메뉴바 아이콘·전역 단축키(⌘⇧V 등)·X 버튼은 평소대로 닫힘 허용**(사용자가 명시). 붙여넣기 자체는 정상 동작, 팝업만 유지.
+   - ✅ **포커스 복귀 추가(2026-06-07 요청)**: 잠금 중 붙여넣으면 이전 앱이 활성화되며 포커스를 가져가 연속 붙여넣기가 불편했음. → `pick()` 의 잠금 분기에서 `pasteIntoPreviousApp` 후 `+0.15s`(⌘V 전달 `+0.05s` 이후)에 `NSApp.activate` + `panel.makeKeyAndOrderFront` 로 **포커스를 팝업으로 되돌림**. 이전 앱(`previousFrontmostBundleID`)은 show() 때 1회 고정이라 연속 붙여넣기가 모두 같은 대상 앱으로 감.
+   - ⚠️ **실기기 확인 필요(다음 세션)**: 잠금 후 숫자키/클립클릭으로 연속 붙여넣기 시 ① 팝업 유지 ② 매번 포커스가 팝업으로 돌아오는지 ③ 붙여넣기는 대상 앱에 제대로 들어가는지(0.15s 타이밍 적정한지), ESC/아이콘/X로는 정상 닫히는지.
+
+> **2026-06-07 Settings UI 추가 개선 2건** (빌드+테스트 27개 통과):
+> - **버전 표시 잘림 수정**: 일반 탭에 언어 섹션이 생기며 하단 "정보(About) → 버전"이 잘림. → **"정보" 섹션 삭제하고 버전을 "업데이트" 섹션 맨 위 `현재 버전`(Current version) 행으로 이동** + `.scrollDisabled(true)` 제거(필요 시 스크롤되도록 안전장치). `SettingsView.generalTab`.
+> - **개인정보 탭 친절화**: 번들 ID 를 쉼표로 직접 입력하던 `TextEditor` 를 신규 **`Settings/BlacklistEditor.swift`** 로 교체 — **앱 아이콘 + 이름**으로 목록 표시, "앱 추가…" 버튼이 `/Applications` 에서 `.app` 선택 → `Bundle(url:).bundleIdentifier` 추출해 추가, 각 행 "−"로 제거. **저장 형식은 기존과 동일(쉼표 구분 번들 ID 문자열, `@AppStorage("blacklist")`)** 이라 ClipboardMonitor 변경 불필요. 섹션 문구도 평이하게(“기록하지 않을 앱”), 하단 안내는 `checkmark.shield` 아이콘으로. 설치 안 된 앱은 ID 그대로 표시됨.
 3. **실기기 재확인** — 한/영 토글의 "딜레이/자모분리"가 남았는지(코드 수정으로 "한 번씩 안 됨"은 해결, 나머지는 OS 조합 특성과 얽혀 실사용 확인 필요).
 4. **다음 릴리스 패턴** — `project.yml` MARKETING/CURRENT bump → `dist/notes-<버전>.md` 작성 → `PUBLISH=1 ./scripts/release.sh`. (1.1.0 때 build=11 까지 씀, 다음은 12+.)
 

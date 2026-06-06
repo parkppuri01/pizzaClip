@@ -96,10 +96,10 @@ final class PopupPanelController {
                 self?.close(restorePreviousApp: false)
                 DispatchQueue.main.async {
                     let alert = NSAlert()
-                    alert.messageText = "Clear all clipboard history?"
+                    alert.messageText = L("Clear all clipboard history?", "모든 클립보드 기록을 지울까요?")
                     alert.alertStyle = .warning
-                    alert.addButton(withTitle: "Clear")
-                    alert.addButton(withTitle: "Cancel")
+                    alert.addButton(withTitle: L("Clear", "지우기"))
+                    alert.addButton(withTitle: L("Cancel", "취소"))
                     if alert.runModal() == .alertFirstButtonReturn {
                         NotificationCenter.default.post(name: .pizzaClipClearAll, object: nil)
                     }
@@ -207,8 +207,22 @@ final class PopupPanelController {
     func pick(_ item: Item) {
         let prev = previousFrontmostBundleID
         pasteEngine.write(item, blobStore: blobStore)
-        close()
-        pasteEngine.pasteIntoPreviousApp(bundleID: prev)
+        if viewModel.isLocked {
+            // 자물쇠 잠금 중: 붙여넣기는 정상 동작하되 팝업은 닫지 않는다 — 여러 항목을
+            // 연달아 붙여넣을 수 있도록. 단, 붙여넣기는 이전 앱을 활성화해 포커스를
+            // 가져가므로, ⌘V 가 전달된 뒤 포커스를 다시 팝업으로 되돌려 연속 붙여넣기를
+            // 편하게 한다(클립 클릭·숫자키·Enter 모두 이 경로를 거침).
+            pasteEngine.pasteIntoPreviousApp(bundleID: prev)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
+                guard let self, self.panel?.isVisible == true else { return }
+                NSApp.activate(ignoringOtherApps: true)
+                self.panel?.makeKeyAndOrderFront(nil)
+            }
+        } else {
+            // 잠금이 아니면 기존대로: 닫고 → 이전 앱에 붙여넣기.
+            close()
+            pasteEngine.pasteIntoPreviousApp(bundleID: prev)
+        }
     }
 
     func delete(_ item: Item) {

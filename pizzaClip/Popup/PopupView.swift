@@ -81,7 +81,7 @@ struct PopupView: View {
         HStack(spacing: 8) {
             Text("🍕")
                 .font(.system(size: 13))
-            Text("pizzaClip — Clipboard History")
+            Text(L("pizzaClip — Clipboard History", "pizzaClip — 클립보드 기록"))
                 .font(.system(size: 13, weight: .semibold))
             Spacer()
             if !vm.items.isEmpty {
@@ -110,8 +110,10 @@ struct PopupView: View {
         }
         .buttonStyle(.plain)
         .focusable(false)
-        .help(vm.isLocked ? "잠금: 다른 창을 눌러도 닫히지 않아요 (✕로 닫기)"
-                          : "잠금 해제: 다른 창을 누르면 닫혀요")
+        .help(vm.isLocked ? L("Locked: stays open even when you click away (close with ✕)",
+                              "잠금: 다른 창을 눌러도 닫히지 않아요 (✕로 닫기)")
+                          : L("Unlocked: closes when you click away",
+                              "잠금 해제: 다른 창을 누르면 닫혀요"))
     }
 
     private var closeButton: some View {
@@ -124,29 +126,29 @@ struct PopupView: View {
         }
         .buttonStyle(.plain)
         .focusable(false)
-        .help("Close (Esc)")
+        .help(L("Close (Esc)", "닫기 (Esc)"))
     }
 
     private var footer: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 12) {
-                shortcutLabel(symbol: "↵", action: "Paste(or Num)")
-                shortcutLabel(symbol: "⌫", action: "Delete")
-                shortcutLabel(symbol: "⌘P", action: "Pin")
+                shortcutLabel(symbol: "↵", action: L("Paste(or Num)", "붙여넣기(또는 숫자)"))
+                shortcutLabel(symbol: "⌫", action: L("Delete", "삭제"))
+                shortcutLabel(symbol: "⌘P", action: L("Pin", "고정"))
                 Spacer()
                 HStack(spacing: 4) {
                     Image(systemName: "trash")
-                    Text("Clear all")
+                    Text(L("Clear all", "모두 지우기"))
                 }
                 .foregroundColor(AppColors.secondaryLabel)
                 .contentShape(Rectangle())
                 .onTapGesture(perform: onClearAll)
-                .help("Clear all clipboard history")
-                Text("⌘, Settings")
+                .help(L("Clear all clipboard history", "모든 클립보드 기록 지우기"))
+                Text(L("⌘, Settings", "⌘, 설정"))
                     .foregroundColor(AppColors.secondaryLabel)
                     .contentShape(Rectangle())
                     .onTapGesture(perform: onSettings)
-                    .help("Open Settings")
+                    .help(L("Open Settings", "설정 열기"))
             }
             HStack(spacing: 4) {
                 Image(systemName: "internaldrive")
@@ -156,7 +158,7 @@ struct PopupView: View {
                     .foregroundColor(AppColors.tertiaryLabel)
                     .contentShape(Rectangle())
                     .onTapGesture(perform: revealStorage)
-                    .help("Reveal in Finder")
+                    .help(L("Reveal in Finder", "Finder에서 보기"))
             }
         }
         .font(.system(size: 11))
