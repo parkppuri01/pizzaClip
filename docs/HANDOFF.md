@@ -32,6 +32,27 @@
 
 ---
 
+## 0.6 최근 세션 요약 — ✅ v1.2.0 정식 배포 (2026-06-07)
+
+**한 세션에서 앱 작업 2건 + 추가 개선 3건 + 정식 배포까지 완료.** 빌드+테스트 27개 통과, 공증 2회 Accepted, GitHub 릴리스 v1.2.0 + 라이브 appcast(build 12) 반영. 실기기에서 사용자 동작 확인까지 끝남.
+
+| 작업 | 내용 | 상세 위치 |
+|---|---|---|
+| 🌐 다국어 | 영/한 + System 3택, 시작 시 1회 적용(재시작 필요). `Localization/L10n.swift`의 `L(en,ko)` 헬퍼 방식 | §7-1 |
+| 🔒 7번째 작업 | 잠금 중 붙여넣기 시 팝업 유지(닫힘은 ESC·아이콘·단축키·X만) | §7-2 |
+| 🔁 포커스 복귀 | 잠금 중 붙여넣은 뒤 포커스를 팝업으로 되돌림(연속 붙여넣기) | §7-2 |
+| 🛡️ 개인정보 UI | 번들 ID 직접 입력 → 앱 아이콘+이름 목록 + '앱 추가…' 피커(`Settings/BlacklistEditor.swift`) | §7 06-07 노트 |
+| 📐 버전 잘림 | 설정 일반 '정보' 섹션 제거, 버전을 '업데이트'로 이동 | §7 06-07 노트 |
+
+**커밋(master, push 완료)**: `2726252` feat(앱 5건) → `e0d1e25` chore(release): appcast 1.2.0 → `8d60fba` docs.
+
+**남은 일 / 다음 세션 후보**:
+- §7-3 **한/영 토글 "딜레이·자모분리" 실기기 재확인** — 여전히 열림(코드 아닌 실사용 관찰 항목).
+- ⚠️ **미커밋 자산**: `web/guide/` 의 이미지·영상(howto_guide/, og_image*, *.svg, *.mp4 등)이 **untracked 상태로 남아있음**. 이번 세션이 만든 게 아니라 사용자 가이드 자산으로 보임 → **커밋할지/무시할지 사용자에게 확인 후 결정**. `.claude/settings.local.json`은 로컬 설정이라 무시.
+- 웹 §5-5 **appcast 노크 DAU 카운팅**은 이전 세션에 이미 배포 완료(미들웨어 `web/middleware.js` + `web/api/stats.js`). 1.2.0 배포로 업데이트 노크가 늘며 수치 쌓이기 시작.
+
+---
+
 ## 1. 프로젝트 한 줄 요약
 
 macOS 메뉴바 클립보드 히스토리 앱. SwiftUI + AppKit, GRDB SQLite, KeyboardShortcuts, **Sparkle 2 자동업데이트** (0.1.7). 개인 사용 + 랜딩페이지 배포 목적, **Apple Developer ID 서명 + hardened runtime + notarize + staple** (0.1.6), Universal binary, macOS 13+.
