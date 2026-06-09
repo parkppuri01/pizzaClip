@@ -1,27 +1,30 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-09** (🎨 **사이트 전체 리뉴얼 — 피클 앱 추가 + 풀 리디자인**. 루트(/)=인트로 선택화면 신설, 피자클립 홈은 `/pizzaclip` 으로 이동, 피클(`/pickle`) 단일 페이지 신설. 색 띠 섹션 + 스티커 콜라주. 자세히는 §3 2026-06-09 항목. 이전: 2026-06-05 INFO v1.1.0 + GA4 전환 + appcast DAU 집계(§5-5).)
+마지막 업데이트: **2026-06-10** (🚀 **2차 개편 + 피클 1.0 출시 — 라이브 배포 완료**. 상단바 전 페이지 NavMinimal 통합(+크로스링크+ⓘ인포버튼), INFO 인트로풍 재구성(피클 히스토리 포함), 피클 다운로드 활성화(자체호스팅 DMG), 피클 로고=Alfa Slab One, 띠 높이↑·스티커 재정렬. 자세히는 §3 2026-06-10 항목. 이전: 2026-06-09 사이트 전체 리뉴얼.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
 
 ---
 
-## 🔖 세션 이어받기 (2026-06-09, 리뉴얼 진행 중 — **아직 미배포**)
+## 🔖 세션 이어받기 (2026-06-10, 2차 개편 + 피클 출시 — **라이브 배포 완료**)
 
-리뉴얼이 거의 끝났고 **로컬 커밋 3개**만 있는 상태. **푸시 안 함(배포 보류)** — 사용자가 "수정할 거 더 있다"고 해서 추가 수정 후 한꺼번에 배포 예정.
+리뉴얼(1차) + 이번 2차 개편 + 피클 1.0 DMG 까지 **전부 master 푸시 = Vercel 라이브**. 현재 워킹트리에 남은 건 **앱(Swift)·디자인 원본 등 이번 세션과 무관한 것들뿐**(아래 참고).
 
-- **로컬 커밋(master, origin보다 3 앞섬, 미푸시)**:
-  1. `c8cc91b` feat(web): 사이트 전체 리뉴얼(인트로/+피클/피자 리디자인)
-  2. `36505d4` style(web): 서브페이지 스티커를 가이드 기준(.bandwrap)으로 재배치 + 기울기
-  3. `1af95e8` docs(web): 핸드오프 교훈 기록
-- **완료**: 인트로(`/`)·피자클립(`/pizzaclip`)·피클(`/pickle`) 3페이지, 색 띠+스티커 콜라주, 데스크톱+모바일(375/390px) 검증 통과, 코드리뷰 반영(인트로 JSON-LD·버튼 시맨틱).
-- **다음 세션 할 일(사용자가 더 손볼 예정)**: 스티커/카피 미세 조정 등. 작업 후 `cd web && npm run build` → 사용자 확인 → `git push`(=배포).
-- **이어받기 팁**: 가이드 원본은 `web/site-renewal/`(gitignore, 283MB) + 축소본 `web/guide/renewal/{intro,pizzaclip,pickle}.png`. 스티커는 `.bandwrap`(카드 폭) 기준 배치. **Astro dev `<style>` HMR stale 함정** 주의(§3 2026-06-09 교훈) → 위치 안 먹으면 preview 서버 재시작.
+- **이번 세션(2026-06-10) 라이브 반영**:
+  - **상단바 전 페이지 통합**: 피자/피클/인트로 모두 `NavMinimal`. 피자=피클 동일 디자인(크림 바 + 밑줄: 피자 옐로우#FFB703 3px / 피클 올리브). 옛 `Navbar.astro`는 **deprecated(미사용, 삭제 안 함)** + `NAV_LINKS`도 미사용.
+  - **크로스링크**: 피자 상단바에 `PICKle ↗`(→/pickle), 피클 상단바에 `PIZZA CLIP ↗`(→/pizzaclip). 로고 옆 워드마크 + ↗ + aria.
+  - **ⓘ 인포 버튼**: `SocialIcons` 맨 앞에 추가 → 전 페이지 상단바 소셜줄에 노출. `/info` 링크.
+  - **INFO 페이지 인트로풍 재구성**: `site="intro"`(슬레이트 배경+인트로 네비+푸터없음). 피자클립+**피클 릴리스노트**(1.0.0) 2열 + 피클 컬럼 균형용 안내 카드 + 팀 소개(두 앱 언급).
+  - **피클 1.0 출시**: `PICKLE_RELEASED=true`, `PICKLE_DOWNLOAD_URL="/pickle/PICkle-1.0.0.dmg"`(자체호스팅). 페이지 '출시 예정'→ 실제 다운로드. DMG·appcast 커밋됨.
+  - **피클 단축키 섹션**(옛 '오이지 담그기' 자리): 실제 글로벌 단축키 `⇧⌥S 저장 / ⇧⌥D 편집 / ⇧⌥A 클립보드 / ⇧⌥F 보관함`(출처: pickle repo `PicKle/Shortcuts/Shortcuts.swift`). 피자클립도 하단에 단축키 표 추가.
+  - **JAM 로고 회색**(#929292), **피클 로고=Alfa Slab One**(피자클립은 OSP-DIN 유지), **푸터** 네모박스 아이콘→글자(인트로·피자클립·깃허브)+인라인 인스타/스레드.
+  - **띠 높이↑**(피자 max 6rem / 피클 6.5rem) + 그에 맞춰 **스티커 재정렬**(특히 피자 green 띠: 달리는피자 위로 삐짐 복구, 노란뱃지=매장사진 좌하단 겹침 / peach 띠: 노트북피자 축소+우측 이동해 텍스트 안 가림).
+- **검증**: `npm run build` 5페이지 통과, 데스크톱+모바일(375) 오버플로 0, 콘솔 에러 0, 피클 DMG `/pickle/PICkle-1.0.0.dmg` 200 서빙.
+- **다음 세션 후보**: (1) 영문 페이지 별도 제작 예정(다운로드 버튼은 현재 한글 '다운로드'). (2) 다른 띠 스티커 미세 정렬은 스크린샷 받아 가이드(`web/guide/renewal/pizzaclip.png`) 기준으로. (3) how-to·info 톤 추가 정리(선택).
+- **이어받기 팁**: 스티커 = `.bandwrap`(카드 폭) 기준 절대배치, 위치 안 먹으면 **preview 재시작**(dev HMR scoped-style stale). **preview eval 네비게이션 후 scroll/innerWidth 깨짐** → 긴 페이지는 뷰포트를 docH보다 크게 잡고 한 번에 캡처. 데스크톱 전용 스티커는 `hide-sm`.
 
-> ⚠️ **워킹트리에 리뉴얼과 무관한 PICKle 1.0.0 출시 파일이 끼어 있음(미커밋, 내가 안 건드림)**:
-> `web/public/pickle/appcast.xml`(수정: 1.0.0 `<item>` 추가) + `web/public/pickle/PICkle-1.0.0.dmg`(3.5MB 신규). enclosure URL이 `https://pizza-clip.com/pickle/PICkle-1.0.0.dmg` 로 되어 있어 **DMG를 깃/Vercel 정적으로 서빙할 의도**로 보임.
-> → **피클이 곧 정식 출시**된다는 뜻. 리뉴얼 피클 페이지는 지금 `PICKLE_RELEASED=false`라 '출시 예정'(비활성)임. **출시 활성화 시**: `web/src/consts.ts` 의 `PICKLE_RELEASED=true` + `PICKLE_DOWNLOAD_URL` 을 **실제 URL로 교체**(현재 코드 기본값은 GitHub `pickle.dmg` 가정인데, 실제 의도는 `pizza-clip.com/pickle/PICkle-1.0.0.dmg`). DMG를 레포에 커밋할지/릴리스로 뺄지는 사용자 결정. (이 두 파일은 이번 리뉴얼 커밋에 **미포함**.)
+> ℹ️ 워킹트리 잔여(이번 세션 무관, 커밋 안 함): 앱(Swift) 변경분(`pizzaClip/**`, `assets/pizzaClipAppIcon.png` 등), 디자인 원본(`web/guide/**`, `guide/**` — 빌드와 무관한 참고 자산), `.claude/settings.local.json`.
 
 ---
 
@@ -76,6 +79,10 @@ web/
 - **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
 
 ## 3. 완료된 작업
+
+### 2026-06-10 — 🚀 2차 개편 + 피클 1.0 출시(라이브)
+
+상세는 상단 **🔖 세션 이어받기** 블록 참고. 한 줄 요약: 상단바 전 페이지 `NavMinimal` 통합(+크로스링크 `↗`+ⓘ 인포버튼), INFO 인트로풍 재구성(+피클 릴리스노트), **피클 1.0 다운로드 활성화**(자체호스팅 `/pickle/PICkle-1.0.0.dmg` + appcast 커밋), 피클 단축키 섹션(실제 `⇧⌥S/D/A/F`), JAM 로고 회색·피클 로고 Alfa Slab One·푸터 인라인 아이콘 복원, 띠 높이↑ + 스티커 재정렬. 교훈: **띠 padding 키우면 카드가 가운데로 밀려 boundary-straddle 스티커가 다 헐거워짐** → 높이는 적당히(피자 6rem/피클 6.5rem) + 스티커 top% 재조정. 미세조정은 가이드 `web/guide/renewal/pizzaclip.png` 기준.
 
 ### 2026-06-09 — 🎨 사이트 전체 리뉴얼(피클 앱 추가 + 풀 리디자인)
 
