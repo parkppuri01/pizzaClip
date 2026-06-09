@@ -2,6 +2,8 @@
 /** HOW TO — 설치 & 사용법 가이드 (앱 실제 동작 기준) */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Card from "../components/Card.astro";
+import Button from "../components/Button.astro";
+import { DOWNLOAD_URL } from "../consts.ts";
 
 // 설치·설정 단계 (각 단계 실제 화면 사진 포함)
 const steps = [
@@ -195,6 +197,13 @@ const faqJsonLd = {
         </div>
       ))}
     </dl>
+
+    <!-- 다운로드 CTA (상단바가 미니멀해지며 빠진 Download 진입점 복구) -->
+    <div class="dl-cta">
+      <h2 class="block-title">이제 한 조각 받으러 가볼까요? 🍕</h2>
+      <Button href={DOWNLOAD_URL} variant="primary">Download</Button>
+      <p class="dl-cta__note">macOS 13 이상 · 모든 Mac 지원 · 무료</p>
+    </div>
   </section>
 
   <!-- AEO/GEO: FAQ 구조화 데이터 -->
@@ -374,6 +383,10 @@ const faqJsonLd = {
   }
   .faq__item dt { font-weight: 700; color: var(--color-title, var(--color-ink)); }
   .faq__item dd { margin: 0.4rem 0 0; color: var(--color-ink); line-height: 1.6; }
+
+  /* 다운로드 CTA */
+  .dl-cta { text-align: center; margin-top: var(--section-gap); }
+  .dl-cta__note { margin-top: 1rem; font-size: var(--fs-small); opacity: 0.7; }
 
   @media (max-width: 640px) {
     .demos { grid-template-columns: 1fr; gap: 2.5rem; max-width: 100%; }

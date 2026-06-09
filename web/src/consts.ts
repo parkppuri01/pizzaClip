@@ -21,16 +21,17 @@ export const SITE_DESC =
 
 // ── 피클(PICKle) ──
 export const PICKLE_GITHUB_URL = "https://github.com/parkppuri01/pickle";
-// 아직 정식 출시 전 — DOWNLOAD 버튼은 '출시 예정'(비활성). 릴리스되면 아래만 채우고 RELEASED=true.
-export const PICKLE_RELEASED = false;
-export const PICKLE_DOWNLOAD_URL =
-  "https://github.com/parkppuri01/pickle/releases/latest/download/pickle.dmg";
+// 1.0.0 정식 출시 — DMG 는 pizza-clip.com 에 직접 호스팅(web/public/pickle/).
+// 새 버전 낼 때 이 파일명만 갱신하면 됨.
+export const PICKLE_RELEASED = true;
+export const PICKLE_DOWNLOAD_URL = "/pickle/PICkle-1.0.0.dmg";
 export const PICKLE_TITLE = "PICKle";
 export const PICKLE_DESC =
   "캡처한 건 다 보관해주는 macOS 스크린샷 정리 앱. 찍는 즉시 ‘피클병’ 폴더에 차곡차곡.";
 
-// 상단 네비 메뉴 (영문 라벨 + 한글 보조) — HOME 은 피자클립 홈(/pizzaclip)
-// BLOG 는 차후 재개 예정 — 페이지 파일은 보존하되 네비에서만 뺀다.
+// ⚠️ DEPRECATED (2026-06-09): 옛 Navbar.astro 전용이었음. 이제 모든 페이지가
+// NavMinimal(로고+크로스링크+소셜) 을 써서 이 메뉴 목록은 렌더되지 않음.
+// 피자 상단바 메뉴를 되살릴 때만 Navbar.astro 와 함께 사용. 안 쓸 거면 둘 다 삭제 가능.
 export const NAV_LINKS = [
   { href: PIZZA_HOME, label: "HOME", ko: "홈" },
   { href: "/how-to", label: "HOW TO", ko: "사용법" },

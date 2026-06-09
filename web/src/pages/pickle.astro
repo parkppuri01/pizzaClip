@@ -4,10 +4,20 @@
  * 가이드: web/guide/renewal/pickle.png
  * 띠: 크림(히어로) → 올리브(카드) → 블루(카드) → 샌드(카드) → 그레이(CTA카드).
  * 카드는 직각 사각형. 스티커는 카드 사이 경계에 좌·중·우로 얹힘(위로 삐짐).
- * 아직 정식 출시 전 — 다운로드는 '출시 예정'(비활성) + 인스타 알림 링크.
+ * 1.0.0 정식 출시 — 다운로드는 PICKLE_DOWNLOAD_URL(로컬 호스팅 DMG) 직링크 + 인스타 소식받기.
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { INSTAGRAM_URL } from "../consts.ts";
+import { PICKLE_DOWNLOAD_URL } from "../consts.ts";
+
+// 캡처 단축키 — 피클 전용 글로벌 단축키(KeyboardShortcuts, Settings에서 변경 가능).
+// 출처: github.com/parkppuri01/pickle → PicKle/Shortcuts/Shortcuts.swift 기본값.
+const pickleShortcuts = [
+  { keys: "⇧⌥S", desc: "영역 선택 → ‘피클병’ 폴더에 바로 저장" },
+  { keys: "⇧⌥D", desc: "영역 선택 → 편집창에서 펜·블러·자르기" },
+  { keys: "⇧⌥A", desc: "영역 선택 → 저장 없이 클립보드로 복사" },
+  { keys: "⇧⌥F", desc: "보관함(최근 캡처) 열기 · 닫기" },
+  { keys: "편집창 ⌘Z · ↵ · esc", desc: "되돌리기 · 자르기 적용 · 취소" },
+];
 ---
 <BaseLayout site="pickle">
   <!-- ===== 히어로 (크림) ===== -->
@@ -21,8 +31,7 @@ import { INSTAGRAM_URL } from "../consts.ts";
           필요할 때마다 쏙쏙, 가장 신선한 상태로 찾아 드립니다.
         </p>
         <div class="hero__cta">
-          <button type="button" class="pill pill--soon" disabled>출시 예정</button>
-          <a class="pill pill--olive" href="#pk-start">사용법 보기</a>
+          <a class="pill pill--go" href={PICKLE_DOWNLOAD_URL}>다운로드</a>
         </div>
       </div>
       <figure class="hero__art" data-reveal>
@@ -70,33 +79,34 @@ import { INSTAGRAM_URL } from "../consts.ts";
       <img class="sticker s-fresh" src="/img/pickle/card-fresh.png" alt="" aria-hidden="true" loading="lazy" />
       <img class="sticker s-sign hide-sm" src="/img/pickle/sign-char.png" alt="" aria-hidden="true" loading="lazy" />
       <div class="panel" data-reveal>
-        <h2>쓰는 법은, 오이지 담그기보다 쉽게</h2>
-        <ol class="steps">
-          <li><b>찰칵</b> — 평소처럼 스크린샷을 찍습니다.</li>
-          <li><b>퐁당</b> — 피클이 알아서 ‘피클병’ 폴더에 담아둡니다.</li>
-          <li><b>쏙</b> — 필요할 때 메뉴바에서 꺼내 씁니다.</li>
-        </ol>
+        <h2>단축키 한눈에 🥒</h2>
+        <p class="panel__sub">찍는 즉시 저장·편집·복사까지. 전부 Settings에서 바꿀 수 있어요.</p>
+        <dl class="kbd-list">
+          {pickleShortcuts.map((s) => (
+            <div class="kbd-row">
+              <dt><kbd>{s.keys}</kbd></dt>
+              <dd>{s.desc}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </div>
   </section>
 
-  <!-- ===== 출시 예정 CTA (그레이) ===== -->
+  <!-- ===== 다운로드 CTA (그레이) ===== -->
   <section class="band band--gray" id="download">
     <div class="bandwrap">
       <div class="panel cta" data-reveal>
         <div class="cta__inner">
-          <h2>피클, 곧 새콤하게 절여서 내놓을게요 🥒</h2>
+          <h2>피클, 지금 바로 받아보세요</h2>
           <p class="cta__lead">
-            아직 막바지 숙성 중이에요. 가격은 0원, 모든 Mac 지원으로 준비하고 있습니다.
-            출시되면 가장 먼저 알려드릴게요.
+            가격은 0원, 모든 Mac 지원. 스크린샷을 찍는 즉시 ‘피클병’에 차곡차곡 담아드릴게요.
+            잃어버린 캡처 찾느라 폴더 뒤지는 일은 이제 끝.
           </p>
           <div class="cta__btns">
-            <button type="button" class="pill pill--soon pill--lg" disabled>출시 예정</button>
-            <a class="pill pill--olive pill--lg" href={INSTAGRAM_URL} target="_blank" rel="noopener">
-              출시 알림 받기 →
-            </a>
+            <a class="pill pill--go pill--lg" href={PICKLE_DOWNLOAD_URL}>다운로드</a>
           </div>
-          <p class="cta__note">macOS · 무료 예정 · Team JAM</p>
+          <p class="cta__note">macOS 13 이상 · 모든 Mac 지원 · 무료</p>
         </div>
       </div>
       <img class="sticker s-person" src="/img/pickle/sticker-person.png" alt="" aria-hidden="true" loading="lazy" />
@@ -105,7 +115,7 @@ import { INSTAGRAM_URL } from "../consts.ts";
 </BaseLayout>
 
 <style>
-  .band { overflow-x: clip; padding-block: clamp(3rem, 7vw, 5.5rem); position: relative; }
+  .band { overflow-x: clip; padding-block: clamp(4rem, 8.5vw, 6.5rem); position: relative; }
   .band--olive { background: var(--pk-olive); }
   .band--blue  { background: var(--pk-blue); }
   .band--sand  { background: var(--pk-sand); }
@@ -130,18 +140,18 @@ import { INSTAGRAM_URL } from "../consts.ts";
   .hero__art { flex: 0 0 auto; margin-inline: auto; width: min(360px, 80vw); }
   .hero__art img { width: 100%; height: auto; }
 
-  /* ── 쓰는 법 단계 ── */
-  .steps { margin-top: 1.3rem; display: grid; gap: 0.8rem; counter-reset: s; }
-  .steps li { position: relative; padding-left: 2.6rem; font-size: 1.06rem; line-height: 1.5; }
-  .steps li::before {
-    counter-increment: s; content: counter(s);
-    position: absolute; left: 0; top: 0; width: 1.8rem; height: 1.8rem; border-radius: 50%;
-    background: var(--pk-olive-ink); color: #fff; display: grid; place-items: center;
-    font-weight: 700; font-size: 0.95rem;
+  /* ── 단축키 표(how-to 단축키와 동일 톤) ── */
+  .kbd-list { margin-top: 1.4rem; display: grid; gap: 0.6rem; }
+  .kbd-row { display: grid; grid-template-columns: minmax(120px, 200px) 1fr; gap: 1rem; align-items: baseline; }
+  .kbd-row dd { color: var(--color-ink); }
+  kbd {
+    font-family: var(--font-en);
+    background: var(--color-ink); color: var(--color-bg);
+    padding: 0.25em 0.6em; border-radius: 6px; font-size: 0.95rem;
+    white-space: nowrap; display: inline-block;
   }
-  .steps b { color: var(--pk-olive-ink); }
 
-  /* ── 출시예정 CTA ── */
+  /* ── 다운로드 CTA ── */
   .cta { text-align: center; }
   .cta__inner { display: flex; flex-direction: column; align-items: center; }
   .cta__lead { max-width: 48ch; }
@@ -157,15 +167,10 @@ import { INSTAGRAM_URL } from "../consts.ts";
     white-space: nowrap; appearance: none; -webkit-appearance: none;
     transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease;
   }
-  button.pill:disabled { opacity: 0.92; }
   .pill--lg { font-size: 1.05rem; padding: 0.8em 2em; }
-  .pill--soon {
-    border-color: var(--pk-red); color: var(--pk-red);
-    background: repeating-linear-gradient(45deg, transparent, transparent 7px, rgba(188,63,36,0.08) 7px, rgba(188,63,36,0.08) 14px);
-    cursor: not-allowed;
-  }
-  .pill--olive { border-color: var(--pk-olive-ink); color: var(--pk-olive-ink); background: transparent; }
-  .pill--olive:hover { background: var(--pk-olive-ink); color: #fff; transform: translateY(-1px); }
+  /* 다운로드(채운 올리브) */
+  .pill--go { background: var(--pk-olive-ink); color: var(--color-bg); border-color: var(--pk-olive-ink); }
+  .pill--go:hover { background: var(--pk-green); border-color: var(--pk-green); transform: translateY(-1px); }
 
   /* ── 스티커: 카드 사이 경계에 얹힘(위로 삐짐), 카드 폭 기준 좌·중·우 ── */
   .sticker { position: absolute; pointer-events: none; user-select: none; z-index: 3;
@@ -188,5 +193,6 @@ import { INSTAGRAM_URL } from "../consts.ts";
     .s-easy { --sw: 116px; left: 0; top: -15%; }
     .s-fresh { --sw: 116px; left: 0; top: -23%; }
     .s-person { --sw: 92px; right: -1%; top: -15%; }
+    .kbd-row { grid-template-columns: 1fr; gap: 0.25rem; }
   }
 </style>

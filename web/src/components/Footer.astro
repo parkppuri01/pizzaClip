@@ -2,11 +2,10 @@
 /** Footer — 하단 정보 */
 import { GITHUB_URL, INSTAGRAM_URL, THREADS_URL, PIZZA_HOME } from "../consts.ts";
 
-// 푸터 메뉴는 홈 · 사용법 · 깃허브만 (INFO 는 상단 네비에만 노출)
+// 푸터 메뉴: 인트로 · 피자클립 · 깃허브 (insta/threads 는 아이콘으로)
 const footerLinks = [
   { href: "/", ko: "인트로" },
-  { href: PIZZA_HOME, ko: "홈" },
-  { href: "/how-to", ko: "사용법" },
+  { href: PIZZA_HOME, ko: "피자클립" },
 ];
 ---
 <footer class="footer">

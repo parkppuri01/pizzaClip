@@ -1,35 +1,72 @@
 ---
 /**
- * NavMinimal — 로고 + 소셜 아이콘만 있는 미니멀 네비.
- *  theme="intro"  : 슬레이트 배경 위에 둥근 크림 알약. 로고 = 원형 JAM.
- *  theme="pickle" : 크림 배경 위 상단 바 + 얇은 올리브 밑줄. 로고 = "PICKle" 텍스트.
+ * NavMinimal — 로고 + (상대 앱 크로스링크) + 소셜 아이콘만 있는 미니멀 네비.
+ *  theme="intro"  : 슬레이트 배경 위에 떠 있는 크림 바(둥근 사각). 로고 = 원형 JAM.
+ *  theme="pizza"  : 크림 상단 바 + 얇은 옐로우 밑줄. 로고 = "PIZZA CLIP" + 피클 크로스링크.
+ *  theme="pickle" : 크림 상단 바 + 얇은 올리브 밑줄. 로고 = "PICKle" + 피자클립 크로스링크.
  */
 import SocialIcons from "./SocialIcons.astro";
-import { GITHUB_URL, PICKLE_GITHUB_URL } from "../consts.ts";
+import { GITHUB_URL, PICKLE_GITHUB_URL, PIZZA_HOME } from "../consts.ts";
 interface Props {
-  theme?: "intro" | "pickle";
+  theme?: "intro" | "pizza" | "pickle";
   logoHref?: string;
 }
-const { theme = "intro", logoHref = "/" } = Astro.props;
+const { theme = "intro" } = Astro.props;
+const defaultHref = theme === "pizza" ? PIZZA_HOME : theme === "pickle" ? "/pickle" : "/";
+const { logoHref = defaultHref } = Astro.props;
 const github = theme === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
+
+// 상대 앱으로 가는 크로스링크(피자↔피클). 로고 바로 옆 워드마크.
+const cross =
+  theme === "pizza"  ? { href: "/pickle",   label: "PICKle",     cls: "navm__cross--pickle", aria: "피클 페이지로 이동" } :
+  theme === "pickle" ? { href: PIZZA_HOME,  label: "PIZZA CLIP", cls: "navm__cross--pizza", aria: "피자클립 페이지로 이동" } :
+  null;
 ---
 <header class:list={["navm", `navm--${theme}`]}>
   <div class="navm__bar">
-    {theme === "intro" ? (
-      <a class="navm__logo navm__logo--jam" href={logoHref} aria-label="Team JAM 홈">
-        <img src="/img/jam-logo.png" width="40" height="40" alt="Team JAM" />
-      </a>
-    ) : (
-      <a class="navm__logo navm__logo--text" href={logoHref}>PICKle</a>
-    )}
+    <div class="navm__brand">
+      {theme === "intro" && (
+        <a class="navm__logo navm__logo--jam" href={logoHref} aria-label="Team JAM 홈">
+          <img src="/img/jam-logo.png" width="40" height="40" alt="Team JAM" />
+        </a>
+      )}
+      {theme === "pizza" && (
+        <a class="navm__logo navm__logo--pizza" href={logoHref}>PIZZA&nbsp;CLIP</a>
+      )}
+      {theme === "pickle" && (
+        <a class="navm__logo navm__logo--text" href={logoHref}>PICKle</a>
+      )}
+      {cross && (
+        <a class:list={["navm__cross", cross.cls]} href={cross.href} aria-label={cross.aria}>{cross.label}</a>
+      )}
+    </div>
     <SocialIcons github={github} />
   </div>
 </header>
 
 <style>
   .navm { position: relative; z-index: 40; }
+  .navm__brand { display: inline-flex; align-items: center; gap: clamp(0.5rem, 1.6vw, 0.9rem); min-width: 0; }
 
-  /* ── 인트로: 떠 있는 크림 알약 ── */
+  /* ── 상대 앱 크로스링크(로고 옆 워드마크 + 얇은 구분선) ── */
+  .navm__cross {
+    font-family: var(--font-en);
+    font-weight: 700;
+    font-size: clamp(0.78rem, 2.3vw, 1rem);
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+    padding-left: clamp(0.5rem, 1.6vw, 0.9rem);
+    border-left: 2px solid currentColor;
+    opacity: 0.9;
+    transition: opacity 0.14s ease, transform 0.14s ease;
+  }
+  /* ↗ = '상대 앱으로 이동' 신호(메인 로고와 헷갈리지 않게) */
+  .navm__cross::after { content: "↗"; font-size: 0.82em; margin-left: 0.12em; vertical-align: 1px; }
+  .navm__cross:hover { opacity: 1; transform: translateY(-1px); text-decoration: underline; text-underline-offset: 3px; }
+  .navm__cross--pickle { color: var(--pk-olive-ink); font-family: "Alfa Slab One", var(--font-en); letter-spacing: 0; }
+  .navm__cross--pizza  { color: var(--color-point); }
+
+  /* ── 인트로: 떠 있는 크림 바(둥근 사각) ── */
   .navm--intro { padding: clamp(0.75rem, 2vw, 1.25rem) clamp(0.75rem, 2.5vw, 1.75rem) 0; }
   .navm--intro .navm__bar {
     max-width: 1180px;
@@ -39,7 +76,7 @@ const github = theme === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
     justify-content: space-between;
     gap: 1rem;
     background: var(--intro-nav);
-    border-radius: var(--radius-pill);
+    border-radius: var(--intro-nav-radius);
     padding: clamp(0.5rem, 1.4vw, 0.85rem) clamp(1rem, 2.4vw, 1.6rem);
     box-shadow: 0 6px 22px rgba(16, 33, 56, 0.14);
   }
@@ -49,29 +86,44 @@ const github = theme === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
     border-radius: 50%;
   }
 
-  /* ── 피클: 크림 상단 바 + 올리브 밑줄 ── */
-  .navm--pickle {
+  /* ── 피자/피클: 크림 상단 바 + 얇은 밑줄(테마색) ── */
+  .navm--pizza, .navm--pickle {
     background: var(--color-bg);
-    border-bottom: 2px solid var(--pk-olive-ink);
     position: sticky;
     top: 0;
   }
-  .navm--pickle .navm__bar {
+  .navm--pizza  { border-bottom: 3px solid var(--color-menu); }   /* 피자 상단바색(옐로우) — 크림 위 가시성 위해 3px */
+  .navm--pickle { border-bottom: 2px solid var(--pk-olive-ink); } /* 피클 포인트(올리브) */
+  .navm--pizza .navm__bar, .navm--pickle .navm__bar {
     max-width: var(--maxw);
     margin-inline: auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: clamp(0.6rem, 2vw, 1rem);
     min-height: 60px;
     padding-inline: var(--gutter);
   }
-  .navm__logo--text {
+  /* 메인 로고 워드마크(피클=올리브, 피자=빨강) */
+  .navm__logo--text, .navm__logo--pizza {
     font-family: var(--font-en);
     font-weight: 700;
     font-size: clamp(1.2rem, 4vw, 1.7rem);
     letter-spacing: 0.02em;
-    color: var(--pk-olive-ink);
+    white-space: nowrap;
   }
-  .navm__logo--text:hover { opacity: 0.8; }
+  /* PICKle 로고 = Alfa Slab One(묵직한 슬랩). 피자클립(PIZZA CLIP)은 OSP-DIN 유지 */
+  .navm__logo--text {
+    color: var(--pk-olive-ink);
+    font-family: "Alfa Slab One", var(--font-en);
+    letter-spacing: 0.01em;
+    font-size: clamp(1.02rem, 3.2vw, 1.42rem);
+  }
+  .navm__logo--pizza { color: var(--color-point); letter-spacing: 0.04em; }
+  .navm__logo--text:hover, .navm__logo--pizza:hover { opacity: 0.8; }
+
+  /* 아주 좁은 화면: 크로스링크는 줄여서 한 줄 유지 */
+  @media (max-width: 420px) {
+    .navm__cross { font-size: 0.72rem; padding-left: 0.5rem; }
+  }
 </style>

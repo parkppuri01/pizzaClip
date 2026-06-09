@@ -39,6 +39,9 @@ h3 { font-size: var(--fs-h3); }
 .page-head { margin-bottom: 2.5rem; }
 .page-head p { margin-top: 0.75rem; font-size: 1.15rem; }
 
+/* 인트로 계열(인트로 선택화면 · 정보) — 슬레이트 블루 배경 + 크림 글자 */
+body.intro-body { background: var(--intro-bg); color: var(--intro-cream); }
+
 /* ---- a11y: 키보드 포커스 표시 ---- */
 :focus-visible {
   outline: 3px solid var(--color-point);

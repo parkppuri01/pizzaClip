@@ -22,6 +22,17 @@ const downloadChecks = [
   "안전해요 — 애플 인증 완료, 바이러스·보안 경고 없음",
   "알아서 업데이트 — 수동으로 안 챙겨도 늘 최신",
 ];
+
+// 단축키 — 피자클립 사용법 핵심(how-to 단축키 표와 동일 소스)
+const shortcuts = [
+  { keys: "⌘⇧V", desc: "클립보드 히스토리 팝업 열기" },
+  { keys: "⌘⌥⌃1 ~ 9", desc: "해당 번호 항목을 바로 붙여넣기" },
+  { keys: "↑ ↓ / 1~9", desc: "팝업 안에서 항목 이동·선택" },
+  { keys: "↵", desc: "선택한 항목 붙여넣기" },
+  { keys: "0", desc: "9 → 1 전체 순차 붙여넣기" },
+  { keys: "⌫", desc: "항목 삭제 · ⌘P 고정(핀)" },
+  { keys: "오른쪽 ⌘", desc: "한국어 ↔ 영문 입력 전환 (옵션 켰을 때)" },
+];
 ---
 <BaseLayout site="pizza">
   <!-- ===== 히어로 (크림) ===== -->
@@ -35,8 +46,7 @@ const downloadChecks = [
           식기 전에 메뉴바에서 쏙쏙 꺼내 씁니다.
         </p>
         <div class="hero__cta">
-          <Button href={DOWNLOAD_URL} variant="primary">Download</Button>
-          <Button href="/how-to" variant="secondary">How&nbsp;to</Button>
+          <Button href={DOWNLOAD_URL} variant="primary">다운로드</Button>
         </div>
       </div>
       <figure class="hero__art" data-reveal>
@@ -115,6 +125,24 @@ const downloadChecks = [
     </div>
   </section>
 
+  <!-- ===== 단축키 (peach) ===== -->
+  <section class="band band--peach" id="shortcuts">
+    <div class="bandwrap">
+      <div class="panel shortcuts" data-reveal>
+        <h2>단축키 한눈에 🍕</h2>
+        <p class="shortcuts__sub">키보드만으로 1초 컷. 복사한 조각을 바로 꺼내 쓰세요.</p>
+        <dl class="kbd-list">
+          {shortcuts.map((s) => (
+            <div class="kbd-row">
+              <dt><kbd>{s.keys}</kbd></dt>
+              <dd>{s.desc}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== 다운로드 카드 (cream) ===== -->
   <section class="band band--cream" id="download">
     <div class="bandwrap">
@@ -124,7 +152,7 @@ const downloadChecks = [
           <ul class="download__checks">
             {downloadChecks.map((c) => (<li>{c}</li>))}
           </ul>
-          <Button href={DOWNLOAD_URL} variant="primary" class="download__btn">Download</Button>
+          <Button href={DOWNLOAD_URL} variant="primary" class="download__btn">다운로드</Button>
           <p class="download__note">macOS 13 이상 · 모든 Mac 지원 · 무료</p>
         </div>
       </div>
@@ -136,7 +164,7 @@ const downloadChecks = [
 
 <style>
   /* 띠 — 가로만 클립(세로 겹침 허용), 패딩은 카드가 띠를 거의 채우도록 */
-  .band { overflow-x: clip; padding-block: clamp(2.75rem, 6vw, 4.75rem); position: relative; }
+  .band { overflow-x: clip; padding-block: clamp(3.75rem, 7.5vw, 6rem); position: relative; }
   .band--peach  { background: var(--pz-peach); }
   .band--coral  { background: var(--pz-coral); }
   .band--yellow { background: var(--pz-yellow); }
@@ -193,11 +221,23 @@ const downloadChecks = [
   .download__btn { font-size: 1.1rem; padding: 0.9em 2.4em; }
   .download__note { margin-top: 1rem; font-size: var(--fs-small); opacity: 0.7; }
 
+  /* ── 단축키 (how-to 단축키 표 이식) ── */
+  .shortcuts__sub { margin-top: 0.6rem; color: var(--color-text); }
+  .shortcuts .kbd-list { display: grid; gap: 0.6rem; margin-top: 1.5rem; }
+  .kbd-row { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 1rem; align-items: baseline; }
+  .kbd-row dd { color: var(--color-ink); }
+  kbd {
+    font-family: var(--font-en);
+    background: var(--color-ink); color: var(--color-bg);
+    padding: 0.25em 0.6em; border-radius: 6px; font-size: 0.95rem;
+    white-space: nowrap; display: inline-block;
+  }
+
   /* ── 스티커: 카드/사진 모서리에 붙임 (가이드 기준) ── */
   .sticker { position: absolute; pointer-events: none; user-select: none; z-index: 3;
              filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.18)); width: var(--sw, 160px); }
   /* peach: 노트북 피자 — 카드 우하단 모서리 */
-  .s-laptop  { --sw: clamp(120px, 15vw, 190px); right: -3%; bottom: -24%; }
+  .s-laptop  { --sw: clamp(95px, 11vw, 150px); right: -9%; bottom: -20%; }
   /* coral: PIZZA CLIP 빨강 스탬프 — 광고판 좌상단 위로 삐짐 */
   .s-stamp   { --sw: clamp(86px, 12vw, 150px); left: -2%; top: -8%; transform: rotate(-7deg); }
   /* yellow: 자판기 사진 — 카드 좌상단 위로(coral로) 삐짐, 기울임 */
@@ -207,10 +247,10 @@ const downloadChecks = [
   /* yellow: "I'm a PizzaClip" 빨강 텍스트 — 카드 우상단 위로 삐짐 */
   /* yellow: PIZZA CLIP CLIPBOARD 노란 타원 — 카드 우하단 모서리 */
   .s-clipboard { --sw: clamp(120px, 15vw, 195px); right: -5%; bottom: -14%; transform: rotate(6deg); }
-  /* green: 달리는 피자 — 좌상단 위로(yellow로) 삐짐 */
-  .s-running { --sw: clamp(92px, 12vw, 150px); left: 3%; top: -8%; }
-  /* green: PIZZA CLIP 노란 원형 뱃지 — 좌측 중앙(매장사진 왼쪽) */
-  .s-round   { --sw: clamp(110px, 14vw, 178px); left: 2%; top: 34%; }
+  /* green: 달리는 피자 — 좌상단, 노란 띠로 위로 삐짐 */
+  .s-running { --sw: clamp(92px, 12vw, 150px); left: 3%; top: -36%; }
+  /* green: PIZZA CLIP 노란 원형 뱃지 — 매장사진 좌하단 모서리에 겹침 */
+  .s-round   { --sw: clamp(110px, 14vw, 178px); left: 30%; top: 50%; }
   /* cream: "I'm a Pizza Clip person" — 카드 우상단 모서리 위로(green으로) 삐짐 */
   .s-person  { --sw: clamp(110px, 15vw, 188px); right: -3%; top: -16%; transform: rotate(6deg); }
 
@@ -235,5 +275,6 @@ const downloadChecks = [
     .f-billboard, .f-store { transform: none; }
     .s-stamp { --sw: 84px; left: 0; top: -6%; }
     .s-person { --sw: 88px; right: -1%; top: -15%; }
+    .kbd-row { grid-template-columns: 1fr; gap: 0.25rem; }
   }
 </style>

@@ -4,18 +4,17 @@
  * <head> 메타 + canonical + og + 폰트, 그리고 site 별 네비/푸터.
  *
  * site:
- *   "pizza"  (기본) → 옐로우 Navbar + 네이비 Footer  (홈/how-to/info)
- *   "pickle"        → 크림 NavMinimal + PickleFooter
- *   "intro"         → 떠 있는 NavMinimal(JAM), 푸터 없음
+ *   "pizza"  (기본) → 크림 NavMinimal(theme=pizza, 옐로우 #FFB703 밑줄) + 네이비 Footer (홈/how-to/info)
+ *   "pickle"        → 크림 NavMinimal(theme=pickle, 올리브 밑줄) + PickleFooter
+ *   "intro"         → 떠 있는 NavMinimal(theme=intro, JAM), 푸터 없음 (정보 페이지도 이 톤 사용)
  */
 import "../styles/global.css";
-import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import NavMinimal from "../components/NavMinimal.astro";
 import PickleFooter from "../components/PickleFooter.astro";
 import {
   SITE_TITLE, SITE_DESC, DOWNLOAD_URL, GITHUB_URL,
-  PICKLE_TITLE, PICKLE_DESC, PICKLE_GITHUB_URL, PICKLE_DOWNLOAD_URL,
+  PICKLE_TITLE, PICKLE_DESC, PICKLE_GITHUB_URL, PICKLE_DOWNLOAD_URL, PICKLE_RELEASED,
 } from "../consts.ts";
 
 interface Props {
@@ -40,10 +39,10 @@ const appName  = site === "pickle" ? PICKLE_TITLE
                : site === "intro"  ? "PIZZA CLIP & PICKle"
                : SITE_TITLE;
 const appDesc  = site === "pickle" ? PICKLE_DESC : SITE_DESC;
-const appCat   = site === "pickle" ? "UtilitiesApplication" : "UtilitiesApplication";
+const appCat   = "UtilitiesApplication";
 const ghUrl    = site === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
 const dlUrl    = site === "pickle" ? PICKLE_DOWNLOAD_URL : DOWNLOAD_URL;
-const released = site === "pickle" ? false : true; // 피클은 아직 출시 전
+const released = site === "pickle" ? PICKLE_RELEASED : true;
 
 const defaultTitle =
   site === "pickle" ? `${PICKLE_TITLE} — 맥 스크린샷 정리 앱`
@@ -69,7 +68,7 @@ const softwareApp: Record<string, unknown> = {
   offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
   author: { "@type": "Organization", name: "Team JAM", url: siteUrl },
 };
-if (released) softwareApp.downloadUrl = dlUrl;
+if (released) softwareApp.downloadUrl = new URL(dlUrl, Astro.site).toString();
 
 const jsonLd = [
   // 인트로(/)는 '두 앱 선택 화면'이라 특정 앱(SoftwareApplication)으로 선언하지 않는다.
@@ -98,9 +97,9 @@ const jsonLd = [
     <!-- 다운로드 버튼 클릭 → GA4 전환 이벤트 -->
     <script is:inline>
       document.addEventListener('click', function (e) {
-        var a = e.target.closest && e.target.closest('a[href*="releases/latest/download/"]');
+        var a = e.target.closest && e.target.closest('a[href$=".dmg"], a[href*="releases/latest/download/"]');
         if (!a || typeof gtag !== 'function') return;
-        var label = a.href.indexOf('pickle.dmg') > -1 ? 'pickle.dmg' : 'pizzaClip.dmg';
+        var label = (/pickle/i.test(a.href) || (a.getAttribute('href') || '').indexOf('/pickle/') === 0) ? 'pickle.dmg' : 'pizzaClip.dmg';
         gtag('event', 'download', { event_category: 'engagement', event_label: label, transport_type: 'beacon' });
       });
     </script>
@@ -144,11 +143,16 @@ const jsonLd = [
       crossorigin
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
     />
+
+    <!-- Alfa Slab One (PICKle 로고 전용) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" />
   </head>
   <body class={bodyClass}>
-    {site === "pizza" && <Navbar />}
-    {site === "pickle" && <NavMinimal theme="pickle" logoHref="/pickle" />}
-    {site === "intro" && <NavMinimal theme="intro" logoHref="/" />}
+    {site === "pizza" && <NavMinimal theme="pizza" />}
+    {site === "pickle" && <NavMinimal theme="pickle" />}
+    {site === "intro" && <NavMinimal theme="intro" />}
 
     <main id="main"><slot /></main>
 
