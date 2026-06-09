@@ -7,6 +7,24 @@
 
 ---
 
+## 🔖 세션 이어받기 (2026-06-09, 리뉴얼 진행 중 — **아직 미배포**)
+
+리뉴얼이 거의 끝났고 **로컬 커밋 3개**만 있는 상태. **푸시 안 함(배포 보류)** — 사용자가 "수정할 거 더 있다"고 해서 추가 수정 후 한꺼번에 배포 예정.
+
+- **로컬 커밋(master, origin보다 3 앞섬, 미푸시)**:
+  1. `c8cc91b` feat(web): 사이트 전체 리뉴얼(인트로/+피클/피자 리디자인)
+  2. `36505d4` style(web): 서브페이지 스티커를 가이드 기준(.bandwrap)으로 재배치 + 기울기
+  3. `1af95e8` docs(web): 핸드오프 교훈 기록
+- **완료**: 인트로(`/`)·피자클립(`/pizzaclip`)·피클(`/pickle`) 3페이지, 색 띠+스티커 콜라주, 데스크톱+모바일(375/390px) 검증 통과, 코드리뷰 반영(인트로 JSON-LD·버튼 시맨틱).
+- **다음 세션 할 일(사용자가 더 손볼 예정)**: 스티커/카피 미세 조정 등. 작업 후 `cd web && npm run build` → 사용자 확인 → `git push`(=배포).
+- **이어받기 팁**: 가이드 원본은 `web/site-renewal/`(gitignore, 283MB) + 축소본 `web/guide/renewal/{intro,pizzaclip,pickle}.png`. 스티커는 `.bandwrap`(카드 폭) 기준 배치. **Astro dev `<style>` HMR stale 함정** 주의(§3 2026-06-09 교훈) → 위치 안 먹으면 preview 서버 재시작.
+
+> ⚠️ **워킹트리에 리뉴얼과 무관한 PICKle 1.0.0 출시 파일이 끼어 있음(미커밋, 내가 안 건드림)**:
+> `web/public/pickle/appcast.xml`(수정: 1.0.0 `<item>` 추가) + `web/public/pickle/PICkle-1.0.0.dmg`(3.5MB 신규). enclosure URL이 `https://pizza-clip.com/pickle/PICkle-1.0.0.dmg` 로 되어 있어 **DMG를 깃/Vercel 정적으로 서빙할 의도**로 보임.
+> → **피클이 곧 정식 출시**된다는 뜻. 리뉴얼 피클 페이지는 지금 `PICKLE_RELEASED=false`라 '출시 예정'(비활성)임. **출시 활성화 시**: `web/src/consts.ts` 의 `PICKLE_RELEASED=true` + `PICKLE_DOWNLOAD_URL` 을 **실제 URL로 교체**(현재 코드 기본값은 GitHub `pickle.dmg` 가정인데, 실제 의도는 `pizza-clip.com/pickle/PICkle-1.0.0.dmg`). DMG를 레포에 커밋할지/릴리스로 뺄지는 사용자 결정. (이 두 파일은 이번 리뉴얼 커밋에 **미포함**.)
+
+---
+
 ## 1. 사이트 현황 (라이브)
 
 - **호스팅**: Vercel, **Root Directory = `web`**, 도메인 `pizza-clip.com` (Cloudflare DNS, 회색 구름=DNS only). repo `parkppuri01/pizzaClip` **master 푸시 시 자동 재배포**.
