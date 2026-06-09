@@ -1,0 +1,258 @@
+---
+/**
+ * 피자클립 홈(/pizzaclip) — 리뉴얼.
+ * 가이드: web/site-renewal/피자클립가이드.png
+ * 색 띠 섹션(크림→peach→coral→yellow→green→cream) + 빈 콘텐츠 카드 채움 + 스티커 콜라주.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Button from "../components/Button.astro";
+import { DOWNLOAD_URL } from "../consts.ts";
+
+const features = [
+  { icon: "🍕", title: "⌘C의 무한 보관소", desc: "글자부터 이미지, 파일까지 복사하는 즉시 알아서 담아둡니다. 새로 복사했다고 이전 기록이 사라지던 답답함은 끝!" },
+  { icon: "⚡", title: "키보드 워리어용 1초 컷", desc: "⌘ + ⇧ + V 로 클립보드를 열고, 숫자키(0~9)로 원하는 조각을 바로 골라 쓰세요. 트랙패드까지 손 옮길 필요 없이 진짜 1초." },
+  { icon: "🇰🇷", title: "한/영 전환도 가볍게", desc: "잠자던 오른쪽 ⌘ 키 하나로 한/영을 전환하세요. 맥북 쓰며 은근히 킹받던 입력 소스 스트레스를 날려줍니다. (켜고 끄는 옵션)" },
+  { icon: "🔒", title: "철저한 로컬 보안", desc: "복사한 비밀번호·개인정보가 밖으로 샐까 걱정이셨나요? 모든 히스토리는 외부 서버를 타지 않고 오직 내 맥 안에서만 보관됩니다." },
+];
+
+const useCases = [
+  "긴 주소·코드·비밀번호를 여러 번 오가며 붙여넣을 때",
+  "방금 복사한 걸 실수로 덮어써 원본이 사라졌을 때",
+  "어제 복사했던 그 문장이 지금 다시 필요할 때",
+];
+
+const downloadChecks = [
+  "가격은 0원 — 조건 없이 받아서 쓰세요",
+  "내 맥북에 찰떡 — 기종 상관없이 모든 Mac에서 부드럽게",
+  "안전해요 — 애플 인증 완료, 바이러스·보안 경고 없음",
+  "알아서 업데이트 — 수동으로 안 챙겨도 늘 최신",
+];
+---
+<BaseLayout site="pizza">
+  <!-- ===== 히어로 (크림) ===== -->
+  <section class="hero band">
+    <div class="container hero__inner">
+      <div class="hero__copy" data-reveal>
+        <h1>Mac 메뉴바에<br />배달된 피자 한판 <span class="emoji">🍕</span></h1>
+        <p class="hero__lead">
+          <strong>⌘C로 주문하고, 단축키 한 번으로 바로 배달받으세요.</strong><br />
+          방금 복사한 뜨끈한 텍스트부터 아까 아껴둔 이미지까지,<br />
+          식기 전에 메뉴바에서 쏙쏙 꺼내 씁니다.
+        </p>
+        <div class="hero__cta">
+          <Button href={DOWNLOAD_URL} variant="primary">Download</Button>
+          <Button href="/how-to" variant="secondary">How&nbsp;to</Button>
+        </div>
+      </div>
+      <figure class="hero__art" data-reveal>
+        <img src="/img/pizza/hero-poster.jpg" width="1100" height="1466"
+             alt="피자클립 메인 일러스트 — 메뉴바에서 꺼내 쓰는 피자 한 판" fetchpriority="high" />
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===== 후킹 (peach) ===== -->
+  <section class="band band--peach">
+    <div class="container">
+      <div class="panel hookcard" data-reveal>
+        <h2>언제까지 ⌘C, ⌘V<br class="br-sm" /> 무한 반복하실 건가요?</h2>
+        <p class="hookcard__sub">방금 복사한 거 날려 먹고 ‘아…’ 한 적 있다면 집중!</p>
+        <p>
+          방금 복사한 것 때문에 <em>이전 기록이 사라져</em> 다시 원본을 찾아 헤맨 경험,
+          다들 있으시죠? 피자클립은 당신의 복사 히스토리를 한 판 가득 저장해 둡니다.
+          이제 헤매지 말고 필요할 때마다 한 조각씩 가볍게 꺼내 쓰세요.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 광고판 사진 (coral) ===== -->
+  <section class="band band--coral">
+    <div class="container billboard-wrap">
+      <figure class="photo-frame tilt-l" data-reveal>
+        <img class="photo" src="/img/billboard.jpg" width="1400" height="933"
+             alt="피자클립 지하철 광고 — STILL HAVEN'T TRIED THE PIZZA CLIP?" loading="lazy" />
+        <figcaption>STILL HAVEN'T TRIED THE&nbsp;<b>PIZZA&nbsp;CLIP</b>?</figcaption>
+      </figure>
+    </div>
+    <img class="sticker" src="/img/pizza/stamp-red.png"
+         style="--sw: clamp(86px,14vw,160px); left:3%; top:-5%; transform:rotate(-10deg);"
+         alt="" aria-hidden="true" loading="lazy" />
+    <img class="sticker hide-sm" src="/img/pizza/mascot-laptop.png"
+         style="--sw: clamp(110px,15vw,190px); right:2%; top:-9%;"
+         alt="" aria-hidden="true" loading="lazy" />
+  </section>
+
+  <!-- ===== 기능 (yellow) ===== -->
+  <section class="band band--yellow">
+    <div class="container feat-wrap">
+      <figure class="photo-frame tilt-r vend hide-sm" data-reveal>
+        <img class="photo" src="/img/pizza-store.jpg" width="828" height="1100"
+             alt="피자클립 자판기 — GRAB A SLICE" loading="lazy" />
+      </figure>
+      <div class="panel features" data-reveal>
+        <h2 class="features__title">피자클립이 하는 일</h2>
+        <ul>
+          {features.map((f) => (
+            <li class="feature">
+              <span class="feature__icon" aria-hidden="true">{f.icon}</span>
+              <div>
+                <h3>{f.title}</h3>
+                <p>{f.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+    <span class="cssticker cssticker--pizzaclip hide-sm" aria-hidden="true">I'm a<br />PizzaClip</span>
+  </section>
+
+  <!-- ===== 매장 사진 + 이럴 때 (green) ===== -->
+  <section class="band band--green">
+    <div class="container case-wrap">
+      <figure class="photo-frame tilt-l store hide-sm" data-reveal>
+        <img class="photo" src="/img/storefront.jpg" width="1400" height="933"
+             alt="피자클립 매장 — Copy it while it's hot" loading="lazy" />
+      </figure>
+      <div class="panel cases" data-reveal>
+        <h2>이럴 때 진가를 발휘해요</h2>
+        <ul class="cases__list">
+          {useCases.map((c) => (<li>{c}</li>))}
+        </ul>
+        <p class="cases__tag">한 번 맛보면 못 끊는 메뉴바 한 조각.</p>
+      </div>
+    </div>
+    <img class="sticker hide-sm" src="/img/pizza/badge-clipboard.png"
+         style="--sw: clamp(110px,16vw,200px); right:2%; top:-7%; transform:rotate(8deg);"
+         alt="" aria-hidden="true" loading="lazy" />
+    <img class="sticker hide-sm" src="/img/pizza/mascot-running.png"
+         style="--sw: clamp(90px,12vw,150px); left:2%; top:-5%;"
+         alt="" aria-hidden="true" loading="lazy" />
+  </section>
+
+  <!-- ===== 다운로드 (cream) ===== -->
+  <section class="band band--cream" id="download">
+    <div class="container">
+      <div class="panel download" data-reveal>
+        <div class="download__inner">
+          <h2>Mac에 빼놓을 수 없는 토핑,<br class="br-sm" /> 피자클립 🍕</h2>
+          <ul class="download__checks">
+            {downloadChecks.map((c) => (<li>{c}</li>))}
+          </ul>
+          <Button href={DOWNLOAD_URL} variant="primary" class="download__btn">Download</Button>
+          <p class="download__note">macOS 13 이상 · 모든 Mac 지원 · 무료</p>
+        </div>
+      </div>
+    </div>
+    <img class="sticker hide-sm" src="/img/pizza/badge-round.png"
+         style="--sw: clamp(96px,13vw,160px); left:3%; top:-5%; transform:rotate(-8deg);"
+         alt="" aria-hidden="true" loading="lazy" />
+    <img class="sticker" src="/img/pizza/sticker-person.png"
+         style="--sw: clamp(96px,15vw,180px); right:2%; top:-9%; transform:rotate(6deg);"
+         alt="" aria-hidden="true" loading="lazy" />
+  </section>
+</BaseLayout>
+
+<style>
+  /* 가로 스크롤 방지(스티커가 좌우로 새는 것만 클립, 세로 겹침은 허용) */
+  .band { overflow-x: clip; }
+  .band--peach  { background: var(--pz-peach); }
+  .band--coral  { background: var(--pz-coral); }
+  .band--yellow { background: var(--pz-yellow); }
+  .band--green  { background: var(--pz-green); }
+  .band--cream  { background: var(--color-bg); }
+
+  /* ── 히어로 ── */
+  .hero { padding-block: clamp(2.5rem, 6vw, 5rem); }
+  .hero__inner { display: flex; align-items: center; gap: clamp(2rem, 6vw, 4rem); flex-wrap: wrap; }
+  .hero__copy { flex: 1 1 340px; }
+  .hero h1 { font-size: clamp(2.1rem, 6vw, 3.6rem); }
+  .hero h1 .emoji { -webkit-text-size-adjust: 100%; }
+  .hero__lead { font-size: 1.12rem; margin-top: 1.25rem; color: var(--color-text); }
+  .hero__cta { display: flex; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
+  .hero__art {
+    flex: 0 0 auto; margin-inline: auto;
+    width: min(340px, 78vw);
+    transform: rotate(2.5deg);
+  }
+  .hero__art img {
+    width: 100%; height: auto;
+    border-radius: 18px;
+    border: 3px solid var(--border-ink);
+    box-shadow: 10px 12px 0 0 var(--color-ink);
+  }
+
+  /* ── 후킹 카드 ── */
+  .hookcard { max-width: 760px; margin-inline: auto; }
+  .hookcard h2 { font-size: var(--fs-h2); }
+  .hookcard__sub { margin-top: 0.85rem; font-weight: 700; color: var(--color-point); font-size: 1.05rem; }
+  .hookcard p:last-child { margin-top: 1rem; font-size: 1.1rem; }
+  .hookcard em { font-style: normal; color: var(--color-point); font-weight: 700; }
+
+  /* ── 광고판 ── */
+  .billboard-wrap { max-width: 760px; }
+  .photo-frame { width: 100%; margin: 0; }
+  .photo-frame figcaption {
+    margin-top: 0.9rem; text-align: center;
+    font-family: var(--font-en); font-weight: 700; letter-spacing: 0.03em;
+    color: #fff; font-size: clamp(1rem, 2.6vw, 1.4rem);
+  }
+  .tilt-l { transform: rotate(-2.5deg); }
+  .tilt-r { transform: rotate(2.5deg); }
+
+  /* ── 기능 ── */
+  .feat-wrap { display: flex; align-items: center; gap: clamp(1.5rem, 4vw, 3rem); }
+  .feat-wrap .vend { flex: 0 0 auto; width: min(240px, 34%); }
+  .features { flex: 1 1 380px; }
+  .features__title { margin-bottom: 1.4rem; }
+  .features ul { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.3rem; }
+  .feature { display: flex; gap: 0.85rem; align-items: flex-start; }
+  .feature__icon { font-size: 1.7rem; line-height: 1.2; }
+  .feature h3 { font-size: 1.1rem; }
+  .feature p { margin-top: 0.3rem; color: var(--color-ink); opacity: 0.85; font-size: 0.96rem; }
+
+  /* ── 이럴 때(매장) ── */
+  .case-wrap { display: flex; align-items: center; gap: clamp(1.5rem, 4vw, 3rem); }
+  .case-wrap .store { flex: 0 0 auto; width: min(320px, 42%); }
+  .cases { flex: 1 1 340px; }
+  .cases h2 { font-size: var(--fs-h2); }
+  .cases__list { display: grid; gap: 0.7rem; margin-top: 1.2rem; }
+  .cases__list li { position: relative; padding-left: 1.7rem; }
+  .cases__list li::before { content: "🍕"; position: absolute; left: 0; font-size: 0.95rem; }
+  .cases__tag { margin-top: 1.3rem; font-weight: 700; color: var(--color-point); }
+
+  /* ── 다운로드 ── */
+  .download { max-width: 720px; margin-inline: auto; }
+  .download__inner { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .download__checks { display: grid; gap: 0.6rem; text-align: left; margin: 1.4rem 0; }
+  .download__checks li { position: relative; padding-left: 1.8rem; }
+  .download__checks li::before { content: "✓"; position: absolute; left: 0; color: var(--color-point); font-weight: 700; }
+  .download__btn { font-size: 1.1rem; padding: 0.9em 2.4em; }
+  .download__note { margin-top: 1rem; font-size: var(--fs-small); opacity: 0.7; }
+
+  /* ── CSS 스티커: "I'm a PizzaClip" 빨강 ── */
+  .cssticker { position: absolute; pointer-events: none; z-index: 3; }
+  .cssticker--pizzaclip {
+    right: 4%; top: -6%;
+    font-family: var(--font-en); font-weight: 700;
+    font-size: clamp(1.4rem, 4vw, 2.6rem); line-height: 0.95;
+    color: var(--color-point);
+    -webkit-text-stroke: 2px #fff;
+    paint-order: stroke fill;
+    transform: rotate(-8deg);
+    text-align: center;
+  }
+
+  .br-sm { display: none; }
+
+  @media (max-width: 760px) {
+    .feat-wrap, .case-wrap { flex-direction: column; }
+    .features ul { grid-template-columns: 1fr; }
+    .hero__copy { text-align: center; }
+    .hero__cta { justify-content: center; }
+    .hide-sm { display: none !important; }
+    .br-sm { display: inline; }
+    .tilt-l, .tilt-r { transform: none; }
+  }
+</style>

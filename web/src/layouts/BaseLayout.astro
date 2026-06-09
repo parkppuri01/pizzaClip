@@ -1,60 +1,82 @@
 ---
 /**
  * BaseLayout — 모든 페이지 공통 틀
- * <head> 메타 + canonical + og + 폰트 + global.css, 그리고 Navbar/Footer.
+ * <head> 메타 + canonical + og + 폰트, 그리고 site 별 네비/푸터.
+ *
+ * site:
+ *   "pizza"  (기본) → 옐로우 Navbar + 네이비 Footer  (홈/how-to/info)
+ *   "pickle"        → 크림 NavMinimal + PickleFooter
+ *   "intro"         → 떠 있는 NavMinimal(JAM), 푸터 없음
  */
 import "../styles/global.css";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
-import { SITE_TITLE, SITE_DESC, DOWNLOAD_URL, GITHUB_URL } from "../consts.ts";
+import NavMinimal from "../components/NavMinimal.astro";
+import PickleFooter from "../components/PickleFooter.astro";
+import {
+  SITE_TITLE, SITE_DESC, DOWNLOAD_URL, GITHUB_URL,
+  PICKLE_TITLE, PICKLE_DESC, PICKLE_GITHUB_URL, PICKLE_DOWNLOAD_URL,
+} from "../consts.ts";
 
 interface Props {
   title?: string;
   description?: string;
-  /** og 이미지 (사이트 루트 기준 경로). 기본 = 홈 광고판 OG */
-  image?: string;
+  image?: string;        // og 이미지 (사이트 루트 기준 경로)
+  site?: "pizza" | "pickle" | "intro";
+  bodyClass?: string;    // <body> 추가 클래스 (인트로 슬레이트 배경 등)
 }
 const {
   title,
-  description = SITE_DESC,
-  image = "/img/og-home.jpg",
+  site = "pizza",
+  description = site === "pickle" ? PICKLE_DESC : SITE_DESC,
+  image = site === "pickle" ? "/img/og-pickle.jpg"
+        : site === "intro"  ? "/img/og-intro.jpg"
+        : "/img/og-home.jpg",
+  bodyClass = "",
 } = Astro.props;
 
-const pageTitle = title ? `${title} · ${SITE_TITLE}` : `${SITE_TITLE} — 맥 클립보드 히스토리 앱`;
+// 제품/메타 — site 별 분기
+const appName  = site === "pickle" ? PICKLE_TITLE
+               : site === "intro"  ? "PIZZA CLIP & PICKle"
+               : SITE_TITLE;
+const appDesc  = site === "pickle" ? PICKLE_DESC : SITE_DESC;
+const appCat   = site === "pickle" ? "UtilitiesApplication" : "UtilitiesApplication";
+const ghUrl    = site === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
+const dlUrl    = site === "pickle" ? PICKLE_DOWNLOAD_URL : DOWNLOAD_URL;
+const released = site === "pickle" ? false : true; // 피클은 아직 출시 전
+
+const defaultTitle =
+  site === "pickle" ? `${PICKLE_TITLE} — 맥 스크린샷 정리 앱`
+  : site === "intro" ? `PIZZA CLIP & PICKle — Team JAM`
+  : `${SITE_TITLE} — 맥 클립보드 히스토리 앱`;
+const pageTitle = title ? `${title} · ${appName}` : defaultTitle;
+
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image, Astro.site);
 const siteUrl = Astro.site?.toString() ?? "https://pizza-clip.com/";
 
-// 구조화 데이터(JSON-LD): 검색·AI 엔진이 앱 정보를 정확히 이해하도록
+// 구조화 데이터(JSON-LD)
+const softwareApp: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: appName,
+  applicationCategory: appCat,
+  operatingSystem: "macOS",
+  description: appDesc,
+  url: canonical.toString(),
+  image: ogImage.toString(),
+  inLanguage: "ko",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
+  author: { "@type": "Organization", name: "Team JAM", url: siteUrl },
+};
+if (released) softwareApp.downloadUrl = dlUrl;
+
 const jsonLd = [
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: SITE_TITLE,
-    applicationCategory: "UtilitiesApplication",
-    operatingSystem: "macOS",
-    description: SITE_DESC,
-    url: siteUrl,
-    downloadUrl: DOWNLOAD_URL,
-    image: ogImage.toString(),
-    inLanguage: "ko",
-    offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
-    author: { "@type": "Organization", name: "ProjectJAM", url: siteUrl },
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: SITE_TITLE,
-    url: siteUrl,
-    inLanguage: "ko",
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "ProjectJAM",
-    url: siteUrl,
-    sameAs: [GITHUB_URL],
-  },
+  // 인트로(/)는 '두 앱 선택 화면'이라 특정 앱(SoftwareApplication)으로 선언하지 않는다.
+  // (루트 URL=PizzaClip 앱+다운로드로 잘못 색인되는 것 방지) → WebSite/Organization 만.
+  ...(site === "intro" ? [] : [softwareApp]),
+  { "@context": "https://schema.org", "@type": "WebSite", name: appName, url: siteUrl, inLanguage: "ko" },
+  { "@context": "https://schema.org", "@type": "Organization", name: "Team JAM", url: siteUrl, sameAs: [GITHUB_URL, PICKLE_GITHUB_URL] },
 ];
 ---
 <!doctype html>
@@ -73,20 +95,17 @@ const jsonLd = [
       gtag('config', 'G-30DB0P1HWL');
     </script>
 
-    <!-- 다운로드 버튼 클릭 → GA4 전환 이벤트 (DB 불필요, 클라이언트에서 바로 전송) -->
+    <!-- 다운로드 버튼 클릭 → GA4 전환 이벤트 -->
     <script is:inline>
       document.addEventListener('click', function (e) {
-        var a = e.target.closest && e.target.closest('a[href*="releases/latest/download/pizzaClip.dmg"]');
+        var a = e.target.closest && e.target.closest('a[href*="releases/latest/download/"]');
         if (!a || typeof gtag !== 'function') return;
-        gtag('event', 'download', {
-          event_category: 'engagement',
-          event_label: 'pizzaClip.dmg',
-          transport_type: 'beacon',
-        });
+        var label = a.href.indexOf('pickle.dmg') > -1 ? 'pickle.dmg' : 'pizzaClip.dmg';
+        gtag('event', 'download', { event_category: 'engagement', event_label: label, transport_type: 'beacon' });
       });
     </script>
 
-    <!-- 파비콘: 🍕 이모지 통일 (favicon.ico = 16/32/48 멀티사이즈) -->
+    <!-- 파비콘 -->
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
@@ -100,9 +119,9 @@ const jsonLd = [
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
-    <!-- Open Graph (SNS 공유 카드) -->
+    <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="og:site_name" content={appName} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
@@ -118,7 +137,7 @@ const jsonLd = [
       <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     ))}
 
-    <!-- Pretendard (한글 본문) — jsDelivr CDN dynamic-subset -->
+    <!-- Pretendard (한글 본문) -->
     <link
       rel="stylesheet"
       as="style"
@@ -126,9 +145,31 @@ const jsonLd = [
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css"
     />
   </head>
-  <body>
-    <Navbar />
+  <body class={bodyClass}>
+    {site === "pizza" && <Navbar />}
+    {site === "pickle" && <NavMinimal theme="pickle" logoHref="/pickle" />}
+    {site === "intro" && <NavMinimal theme="intro" logoHref="/" />}
+
     <main id="main"><slot /></main>
-    <Footer />
+
+    {site === "pizza" && <Footer />}
+    {site === "pickle" && <PickleFooter />}
+
+    <!-- 스크롤 등장(점진적 향상): JS 있을 때만 숨겼다가 뷰포트 진입 시 표시 -->
+    <script is:inline>
+      (function () {
+        var els = document.querySelectorAll('[data-reveal]');
+        if (!els.length) return;
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (reduce || !('IntersectionObserver' in window)) return;
+        document.documentElement.classList.add('js-reveal');
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (en) {
+            if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); }
+          });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+        els.forEach(function (el) { io.observe(el); });
+      })();
+    </script>
   </body>
 </html>

@@ -1,0 +1,46 @@
+---
+/** PickleFooter — 피클 페이지 하단. 진한 올리브 그린 바 + 인트로/피자클립으로 되돌아가는 링크 */
+import SocialIcons from "./SocialIcons.astro";
+import { PICKLE_GITHUB_URL, PIZZA_HOME } from "../consts.ts";
+---
+<footer class="pkfoot">
+  <div class="pkfoot__inner">
+    <span class="pkfoot__brand">🥒 PICKle</span>
+    <nav class="pkfoot__links" aria-label="하단 메뉴">
+      <ul>
+        <li><a href="/">인트로</a></li>
+        <li><a href={PIZZA_HOME}>피자클립</a></li>
+        <li><a href={PICKLE_GITHUB_URL} target="_blank" rel="noopener">깃허브</a></li>
+      </ul>
+    </nav>
+    <div class="pkfoot__social"><SocialIcons github={PICKLE_GITHUB_URL} size={18} /></div>
+    <small class="pkfoot__copy">© 2026 PICKle · Team JAM</small>
+  </div>
+</footer>
+
+<style>
+  .pkfoot {
+    background: var(--pk-green);
+    color: var(--color-bg);
+    padding-block: 2.5rem;
+  }
+  .pkfoot__inner {
+    max-width: var(--maxw);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 2rem;
+  }
+  .pkfoot__brand { font-family: var(--font-en); font-weight: 700; font-size: 1.15rem; }
+  .pkfoot__links ul { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: var(--fs-small); }
+  .pkfoot__links a:hover { color: var(--pk-sand); }
+  /* 푸터 안 소셜 아이콘은 크림색으로(틸 대비 어두워 안 보임) */
+  .pkfoot__social :global(.social__btn) { color: var(--color-bg); }
+  .pkfoot__social :global(.social__btn:hover) { background: var(--color-bg); color: var(--pk-green); }
+  .pkfoot__copy { margin-left: auto; opacity: 0.78; }
+  @media (max-width: 640px) {
+    .pkfoot__copy { margin-left: 0; width: 100%; }
+  }
+</style>

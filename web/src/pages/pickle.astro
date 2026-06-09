@@ -1,0 +1,186 @@
+---
+/**
+ * 피클 홈(/pickle) — 신규 단일 페이지.
+ * 가이드: web/site-renewal/피클가이드.png
+ * 색 띠 섹션(크림→올리브→블루→샌드→그레이) + 콘텐츠 카드 + 피클 스티커 콜라주.
+ * 아직 정식 출시 전 — 다운로드는 '출시 예정'(비활성) + 인스타 알림 링크.
+ */
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { INSTAGRAM_URL } from "../consts.ts";
+---
+<BaseLayout site="pickle">
+  <!-- ===== 히어로 (크림) ===== -->
+  <section class="hero band">
+    <div class="container hero__inner">
+      <div class="hero__copy" data-reveal>
+        <h1>“캡처는 했는데 어디 갔지?” 병<br />이거 완벽하게 고쳐드립니다.</h1>
+        <p class="hero__lead">
+          “어라, 분명히 찍어뒀는데…” 스크린샷 실종사건 이제 그만.
+          중요한 스크린샷을 피클처럼 새콤하게 절여두세요.
+          필요할 때마다 쏙쏙, 가장 신선한 상태로 찾아 드립니다.
+        </p>
+        <div class="hero__cta">
+          <button type="button" class="pill pill--soon" disabled>출시 예정</button>
+          <a class="pill pill--olive" href="#pk-start">사용법 보기</a>
+        </div>
+      </div>
+      <figure class="hero__art" data-reveal>
+        <img src="/img/pickle/hero-char.png" width="800" height="698"
+             alt="피클 캐릭터 — 맥북을 들고 달려오는 피클" fetchpriority="high" />
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===== 자동 저장 (올리브) ===== -->
+  <section class="band band--olive" id="pk-start">
+    <div class="container">
+      <div class="panel" data-reveal>
+        <h2>저만 스크린샷이 배경화면을 지배하고 있는거 아니죠?</h2>
+        <h3 class="panel__sub">피클병에 차곡차곡 담아두세요</h3>
+        <p>
+          스크린샷을 찍으면 자동으로 문서 속 “피클병” 폴더에 저장됩니다.
+          잃어버린 캡처를 찾으려고 폴더를 뒤질 필요는 없습니다.
+        </p>
+      </div>
+    </div>
+    <img class="sticker" src="/img/pickle/sticker-easy.png"
+         style="--sw: clamp(120px,18vw,230px); left:2%; top:-5%; transform:rotate(-7deg);"
+         alt="" aria-hidden="true" loading="lazy" />
+    <img class="sticker hide-sm" src="/img/pickle/snap-oval.png"
+         style="--sw: clamp(120px,16vw,210px); left:50%; top:-8%; transform:translateX(-50%) rotate(3deg);"
+         alt="" aria-hidden="true" loading="lazy" />
+    <img class="sticker hide-sm" src="/img/pickle/jar.png"
+         style="--sw: clamp(80px,10vw,130px); right:3%; top:-9%; transform:rotate(6deg);"
+         alt="" aria-hidden="true" loading="lazy" />
+  </section>
+
+  <!-- ===== 빠른 접근 (블루) ===== -->
+  <section class="band band--blue">
+    <div class="container">
+      <div class="panel" data-reveal>
+        <h2>필요한 캡처를, 필요한 순간에</h2>
+        <h3 class="panel__sub">메뉴바에서 바로 꺼내기</h3>
+        <p>
+          최근에 찍은 캡처는 피클 메뉴바 아이콘에서 미리보기로 바로 확인하고,
+          드래그 한 번으로 메일·메신저·문서 어디든 붙여넣으세요.
+          폴더를 열고 파일을 뒤질 필요가 없습니다.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 쓰는 법 (샌드) ===== -->
+  <section class="band band--sand">
+    <div class="container">
+      <div class="panel" data-reveal>
+        <h2>쓰는 법은, 오이지 담그기보다 쉽게</h2>
+        <ol class="steps">
+          <li><b>찰칵</b> — 평소처럼 스크린샷을 찍습니다.</li>
+          <li><b>퐁당</b> — 피클이 알아서 ‘피클병’ 폴더에 담아둡니다.</li>
+          <li><b>쏙</b> — 필요할 때 메뉴바에서 꺼내 씁니다.</li>
+        </ol>
+      </div>
+    </div>
+    <img class="sticker" src="/img/pickle/card-fresh.png"
+         style="--sw: clamp(130px,20vw,250px); left:2%; top:-7%; transform:rotate(-5deg);"
+         alt="" aria-hidden="true" loading="lazy" />
+    <img class="sticker hide-sm" src="/img/pickle/sign-char.png"
+         style="--sw: clamp(90px,12vw,150px); right:2%; bottom:5%;"
+         alt="" aria-hidden="true" loading="lazy" />
+  </section>
+
+  <!-- ===== 출시 예정 CTA (그레이) ===== -->
+  <section class="band band--gray" id="download">
+    <div class="container">
+      <div class="panel cta" data-reveal>
+        <div class="cta__inner">
+          <h2>피클, 곧 새콤하게 절여서 내놓을게요 🥒</h2>
+          <p class="cta__lead">
+            아직 막바지 숙성 중이에요. 가격은 0원, 모든 Mac 지원으로 준비하고 있습니다.
+            출시되면 가장 먼저 알려드릴게요.
+          </p>
+          <div class="cta__btns">
+            <button type="button" class="pill pill--soon pill--lg" disabled>출시 예정</button>
+            <a class="pill pill--olive pill--lg" href={INSTAGRAM_URL} target="_blank" rel="noopener">
+              출시 알림 받기 →
+            </a>
+          </div>
+          <p class="cta__note">macOS · 무료 예정 · Team JAM</p>
+        </div>
+      </div>
+    </div>
+    <img class="sticker" src="/img/pickle/sticker-person.png"
+         style="--sw: clamp(110px,17vw,200px); right:2%; top:-9%; transform:rotate(6deg);"
+         alt="" aria-hidden="true" loading="lazy" />
+  </section>
+</BaseLayout>
+
+<style>
+  .band { overflow-x: clip; }
+  .band--olive { background: var(--pk-olive); }
+  .band--blue  { background: var(--pk-blue); }
+  .band--sand  { background: var(--pk-sand); }
+  .band--gray  { background: var(--pk-gray); }
+
+  /* ── 히어로 ── */
+  .hero { padding-block: clamp(2.5rem, 6vw, 5rem); }
+  .hero__inner { display: flex; align-items: center; gap: clamp(2rem, 6vw, 4rem); flex-wrap: wrap; }
+  .hero__copy { flex: 1 1 340px; }
+  .hero h1 { font-size: clamp(1.6rem, 4.3vw, 2.6rem); color: var(--color-ink); line-height: 1.22; }
+  .hero__lead { font-size: 1.1rem; margin-top: 1.25rem; color: var(--color-text); max-width: 46ch; }
+  .hero__cta { display: flex; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
+  .hero__art { flex: 0 0 auto; margin-inline: auto; width: min(360px, 80vw); }
+  .hero__art img { width: 100%; height: auto; }
+
+  /* ── 콘텐츠 패널 공통(피클) ── */
+  .panel { max-width: 820px; margin-inline: auto; }
+  .panel h2 { font-size: var(--fs-h2); color: var(--color-ink); }
+  .panel__sub { margin-top: 1rem; font-size: 1.15rem; color: var(--pk-olive-ink); font-weight: 700; }
+  .panel p { margin-top: 0.8rem; font-size: 1.08rem; color: var(--color-text); }
+
+  .steps { margin-top: 1.3rem; display: grid; gap: 0.8rem; counter-reset: s; }
+  .steps li {
+    position: relative; padding-left: 2.6rem; font-size: 1.06rem; line-height: 1.5;
+  }
+  .steps li::before {
+    counter-increment: s; content: counter(s);
+    position: absolute; left: 0; top: 0;
+    width: 1.8rem; height: 1.8rem; border-radius: 50%;
+    background: var(--pk-olive-ink); color: #fff;
+    display: grid; place-items: center; font-weight: 700; font-size: 0.95rem;
+  }
+  .steps b { color: var(--pk-olive-ink); }
+
+  /* ── 출시예정 CTA ── */
+  .cta { text-align: center; }
+  .cta__inner { display: flex; flex-direction: column; align-items: center; }
+  .cta__lead { max-width: 48ch; }
+  .cta__btns { display: flex; gap: 0.75rem; margin-top: 1.6rem; flex-wrap: wrap; justify-content: center; }
+  .cta__note { margin-top: 1rem; font-size: var(--fs-small); opacity: 0.7; }
+
+  /* ── 피클 알약 버튼 ── */
+  .pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    font-family: var(--font-en); font-weight: 700; letter-spacing: 0.02em;
+    font-size: 1rem; padding: 0.6em 1.5em;
+    border-radius: var(--radius-pill); border: 2px solid transparent;
+    white-space: nowrap; appearance: none; -webkit-appearance: none;
+    transition: transform 0.12s ease, background 0.12s ease, color 0.12s ease;
+  }
+  button.pill:disabled { opacity: 0.92; } /* 네이티브 disabled 흐림 방지 — 룩 유지 */
+  .pill--lg { font-size: 1.05rem; padding: 0.8em 2em; }
+  .pill--soon {
+    border-color: var(--pk-red); color: var(--pk-red);
+    background: repeating-linear-gradient(45deg, transparent, transparent 7px, rgba(188,63,36,0.08) 7px, rgba(188,63,36,0.08) 14px);
+    cursor: not-allowed; opacity: 0.92;
+  }
+  .pill--olive { border-color: var(--pk-olive-ink); color: var(--pk-olive-ink); background: transparent; }
+  .pill--olive:hover { background: var(--pk-olive-ink); color: #fff; transform: translateY(-1px); }
+
+  @media (max-width: 760px) {
+    .hero__copy { text-align: center; }
+    .hero__lead { margin-inline: auto; }
+    .hero__cta { justify-content: center; }
+    .hide-sm { display: none !important; }
+  }
+</style>

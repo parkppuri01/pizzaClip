@@ -4,7 +4,7 @@
  * 메뉴 글자색 교차: 홀수=네이비, 짝수=빨강. 우측 DOWNLOAD 버튼.
  */
 import Button from "./Button.astro";
-import { NAV_LINKS, DOWNLOAD_URL } from "../consts.ts";
+import { NAV_LINKS, DOWNLOAD_URL, PIZZA_HOME } from "../consts.ts";
 
 // 현재 경로 (활성 메뉴 표시용)
 const path = Astro.url.pathname;
@@ -13,7 +13,7 @@ const isActive = (href: string) =>
 ---
 <header class="navbar">
   <div class="container navbar__inner">
-    <a class="navbar__logo" href="/">PIZZA&nbsp;CLIP</a>
+    <a class="navbar__logo" href={PIZZA_HOME}>PIZZA&nbsp;CLIP</a>
 
     <nav aria-label="주요 메뉴">
       <ul class="navbar__links">

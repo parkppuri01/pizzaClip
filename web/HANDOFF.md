@@ -1,6 +1,6 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-05** (① INFO 릴리스노트 v1.1.0 추가 ② 다운로드 버튼 GA4 전환 이벤트 추적 ③ **appcast 노크 카운트로 앱 일일 활성 기기(DAU) 집계** — Edge 미들웨어+Upstash KV, `/api/stats` 조회. 자세히는 §5-5. 이전: 2026-06-03 HOW TO 대개편+동적 OG+영상 인트로.)
+마지막 업데이트: **2026-06-09** (🎨 **사이트 전체 리뉴얼 — 피클 앱 추가 + 풀 리디자인**. 루트(/)=인트로 선택화면 신설, 피자클립 홈은 `/pizzaclip` 으로 이동, 피클(`/pickle`) 단일 페이지 신설. 색 띠 섹션 + 스티커 콜라주. 자세히는 §3 2026-06-09 항목. 이전: 2026-06-05 INFO v1.1.0 + GA4 전환 + appcast DAU 집계(§5-5).)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
@@ -24,15 +24,20 @@ web/
 │   ├── consts.ts                 # 전역 상수: DOWNLOAD_URL / GITHUB_URL / SITE_* / NAV_LINKS
 │   ├── layouts/BaseLayout.astro  # <head> 메타·OG·canonical·폰트, Navbar/Footer 틀
 │   ├── components/
-│   │   ├── Navbar.astro           # 상단 옐로우 네비 (HOME/HOW TO/INFO + Download). 무줄바꿈+clamp
-│   │   ├── Footer.astro           # © 2026 pizzaClip · Team JAM, 메뉴 홈·사용법·깃허브
-│   │   ├── Button.astro           # 알약 버튼 3종 (primary/secondary/tertiary)
-│   │   ├── Card.astro             # 카드 2종 (menu=옐로우 / white=흰). 차콜 테두리 + 단단한 오프셋 그림자(menu=빨강/white=차콜)
-│   │   └── SliceDivider.astro     # 피자 누적 디바이더 (count 1~4 → slice-N.png, 이모지 아님)
-│   ├── pages/
-│   │   ├── index.astro            # 홈: 히어로→후킹카드→광고판→기능→다운로드 (사이사이 SliceDivider 1~4)
-│   │   ├── how-to.astro           # 사용법: 설치 3단계 + 단축키 표
-│   │   ├── info.astro             # 정보: 전체 버전 릴리스노트 + Team JAM 소개
+│   │   ├── Navbar.astro           # 피자 옐로우 네비 (HOME→/pizzaclip / HOW TO / INFO + Download). 무줄바꿈+clamp
+│   │   ├── Footer.astro           # 피자 네이비 푸터. 인트로·홈·사용법·깃허브 + 소셜
+│   │   ├── NavMinimal.astro       # ★신규 미니멀 네비. theme="intro"(크림 알약+JAM) / "pickle"(크림 바+PICKle)
+│   │   ├── SocialIcons.astro      # ★신규 인스타·스레드·깃허브 묶음(틸 테두리 버튼). github prop 으로 레포 분기
+│   │   ├── PickleFooter.astro     # ★신규 피클 푸터(진한 올리브 그린). 인트로·피자클립·깃허브
+│   │   ├── Button.astro           # 알약 버튼 3종 (primary/secondary/tertiary) — 피자/서브페이지 전용
+│   │   ├── Card.astro             # 카드 2종 (menu=옐로우 / white=흰) — how-to/info 에서 사용
+│   │   └── SliceDivider.astro     # 피자 누적 디바이더 (현재 미사용 — 리뉴얼 후 .panel 로 대체)
+│   ├── pages/                     # ── 리뉴얼(2026-06-09) 후 구조 ──
+│   │   ├── index.astro            # 루트(/) = 인트로 선택화면(피자/피클). site="intro" 슬레이트블루
+│   │   ├── pizzaclip.astro        # 피자클립 홈(/pizzaclip). 색 띠 섹션 + 스티커 콜라주. site="pizza"
+│   │   ├── pickle.astro           # 피클 홈(/pickle) 단일 페이지. site="pickle". 출시예정(비활성 다운로드)
+│   │   ├── how-to.astro           # 사용법(디자인 유지). 네비 HOME 만 /pizzaclip 로 갱신됨
+│   │   ├── info.astro             # 정보(디자인 유지). 전체 버전 릴리스노트 + Team JAM 소개
 │   │   └── blog/                  # 블로그 — 폐기됨(2026-06-01), 미연결. 차후 파일 정리 대상
 │   ├── content/blog/hello.md      # 블로그 작성 템플릿 (draft:true)
 │   ├── content.config.ts          # Astro Content Layer (glob loader) — md 1개 떨구면 자동 등장
@@ -53,6 +58,34 @@ web/
 - **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
 
 ## 3. 완료된 작업
+
+### 2026-06-09 — 🎨 사이트 전체 리뉴얼(피클 앱 추가 + 풀 리디자인)
+
+**무엇을/왜:** 피클(PICKle, 맥 스크린샷 정리 앱)이 새로 만들어져, 두 앱을 함께 소개하려고 사이트 구조를 바꾸고 전체를 새 비주얼로 리디자인. 디자인 가이드 3종(`site-renewal/{사이트인트로,피자클립가이드,피클가이드}.png`, **283MB 원본은 gitignore** — 축소본 `guide/renewal/*.png` 만 커밋)을 거의 그대로 구현.
+
+**라우팅 변경(중요):**
+- `/` = **인트로 선택화면**(신설) — 피자/피클 두 앱 카드. 기존 피자 홈을 밀어내고 루트 차지.
+- `/pizzaclip` = **피자클립 홈**(기존 `/` 콘텐츠를 새 디자인으로 이전).
+- `/pickle` = **피클 홈**(신설, 단일 페이지).
+- `/how-to`·`/info` = **디자인 유지**(피자클립용). 네비/푸터 HOME 링크만 `/pizzaclip` 로 갱신(`consts.ts` `PIZZA_HOME`).
+- ⚠️ 루트가 바뀌었으므로 기존 `pizza-clip.com/` 북마크/SEO 는 인트로로 가고, 피자 홈은 한 단계 안으로 들어감. appcast(`/appcast.xml`)·DAU 미들웨어는 무관(정적 파일 그대로).
+
+**구조/구현:**
+- **BaseLayout `site` prop**(`"pizza"|"pickle"|"intro"`)으로 네비/푸터/메타(JSON-LD·OG·title) 분기. 기본 `"pizza"`라 how-to/info 무영향.
+  - pizza → Navbar+Footer / pickle → NavMinimal(pickle)+PickleFooter / intro → NavMinimal(intro), 푸터 없음.
+- **색 띠 섹션 + 스티커 콜라주** 패턴: 각 섹션 `.band`(색 배경) 안에 `.panel`(크림 카드+차콜 오프셋 그림자=빈 콘텐츠 카드 채움) + `.sticker`(절대배치 데코 이미지, 캐릭터·뱃지·사진). global.css 에 `.band/.panel/.sticker/.photo` + 스크롤등장 유틸 추가.
+- **팔레트**(tokens.css, 가이드 좌측 픽셀에서 추출): 인트로 `--intro-bg #7499B2`/`--intro-nav #F0EBEB`/`--teal #0A807B`. 피자 띠 `--pz-peach #F2BC7E`/`--pz-coral #F1765C`/`--pz-yellow #FFDC83`/`--pz-green #468365`. 피클 `--pk-olive #B0BB51`/`--pk-olive-ink #798904`/`--pk-blue #97B7CD`/`--pk-sand #E5BD68`/`--pk-gray #D5D5D5`/`--pk-green #2F5E2C`/`--pk-red #BC3F24`.
+- **자산**: `site-renewal/` 하위 원본 PNG(스티커·캐릭터·뱃지·카드)를 알파 트림+리사이즈+FASTOCTREE 양자화(pngquant 없음)로 경량화 → `public/img/{intro,pizza,pickle}/`. 사진(billboard/pizza-store/storefront)은 기존 것 재사용. hero-poster 는 투명0%라 jpg 변환. 페이지별 OG: `og-intro.jpg`(인트로 전체)/`og-pickle.jpg`(피클 히어로)/`og-home.jpg`(피자 히어로, 재생성).
+- **피클은 아직 미출시** → 다운로드 버튼은 **'출시 예정'**(빗금 비활성 span) + '출시 알림 받기'(인스타 링크). `consts.ts` `PICKLE_RELEASED=false`. 출시되면 `PICKLE_RELEASED=true` + `PICKLE_DOWNLOAD_URL`(이미 `pickle.dmg` 가정값) 만 확인. 빈 `public/pickle/appcast.xml` 는 그대로.
+- **인터랙션**: 스크롤 등장(`data-reveal`, IntersectionObserver, **점진적 향상** — JS/IO 없으면 항상 보임, reduced-motion 존중), 카드/버튼 호버 리프트.
+
+**교훈(다음 세션 주의):**
+- **`.band { overflow: clip }` 함정** ⚠️: 양축을 다 자르면 **위로 삐져나와 이전 띠에 얹히는 스티커가 세로로 잘려 사라진다**. → `overflow-x: clip` 만 써서 가로 스크롤만 막고 세로 겹침은 허용.
+- **스티커 겹침 방향 규칙**: 띠는 DOM 순서대로 칠해지므로 **아래로 삐지는 스티커(bottom:음수)는 다음 띠 배경에 가려진다.** 항상 **다음 띠에서 `top:음수`로 위로 삐져나오게** 하거나 띠 안쪽(양수 offset)에 둘 것.
+- **preview_screenshot 스크롤 리셋 글리치 재확인**: 스크롤 후 캡처해도 위치가 어긋나 푸터 아래 빈 공간처럼 보일 수 있음 → **DOM 측정(footerBottom==docH, scrollWidth==clientWidth)이 진실.** 긴 페이지는 **뷰포트 높이를 docH 만큼 키워 한 번에 캡처**가 안전.
+- 검증: `npm run build` 통과(5페이지), 3페이지 데스크톱+375px 가로 오버플로 0, 스티커/카드/사진 가이드 대조 일치 확인.
+
+**남은 것**: 피클 정식 출시 시 다운로드 활성화 / (선택) how-to·info 새 톤 리디자인 / 블로그 잔여 파일 정리.
 
 ### 2026-06-03 — HOW TO 페이지 대개편 + 동적 OG + 사용법 영상 인트로
 
