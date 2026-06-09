@@ -16,6 +16,11 @@ struct PizzaBurst: View {
 
     private let duration: TimeInterval = 2.4
     private let gravity: CGFloat = 600   // px/s² — tuned for ~480pt popup
+    // "폭탄피자" PNG(BombPizza 에셋) 렌더 배율. 1.5(기존)에서 다시 1.5배 키워 2.25.
+    private let imageScale: CGFloat = 2.25
+    // 전체 모션 속도 배율(1.0 = 기본). vy·g를 함께 키워 튀는 높이는
+    // 유지한 채 올라갔다 떨어지는 동작 속도만 조절한다.
+    private let speed: CGFloat = 1.0
 
     struct Particle: Identifiable {
         let id = UUID()
@@ -25,8 +30,7 @@ struct PizzaBurst: View {
         let angle0: CGFloat       // initial rotation (rad)
         let omega: CGFloat        // angular velocity (rad/s)
         let delay: TimeInterval   // stagger so particles don't all launch on frame 0
-        let size: CGFloat         // emoji font size
-        let emoji: String
+        let size: CGFloat         // base size (px); rendered ×imageScale
     }
 
     var body: some View {
@@ -62,7 +66,10 @@ struct PizzaBurst: View {
         let t = elapsed - p.delay
         if t >= 0, t <= duration, size.width > 0, size.height > 0 {
             let tt = CGFloat(t)
-            let h = p.vySpeed * tt - 0.5 * gravity * tt * tt
+            // speed 배율: vy×speed, g×speed² → 정점 높이는 그대로, 동작만 빨라짐
+            let vy = p.vySpeed * speed
+            let g = gravity * speed * speed
+            let h = vy * tt - 0.5 * g * tt * tt
             let x = p.x0Norm * size.width + p.vx * tt
             let y = size.height - h
             let angle = p.angle0 + p.omega * tt
@@ -73,8 +80,11 @@ struct PizzaBurst: View {
                 return 1
             }()
 
-            Text(p.emoji)
-                .font(.system(size: p.size))
+            Image("BombPizza")
+                .resizable()
+                .interpolation(.high)
+                .aspectRatio(contentMode: .fit)
+                .frame(width: p.size * imageScale, height: p.size * imageScale)
                 .rotationEffect(.radians(Double(angle)))
                 .position(x: x, y: y)
                 .opacity(opacity)
@@ -82,16 +92,17 @@ struct PizzaBurst: View {
     }
 
     private static func makeParticles() -> [Particle] {
-        (0..<48).map { _ in
+        (0..<34).map { _ in
             Particle(
                 x0Norm: CGFloat.random(in: 0.08...0.92),
-                vySpeed: CGFloat.random(in: 360...560),
+                // 튀어오르는 높이 편차는 유지하되 최고점은 살짝 낮춤.
+                vySpeed: CGFloat.random(in: 300...560),
                 vx: CGFloat.random(in: -70...70),
                 angle0: CGFloat.random(in: 0...(2 * .pi)),
                 omega: CGFloat.random(in: -4...4),
                 delay: TimeInterval.random(in: 0...0.32),
-                size: CGFloat.random(in: 16...30),
-                emoji: "🍕"
+                // 크기 편차는 유지하되 최소값을 올려 너무 작은 조각이 안 보이는 걸 방지.
+                size: CGFloat.random(in: 18...34)
             )
         }
     }
