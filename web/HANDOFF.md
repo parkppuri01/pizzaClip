@@ -82,7 +82,9 @@ web/
 **교훈(다음 세션 주의):**
 - **`.band { overflow: clip }` 함정** ⚠️: 양축을 다 자르면 **위로 삐져나와 이전 띠에 얹히는 스티커가 세로로 잘려 사라진다**. → `overflow-x: clip` 만 써서 가로 스크롤만 막고 세로 겹침은 허용.
 - **스티커 겹침 방향 규칙**: 띠는 DOM 순서대로 칠해지므로 **아래로 삐지는 스티커(bottom:음수)는 다음 띠 배경에 가려진다.** 항상 **다음 띠에서 `top:음수`로 위로 삐져나오게** 하거나 띠 안쪽(양수 offset)에 둘 것.
-- **preview_screenshot 스크롤 리셋 글리치 재확인**: 스크롤 후 캡처해도 위치가 어긋나 푸터 아래 빈 공간처럼 보일 수 있음 → **DOM 측정(footerBottom==docH, scrollWidth==clientWidth)이 진실.** 긴 페이지는 **뷰포트 높이를 docH 만큼 키워 한 번에 캡처**가 안전.
+- **preview_screenshot 스크롤 리셋 글리치 재확인**: 스크롤 후 캡처해도 위치가 어긋나 푸터 아래 빈 공간처럼 보일 수 있음 → **DOM 측정(footerBottom==docH, scrollWidth==clientWidth)이 진실.** 긴 페이지는 **뷰포트 높이를 docH 만큼 키워 한 번에 캡처**가 안전(단 뷰포트가 docH보다 많이 크면 캡처가 축소돼 작게 나옴 → docH 에 근접하게).
+- **스티커 위치는 '띠'가 아니라 '카드(텍스트 박스)' 기준**: 각 띠 안에 `.bandwrap`(position:relative, max-width=카드폭, 가운데정렬)을 두고 스티커를 그 안에 절대배치 → 가이드처럼 카드 모서리에 정확히 붙음. 띠 전체(left:2%/right:2%)에 붙이면 양쪽 끝으로 퍼져 어긋난다(2026-06-09 수정).
+- **⚠️ Astro dev(HMR) scoped-style stale 함정**: `.astro` 의 `<style>` 을 크게 갈아엎으면 **HTML(클래스)은 갱신되는데 scoped CSS 가 안 따라와** 규칙이 통째로 안 먹는 일이 있음(증상: 스티커가 전부 좌상단에 기본크기로 쌓임, `getComputedStyle` 에 `--sw`/left/top 미적용, `document.styleSheets` 에 해당 규칙 없음). **빌드 dist 엔 정상**. → preview_stop + preview_start 로 **dev 서버 재시작**하면 해결. CSS 검증은 항상 재시작 후 또는 `getComputedStyle` 로 확인.
 - 검증: `npm run build` 통과(5페이지), 3페이지 데스크톱+375px 가로 오버플로 0, 스티커/카드/사진 가이드 대조 일치 확인.
 
 **남은 것**: 피클 정식 출시 시 다운로드 활성화 / (선택) how-to·info 새 톤 리디자인 / 블로그 잔여 파일 정리.
