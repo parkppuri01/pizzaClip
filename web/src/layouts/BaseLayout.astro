@@ -36,7 +36,7 @@ const {
 
 // 제품/메타 — site 별 분기
 const appName  = site === "pickle" ? PICKLE_TITLE
-               : site === "intro"  ? "PIZZA CLIP & PICKle"
+               : site === "intro"  ? "PIZZA CLIP & PICkle"
                : SITE_TITLE;
 const appDesc  = site === "pickle" ? PICKLE_DESC : SITE_DESC;
 const appCat   = "UtilitiesApplication";
@@ -46,7 +46,7 @@ const released = site === "pickle" ? PICKLE_RELEASED : true;
 
 const defaultTitle =
   site === "pickle" ? `${PICKLE_TITLE} — 맥 스크린샷 정리 앱`
-  : site === "intro" ? `PIZZA CLIP & PICKle — Team JAM`
+  : site === "intro" ? `PIZZA CLIP & PICkle — Team JAM`
   : `${SITE_TITLE} — 맥 클립보드 히스토리 앱`;
 const pageTitle = title ? `${title} · ${appName}` : defaultTitle;
 

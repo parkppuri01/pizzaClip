@@ -18,7 +18,7 @@ const github = theme === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
 
 // 상대 앱으로 가는 크로스링크(피자↔피클). 로고 바로 옆 워드마크.
 const cross =
-  theme === "pizza"  ? { href: "/pickle",   label: "PICKle",     cls: "navm__cross--pickle", aria: "피클 페이지로 이동" } :
+  theme === "pizza"  ? { href: "/pickle",   label: "PICkle",     cls: "navm__cross--pickle", aria: "피클 페이지로 이동" } :
   theme === "pickle" ? { href: PIZZA_HOME,  label: "PIZZA CLIP", cls: "navm__cross--pizza", aria: "피자클립 페이지로 이동" } :
   null;
 ---
@@ -34,7 +34,7 @@ const cross =
         <a class="navm__logo navm__logo--pizza" href={logoHref}>PIZZA&nbsp;CLIP</a>
       )}
       {theme === "pickle" && (
-        <a class="navm__logo navm__logo--text" href={logoHref}>PICKle</a>
+        <a class="navm__logo navm__logo--text" href={logoHref}>PICkle</a>
       )}
       {cross && (
         <a class:list={["navm__cross", cross.cls]} href={cross.href} aria-label={cross.aria}>{cross.label}</a>

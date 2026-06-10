@@ -90,7 +90,7 @@ const pickleReleases = [
       </section>
 
       <section class="rel">
-        <h2 class="rel__brand">🥒 PICKle <span>릴리스노트</span></h2>
+        <h2 class="rel__brand">🥒 PICkle <span>릴리스노트</span></h2>
         <ul class="releases releases--pickle">
           {pickleReleases.map((r) => (
             <li class="release">
@@ -124,7 +124,7 @@ const pickleReleases = [
         <p class="teamcard__tagline">"모든 것은 장난스러운 상상에서 시작된다."</p>
 
         <p class="teamcard__body">
-          <span class="brand">PIZZA&nbsp;CLIP</span> 과 <span class="brand">PICKle</span> 을 만든
+          <span class="brand">PIZZA&nbsp;CLIP</span> 과 <span class="brand">PICkle</span> 을 만든
           '<strong>Team&nbsp;jAm</strong>'은 jae_keun과 min_gyeol, 두 사람이 가벼운 상상을
           현실로 옮기며 시작한 작은 프로젝트 팀입니다.
         </p>
@@ -140,10 +140,16 @@ const pickleReleases = [
       </section>
     </div>
 
-    <!-- ===== 더 둘러보기 (푸터 대용 빠른 링크) ===== -->
+    <!-- ===== 더 둘러보기 (인트로 카드 버튼, 작게) ===== -->
     <nav class="info__links" aria-label="앱 둘러보기">
-      <a href={PIZZA_HOME}>피자클립 보러가기 →</a>
-      <a href="/pickle">피클 보러가기 →</a>
+      <a class="info__appbtn" href={PIZZA_HOME} aria-label="피자클립 보러가기">
+        <img src="/img/intro/card-pizza.png" width="900" height="900" alt="" loading="lazy" />
+        <span>피자클립 보러가기 →</span>
+      </a>
+      <a class="info__appbtn" href="/pickle" aria-label="피클 보러가기">
+        <img src="/img/intro/card-pickle.png" width="900" height="900" alt="" loading="lazy" />
+        <span>피클 보러가기 →</span>
+      </a>
     </nav>
   </section>
 </BaseLayout>
@@ -246,20 +252,28 @@ const pickleReleases = [
   .teamcard__en { font-weight: 700; font-size: var(--fs-small); color: var(--color-ink); }
   .teamcard__logo { width: 60px; height: 60px; border-radius: 50%; flex: 0 0 auto; }
 
-  /* 더 둘러보기 빠른 링크 */
+  /* 더 둘러보기 — 인트로 카드 버튼(작게) */
   .info__links {
     margin-top: var(--section-gap);
-    display: flex; gap: 1.25rem 2rem; flex-wrap: wrap; justify-content: center;
+    display: flex; gap: clamp(1.5rem, 6vw, 3.5rem); flex-wrap: wrap; justify-content: center;
   }
-  .info__links a {
-    font-family: var(--font-en); font-weight: 700; letter-spacing: 0.02em;
-    color: var(--intro-cream);
-    border: 2px solid var(--intro-cream);
-    border-radius: var(--radius-pill);
-    padding: 0.55em 1.4em;
-    transition: background 0.14s ease, color 0.14s ease, transform 0.14s ease;
+  .info__appbtn {
+    display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+    width: clamp(120px, 30vw, 150px);
+    color: var(--intro-cream); text-align: center;
   }
-  .info__links a:hover { background: var(--intro-cream); color: var(--intro-dark); transform: translateY(-2px); }
+  .info__appbtn img {
+    width: 100%; height: auto; display: block;
+    border-radius: 20px;
+    box-shadow: 0 12px 26px rgba(16, 33, 56, 0.3);
+    transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease;
+  }
+  .info__appbtn span {
+    font-weight: 600; font-size: clamp(0.88rem, 2.2vw, 1rem); letter-spacing: 0.01em;
+  }
+  .info__appbtn:hover img { transform: translateY(-6px) scale(1.03); box-shadow: 0 20px 38px rgba(16, 33, 56, 0.42); }
+  .info__appbtn:focus-visible { outline: none; }
+  .info__appbtn:focus-visible img { outline: 3px solid var(--intro-cream); outline-offset: 4px; }
 
   @media (max-width: 760px) {
     .info__grid { grid-template-columns: 1fr; }

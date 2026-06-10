@@ -10,10 +10,18 @@ import Button from "../components/Button.astro";
 import { DOWNLOAD_URL } from "../consts.ts";
 
 const features = [
-  { icon: "🍕", title: "⌘C의 무한 보관소", desc: "글자부터 이미지, 파일까지 복사하는 즉시 알아서 담아둡니다. 새로 복사했다고 이전 기록이 사라지던 답답함은 끝!" },
-  { icon: "⚡", title: "키보드 워리어용 1초 컷", desc: "⌘ + ⇧ + V 로 클립보드를 열고, 숫자키(0~9)로 원하는 조각을 바로 골라 쓰세요. 트랙패드까지 손 옮길 필요 없이 진짜 1초." },
-  { icon: "🇰🇷", title: "한/영 전환도 가볍게", desc: "잠자던 오른쪽 ⌘ 키 하나로 한/영을 전환하세요. 맥북 쓰며 은근히 킹받던 입력 소스 스트레스를 날려줍니다. (켜고 끄는 옵션)" },
-  { icon: "🔒", title: "철저한 로컬 보안", desc: "복사한 비밀번호·개인정보가 밖으로 샐까 걱정이셨나요? 모든 히스토리는 외부 서버를 타지 않고 오직 내 맥 안에서만 보관됩니다." },
+  {
+    title: "오늘 당신은 몇 조각의 피자를 구우셨나요? 🍕",
+    desc: "다음 복사에 밀려 허무하게 날아가던 나의 소중한 데이터들. 이제 복사할 때마다 메뉴바에 맛있는 피자가 한 조각씩 차곡차곡 쌓입니다. 텍스트도, 링크도, 이미지도 복사만 하면 자동 저장! 여덟 조각이 모두 모여 ‘피자 한 판’이 완성되는 즐거움을 느끼다 보면, 어느새 산더미 같던 업무도 맛있게 끝나 있을 거예요.",
+  },
+  {
+    title: "마우스로 손 뻗는 시간도 아까운 당신을 위해. ⚡️",
+    desc: "방금 복사한 것도, 아까 낮에 복사했던 것도 단축키 하나로 소환 완료! 번거롭게 파일 탐색기나 메모장을 뒤적일 필요가 전혀 없습니다. 작업하던 화면 그대로 단축키만 톡- 누르면 내가 모아둔 ‘피자 조각(클립보드 기록)’들이 한눈에 펼쳐집니다. 마우스에 손대지 말고 키보드 위에서 초고속으로 붙여넣으세요. 작업 속도가 2배는 빨라집니다.",
+  },
+  {
+    title: "외부 유출 제로! 오직 당신의 기기에서만 구워지는 나만의 피자",
+    desc: "혹시 비밀번호나 계좌번호, 민감한 개인정보를 복사하면서 찝찝하셨나요? ‘피자클립’은 클라우드 서버로 데이터를 절대 보내지 않습니다. 당신이 복사한 모든 데이터는 오직 내 컴퓨터(로컬) 안에서만 안전하게 피자 조각으로 구워집니다. 외부 유출 걱정 없이 안심하고 마음껏 복사하세요!",
+  },
 ];
 
 const downloadChecks = [
@@ -91,20 +99,21 @@ const shortcuts = [
     <div class="bandwrap">
       <img class="sticker s-vending hide-sm" src="/img/pizza-store.jpg"
            alt="" aria-hidden="true" loading="lazy" />
-      <span class="cssticker s-pizzaclip hide-sm" aria-hidden="true">I'm a<br />PizzaClip</span>
+      <img class="sticker s-pizzaclip hide-sm" src="/img/pizza/sticker-imapizzaclip.png"
+           alt="" aria-hidden="true" loading="lazy" />
       <div class="panel features" data-reveal>
         <h2 class="features__title">피자클립이 하는 일</h2>
-        <ul>
-          {features.map((f) => (
+        <ol class="feature-list">
+          {features.map((f, i) => (
             <li class="feature">
-              <span class="feature__icon" aria-hidden="true">{f.icon}</span>
-              <div>
+              <span class="feature__num" aria-hidden="true">{i + 1}</span>
+              <div class="feature__body">
                 <h3>{f.title}</h3>
                 <p>{f.desc}</p>
               </div>
             </li>
           ))}
-        </ul>
+        </ol>
       </div>
       <img class="sticker s-clipboard hide-sm" src="/img/pizza/badge-clipboard.png"
            alt="" aria-hidden="true" loading="lazy" />
@@ -114,7 +123,7 @@ const shortcuts = [
   <!-- ===== 매장 사진 (green) ===== -->
   <section class="band band--green">
     <div class="bandwrap bandwrap--tall">
-      <img class="sticker s-running hide-sm" src="/img/pizza/mascot-running.png"
+      <img class="sticker s-running hide-sm" src="/img/pizza/mascot-hi-bw.png"
            alt="" aria-hidden="true" loading="lazy" />
       <figure class="photo-frame f-store" data-reveal>
         <img class="photo" src="/img/storefront.jpg" width="1400" height="933"
@@ -148,7 +157,7 @@ const shortcuts = [
     <div class="bandwrap">
       <div class="panel download" data-reveal>
         <div class="download__inner">
-          <h2>Mac에 빼놓을 수 없는 토핑,<br class="br-sm" /> 피자클립 🍕</h2>
+          <h2>Mac에 빼놓을 수 없는 토핑,<br class="br-sm" /> 피자클립</h2>
           <ul class="download__checks">
             {downloadChecks.map((c) => (<li>{c}</li>))}
           </ul>
@@ -205,13 +214,18 @@ const shortcuts = [
   .f-billboard { max-width: 600px; margin-inline: auto; transform: rotate(3deg); }
   .f-store { max-width: 460px; margin-left: auto; margin-right: 2%; transform: rotate(3deg); }
 
-  /* ── 기능 ── */
-  .features__title { margin-bottom: 1.4rem; }
-  .features ul { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.3rem; }
-  .feature { display: flex; gap: 0.85rem; align-items: flex-start; }
-  .feature__icon { font-size: 1.7rem; line-height: 1.2; }
-  .feature h3 { font-size: 1.1rem; }
-  .feature p { margin-top: 0.3rem; color: var(--color-ink); opacity: 0.85; font-size: 0.96rem; }
+  /* ── 기능(피자클립이 하는 일): 번호 뱃지 + 헤드라인 + 본문, 세로 리스트 ── */
+  .features__title { margin-bottom: 1.5rem; }
+  .feature-list { display: grid; gap: 1.5rem; list-style: none; padding: 0; margin: 0; }
+  .feature { display: flex; gap: 0.95rem; align-items: flex-start; }
+  .feature__num {
+    flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 50%;
+    display: grid; place-items: center; margin-top: 0.15rem;
+    background: var(--color-point); color: #fff;
+    font-family: var(--font-en); font-weight: 700; font-size: 1.05rem;
+  }
+  .feature h3 { font-size: 1.16rem; line-height: 1.35; color: var(--color-ink); }
+  .feature p { margin-top: 0.4rem; color: var(--color-ink); opacity: 0.85; font-size: 0.99rem; line-height: 1.62; }
 
   /* ── 다운로드 ── */
   .download__inner { display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -247,27 +261,19 @@ const shortcuts = [
   /* yellow: "I'm a PizzaClip" 빨강 텍스트 — 카드 우상단 위로 삐짐 */
   /* yellow: PIZZA CLIP CLIPBOARD 노란 타원 — 카드 우하단 모서리 */
   .s-clipboard { --sw: clamp(120px, 15vw, 195px); right: -5%; bottom: -14%; transform: rotate(6deg); }
-  /* green: 달리는 피자 — 좌상단, 노란 띠로 위로 삐짐 */
-  .s-running { --sw: clamp(92px, 12vw, 150px); left: 3%; top: -36%; }
+  /* green: 하이피자(흑백, 손흔드는) — 좌상단, 노란 띠 경계에 몸통 중간쯤 걸침(가이드 기준) */
+  .s-running { --sw: clamp(96px, 12.5vw, 158px); left: 5%; top: -45%; }
   /* green: PIZZA CLIP 노란 원형 뱃지 — 매장사진 좌하단 모서리에 겹침 */
   .s-round   { --sw: clamp(110px, 14vw, 178px); left: 30%; top: 50%; }
   /* cream: "I'm a Pizza Clip person" — 카드 우상단 모서리 위로(green으로) 삐짐 */
   .s-person  { --sw: clamp(110px, 15vw, 188px); right: -3%; top: -16%; transform: rotate(6deg); }
 
-  /* CSS 스티커: "I'm a PizzaClip" 빨강 — 카드 우상단 위로 삐짐 */
-  .cssticker { position: absolute; pointer-events: none; z-index: 3; }
-  .s-pizzaclip {
-    right: -1%; top: -12%;
-    font-family: var(--font-en); font-weight: 700;
-    font-size: clamp(1.4rem, 3.6vw, 2.3rem); line-height: 0.95;
-    color: var(--color-point); -webkit-text-stroke: 2px #fff; paint-order: stroke fill;
-    transform: rotate(-10deg); text-align: center;
-  }
+  /* "I'm a PizzaClip" 빨강 텍스트 스티커(이미지) — 기능 카드 우상단 위로 삐짐 */
+  .s-pizzaclip { --sw: clamp(155px, 23vw, 250px); right: -2%; top: -15%; transform: rotate(-8deg); }
 
   .br-sm { display: none; }
 
   @media (max-width: 760px) {
-    .features ul { grid-template-columns: 1fr; }
     .hero__copy { text-align: center; }
     .hero__cta { justify-content: center; }
     .hide-sm { display: none !important; }

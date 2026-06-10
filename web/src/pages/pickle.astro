@@ -18,6 +18,22 @@ const pickleShortcuts = [
   { keys: "⇧⌥F", desc: "보관함(최근 캡처) 열기 · 닫기" },
   { keys: "편집창 ⌘Z · ↵ · esc", desc: "되돌리기 · 자르기 적용 · 취소" },
 ];
+
+// 피클이 하는 일 — 헤드라인 + 본문 3개(피자클립 '하는 일' 섹션과 동일 톤).
+const pickleFeatures = [
+  {
+    title: "당신의 바탕화면도 스크린샷으로 테트리스 중인가요? (저만 그런 거 아니죠? 🫣)",
+    desc: "찍을 땐 좋았지만 돌아서면 미아가 되는 스크린샷들. 이제 여기저기 헤매지 말고 [문서] 폴더 속 ‘피클병’ 하나만 기억하세요. 스크린샷을 찍는 순간, 피클병이 알아서 쏙쏙 받아 담아둡니다. 바탕화면은 미니멀하게, 스크린샷 찾기는 심플하게.",
+  },
+  {
+    title: "스크린샷 한 장 편집하자고 포토샵까지 소환하긴 솔직히 귀찮잖아요. 🤫",
+    desc: "계좌번호 가리기, 서명 넣기, 필요한 부분만 싹둑 자르기… 이 모든 걸 프로그램 하나로 손쉽게 해결할 수 있다면? 번거로운 이리저리 이동 없이, 스크린샷 찍고 피클 안에서 한 번에 슥- 이제 보안도, 편집도 피클 하나로 가볍게 ‘싹 가능’입니다.",
+  },
+  {
+    title: "메뉴바 위에 동동 떠 있는 가장 귀여운 보관함",
+    desc: "아까 찍은 스크린샷이 필요할 땐, 메뉴바에 상주하는 귀여운 피클병을 톡- 클릭하세요. 무엇이 들어있는지 한눈에 확인하고, 필요한 곳으로 드래그 앤 드롭하면 끝! 작업의 흐름을 깨지 않는 가장 우아하고 직관적인 스크린샷 보관함, 피클병입니다.",
+  },
+];
 ---
 <BaseLayout site="pickle">
   <!-- ===== 히어로 (크림) ===== -->
@@ -93,6 +109,26 @@ const pickleShortcuts = [
     </div>
   </section>
 
+  <!-- ===== 피클이 하는 일 (올리브) ===== -->
+  <section class="band band--olive">
+    <div class="bandwrap">
+      <div class="panel features" data-reveal>
+        <h2 class="features__title">피클이 하는 일</h2>
+        <ol class="feature-list">
+          {pickleFeatures.map((f, i) => (
+            <li class="feature">
+              <span class="feature__num" aria-hidden="true">{i + 1}</span>
+              <div class="feature__body">
+                <h3>{f.title}</h3>
+                <p>{f.desc}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== 다운로드 CTA (그레이) ===== -->
   <section class="band band--gray" id="download">
     <div class="bandwrap">
@@ -121,6 +157,12 @@ const pickleShortcuts = [
   .band--sand  { background: var(--pk-sand); }
   .band--gray  { background: var(--pk-gray); }
 
+  /* 자동저장(올리브)↔빠른접근(블루) 박스 사이를 넓혀 스티커가 놀 공간 확보(가이드 기준).
+     올리브쪽 패딩을 크게 줘 경계를 내려 스티커가 올리브 배경 위에 놓이게. */
+  #pk-start { padding-bottom: clamp(10.5rem, 16vw, 13rem); }
+  /* --pk-gap-pt 를 블루 패딩과 스티커 위치 calc 에 함께 써서, 스티커가 항상 경계선 기준 일정 높이에 놓이게(폭 무관 안정). */
+  .band--blue { --pk-gap-pt: clamp(5rem, 9vw, 7.5rem); padding-top: var(--pk-gap-pt); }
+
   /* 위치 기준 = 카드 폭의 래퍼 */
   .bandwrap { position: relative; max-width: 880px; margin-inline: auto; padding-inline: var(--gutter); }
 
@@ -129,6 +171,19 @@ const pickleShortcuts = [
   .panel h2 { font-size: var(--fs-h2); color: var(--color-ink); }
   .panel__sub { margin-top: 1rem; font-size: 1.15rem; color: var(--pk-olive-ink); font-weight: 700; }
   .panel p { margin-top: 0.8rem; font-size: 1.08rem; color: var(--color-text); }
+
+  /* ── 피클이 하는 일: 번호 뱃지 + 헤드라인 + 본문, 세로 리스트 ── */
+  .features__title { margin-bottom: 1.5rem; }
+  .feature-list { display: grid; gap: 1.5rem; list-style: none; padding: 0; margin: 0; }
+  .feature { display: flex; gap: 0.95rem; align-items: flex-start; }
+  .feature__num {
+    flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 50%;
+    display: grid; place-items: center; margin-top: 0.15rem;
+    background: var(--pk-olive-ink); color: var(--color-bg);
+    font-family: var(--font-en); font-weight: 700; font-size: 1.05rem;
+  }
+  .feature__body h3 { font-size: 1.16rem; line-height: 1.35; color: var(--color-ink); }
+  .feature__body p { margin-top: 0.4rem; color: var(--color-text); font-size: 1rem; line-height: 1.65; }
 
   /* ── 히어로 ── */
   .hero { padding-block: clamp(2.5rem, 6vw, 5rem); }
@@ -176,9 +231,9 @@ const pickleShortcuts = [
   .sticker { position: absolute; pointer-events: none; user-select: none; z-index: 3;
              filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.18)); width: var(--sw, 160px); }
   /* 올리브/블루 경계: Easy(좌) · SNAP TOOL(중) · 병(우) */
-  .s-easy { --sw: clamp(125px, 18vw, 225px); left: -3%; top: -28%; transform: rotate(-7deg); }
-  .s-snap { --sw: clamp(120px, 16vw, 205px); left: 50%; top: -30%; transform: translateX(-50%) rotate(2deg); }
-  .s-jar  { --sw: clamp(78px, 10vw, 125px); right: -1%; top: -34%; transform: rotate(6deg); }
+  .s-easy { --sw: clamp(125px, 18vw, 225px); left: -3%; top: calc(-1 * var(--pk-gap-pt) - 6.3rem); transform: rotate(-7deg); }
+  .s-snap { --sw: clamp(120px, 16vw, 205px); left: 50%; top: calc(-1 * var(--pk-gap-pt) - 7.8rem); transform: translateX(-50%) rotate(2deg); }
+  .s-jar  { --sw: clamp(78px, 10vw, 125px); right: -1%; top: calc(-1 * var(--pk-gap-pt) - 8.3rem); transform: rotate(6deg); }
   /* 블루/샌드 경계: Screenshot 카드(좌) · 안내판 피클(우) */
   .s-fresh { --sw: clamp(135px, 19vw, 235px); left: -4%; top: -34%; transform: rotate(-4deg); }
   .s-sign  { --sw: clamp(92px, 12vw, 150px); right: 0%; top: -30%; transform: rotate(2deg); }
@@ -190,7 +245,9 @@ const pickleShortcuts = [
     .hero__lead { margin-inline: auto; }
     .hero__cta { justify-content: center; }
     .hide-sm { display: none !important; }
-    .s-easy { --sw: 116px; left: 0; top: -15%; }
+    /* 모바일은 s-easy 1개만 노출 → 올리브 간격 적당히 줄이고 가운데 배치 */
+    #pk-start { padding-bottom: clamp(6rem, 15vw, 8.5rem); }
+    .s-easy { --sw: 116px; left: 0; top: calc(-1 * var(--pk-gap-pt) - 2.5rem); }
     .s-fresh { --sw: 116px; left: 0; top: -23%; }
     .s-person { --sw: 92px; right: -1%; top: -15%; }
     .kbd-row { grid-template-columns: 1fr; gap: 0.25rem; }
