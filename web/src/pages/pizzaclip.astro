@@ -81,14 +81,11 @@ const shortcuts = [
     </div>
   </section>
 
-  <!-- ===== 광고판 사진 (coral) ===== -->
+  <!-- ===== 광고판 사진 (coral) — 사진을 스티커로(흰테두리·기울임, 가이드 배치) ===== -->
   <section class="band band--coral">
-    <div class="bandwrap">
-      <figure class="photo-frame f-billboard" data-reveal>
-        <img class="photo" src="/img/billboard.jpg" width="1400" height="933"
-             alt="피자클립 지하철 광고 — STILL HAVEN'T TRIED THE PIZZA CLIP?" loading="lazy" />
-        <figcaption>STILL HAVEN'T TRIED THE&nbsp;<b>PIZZA&nbsp;CLIP</b>?</figcaption>
-      </figure>
+    <div class="bandwrap bandwrap--tall">
+      <img class="sticker s-billboard" src="/img/billboard.jpg" width="1300" height="933"
+           alt="피자클립 지하철 광고 — STILL HAVEN'T TRIED THE PIZZA CLIP?" loading="lazy" />
       <img class="sticker s-stamp" src="/img/pizza/stamp-red.png"
            alt="" aria-hidden="true" loading="lazy" />
     </div>
@@ -125,10 +122,8 @@ const shortcuts = [
     <div class="bandwrap bandwrap--tall">
       <img class="sticker s-running hide-sm" src="/img/pizza/mascot-hi-bw.png"
            alt="" aria-hidden="true" loading="lazy" />
-      <figure class="photo-frame f-store" data-reveal>
-        <img class="photo" src="/img/storefront.jpg" width="1400" height="933"
-             alt="피자클립 매장 — Copy it while it's hot" loading="lazy" />
-      </figure>
+      <img class="sticker s-store" src="/img/storefront.jpg" width="1400" height="933"
+           alt="피자클립 매장 — Copy it while it's hot" loading="lazy" />
       <img class="sticker s-round hide-sm" src="/img/pizza/badge-round.png"
            alt="" aria-hidden="true" loading="lazy" />
     </div>
@@ -173,7 +168,7 @@ const shortcuts = [
 
 <style>
   /* 띠 — 가로만 클립(세로 겹침 허용), 패딩은 카드가 띠를 거의 채우도록 */
-  .band { overflow-x: clip; padding-block: clamp(3.75rem, 7.5vw, 6rem); position: relative; }
+  .band { overflow-x: clip; padding-block: clamp(4.75rem, 8.5vw, 7rem); position: relative; }
   .band--peach  { background: var(--pz-peach); }
   .band--coral  { background: var(--pz-coral); }
   .band--yellow { background: var(--pz-yellow); }
@@ -182,7 +177,7 @@ const shortcuts = [
 
   /* 위치 기준 = 카드 폭의 래퍼. 스티커는 이 래퍼(=카드 모서리) 기준으로 붙는다 */
   .bandwrap { position: relative; max-width: 880px; margin-inline: auto; padding-inline: var(--gutter); }
-  .bandwrap--tall { min-height: clamp(260px, 26vw, 330px); }
+  .bandwrap--tall { min-height: clamp(320px, 33vw, 440px); }  /* coral·green 사진 스티커 높이 받침 */
   .bandwrap .panel { width: 100%; max-width: none; margin: 0; }
 
   /* ── 히어로 ── */
@@ -204,15 +199,15 @@ const shortcuts = [
   .hookcard p:last-child { margin-top: 1rem; font-size: 1.1rem; }
   .hookcard em { font-style: normal; color: var(--color-point); font-weight: 700; }
 
-  /* ── 사진 프레임(폴라로이드) ── */
-  .photo-frame { width: 100%; margin: 0; }
-  .photo-frame figcaption {
-    margin-top: 0.9rem; text-align: center;
-    font-family: var(--font-en); font-weight: 700; letter-spacing: 0.03em;
-    color: #fff; font-size: clamp(1rem, 2.6vw, 1.35rem);
+  /* ── 사진 스티커(coral 광고판 · green 매장): 흰테두리 폴라로이드, 자유 배치(가이드) ── */
+  .s-billboard, .s-store {
+    border: 8px solid #fff; border-radius: 6px;
+    filter: drop-shadow(0 12px 28px rgba(0,0,0,0.32));
   }
-  .f-billboard { max-width: 600px; margin-inline: auto; transform: rotate(3deg); }
-  .f-store { max-width: 460px; margin-left: auto; margin-right: 2%; transform: rotate(3deg); }
+  /* coral: 광고판 — 카드 폭 기준 우측, 세로 가운데, 살짝 시계방향 */
+  .s-billboard { --sw: clamp(330px, 44vw, 560px); right: -2%; top: 35%; transform: translateY(-50%) rotate(-5deg); }
+  /* green: 매장 — 우측, 세로 가운데, 살짝 시계방향 */
+  .s-store { --sw: clamp(300px, 38vw, 480px); right: 0%; top: 50%; transform: translateY(-50%) rotate(3deg); }
 
   /* ── 기능(피자클립이 하는 일): 번호 뱃지 + 헤드라인 + 본문, 세로 리스트 ── */
   .features__title { margin-bottom: 1.5rem; }
@@ -255,16 +250,16 @@ const shortcuts = [
   /* coral: PIZZA CLIP 빨강 스탬프 — 광고판 좌상단 위로 삐짐 */
   .s-stamp   { --sw: clamp(86px, 12vw, 150px); left: -2%; top: -8%; transform: rotate(-7deg); }
   /* yellow: 자판기 사진 — 카드 좌상단 위로(coral로) 삐짐, 기울임 */
-  .s-vending { --sw: clamp(112px, 13vw, 155px); left: -5%; top: -52%; transform: rotate(-8deg);
+  .s-vending { --sw: clamp(200px, 22vw, 250px); left: 15%; top: -90%; transform: rotate(10deg);
                filter: drop-shadow(0 10px 22px rgba(0,0,0,0.3)); }
-  .s-vending.photo, .s-vending { border: 3px solid #fff; border-radius: 6px; }
+  .s-vending.photo, .s-vending { border: 7px solid #fff; border-radius: 6px; }
   /* yellow: "I'm a PizzaClip" 빨강 텍스트 — 카드 우상단 위로 삐짐 */
   /* yellow: PIZZA CLIP CLIPBOARD 노란 타원 — 카드 우하단 모서리 */
   .s-clipboard { --sw: clamp(120px, 15vw, 195px); right: -5%; bottom: -14%; transform: rotate(6deg); }
   /* green: 하이피자(흑백, 손흔드는) — 좌상단, 노란 띠 경계에 몸통 중간쯤 걸침(가이드 기준) */
-  .s-running { --sw: clamp(96px, 12.5vw, 158px); left: 5%; top: -45%; }
+  .s-running { --sw: clamp(96px, 12.5vw, 158px); left: 5%; top: -30%; }
   /* green: PIZZA CLIP 노란 원형 뱃지 — 매장사진 좌하단 모서리에 겹침 */
-  .s-round   { --sw: clamp(110px, 14vw, 178px); left: 30%; top: 50%; }
+  .s-round   { --sw: clamp(120px, 15vw, 178px); left: 27%; top: 50%; }
   /* cream: "I'm a Pizza Clip person" — 카드 우상단 모서리 위로(green으로) 삐짐 */
   .s-person  { --sw: clamp(110px, 15vw, 188px); right: -3%; top: -16%; transform: rotate(6deg); }
 
@@ -278,7 +273,9 @@ const shortcuts = [
     .hero__cta { justify-content: center; }
     .hide-sm { display: none !important; }
     .br-sm { display: inline; }
-    .f-billboard, .f-store { transform: none; }
+    /* 모바일: 사진 스티커는 흐름배치로(가운데, 안 잘리게) */
+    .s-billboard, .s-store { position: static; width: min(100%, 420px); margin: 0 auto;
+                             top: auto; right: auto; transform: rotate(2deg); }
     .s-stamp { --sw: 84px; left: 0; top: -6%; }
     .s-person { --sw: 88px; right: -1%; top: -15%; }
     .kbd-row { grid-template-columns: 1fr; gap: 0.25rem; }

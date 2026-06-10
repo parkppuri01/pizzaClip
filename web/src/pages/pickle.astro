@@ -151,7 +151,7 @@ const pickleFeatures = [
 </BaseLayout>
 
 <style>
-  .band { overflow-x: clip; padding-block: clamp(4rem, 8.5vw, 6.5rem); position: relative; }
+  .band { overflow-x: clip; padding-block: clamp(5rem, 9vw, 8rem); position: relative; }
   .band--olive { background: var(--pk-olive); }
   .band--blue  { background: var(--pk-blue); }
   .band--sand  { background: var(--pk-sand); }
@@ -231,12 +231,12 @@ const pickleFeatures = [
   .sticker { position: absolute; pointer-events: none; user-select: none; z-index: 3;
              filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.18)); width: var(--sw, 160px); }
   /* 올리브/블루 경계: Easy(좌) · SNAP TOOL(중) · 병(우) */
-  .s-easy { --sw: clamp(125px, 18vw, 225px); left: -3%; top: calc(-1 * var(--pk-gap-pt) - 6.3rem); transform: rotate(-7deg); }
-  .s-snap { --sw: clamp(120px, 16vw, 205px); left: 50%; top: calc(-1 * var(--pk-gap-pt) - 7.8rem); transform: translateX(-50%) rotate(2deg); }
-  .s-jar  { --sw: clamp(78px, 10vw, 125px); right: -1%; top: calc(-1 * var(--pk-gap-pt) - 8.3rem); transform: rotate(6deg); }
+  .s-easy { --sw: clamp(150px, 19vw, 250px); left: 5%; top: calc(-1 * var(--pk-gap-pt) - 6.3rem); transform: rotate(-7deg); }
+  .s-snap { --sw: clamp(200px, 17vw, 225px); left: 50%; top: calc(-1 * var(--pk-gap-pt) - 3.8rem); transform: translateX(-50%) rotate(2deg); }
+  .s-jar  { --sw: clamp(78px, 10vw, 125px); right: 11%; top: calc(-1 * var(--pk-gap-pt) - 8.3rem); transform: rotate(-15deg); }
   /* 블루/샌드 경계: Screenshot 카드(좌) · 안내판 피클(우) */
-  .s-fresh { --sw: clamp(135px, 19vw, 235px); left: -4%; top: -34%; transform: rotate(-4deg); }
-  .s-sign  { --sw: clamp(92px, 12vw, 150px); right: 0%; top: -30%; transform: rotate(2deg); }
+  .s-fresh { --sw: clamp(250px, 22vw, 255px); left: 10%; top: -50%; transform: rotate(4deg); }
+  .s-sign  { --sw: clamp(170px, 18vw, 200px); right: 10%; top: -60%; transform: rotate(2deg); }
   /* 그레이: "I'm a PICKle person" — 카드 우상단 모서리 */
   .s-person { --sw: clamp(115px, 16vw, 195px); right: -2%; top: -18%; transform: rotate(6deg); }
 
