@@ -54,6 +54,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image, Astro.site);
 const siteUrl = Astro.site?.toString() ?? "https://pizza-clip.com/";
 
+// 페이지별 파비콘(탭 아이콘): 피자=🍕 / 피클=🥒 / 인트로·인포=JAM 로고
+const faviconSvg = site === "pickle" ? "/favicon-pickle.svg"
+                 : site === "intro"  ? "/favicon-jam.svg"
+                 : "/favicon-pizza.svg";
+
 // 구조화 데이터(JSON-LD)
 const softwareApp: Record<string, unknown> = {
   "@context": "https://schema.org",
@@ -104,7 +109,8 @@ const jsonLd = [
       });
     </script>
 
-    <!-- 파비콘 -->
+    <!-- 파비콘 (페이지별: 피자🍕 / 피클🥒 / 인트로·인포 JAM) — SVG를 우선 사용, .ico는 구형 폴백 -->
+    <link rel="icon" type="image/svg+xml" href={faviconSvg} />
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
     <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
