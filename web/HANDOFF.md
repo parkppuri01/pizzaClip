@@ -1,30 +1,33 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-10** (🚀 **2차 개편 + 피클 1.0 출시 — 라이브 배포 완료**. 상단바 전 페이지 NavMinimal 통합(+크로스링크+ⓘ인포버튼), INFO 인트로풍 재구성(피클 히스토리 포함), 피클 다운로드 활성화(자체호스팅 DMG), 피클 로고=Alfa Slab One, 띠 높이↑·스티커 재정렬. 자세히는 §3 2026-06-10 항목. 이전: 2026-06-09 사이트 전체 리뉴얼.)
+마지막 업데이트: **2026-06-11** (🚀 **PICkle 표기 통일 + 콘텐츠·스티커 정비 + 페이지별 파비콘 — 라이브 배포 완료**. 브랜드 PICKle→PICkle 전체 통일, 피자 green 흑백 하이피자 스티커, 'I'm a PizzaClip' 이미지화, '하는 일' 기능 번호리스트 재구성(피자 3개·피클 신규섹션), INFO 하단 인트로카드 버튼, 피클 올리브↔블루 간격+스티커 정렬, 피자 광고판·매장 사진을 스티커로 전환, 페이지별 파비콘 🍕/🥒/JAM. 커밋 5bf3f80·9b2bcf2·214f95d. 자세히는 §3 2026-06-11. 이전: 2026-06-10 2차 개편.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
 
 ---
 
-## 🔖 세션 이어받기 (2026-06-10, 2차 개편 + 피클 출시 — **라이브 배포 완료**)
+## 🔖 세션 이어받기 (2026-06-11, PICkle 표기 통일 + 스티커/콘텐츠 정비 + 파비콘 — **라이브 배포 완료**)
 
-리뉴얼(1차) + 이번 2차 개편 + 피클 1.0 DMG 까지 **전부 master 푸시 = Vercel 라이브**. 현재 워킹트리에 남은 건 **앱(Swift)·디자인 원본 등 이번 세션과 무관한 것들뿐**(아래 참고).
+이번 세션 작업은 **커밋 3개(5bf3f80·9b2bcf2·214f95d) 전부 master 푸시 = Vercel 라이브**. 워킹트리 잔여는 **이번 세션 무관**(앱·디자인 원본·`.claude/settings.local.json`).
 
-- **이번 세션(2026-06-10) 라이브 반영**:
-  - **상단바 전 페이지 통합**: 피자/피클/인트로 모두 `NavMinimal`. 피자=피클 동일 디자인(크림 바 + 밑줄: 피자 옐로우#FFB703 3px / 피클 올리브). 옛 `Navbar.astro`는 **deprecated(미사용, 삭제 안 함)** + `NAV_LINKS`도 미사용.
-  - **크로스링크**: 피자 상단바에 `PICKle ↗`(→/pickle), 피클 상단바에 `PIZZA CLIP ↗`(→/pizzaclip). 로고 옆 워드마크 + ↗ + aria.
-  - **ⓘ 인포 버튼**: `SocialIcons` 맨 앞에 추가 → 전 페이지 상단바 소셜줄에 노출. `/info` 링크.
-  - **INFO 페이지 인트로풍 재구성**: `site="intro"`(슬레이트 배경+인트로 네비+푸터없음). 피자클립+**피클 릴리스노트**(1.0.0) 2열 + 피클 컬럼 균형용 안내 카드 + 팀 소개(두 앱 언급).
-  - **피클 1.0 출시**: `PICKLE_RELEASED=true`, `PICKLE_DOWNLOAD_URL="/pickle/PICkle-1.0.0.dmg"`(자체호스팅). 페이지 '출시 예정'→ 실제 다운로드. DMG·appcast 커밋됨.
-  - **피클 단축키 섹션**(옛 '오이지 담그기' 자리): 실제 글로벌 단축키 `⇧⌥S 저장 / ⇧⌥D 편집 / ⇧⌥A 클립보드 / ⇧⌥F 보관함`(출처: pickle repo `PicKle/Shortcuts/Shortcuts.swift`). 피자클립도 하단에 단축키 표 추가.
-  - **JAM 로고 회색**(#929292), **피클 로고=Alfa Slab One**(피자클립은 OSP-DIN 유지), **푸터** 네모박스 아이콘→글자(인트로·피자클립·깃허브)+인라인 인스타/스레드.
-  - **띠 높이↑**(피자 max 6rem / 피클 6.5rem) + 그에 맞춰 **스티커 재정렬**(특히 피자 green 띠: 달리는피자 위로 삐짐 복구, 노란뱃지=매장사진 좌하단 겹침 / peach 띠: 노트북피자 축소+우측 이동해 텍스트 안 가림).
-- **검증**: `npm run build` 5페이지 통과, 데스크톱+모바일(375) 오버플로 0, 콘솔 에러 0, 피클 DMG `/pickle/PICkle-1.0.0.dmg` 200 서빙.
-- **다음 세션 후보**: (1) 영문 페이지 별도 제작 예정(다운로드 버튼은 현재 한글 '다운로드'). (2) 다른 띠 스티커 미세 정렬은 스크린샷 받아 가이드(`web/guide/renewal/pizzaclip.png`) 기준으로. (3) how-to·info 톤 추가 정리(선택).
-- **이어받기 팁**: 스티커 = `.bandwrap`(카드 폭) 기준 절대배치, 위치 안 먹으면 **preview 재시작**(dev HMR scoped-style stale). **preview eval 네비게이션 후 scroll/innerWidth 깨짐** → 긴 페이지는 뷰포트를 docH보다 크게 잡고 한 번에 캡처. 데스크톱 전용 스티커는 `hide-sm`.
+- **이번 세션(2026-06-11) 라이브 반영** (자세히는 §3 2026-06-11):
+  - **PICkle 브랜드 표기 전체 통일**: 피클 로고·피자 크로스링크·`PickleFooter`·`info.astro` 헤딩/팀소개·`BaseLayout` 메타 타이틀·`consts.PICKLE_TITLE` 전부 `PICKle`→`PICkle`. (코드 주석엔 일부 `PICKle` 잔존 — 화면 무관, 무해)
+  - **피자 green 띠 흑백 캐릭터**: 컬러 `mascot-running.png` → **`mascot-hi-bw.png`**(원본 `site-renewal/피자클립 캐릭터/하이피자.png`를 회색조 변환·트림). 노란/초록 경계에 몸통 중간 걸침.
+  - **'I'm a PizzaClip' 텍스트→이미지 스티커**: `sticker-imapizzaclip.png`(원본 `피클 펄슨.png` 트림). `.s-pizzaclip` 이제 `<img>`.
+  - **'하는 일' 기능 재구성**: 짧은 아이콘 그리드 → **번호 뱃지(1·2·3)+헤드라인+본문 세로 리스트**(`.feature-list`/`.feature__num`). 피자=3개(한/영 전환 기능 항목 제거), **피클=신규 '피클이 하는 일' 섹션**(올리브 띠, 회색 CTA 위).
+  - **INFO 하단 버튼**: 텍스트 링크 → **인트로 카드 축소 버튼**(`card-pizza/pickle.png`, `.info__appbtn`).
+  - **피클 올리브↔블루 간격↑ + 경계 스티커 가운데 정렬**: `#pk-start` padding-bottom↑, `.band--blue`에 `--pk-gap-pt` 변수 → 스티커 `top`을 `calc(-1*var(--pk-gap-pt) - N)`로 **경계선 기준**(폭 무관 안정). 모바일은 s-easy만 노출.
+  - **피자 광고판(coral)·매장(green) 사진 → 스티커 전환**: `<figure.photo-frame>` → `<img.sticker.s-billboard/.s-store>`(흰 8px 테두리·기울임·자유배치, 중복 figcaption 제거). coral에 `bandwrap--tall` 추가, `.bandwrap--tall` min-height↑(320/33vw/440). **모바일은 `position:static` 흐름배치**로 안 잘림.
+  - **띠 높이↑**: 피자 `.band` `clamp(4.75rem,8.5vw,7rem)`, 피클 `.band` `clamp(5rem,9vw,8rem)`.
+  - **페이지별 파비콘(탭 아이콘)**: `BaseLayout`의 `faviconSvg`가 `site`별 분기 — 피자 `favicon-pizza.svg`(🍕)·피클 `favicon-pickle.svg`(🥒) 이모지 SVG / 인트로·인포 `favicon-jam.svg`(JAM 로고 PNG 임베드). `favicon.ico`(🍕)는 구형 폴백.
+- **새 파일**: `public/img/pizza/{mascot-hi-bw,sticker-imapizzaclip}.png`, `public/favicon-{pizza,pickle,jam}.svg`.
+- **검증**: `npm run build` 5페이지 통과 · 데스크톱+모바일(375) 오버플로 0 · 라이브 배포 폴링 확인.
+- **⚠️ 미완(다음 세션 1순위)**: **하이피자 흑백 교체 보류** — 사용자가 `guide/하이피자 복사본.png`로 직접 만든 흑백본으로 `mascot-hi-bw.png`를 교체 요청했으나 **그 파일을 시스템 어디서도 못 찾음**. 파일 위치/이름 확인되면 같은 방식(트림·경량화)으로 교체.
+- **다음 세션 후보**: (1) 홈화면 아이콘(apple-touch/android-chrome)은 아직 전체 🍕 — 페이지별 원하면 이모지 PNG 생성 필요. (2) 영문 페이지. (3) 스티커 미세정렬은 **원본 가이드 `web/site-renewal/{피자클립가이드,피클가이드}.png`**(풀버전, gitignore) 기준 — 축소본은 `web/guide/renewal/*.png`.
+- **이어받기 팁(이번 세션 추가)**: 스티커 위치=각 페이지 `<style>`의 `.s-*`(left/right·top/bottom·`--sw`크기·`transform:rotate`). 띠 높이=`.band{padding-block}`, 특정 띠만은 클래스/`#id`로 override. **`clamp(min,val,max)`는 반드시 min<max**(min>max면 값이 min으로 고정돼 반응형 깨짐 — 이번에 2곳 발견·수정). 피클 경계 스티커는 `--pk-gap-pt` 연동(간격 바꾸면 같이 움직임). 사진 스티커(s-billboard/s-store)는 모바일 `@media`에서 static 전환. preview는 별도 헤드리스 브라우저라 사용자 탭과 독립 — 풀 reload로 scoped-style stale 회피.
 
-> ℹ️ 워킹트리 잔여(이번 세션 무관, 커밋 안 함): 앱(Swift) 변경분(`pizzaClip/**`, `assets/pizzaClipAppIcon.png` 등), 디자인 원본(`web/guide/**`, `guide/**` — 빌드와 무관한 참고 자산), `.claude/settings.local.json`.
+> ℹ️ 워킹트리 잔여(이번 세션 무관, 커밋 안 함): 앱(Swift) 변경분, 디자인 원본(`web/guide/**`, `guide/**`, `web/site-renewal/**` — 빌드 무관 참고 자산), `.claude/settings.local.json`.
 
 ---
 
@@ -79,6 +82,27 @@ web/
 - **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
 
 ## 3. 완료된 작업
+
+### 2026-06-11 — PICkle 표기 통일 + 스티커/콘텐츠 정비 + 페이지별 파비콘(라이브, 커밋 5bf3f80·9b2bcf2·214f95d)
+
+**무엇을/왜:** 사용자가 localhost 보며 단계별로 수정 요청 → 브랜드 표기 일관화, 콘텐츠 카피 교체, 사진을 스티커로 바꿔 가이드처럼 배치, 페이지별 파비콘. 가이드 기준 = `web/site-renewal/{피자클립가이드,피클가이드}.png`(원본 풀버전).
+
+- **PICkle 표기 통일**(`5bf3f80`): 화면에 보이는 `PICKle`(대문자 K) 전부 `PICkle`로. 위치 — `NavMinimal`(피클 로고 line37·피자 크로스링크 line21), `PickleFooter`(브랜드·카피라이트), `info.astro`(🥒 릴리스노트 헤딩·팀소개), `BaseLayout`(intro 메타 타이틀 2곳), `consts.PICKLE_TITLE`. (※ `.astro`/`css` **주석엔 PICKle 잔존** — 화면 무관이라 그대로 둠.)
+- **피자 페이지 콘텐츠**(`5bf3f80`): ① 다운로드 카드 제목 🍕 제거 ② '피자클립이 하는 일' = 기능 3개로 교체(아이콘 그리드 → **번호 뱃지+헤드라인+본문** 세로 리스트 `.feature-list`/`.feature__num`/`.feature__body`; 한/영 전환 기능 항목 삭제) ③ 'I'm a PizzaClip' CSS 텍스트 스티커 → **이미지**(`sticker-imapizzaclip.png`).
+- **피클 페이지**(`5bf3f80`): **'피클이 하는 일' 신규 섹션**(올리브 띠, 회색 CTA 바로 위, 피자와 동일 번호리스트 톤, `pickleFeatures` 3개).
+- **INFO 하단**(`5bf3f80`): "보러가기" 텍스트 링크 → **인트로 카드 축소 버튼**(`/img/intro/card-{pizza,pickle}.png`, `.info__appbtn`).
+- **피클 올리브↔블루 간격 + 스티커**(`9b2bcf2`): 두 박스 사이 좁아 스티커가 박스에 겹치던 것 → `#pk-start` padding-bottom↑로 간격 확대, `.band--blue{--pk-gap-pt}` 변수 도입해 s-easy/s-snap/s-jar `top`을 `calc(-1*var(--pk-gap-pt) - N)`(경계선 기준, 폭 무관). 모바일은 s-easy 1개만(간격 축소).
+- **피자 사진 2장 → 스티커**(`9b2bcf2`): coral 광고판·green 매장이 `<figure.photo-frame>`(흐름배치)였음 → **`<img.sticker.s-billboard/.s-store>`**(절대배치, 흰 테두리·기울임). 중복 figcaption 제거(글자는 이미지에 박혀있음). coral에 `bandwrap--tall`, `.bandwrap--tall` min-height 320/33vw/440으로↑. **모바일 `@media`에서 `position:static`+가운데**로 안 잘리게.
+- **띠 높이↑**(`9b2bcf2`): 피자 `.band` padding-block `clamp(4.75rem,8.5vw,7rem)`, 피클 `clamp(5rem,9vw,8rem)`.
+- **clamp 오타 수정**(`9b2bcf2`): `min>max`(값이 min으로 고정돼 반응형 깨짐) 2곳 — 피클 `.band`, 피자 `.s-vending`.
+- **페이지별 파비콘**(`214f95d`): `BaseLayout`에 `const faviconSvg = site==="pickle" ? "/favicon-pickle.svg" : site==="intro" ? "/favicon-jam.svg" : "/favicon-pizza.svg"` + `<link rel="icon" type="image/svg+xml" href={faviconSvg}>`(favicon.ico 폴백 위에 추가). 피자🍕·피클🥒 = 이모지 SVG(`<text>` 92px), JAM = 로고 PNG 64px를 base64로 `<image>` 임베드한 SVG. **how-to·info도 자동 분기**(site=pizza→🍕, site=intro→JAM).
+
+**교훈(다음 세션 주의):**
+- **`clamp(min, val, max)`는 min<max 필수.** min>max면 브라우저가 min으로 고정 → 반응형이 죽고 모바일까지 큰 값 박힘. 스티커 크기/띠 높이 clamp 만질 때 항상 확인. (이번에 사용자가 시각 조정하다 2곳 발생.)
+- **사진을 절대배치 스티커로 바꾸면 그 띠가 높이를 잃음** → `bandwrap--tall`(min-height)로 받치고, **모바일에선 `position:static`으로 되돌려** 안 잘리고 가로 오버플로 안 나게.
+- **피클 경계 스티커는 `--pk-gap-pt` 연동** — 올리브/블루 간격(`#pk-start` padding) 바꾸면 스티커 위치도 따라 움직이니 같이 확인.
+- **이모지 파비콘은 SVG `<text>`가 최선**(바이너리 생성 불필요, 모든 모던 브라우저 탭에서 우선 사용). 로고처럼 래스터면 PNG를 SVG `<image>`에 base64 임베드하면 SVG 취급돼 안정적.
+- 파비콘은 **브라우저 캐시가 강함** → 확인 시 새 탭/시크릿창/탭 재오픈.
 
 ### 2026-06-10 — 🚀 2차 개편 + 피클 1.0 출시(라이브)
 
