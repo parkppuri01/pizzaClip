@@ -1,31 +1,38 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-11** (🚀 **PICkle 표기 통일 + 콘텐츠·스티커 정비 + 페이지별 파비콘 — 라이브 배포 완료**. 브랜드 PICKle→PICkle 전체 통일, 피자 green 흑백 하이피자 스티커, 'I'm a PizzaClip' 이미지화, '하는 일' 기능 번호리스트 재구성(피자 3개·피클 신규섹션), INFO 하단 인트로카드 버튼, 피클 올리브↔블루 간격+스티커 정렬, 피자 광고판·매장 사진을 스티커로 전환, 페이지별 파비콘 🍕/🥒/JAM. 커밋 5bf3f80·9b2bcf2·214f95d. 자세히는 §3 2026-06-11. 이전: 2026-06-10 2차 개편.)
+마지막 업데이트: **2026-06-11 (2차)** (🚀 **가이드 풀버전 재반영 — '하는 일' 기능을 색 띠 박스에 분산 + 신규 스티커 다수 — 라이브 배포 완료**. 가이드 `site-renewal/{피자클립,피클}guide.png`(1500×6000 원본) 빨간 박스 구조 그대로 구현. 피자·피클 모두 기능 본문 3개를 각 색 띠 패널에 1개씩 분산, 피클 히어로를 PIC/KLE 포스터로 교체, 피클 기능박스 3개 길쭉하게(min-height), 경계 간격·z-index 정리, 신규 스티커 7종 추가. 커밋 86a003c. 자세히는 §3 2026-06-11(2차). 이전(1차): PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
 
 ---
 
-## 🔖 세션 이어받기 (2026-06-11, PICkle 표기 통일 + 스티커/콘텐츠 정비 + 파비콘 — **라이브 배포 완료**)
+## 🔖 세션 이어받기 (2026-06-11 2차, 가이드 풀버전 재반영 — '하는 일' 박스 분산 + 신규 스티커 — **라이브 배포 완료**)
 
-이번 세션 작업은 **커밋 3개(5bf3f80·9b2bcf2·214f95d) 전부 master 푸시 = Vercel 라이브**. 워킹트리 잔여는 **이번 세션 무관**(앱·디자인 원본·`.claude/settings.local.json`).
+이번 세션 작업은 **커밋 86a003c master 푸시 = Vercel 라이브**(파일 10개). 워킹트리 잔여는 **이번 세션 무관**(앱·디자인 원본·`.claude/settings.local.json`).
 
-- **이번 세션(2026-06-11) 라이브 반영** (자세히는 §3 2026-06-11):
-  - **PICkle 브랜드 표기 전체 통일**: 피클 로고·피자 크로스링크·`PickleFooter`·`info.astro` 헤딩/팀소개·`BaseLayout` 메타 타이틀·`consts.PICKLE_TITLE` 전부 `PICKle`→`PICkle`. (코드 주석엔 일부 `PICKle` 잔존 — 화면 무관, 무해)
-  - **피자 green 띠 흑백 캐릭터**: 컬러 `mascot-running.png` → **`mascot-hi-bw.png`**(원본 `site-renewal/피자클립 캐릭터/하이피자.png`를 회색조 변환·트림). 노란/초록 경계에 몸통 중간 걸침.
-  - **'I'm a PizzaClip' 텍스트→이미지 스티커**: `sticker-imapizzaclip.png`(원본 `피클 펄슨.png` 트림). `.s-pizzaclip` 이제 `<img>`.
-  - **'하는 일' 기능 재구성**: 짧은 아이콘 그리드 → **번호 뱃지(1·2·3)+헤드라인+본문 세로 리스트**(`.feature-list`/`.feature__num`). 피자=3개(한/영 전환 기능 항목 제거), **피클=신규 '피클이 하는 일' 섹션**(올리브 띠, 회색 CTA 위).
-  - **INFO 하단 버튼**: 텍스트 링크 → **인트로 카드 축소 버튼**(`card-pizza/pickle.png`, `.info__appbtn`).
-  - **피클 올리브↔블루 간격↑ + 경계 스티커 가운데 정렬**: `#pk-start` padding-bottom↑, `.band--blue`에 `--pk-gap-pt` 변수 → 스티커 `top`을 `calc(-1*var(--pk-gap-pt) - N)`로 **경계선 기준**(폭 무관 안정). 모바일은 s-easy만 노출.
-  - **피자 광고판(coral)·매장(green) 사진 → 스티커 전환**: `<figure.photo-frame>` → `<img.sticker.s-billboard/.s-store>`(흰 8px 테두리·기울임·자유배치, 중복 figcaption 제거). coral에 `bandwrap--tall` 추가, `.bandwrap--tall` min-height↑(320/33vw/440). **모바일은 `position:static` 흐름배치**로 안 잘림.
-  - **띠 높이↑**: 피자 `.band` `clamp(4.75rem,8.5vw,7rem)`, 피클 `.band` `clamp(5rem,9vw,8rem)`.
-  - **페이지별 파비콘(탭 아이콘)**: `BaseLayout`의 `faviconSvg`가 `site`별 분기 — 피자 `favicon-pizza.svg`(🍕)·피클 `favicon-pickle.svg`(🥒) 이모지 SVG / 인트로·인포 `favicon-jam.svg`(JAM 로고 PNG 임베드). `favicon.ico`(🍕)는 구형 폴백.
-- **새 파일**: `public/img/pizza/{mascot-hi-bw,sticker-imapizzaclip}.png`, `public/favicon-{pizza,pickle,jam}.svg`.
-- **검증**: `npm run build` 5페이지 통과 · 데스크톱+모바일(375) 오버플로 0 · 라이브 배포 폴링 확인.
-- **⚠️ 미완(다음 세션 1순위)**: **하이피자 흑백 교체 보류** — 사용자가 `guide/하이피자 복사본.png`로 직접 만든 흑백본으로 `mascot-hi-bw.png`를 교체 요청했으나 **그 파일을 시스템 어디서도 못 찾음**. 파일 위치/이름 확인되면 같은 방식(트림·경량화)으로 교체.
-- **다음 세션 후보**: (1) 홈화면 아이콘(apple-touch/android-chrome)은 아직 전체 🍕 — 페이지별 원하면 이모지 PNG 생성 필요. (2) 영문 페이지. (3) 스티커 미세정렬은 **원본 가이드 `web/site-renewal/{피자클립가이드,피클가이드}.png`**(풀버전, gitignore) 기준 — 축소본은 `web/guide/renewal/*.png`.
-- **이어받기 팁(이번 세션 추가)**: 스티커 위치=각 페이지 `<style>`의 `.s-*`(left/right·top/bottom·`--sw`크기·`transform:rotate`). 띠 높이=`.band{padding-block}`, 특정 띠만은 클래스/`#id`로 override. **`clamp(min,val,max)`는 반드시 min<max**(min>max면 값이 min으로 고정돼 반응형 깨짐 — 이번에 2곳 발견·수정). 피클 경계 스티커는 `--pk-gap-pt` 연동(간격 바꾸면 같이 움직임). 사진 스티커(s-billboard/s-store)는 모바일 `@media`에서 static 전환. preview는 별도 헤드리스 브라우저라 사용자 탭과 독립 — 풀 reload로 scoped-style stale 회피.
+- **가이드 = `web/site-renewal/{피자클립,피클}guide.png`(1500×6000 원본, gitignore)**. 읽을 때 `sips -c 1000 1500 --cropOffset (i*1000) 0` 로 6조각씩 잘라 Read. 빨간 테두리 박스 = 콘텐츠 패널, 그 주변에 스티커.
+- **피자 페이지 — 기능 본문 3개를 색 띠 패널에 1개씩 분산**(`features[]`):
+  - peach=기능1(자동저장, `.featpanel--accent` 제목만 빨강) / yellow=기능2(단축키 소환) 아래 **I'm a PizzaClip + 컬러 하이피자(`mascot-hi.png` 신규)** 줄 / green=기능3(로컬보안) **패널이 노랑/초록 경계 걸침**(`.panel--straddle` 음수 margin-top) + 아래 **흑백 하이피자·원형뱃지** 줄.
+  - coral=광고판(`billboard.jpg`)+자판기(`pizza-store.jpg`) 흰테두리 스티커 + **크라프트 원형 `badge-kraft.png`(Another Tasty Clip, 신규)**.
+  - **박스 D = 기존 '피자클립이 하는 일' 아이콘 4개 복원**(`classicFeatures[]`, ⌘C 무한보관소·1초 컷·한영전환·로컬보안). 단축키 띠(peach) 맨 위에 두고 **green/peach 경계 걸침**(`.bandwrap .features` 음수 margin-top). 그 위 **스캘럽 PIZZA CLIP `badge-scallop.png`(신규) + CLIPBOARD 타원** 뱃지 줄.
+- **피클 페이지**:
+  - **히어로 이미지 → PIC/KLE 그린 포스터 `hero-poster.jpg`**(원본 `피클 메인 페이지 상단 이미지.png`). h1 문구는 **사용자 직접 수정**("…반복되는 삽질 고쳐드립니다").
+  - **기능 본문 3개를 올리브·블루·샌드 패널에 1개씩**(`pickleFeatures[]`, `.featpanel`).
+  - **가이드 X표시 섹션 자리 = 이모지 4개 '피클이 하는 일'**(`picklePoints[]`: 🫙 무한보관소 · ⚡️ 1초편집 · 🍱 슥-꺼내기 · 🔒 철통보안), 올리브 띠.
+  - 샌드 아래 **맥북 닌자 피클 `mascot-laptop.png` + 파란 스케이트 뱃지 `badge-skate.png`(둘 다 신규)** 줄. 단축키는 **크림 띠로 이동**, 위에 **I'm a PICkle `sticker-imapickle.png`(신규) + 스냅툴** 줄.
+  - **기능 박스 3개 길쭉하게**: `.featpanel { min-height: clamp(240px,23vw,300px); display:flex; flex-direction:column; justify-content:center }` → 185px→294px(데스크톱), 내용 세로 가운데. (가이드 비율 맞춤)
+  - **경계 간격 조정**: 1번 올리브↔블루 넓힘(`#pk-start` padding-bottom `clamp(13rem,18vw,16rem)`), 2번 샌드↔올리브 줄임(`.band--sand` padding-bottom↓·`#pk-features` padding-top↓), 3번 올리브↔크림 약간 넓힘(`#pk-shortcuts` padding-top↑). 스케이트 뱃지 **z-index:4**(패널 위로).
+- **신규 이미지 7종**(원본 트림+리사이즈+FASTOCTREE 경량화, 9~83KB; 히어로만 290KB jpg): `pizza/{badge-kraft,badge-scallop,mascot-hi}.png`, `pickle/{badge-skate,hero-poster.jpg,mascot-laptop,sticker-imapickle}.png`. **+ 지난 세션 미완 해결**: 흑백 하이피자 `mascot-hi-bw.png`를 사용자 흑백본 `site-renewal/피자클립 캐릭터/하이피자 복사본.png`로 교체.
+- **검증**: `npm run build` 5페이지 통과 · 데스크톱+모바일(375) 가로 오버플로 0 · 콘솔 에러 0.
+- **다음 세션 후보**: (1) 홈화면 아이콘(apple-touch/android-chrome) 아직 전체 🍕. (2) 영문 페이지. (3) how-to·info 새 톤 리디자인. (4) 스티커 미세정렬은 가이드 풀버전 기준.
+- **이어받기 팁(이번 세션 추가)**:
+  - **`.bandwrap .panel { margin:0 }` 우선순위 함정**: 패널 margin override는 같은 깊이 선택자(`​.bandwrap .panel--straddle`, `.bandwrap .features`)로 해야 먹힘. 단순 `.panel--straddle`은 무시됨.
+  - **패널 길게 = `min-height` + flex column `justify-content:center`** (내용 위 쏠림 방지, 세로 가운데).
+  - 패널이 색 띠 경계에 걸치게 = **음수 `margin-top`**(DOM 뒤 띠가 위에 그려지므로 다음 색 위로 올라감). px가 아니라 `calc(-1*띠padding - Nrem)`로.
+  - 스티커 위치=각 페이지 `<style>`의 `.s-*`(left/right·top/bottom·`--sw`크기·rotate). 흐름배치 스티커 줄(`.stickerline`)은 모바일 안전(절대배치 X). 피클 경계 스티커는 `--pk-gap-pt` 연동.
+  - **`clamp(min,val,max)`는 반드시 min<max**(min>max면 값이 min 고정돼 반응형 깨짐).
+  - preview 측정 글리치: 네비게이션 후 `innerWidth/clientWidth=0` 나오면 `preview_resize`로 한 번 리셋하면 정상화. 긴 페이지는 뷰포트 높이를 docH로 키워 한 번에 캡처.
 
 > ℹ️ 워킹트리 잔여(이번 세션 무관, 커밋 안 함): 앱(Swift) 변경분, 디자인 원본(`web/guide/**`, `guide/**`, `web/site-renewal/**` — 빌드 무관 참고 자산), `.claude/settings.local.json`.
 
@@ -82,6 +89,20 @@ web/
 - **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
 
 ## 3. 완료된 작업
+
+### 2026-06-11 (2차) — 가이드 풀버전 재반영: '하는 일' 박스 분산 + 신규 스티커(라이브, 커밋 86a003c)
+
+**무엇을/왜:** 사용자가 가이드 풀버전(`web/site-renewal/{피자클립,피클}guide.png`, 1500×6000)을 새로 그려, 빨간 박스 구조 그대로 콘텐츠를 재배치. 핵심은 **'하는 일' 기능 본문을 한 카드에 몰아넣지 않고 각 색 띠 패널에 1개씩 분산**한 것.
+
+- **피자**(`pizzaclip.astro`): 기능 3개(`features[]`)를 peach(자동저장)·yellow(단축키 소환)·green(로컬보안) 패널에 분산. green 패널은 노랑/초록 경계 걸침(`.panel--straddle`). yellow 아래 I'm a PizzaClip+컬러 하이피자, green 아래 흑백 하이피자+원형뱃지 줄. coral에 광고판·자판기 사진+크라프트 원형. **박스 D = 기존 '피자클립이 하는 일' 아이콘 4개**(`classicFeatures[]`)를 단축키 띠 위에 복원(green/peach 경계 걸침) + 스캘럽·CLIPBOARD 뱃지.
+- **피클**(`pickle.astro`): 히어로를 PIC/KLE 포스터로 교체(h1 문구는 사용자 수정). 기능 3개(`pickleFeatures[]`)를 올리브·블루·샌드 패널에 분산. 가이드 X표시 섹션 자리에 **이모지 4개 '피클이 하는 일'**(`picklePoints[]`). 샌드 아래 맥북피클+스케이트뱃지, 단축키는 크림 띠로 이동(위에 I'm a PICkle+스냅툴). **기능 박스 3개 `min-height`로 길쭉하게**(185→294px) + 내용 세로 가운데. 경계 간격 1·2·3번 조정, 스케이트 뱃지 z-index:4.
+- **신규 이미지 7종** + 흑백 하이피자(`mascot-hi-bw.png`) 사용자 흑백본으로 교체(지난 세션 미완 해결). 전부 알파 트림+리사이즈+FASTOCTREE 경량화.
+
+**교훈(다음 세션 주의):**
+- **`.bandwrap .panel { margin:0 }` 우선순위** — 패널 margin을 override하려면 같은 깊이 선택자(`.bandwrap .panel--straddle`)로. 단순 클래스만으론 안 먹힘.
+- **패널을 길게 = `min-height` + flex column `justify-content:center`**. 패널을 색 경계에 걸치게 = 음수 `margin-top`(`calc(-1*띠padding - Nrem)`).
+- 가이드 원본이 6000px 세로라 **`sips`로 1000px씩 6조각 크롭** 후 Read 했음.
+- preview 네비게이션 직후 `clientWidth=0` 글리치 → `preview_resize`로 리셋하면 정상화.
 
 ### 2026-06-11 — PICkle 표기 통일 + 스티커/콘텐츠 정비 + 페이지별 파비콘(라이브, 커밋 5bf3f80·9b2bcf2·214f95d)
 
