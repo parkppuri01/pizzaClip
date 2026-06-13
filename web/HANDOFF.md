@@ -1,15 +1,34 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-11 (2차)** (🚀 **가이드 풀버전 재반영 — '하는 일' 기능을 색 띠 박스에 분산 + 신규 스티커 다수 — 라이브 배포 완료**. 가이드 `site-renewal/{피자클립,피클}guide.png`(1500×6000 원본) 빨간 박스 구조 그대로 구현. 피자·피클 모두 기능 본문 3개를 각 색 띠 패널에 1개씩 분산, 피클 히어로를 PIC/KLE 포스터로 교체, 피클 기능박스 3개 길쭉하게(min-height), 경계 간격·z-index 정리, 신규 스티커 7종 추가. 커밋 86a003c. 자세히는 §3 2026-06-11(2차). 이전(1차): PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
+마지막 업데이트: **2026-06-14** (🚀 **튜토리얼 영상 팝업 + 피클 노크 카운트 — 둘 다 라이브 배포·검증 완료**. ① 피자·피클 히어로 다운로드 버튼 옆 '튜토리얼' 버튼 → 누르면 유튜브 영상 팝업(`VideoModal.astro` 신설, 커밋 ca3ac11). ② DAU 노크 카운트에 피클앱(`/pickle/appcast.xml`) 추가 — 앱별 키 분리, `/api/stats` 에 `apps.{pizza,pickle}`+`combined`(커밋 37d33e1). 자세히는 §3 2026-06-14. 이전: 가이드 풀버전 재반영 86a003c, PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
 
 ---
 
-## 🔖 세션 이어받기 (2026-06-11 2차, 가이드 풀버전 재반영 — '하는 일' 박스 분산 + 신규 스티커 — **라이브 배포 완료**)
+## 🔖 세션 이어받기 (2026-06-14, 튜토리얼 영상 팝업 + 피클 노크 카운트 — **둘 다 라이브 배포·검증 완료**)
 
-이번 세션 작업은 **커밋 86a003c master 푸시 = Vercel 라이브**(파일 10개). 워킹트리 잔여는 **이번 세션 무관**(앱·디자인 원본·`.claude/settings.local.json`).
+이번 세션 작업은 **커밋 37d33e1·ca3ac11 master 푸시 = Vercel 라이브**. 워킹트리 잔여는 **이번 세션 무관**(`web/guide/**` 디자인 원본 등 미커밋 참고 자산).
+
+- **① 튜토리얼 영상 팝업**(`ca3ac11`):
+  - **재사용 컴포넌트 `web/src/components/VideoModal.astro` 신설** — 페이지당 1개 두고, 여는 버튼에 `data-open-video` 속성만 달면 동작. 어두운 오버레이(`position:fixed; inset:0; z-index:1000`) 위 16:9(`aspect-ratio`) 유튜브 iframe. **닫기 3종**(✕/배경/ESC), 닫을 때 `iframe.src="about:blank"` 로 **영상 정지**(빈 문자열은 현재 페이지를 다시 로드하므로 about:blank). **클릭 전엔 iframe 미로드**(초기 가벼움), 열 때 `autoplay=1` 주입. `<script is:inline define:vars={{videoId}}>` 로 videoId 주입.
+  - **피자**(`pizzaclip.astro`): `.hero__cta` 에 `<Button variant="secondary" data-open-video>튜토리얼</Button>` + 페이지 끝 `<VideoModal videoId="9nhJBjU_JtQ" title="피자클립🍕튜토리얼" />`.
+  - **피클**(`pickle.astro`): `<button class="pill pill--tut" data-open-video>튜토리얼</button>`(신규 `.pill--tut` 외곽선 올리브 스타일) + `<VideoModal videoId="HJ1hLgfnWfQ" title="PICkle🥒튜토리얼" />`.
+  - **`Button.astro` 보강**: `...rest` 스프레드로 `data-*` 등 임의 속성 통과(기존 사용처 무영향). Props interface 에 `[key:string]:unknown` 추가.
+  - 버튼 텍스트 '튜토리얼'(4자)=' 다운로드'(4자) → **다운로드와 정확히 같은 크기**(피자 111×52 / 피클 98×44, 측정 확인). 사용자 요청으로 재생 세모(▶)는 제거함.
+- **② 피클 노크 카운트**(`37d33e1`): `middleware.js` matcher 를 `['/appcast.xml','/pickle/appcast.xml']` 로 확장, 경로로 앱 구분해 **앱별 키 분리** — 피자 `knock:`(기존 그대로=과거 데이터 보존), 피클 `knock:pickle:`. `api/stats.js` 는 두 앱 병렬 read → 최상위 `today/byDay`(피자 기준, **호환 유지**) + `apps.{pizza,pickle}` + `combined`(합산) 반환. ⚠️ 피클 카운트는 **배포 시점부터 0에서 시작**(과거 소급 불가). 조회: `https://pizza-clip.com/api/stats?key=<STATS_KEY>`.
+- **검증**: `npm run build` 5페이지 통과 · 콘솔 에러 0 · preview 에서 두 페이지 팝업 열림/닫힘/영상 src·중앙정렬·16:9(데스크톱 960×540, 모바일 345×194)·가로 오버플로 0 확인 · 유튜브 oembed 200 · 라이브 `data-open-video` 노출 + stats `combined` 필드 라이브 확인.
+- **이어받기 팁(이번 세션)**:
+  - **유튜브 팝업 = `position:fixed` 오버레이** → preview_screenshot 의 스크롤 리셋 글리치로 **모달이 하단에 잘려 보이는 착시** 발생. `preview_resize`(desktop) 리셋 후 `getBoundingClientRect` 로 중앙정렬·치수 측정이 진실(§4-6 재확인).
+  - **preview_click(합성 클릭)이 인라인 리스너를 못 깨우는 경우** 있었음 → `preview_eval` 로 `el.click()` 직접 호출하면 정상 동작 확인됨(실제 사용자 클릭은 문제없음).
+  - 영상 추가/교체 시 **`youtube oembed`로 임베드 가능 먼저 확인**(200=OK). `VideoModal` 에 videoId 만 넘기면 됨.
+
+---
+
+## 🔖 (이전) 세션 이어받기 (2026-06-11 2차, 가이드 풀버전 재반영 — '하는 일' 박스 분산 + 신규 스티커)
+
+이번 세션 작업은 **커밋 86a003c master 푸시 = Vercel 라이브**(파일 10개).
 
 - **가이드 = `web/site-renewal/{피자클립,피클}guide.png`(1500×6000 원본, gitignore)**. 읽을 때 `sips -c 1000 1500 --cropOffset (i*1000) 0` 로 6조각씩 잘라 Read. 빨간 테두리 박스 = 콘텐츠 패널, 그 주변에 스티커.
 - **피자 페이지 — 기능 본문 3개를 색 띠 패널에 1개씩 분산**(`features[]`):
@@ -89,6 +108,20 @@ web/
 - **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
 
 ## 3. 완료된 작업
+
+### 2026-06-14 — 튜토리얼 영상 팝업 + 피클 노크 카운트(라이브, 커밋 37d33e1·ca3ac11)
+
+**무엇을/왜:** ① 두 서브페이지 히어로의 다운로드 버튼 옆에 '튜토리얼' 버튼을 달아, 누르면 유튜브 사용법 영상이 팝업으로 뜨게 함(앱 처음 쓰는 사람용 진입점). ② 매일 보는 DAU 노크 카운트가 피자앱만 세고 있던 것을 피클앱까지 확장.
+
+- **VideoModal.astro(신설)**: 어두운 오버레이 + 16:9 유튜브 iframe 팝업. `data-open-video` 버튼이 열고, ✕/배경/ESC 로 닫음(닫을 때 `src="about:blank"` 로 재생 정지). 클릭 전엔 미로드, 열 때 `autoplay=1`. 피자=`9nhJBjU_JtQ`, 피클=`HJ1hLgfnWfQ`.
+- **피자/피클 페이지**: 히어로에 '튜토리얼' 버튼 추가(피자=`Button` secondary, 피클=`.pill--tut` 신규) + 페이지 끝에 `<VideoModal>` 1개. 다운로드와 같은 크기(세모 ▶ 제거).
+- **Button.astro**: `...rest` 스프레드로 `data-*` 통과 허용(기존 무영향).
+- **노크 카운트**: `middleware.js` 가 `/pickle/appcast.xml` 도 감시, 앱별 키 분리(피자 `knock:` 유지, 피클 `knock:pickle:`). `api/stats.js` 에 `apps.{pizza,pickle}`+`combined` 추가, 최상위는 피자 기준 호환 유지. 피클은 배포 시점부터 0 시작(소급 불가).
+
+**교훈(다음 세션 주의):**
+- 유튜브 팝업처럼 **`position:fixed` 오버레이는 preview_screenshot 스크롤 글리치로 하단에 잘려 보임** → `preview_resize`(desktop) 리셋 후 `getBoundingClientRect` 측정이 진실.
+- **preview_click 합성 클릭이 인라인 리스너를 못 깨우면** `preview_eval` 로 `el.click()` 직접 호출해 검증(실사용 클릭은 정상).
+- 영상 추가/교체 = `youtube oembed` 200 확인 후 videoId 만 `VideoModal` 에 전달.
 
 ### 2026-06-11 (2차) — 가이드 풀버전 재반영: '하는 일' 박스 분산 + 신규 스티커(라이브, 커밋 86a003c)
 
@@ -250,7 +283,7 @@ web/
    - ⚠️ **제약(중요)**: 소셜 플랫폼(카톡/iMessage/트위터/디스코드)은 **URL 단위로 OG 이미지를 캐시**함. 같은 `pizza-clip.com` 주소면 누가 붙여도 캐시된 같은 이미지가 나옴 → **"매 붙여넣기마다 다른 이미지"는 단일 URL로는 불가능.** 이 점을 사용자에게 다시 확인하고 기대치 맞출 것.
    - 현실적 구현안: ① **동적 생성 OG** — Vercel OG(`@vercel/og`) 또는 Satori 로 버전/카피/문구를 이미지에 자동 렌더(릴리스·캠페인마다 새 비주얼 손쉽게). Vercel 호스팅이라 궁합 좋음. ② **페이지별 OG** — 랜딩/INFO/HOW-TO 각 페이지에 다른 `image` prop 전달(`BaseLayout`이 이미 `image` 파라미터 받음 → 페이지에서 넘기기만 하면 됨).
    - 관련 파일: `src/layouts/BaseLayout.astro`(`ogImage` 구성부 line 25/39/95/101), 정적 이미지는 `public/`.
-5. ✅ **완료 (2026-06-05, 라이브 검증됨) — 📊 활성 유저(DAU) 카운팅 = appcast 노크 세기**. 설치본 Sparkle 이 **하루 1번** `pizza-clip.com/appcast.xml` 을 두드림(업데이트 확인) → **그 노크 수 ≈ 일일 활성 기기 수**.
+5. ✅ **완료 (2026-06-05, 라이브 검증됨) — 📊 활성 유저(DAU) 카운팅 = appcast 노크 세기**. 설치본 Sparkle 이 **하루 1번** `pizza-clip.com/appcast.xml` 을 두드림(업데이트 확인) → **그 노크 수 ≈ 일일 활성 기기 수**. **(2026-06-14 갱신: 피클앱 `/pickle/appcast.xml` 도 추가 집계 — 앱별 키 분리. `/api/stats` 응답에 `apps.{pizza,pickle}`+`combined` 추가, 최상위는 피자 기준 호환 유지. §3 2026-06-14 참고.)**
    - **구현(Edit 함수 대신 Edge 미들웨어 채택 — 더 안전)**: `web/middleware.js` 가 `/appcast.xml` 요청을 가로채 Upstash(KV)에 `knock:YYYY-MM-DD`(KST) 카운터를 **INCR**(REST `…/incr/…`, `@vercel/edge` 의 `next()`+`context.waitUntil` 로 **비동기**). 응답은 **기존 정적 `public/appcast.xml` 그대로** 서빙 → 카운트가 실패/미설정이어도 **자동업데이트 피드 안 깨짐**. **rewrite 안 씀**(정적 파일이 있으면 vercel.json `rewrites`=afterFiles 라 안 걸림 → 미들웨어가 정답). URL·앱·release.sh **무수정**.
    - **저장소**: Upstash Redis(Vercel Marketplace, **Free** 플랜, DB명 `upstash-kv-sky-candle`, region Washington DC). `pizza-clip` 프로젝트에 prefix `KV` 로 연결 → env `KV_REST_API_URL`/`KV_REST_API_TOKEN` 자동 주입. 미들웨어는 `KV_*` 우선, `UPSTASH_*` 폴백.
    - **조회**: `https://pizza-clip.com/api/stats?key=<STATS_KEY>` → `{today, last30dTotal, byDay}` JSON(최근 30일, KST 일별). `web/api/stats.js`(Vercel Node 함수). ⚠️ **레포 public 이라** 비밀값은 코드에 두지 말고 env `STATS_KEY` 로만 보호(설정 시 `?key` 일치 필수, 미설정이면 누구나 조회).
