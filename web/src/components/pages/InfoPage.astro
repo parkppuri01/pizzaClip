@@ -1,0 +1,227 @@
+---
+/**
+ * INFO — 릴리스노트(피자클립 + 피클) + Team JAM 소개. lang 으로 한/영 공용.
+ * 디자인은 인트로(/) 를 그대로 이어받음: 슬레이트 블루 배경 + 떠 있는 크림 네비(JAM) + 푸터 없음.
+ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { GITHUB_URL, PICKLE_GITHUB_URL } from "../../consts.ts";
+import { type Lang, href, ROUTES } from "../../i18n/ui.ts";
+import { info } from "../../i18n/info.ts";
+
+interface Props { lang?: Lang; }
+const { lang = "ko" } = Astro.props;
+const c = info[lang];
+const appsNavAria = lang === "en" ? "Browse the apps" : "앱 둘러보기";
+---
+<BaseLayout site="intro" bodyClass="intro-body" lang={lang} koPath={ROUTES.info}
+            title={c.metaTitle} description={c.metaDescription}>
+  <section class="section container info">
+    <header class="info__head">
+      <h1>{c.headH1}</h1>
+      <p>{c.headSub}</p>
+    </header>
+
+    <!-- ===== 릴리스노트 (피자클립 · 피클) ===== -->
+    <div class="info__grid">
+      <section class="rel">
+        <h2 class="rel__brand">🍕 PIZZA CLIP <span>{c.relHeadingSuffix}</span></h2>
+        <ul class="releases releases--pizza">
+          {c.releases.map((r) => (
+            <li class="release">
+              <div class="release__head">
+                <span class="release__ver release__ver--pizza">v{r.version}</span>
+                <span class="release__label">{r.label}</span>
+              </div>
+              <ul class="release__notes">
+                {r.notes.map((n) => (<li>{n}</li>))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="rel">
+        <h2 class="rel__brand">🥒 PICkle <span>{c.relHeadingSuffix}</span></h2>
+        <ul class="releases releases--pickle">
+          {c.pickleReleases.map((r) => (
+            <li class="release">
+              <div class="release__head">
+                <span class="release__ver release__ver--pickle">v{r.version}</span>
+                <span class="release__label">{r.label}</span>
+              </div>
+              <ul class="release__notes">
+                {r.notes.map((n) => (<li>{n}</li>))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+        <a class="rel__more" href={href(lang, "pickle")}>
+          <span class="rel__more-emoji" aria-hidden="true">🥒</span>
+          <span><b>{c.relMoreBold}</b><br />{c.relMoreRest}</span>
+        </a>
+      </section>
+    </div>
+
+    <p class="info__more">
+      {c.infoMore}
+      <a href={GITHUB_URL} target="_blank" rel="noopener">{c.infoMoreLinkPizza}</a> ·
+      <a href={PICKLE_GITHUB_URL} target="_blank" rel="noopener">{c.infoMoreLinkPickle}</a>
+    </p>
+
+    <!-- ===== Team jAm 소개 ===== -->
+    <div class="team-wrap">
+      <section class="teamcard">
+        <h2 class="teamcard__title">{c.teamTitle}</h2>
+        <p class="teamcard__tagline">{c.teamTagline}</p>
+
+        <p class="teamcard__body" set:html={c.teamBody1Html}></p>
+        <p class="teamcard__body">{c.teamBody2}</p>
+
+        <div class="teamcard__sign">
+          <span class="teamcard__en">{c.teamSignQuote}</span>
+          <img class="teamcard__logo" src="/img/jam-logo.png" width="60" height="60"
+               alt="Team jAm" loading="lazy" />
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== 더 둘러보기 (인트로 카드 버튼, 작게) ===== -->
+    <nav class="info__links" aria-label={appsNavAria}>
+      <a class="info__appbtn" href={href(lang, "pizza")}>
+        <img src="/img/intro/card-pizza.png" width="900" height="900" alt="" loading="lazy" />
+        <span>{c.appbtnPizza}</span>
+      </a>
+      <a class="info__appbtn" href={href(lang, "pickle")}>
+        <img src="/img/intro/card-pickle.png" width="900" height="900" alt="" loading="lazy" />
+        <span>{c.appbtnPickle}</span>
+      </a>
+    </nav>
+  </section>
+</BaseLayout>
+
+<style>
+  /* 슬레이트 배경 위 — 페이지 제목은 크림 */
+  .info__head h1 { color: var(--intro-cream); }
+  .info__head p { color: var(--intro-cream); }
+
+  /* 두 제품 릴리스노트 2열(좁으면 1열) */
+  .info__grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1.5rem, 4vw, 2.75rem);
+    align-items: start;
+  }
+  .rel__brand {
+    font-family: var(--font-en);
+    color: var(--intro-cream);
+    font-size: clamp(1.3rem, 3.4vw, 1.7rem);
+    letter-spacing: 0.02em;
+    margin-bottom: 1.1rem;
+  }
+  .rel__brand span {
+    font-family: var(--font-sans);
+    font-size: 0.7em;
+    font-weight: 600;
+    opacity: 0.85;
+    margin-left: 0.4rem;
+  }
+
+  /* 릴리스 카드 — 슬레이트 위 크림 카드 + 단단한 오프셋 그림자 */
+  .releases { display: grid; gap: 1rem; }
+  .release {
+    background: var(--color-bg);
+    border: 2px solid var(--border-ink);
+    border-radius: var(--radius-card);
+    box-shadow: 6px 6px 0 0 rgba(16, 33, 56, 0.28);
+    padding: 1.2rem 1.4rem;
+  }
+  .release__head { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+  .release__ver { font-family: var(--font-en); font-weight: 700; font-size: 1.15rem; }
+  .release__ver--pizza  { color: var(--color-point); }
+  .release__ver--pickle { color: var(--pk-olive-ink); }
+  .release__label { font-weight: 700; color: var(--color-ink); }
+  .release__notes { margin-top: 0.7rem; display: grid; gap: 0.4rem; }
+  .release__notes li { position: relative; padding-left: 1.4rem; color: var(--color-text); }
+  .releases--pizza  .release__notes li::before { content: "🍕"; position: absolute; left: 0; font-size: 0.8em; }
+  .releases--pickle .release__notes li::before { content: "🥒"; position: absolute; left: 0; font-size: 0.8em; }
+
+  /* 피클 컬럼 균형용 안내 카드(피자 8개 vs 피클 1개 빈자리 보완) */
+  .rel__more {
+    display: flex; gap: 0.8rem; align-items: flex-start;
+    margin-top: 1rem; padding: 1.1rem 1.3rem;
+    background: var(--color-bg);
+    border: 2px dashed var(--pk-olive-ink);
+    border-radius: var(--radius-card);
+    color: var(--color-ink); line-height: 1.55;
+    transition: transform 0.14s ease, box-shadow 0.14s ease;
+  }
+  .rel__more:hover { transform: translateY(-2px); box-shadow: 6px 6px 0 0 rgba(16, 33, 56, 0.22); }
+  .rel__more-emoji { font-size: 1.5rem; line-height: 1.2; }
+  .rel__more b { color: var(--pk-olive-ink); }
+
+  .info__more { margin-top: 1.5rem; font-size: var(--fs-small); color: var(--intro-cream); }
+  .info__more a { text-decoration: underline; }
+  .info__more a:hover { opacity: 0.8; }
+
+  /* ===== Team jAm 카드 (슬레이트 위 흰 카드) ===== */
+  .team-wrap { margin-top: var(--section-gap); }
+  .teamcard {
+    background: var(--color-surface);
+    border: 3px solid #333;
+    border-radius: 28px;
+    box-shadow: 8px 8px 0 0 rgba(16, 33, 56, 0.28);
+    padding: clamp(1.75rem, 4vw, 3rem);
+    color: var(--color-ink);
+  }
+  .teamcard__title {
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    color: var(--color-ink);
+  }
+  .teamcard__tagline { margin-top: 0.5rem; font-style: italic; color: #767676; font-size: var(--fs-small); }
+  .teamcard__body {
+    margin-top: 1.5rem;
+    font-family: var(--font-serif);
+    font-size: 1.12rem;
+    line-height: 1.9;
+    color: var(--color-ink);
+  }
+  /* brand/strong 은 set:html 로 들어온 자식이라 스코프가 안 붙음 → :global 로 매칭 */
+  .teamcard__body :global(.brand) { font-family: var(--font-en); font-weight: 700; letter-spacing: 0.02em; }
+  .teamcard__body :global(strong) { font-family: var(--font-sans); font-weight: 700; }
+  .teamcard__sign {
+    margin-top: 2.25rem;
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .teamcard__en { font-weight: 700; font-size: var(--fs-small); color: var(--color-ink); }
+  .teamcard__logo { width: 60px; height: 60px; border-radius: 50%; flex: 0 0 auto; }
+
+  /* 더 둘러보기 — 인트로 카드 버튼(작게) */
+  .info__links {
+    margin-top: var(--section-gap);
+    display: flex; gap: clamp(1.5rem, 6vw, 3.5rem); flex-wrap: wrap; justify-content: center;
+  }
+  .info__appbtn {
+    display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+    width: clamp(120px, 30vw, 150px);
+    color: var(--intro-cream); text-align: center;
+  }
+  .info__appbtn img {
+    width: 100%; height: auto; display: block;
+    border-radius: 20px;
+    box-shadow: 0 12px 26px rgba(16, 33, 56, 0.3);
+    transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease;
+  }
+  .info__appbtn span {
+    font-weight: 600; font-size: clamp(0.88rem, 2.2vw, 1rem); letter-spacing: 0.01em;
+  }
+  .info__appbtn:hover img { transform: translateY(-6px) scale(1.03); box-shadow: 0 20px 38px rgba(16, 33, 56, 0.42); }
+  .info__appbtn:focus-visible { outline: none; }
+  .info__appbtn:focus-visible img { outline: 3px solid var(--intro-cream); outline-offset: 4px; }
+
+  @media (max-width: 760px) {
+    .info__grid { grid-template-columns: 1fr; }
+  }
+</style>

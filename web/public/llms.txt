@@ -1,36 +1,69 @@
-# PIZZA CLIP
+# Team JAM — pizza-clip.com
 
-> 맥 메뉴바에 사는 피자 한 판. 복사한 건 다 기억하는 macOS 클립보드 히스토리 앱. 무료, 100% 로컬 저장.
+> Team JAM (ProjectJAM) makes two free, 100% local macOS menu-bar apps: PIZZA CLIP, a clipboard-history manager that keeps everything you ⌘C so you can recall it instantly, and PICkle, a screenshot organizer that auto-saves every capture into a tidy "pickle jar." No ads, no tracking — your data never leaves your Mac.
 
-## 핵심 정보
+## PIZZA CLIP
 
-- **종류**: macOS 메뉴바 클립보드 히스토리(매니저) 앱 (네이티브)
-- **가격**: 무료
-- **지원 OS**: macOS (Apple Silicon + Intel 유니버설)
-- **저장 방식**: 100% 로컬 저장, 외부 서버 전송 없음
-- **개발**: ProjectJAM (팀 jAm)
-- **공식 사이트**: https://pizza-clip.com
-- **다운로드**: https://github.com/parkppuri01/pizzaClip/releases/latest
-- **자동 업데이트**: Sparkle 내장 (Apple 공증 완료 빌드)
+A clipboard-history manager that lives in your menu bar. Copy as much as you want — every ⌘C is kept, so nothing you copied earlier ever disappears. Hit one shortcut, grab the slice you need, paste. 🍕
 
-## 주요 기능
+- **Price**: Free (no ads, no tracking)
+- **OS**: macOS 13+ — universal binary (Apple Silicon + Intel)
+- **Privacy**: 100% local, no server. Your clipboard data stays on your Mac.
+- **Updates**: Auto-updates via Sparkle; builds are Apple notarized.
+- **Developer**: Team JAM (ProjectJAM)
 
-- ⌘C로 복사한 텍스트·이미지·파일을 자동으로 기록 (이전 기록이 사라지지 않음)
-- ⌘⇧V로 클립보드 히스토리 팝업 호출, 숫자 0~9 단축키로 항목 즉시 선택·붙여넣기
-- 핀 고정으로 자주 쓰는 항목 상단 유지
-- 빠른 검색
-- 오른쪽 ⌘ 키로 한/영 전환 보조 (켜고 끄기 가능)
-- 개인정보 보호: 비밀번호 등 민감 항목은 외부로 나가지 않고 로컬에만 보관
+Key features:
+- Automatically keeps every text, image, and file you copy — your history never gets wiped.
+- Recall the whole stack with ⌘⇧V, then paste any item with ⌘⌥⌃1~9.
+- Pin the items you reach for most so they stay at the top.
+- Fast search across your history.
+- Optional 한/영 (Korean/English) input-source helper on the right ⌘ key.
+- Sensitive items like passwords stay local — they never leave your device.
 
-## 자주 묻는 질문
+Core shortcuts: ⌘⇧V (open the history popup) · ⌘⌥⌃1~9 (paste a specific item)
 
-- **무료인가요?** 네, 0원입니다.
-- **어떤 맥에서 되나요?** Apple Silicon·Intel 모든 Mac에서 작동합니다.
-- **안전한가요?** Apple 공증(notarize) 완료 빌드라 보안 경고 없이 설치됩니다. 데이터는 내 맥에만 저장됩니다.
-- **어떻게 빠르게 붙여넣나요?** ⌘⇧V로 열고 0~9 숫자키로 바로 선택합니다.
+- **Official site**: https://pizza-clip.com/pizzaclip (EN: https://pizza-clip.com/en/pizzaclip)
+- **Download**: https://github.com/parkppuri01/pizzaClip/releases/latest
+- **GitHub**: https://github.com/parkppuri01/pizzaClip
 
-## 페이지
+## PICkle
 
-- 홈: https://pizza-clip.com/
-- 사용법(How to): https://pizza-clip.com/how-to
-- 정보(Info): https://pizza-clip.com/info
+A screenshot organizer for macOS. Every capture is auto-saved, fresh and dated, into a "pickle jar" folder in your Documents — no more screenshots scattered across your Desktop. Quick-edit on the spot, then grab it from the menu-bar tray. 🥒🫙
+
+- **Price**: Free (no ads, no tracking)
+- **OS**: macOS 13+ — universal binary (Apple Silicon + Intel)
+- **Privacy**: 100% local, no server. Captures stay on your Mac.
+- **Trust**: Apple notarized — installs with no security warnings.
+- **Updates**: Auto-updates built in.
+- **Developer**: Team JAM (ProjectJAM)
+
+Key features:
+- Auto-saves every screenshot into a "pickle jar" folder inside Documents — organized the moment you capture.
+- Quick edit without leaving the app: blur, pen, crop, and watermark.
+- Menu-bar tray holds your recent captures, with drag-and-drop into any app.
+- Keeps captures preserved and easy to find, never lost on the Desktop.
+
+Core shortcuts: ⇧⌥S · ⇧⌥D · ⇧⌥A · ⇧⌥F
+
+- **Official site**: https://pizza-clip.com/pickle (EN: https://pizza-clip.com/en/pickle)
+- **GitHub**: https://github.com/parkppuri01/pickle
+
+## FAQ
+
+- **Are they free?** Yes. Both PizzaClip and PICkle are completely free — no ads, no tracking, no account.
+- **Which Macs are supported?** Any Mac on macOS 13 or later. Both apps ship as universal binaries for Apple Silicon and Intel.
+- **Is it safe? Where does my data go?** Both apps are Apple notarized, so they install without security warnings, and everything is 100% local. Your clipboard history and screenshots stay on your Mac — nothing is sent to a server.
+- **How do I paste quickly with PizzaClip?** Press ⌘⇧V to open your clipboard history, then paste any item directly with ⌘⌥⌃1~9.
+- **Do they work offline?** Yes. Both apps run entirely on-device, so they work with no internet connection.
+- **How are screenshots organized in PICkle?** Every capture is automatically saved into a dated "pickle jar" folder inside your Documents, so they're sorted the instant you take them.
+- **Can I edit a screenshot?** Yes. PICkle has built-in quick editing — blur, pen, crop, and watermark — right after you capture.
+- **How do I get to my recent screenshots?** They live in the PICkle menu-bar tray; drag any capture straight into another app.
+- **Do updates install automatically?** Yes. PizzaClip auto-updates via Sparkle and PICkle has built-in auto-update, both on Apple notarized builds.
+- **Who makes these apps?** Team JAM (ProjectJAM), an indie developer building focused, local-first Mac utilities.
+
+## Pages
+
+- Home (intro): https://pizza-clip.com/ (EN: https://pizza-clip.com/en/)
+- PizzaClip: https://pizza-clip.com/pizzaclip (EN: https://pizza-clip.com/en/pizzaclip)
+- PICkle: https://pizza-clip.com/pickle (EN: https://pizza-clip.com/en/pickle)
+- Info / release notes: https://pizza-clip.com/info (EN: https://pizza-clip.com/en/info)

@@ -1,0 +1,283 @@
+---
+/**
+ * 피자클립 홈 — lang 으로 한/영 공용. 마크업·스타일 동일, 텍스트만 사전(pizza.ts)에서.
+ * 가이드: web/site-renewal/피자클립guide.png (2026-06-11 개정 — '하는 일' 기능 3개를 띠 패널에 분산)
+ * 띠 구성: 크림(히어로) → peach(기능1) → coral(크라프트원형+광고판+자판기) → yellow(기능2+마스코트)
+ *          → green(기능3, 패널이 노랑/초록 경계 걸침 + 흑백피자·원형뱃지)
+ *          → peach('피자클립이 하는 일' 기존 4개 = 박스 D, green/peach 경계 걸침 + 스캘럽·CLIPBOARD + 단축키) → cream(다운로드).
+ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Button from "../Button.astro";
+import VideoModal from "../VideoModal.astro";
+import { DOWNLOAD_URL } from "../../consts.ts";
+import { type Lang, ROUTES } from "../../i18n/ui.ts";
+import { pizza } from "../../i18n/pizza.ts";
+
+interface Props { lang?: Lang; }
+const { lang = "ko" } = Astro.props;
+const c = pizza[lang];
+---
+<BaseLayout
+  site="pizza"
+  lang={lang}
+  koPath={ROUTES.pizza}
+  description={c.metaDescription}
+  featureList={c.featureList}
+  softwareVersion="1.1.0"
+>
+  <!-- ===== 히어로 (크림) ===== -->
+  <section class="hero band">
+    <div class="container hero__inner">
+      <div class="hero__copy" data-reveal>
+        <h1>{c.heroH1a}<br />{c.heroH1b}</h1>
+        <p class="hero__lead">
+          <strong>{c.heroLeadStrong}</strong><br />
+          {c.heroLeadRest}
+        </p>
+        <div class="hero__cta">
+          <Button href={DOWNLOAD_URL} variant="primary">{c.ctaDownload}</Button>
+          <Button variant="secondary" class="hero__tut" data-open-video>{c.ctaTutorial}</Button>
+        </div>
+      </div>
+      <figure class="hero__art" data-reveal>
+        <img src="/img/pizza/hero-poster.jpg" width="1100" height="1466"
+             alt={c.heroImgAlt} fetchpriority="high" />
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===== 기능 1 · 자동 저장 (peach) ===== -->
+  <section class="band band--peach">
+    <div class="bandwrap">
+      <div class="panel featpanel featpanel--accent" data-reveal>
+        <h2>{c.features[0].title}</h2>
+        <p>{c.features[0].desc}</p>
+      </div>
+      <img class="sticker s-laptop hide-sm" src="/img/pizza/mascot-laptop.png"
+           alt="" aria-hidden="true" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- ===== 광고판·자판기 사진 + 크라프트 원형 (coral) ===== -->
+  <section class="band band--coral">
+    <div class="bandwrap bandwrap--tall">
+      <img class="sticker s-kraft hide-sm" src="/img/pizza/badge-kraft.png"
+           alt="" aria-hidden="true" loading="lazy" />
+      <img class="sticker s-billboard" src="/img/billboard.jpg" width="1300" height="933"
+           alt={c.billboardAlt} loading="lazy" />
+      <img class="sticker s-vending hide-sm" src="/img/pizza-store.jpg"
+           alt="" aria-hidden="true" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- ===== 기능 2 · 단축키 소환 (yellow) + 마스코트 줄 ===== -->
+  <section class="band band--yellow">
+    <div class="bandwrap">
+      <div class="panel featpanel" data-reveal>
+        <h2>{c.features[1].title}</h2>
+        <p>{c.features[1].desc}</p>
+      </div>
+      <div class="stickerline stickerline--mascot">
+        <img class="inline-sticker s-imapizzaclip" src="/img/pizza/sticker-imapizzaclip.png"
+             alt="" aria-hidden="true" loading="lazy" />
+        <img class="inline-sticker s-hi" src="/img/pizza/mascot-hi.png"
+             alt="" aria-hidden="true" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 기능 3 · 로컬 보안 (green) — 패널이 노랑/초록 경계에 걸침 ===== -->
+  <section class="band band--green">
+    <div class="bandwrap">
+      <div class="panel featpanel panel--straddle" data-reveal>
+        <h2>{c.features[2].title}</h2>
+        <p>{c.features[2].desc}</p>
+      </div>
+      <div class="stickerline stickerline--chars">
+        <img class="inline-sticker s-hibw" src="/img/pizza/mascot-hi-bw.png"
+             alt="" aria-hidden="true" loading="lazy" />
+        <img class="inline-sticker s-roundbadge" src="/img/pizza/badge-round.png"
+             alt="" aria-hidden="true" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 단축키 (peach) — 맨 위 '피자클립이 하는 일'(박스 D, 그린/피치 경계 걸침) + 뱃지 줄 ===== -->
+  <section class="band band--peach" id="shortcuts">
+    <div class="bandwrap">
+      <div class="panel features" data-reveal>
+        <h2 class="features__title">{c.classicTitle}</h2>
+        <ul class="minifeats">
+          {c.classic.map((f) => (
+            <li>
+              <h3>{f.icon} {f.title}</h3>
+              <p>{f.desc}</p>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="stickerline stickerline--badges">
+        <img class="inline-sticker s-scallop" src="/img/pizza/badge-scallop.png"
+             alt="" aria-hidden="true" loading="lazy" />
+        <img class="inline-sticker s-clipboard" src="/img/pizza/badge-clipboard.png"
+             alt="" aria-hidden="true" loading="lazy" />
+      </div>
+      <div class="panel shortcuts" data-reveal>
+        <h2>{c.shortcutsTitle}</h2>
+        <p class="shortcuts__sub">{c.shortcutsSub}</p>
+        <dl class="kbd-list">
+          {c.shortcuts.map((s) => (
+            <div class="kbd-row">
+              <dt><kbd>{s.keys}</kbd></dt>
+              <dd>{s.desc}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 다운로드 카드 (cream) ===== -->
+  <section class="band band--cream" id="download">
+    <div class="bandwrap">
+      <div class="panel download" data-reveal>
+        <div class="download__inner">
+          <h2>{c.downloadTitleA}<br class="br-sm" /> {c.downloadTitleB}</h2>
+          <ul class="download__checks">
+            {c.downloadChecks.map((check) => (<li>{check}</li>))}
+          </ul>
+          <Button href={DOWNLOAD_URL} variant="primary" class="download__btn">{c.ctaDownload}</Button>
+          <p class="download__note">{c.downloadNote}</p>
+        </div>
+      </div>
+      <img class="sticker s-person" src="/img/pizza/sticker-person.png"
+           alt="" aria-hidden="true" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- 튜토리얼 영상 팝업 (히어로 ▶ 튜토리얼 버튼이 염) -->
+  <VideoModal videoId="9nhJBjU_JtQ" title={c.videoTitle} lang={lang} />
+</BaseLayout>
+
+<style>
+  /* 띠 — 가로만 클립(세로 겹침 허용), 패딩은 카드가 띠를 거의 채우도록 */
+  .band { overflow-x: clip; padding-block: clamp(4.75rem, 8.5vw, 7rem); position: relative; }
+  .band--peach  { background: var(--pz-peach); }
+  .band--coral  { background: var(--pz-coral); }
+  .band--yellow { background: var(--pz-yellow); }
+  .band--green  { background: var(--pz-green); }
+  .band--cream  { background: var(--color-bg); }
+
+  /* 위치 기준 = 카드 폭의 래퍼. 스티커는 이 래퍼(=카드 모서리) 기준으로 붙는다 */
+  .bandwrap { position: relative; max-width: 880px; margin-inline: auto; padding-inline: var(--gutter); }
+  .bandwrap--tall { min-height: clamp(360px, 42vw, 580px); }  /* coral 사진 스티커 높이 받침 */
+  .bandwrap .panel { width: 100%; max-width: none; margin: 0; }
+
+  /* ── 히어로 ── */
+  .hero { padding-block: clamp(2.5rem, 6vw, 5rem); }
+  .hero__inner { display: flex; align-items: center; gap: clamp(2rem, 6vw, 4rem); flex-wrap: wrap; }
+  .hero__copy { flex: 1 1 340px; }
+  .hero h1 { font-size: clamp(2.1rem, 6vw, 3.6rem); }
+  .hero__lead { font-size: 1.12rem; margin-top: 1.25rem; color: var(--color-text); }
+  .hero__cta { display: flex; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
+  .hero__art { flex: 0 0 auto; margin-inline: auto; width: min(330px, 78vw); }
+  .hero__art img {
+    width: 100%; height: auto; border-radius: 12px;
+    box-shadow: 0 14px 34px rgba(16, 33, 56, 0.22);
+  }
+
+  /* ── 기능 패널(가이드 빨간 박스): 볼드 헤드라인 + 본문 ── */
+  .featpanel h2 { font-size: 1.25rem; line-height: 1.45; color: var(--color-ink); }
+  .featpanel--accent h2 { color: var(--color-point); }
+  .featpanel p { margin-top: 0.85rem; font-size: 1.03rem; line-height: 1.66; color: var(--color-ink); opacity: 0.88; }
+
+  /* 기능3 패널: 노랑/초록 경계에 걸침(위로 끌어올림 — green 띠가 DOM 뒤라 노랑 위에 그려짐)
+     ※ .bandwrap .panel { margin: 0 } 보다 우선해야 해서 선택자를 같은 깊이로 맞춤 */
+  .bandwrap .panel--straddle { margin-top: calc(-1 * clamp(4.75rem, 8.5vw, 7rem) - 9.5rem); }
+
+  /* ── 사진 스티커(coral): 흰테두리 폴라로이드, 자유 배치(가이드) ── */
+  .s-billboard, .s-vending {
+    border: 8px solid #fff; border-radius: 6px;
+    filter: drop-shadow(0 12px 28px rgba(0,0,0,0.32));
+  }
+  /* coral: 광고판 — 카드 폭 기준 우측 바깥으로 삐짐, 살짝 시계방향 */
+  .s-billboard { --sw: clamp(340px, 46vw, 620px); right: -13%; top: 8%; transform: rotate(3deg); }
+  /* coral: 자판기 — 좌측 하단, 광고판 좌하단에 겹침, 반시계 기울임 */
+  .s-vending { --sw: clamp(180px, 21vw, 250px); left: 14%; top: 44%; transform: rotate(-7deg); border-width: 7px; }
+  /* coral: 크라프트 원형(Another Tasty Clip) — 좌상단 */
+  .s-kraft { --sw: clamp(140px, 18vw, 235px); left: 1%; top: 2%; transform: rotate(-8deg); }
+
+  /* ── 다운로드 ── */
+  .download__inner { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .download__checks { display: grid; gap: 0.6rem; text-align: left; margin: 1.4rem 0; }
+  .download__checks li { position: relative; padding-left: 1.8rem; }
+  .download__checks li::before { content: "✓"; position: absolute; left: 0; color: var(--color-point); font-weight: 700; }
+  .download__btn { font-size: 1.1rem; padding: 0.9em 2.4em; }
+  .download__note { margin-top: 1rem; font-size: var(--fs-small); opacity: 0.7; }
+
+  /* ── 단축키 (how-to 단축키 표 이식) ── */
+  .shortcuts__sub { margin-top: 0.6rem; color: var(--color-text); }
+  .shortcuts .kbd-list { display: grid; gap: 0.6rem; margin-top: 1.5rem; }
+  .kbd-row { display: grid; grid-template-columns: minmax(120px, 190px) 1fr; gap: 1rem; align-items: baseline; }
+  .kbd-row dd { color: var(--color-ink); }
+  kbd {
+    font-family: var(--font-en);
+    background: var(--color-ink); color: var(--color-bg);
+    padding: 0.25em 0.6em; border-radius: 6px; font-size: 0.95rem;
+    white-space: nowrap; display: inline-block;
+  }
+
+  /* ── 절대배치 스티커(카드 모서리 기준) ── */
+  .sticker { position: absolute; pointer-events: none; user-select: none; z-index: 3;
+             filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.18)); width: var(--sw, 160px); }
+  /* peach: 노트북 피자 — 카드 우하단 모서리 */
+  .s-laptop  { --sw: clamp(95px, 11vw, 150px); right: -9%; bottom: -20%; }
+  /* cream: "I'm a Pizza Clip person" — 카드 우상단 모서리 위로(peach로) 삐짐 */
+  .s-person  { --sw: clamp(110px, 15vw, 188px); right: -3%; top: -16%; transform: rotate(6deg); }
+
+  /* ── 흐름배치 스티커 줄(패널 아래/위, 모바일 안전) ── */
+  .stickerline { display: flex; align-items: flex-start; }
+  .inline-sticker { height: auto; pointer-events: none; user-select: none;
+                    filter: drop-shadow(2px 4px 5px rgba(0,0,0,0.18)); }
+  /* yellow: I'm a PizzaClip(좌) + 컬러 하이피자(우) — 패널 아래 */
+  .stickerline--mascot { margin-top: clamp(2.5rem, 5vw, 4rem); }
+  .s-imapizzaclip { width: clamp(180px, 30vw, 305px); margin-left: 7%; transform: rotate(-9deg); }
+  .s-hi { width: clamp(130px, 20vw, 200px); margin-left: auto; margin-right: 9%; }
+  /* green: 흑백 하이피자(좌) + PIZZA CLIP 원형 뱃지 — 패널 사이 */
+  .stickerline--chars { margin-top: clamp(3rem, 6vw, 5rem); }
+  .s-hibw { width: clamp(120px, 18vw, 180px); margin-left: 10%; }
+  .s-roundbadge { width: clamp(140px, 20vw, 210px); margin-left: 39%; margin-top: 1.5rem;z-index: 3; }
+  /* 박스 D: '피자클립이 하는 일'(기존 4개) — 그린/피치 경계에 걸침 */
+  .bandwrap .features { margin-top: calc(-1 * clamp(4.75rem, 8.5vw, 7rem) - 9rem); }
+  .features__title { margin-bottom: 1.25rem; }
+  .minifeats { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.05rem; }
+  .minifeats h3 { font-size: 1.05rem; line-height: 1.4; color: var(--color-ink); }
+  .minifeats p { margin-top: 0.3rem; font-size: 0.98rem; line-height: 1.6; color: var(--color-ink); opacity: 0.85; }
+
+  /* peach(단축키): 스캘럽 PIZZA CLIP(좌, 카드 밖으로) + CLIPBOARD 타원 — '하는 일' 카드 모서리에 겹침 */
+  .stickerline--badges { margin-top: -2.5rem; margin-bottom: clamp(2rem, 4vw, 3rem); }
+  .s-scallop { width: clamp(150px, 22vw, 270px); margin-left: -7%; transform: rotate(-12deg); }
+  .s-clipboard { width: clamp(190px, 26vw, 310px); margin-left: 25%; margin-top: 5rem; transform: rotate(7deg); }
+
+  .br-sm { display: none; }
+
+  @media (max-width: 760px) {
+    .hero__copy { text-align: center; }
+    .hero__cta { justify-content: center; }
+    .hide-sm { display: none !important; }
+    .br-sm { display: inline; }
+    /* 모바일: 광고판 사진은 흐름배치로(가운데, 안 잘리게) */
+    .s-billboard { position: static; width: min(100%, 420px); margin: 0 auto;
+                   top: auto; right: auto; transform: rotate(2deg); }
+    .bandwrap .panel--straddle { margin-top: -7.5rem; }
+    .bandwrap .features { margin-top: -7rem; }
+    .s-imapizzaclip { width: 140px; margin-left: 2%; }
+    .s-hi { width: 112px; margin-right: 2%; }
+    .s-hibw { width: 92px; }
+    .s-roundbadge { width: 108px; margin-left: 10%; margin-top: 1rem; }
+    .s-scallop { width: 124px; margin-left: -2%; }
+    .s-clipboard { width: 136px; margin-top: 2rem; }
+    .s-person { --sw: 88px; right: -1%; top: -15%; }
+    .kbd-row { grid-template-columns: 1fr; gap: 0.25rem; }
+  }
+</style>

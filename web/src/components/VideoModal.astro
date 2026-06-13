@@ -10,17 +10,20 @@
  *  - 닫기 = 배경/✕/ESC. 닫을 때 src 를 비워 영상 재생 정지(소리 끊김 방지).
  *  - 영상은 클릭 전엔 로드 안 됨(초기 페이지 가벼움).
  */
+import { type Lang, ui } from "../i18n/ui.ts";
 interface Props {
   videoId: string;
   title?: string;
+  lang?: Lang;
 }
-const { videoId, title = "튜토리얼" } = Astro.props;
+const { videoId, title = "튜토리얼", lang = "ko" } = Astro.props;
+const closeLabel = ui[lang].videoClose;
 ---
 
 <div class="vmodal" id="videoModal" hidden aria-hidden="true">
   <div class="vmodal__backdrop" data-close></div>
   <div class="vmodal__dialog" role="dialog" aria-modal="true" aria-label={title}>
-    <button class="vmodal__close" type="button" data-close aria-label="닫기">✕</button>
+    <button class="vmodal__close" type="button" data-close aria-label={closeLabel}>✕</button>
     <div class="vmodal__frame">
       <iframe
         id="videoModalFrame"

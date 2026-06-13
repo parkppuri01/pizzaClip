@@ -1,13 +1,61 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-14** (🚀 **튜토리얼 영상 팝업 + 피클 노크 카운트 — 둘 다 라이브 배포·검증 완료**. ① 피자·피클 히어로 다운로드 버튼 옆 '튜토리얼' 버튼 → 누르면 유튜브 영상 팝업(`VideoModal.astro` 신설, 커밋 ca3ac11). ② DAU 노크 카운트에 피클앱(`/pickle/appcast.xml`) 추가 — 앱별 키 분리, `/api/stats` 에 `apps.{pizza,pickle}`+`combined`(커밋 37d33e1). 자세히는 §3 2026-06-14. 이전: 가이드 풀버전 재반영 86a003c, PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
+마지막 업데이트: **2026-06-14** (🌐 **영문 사이트(EN/KO) + AEO/GEO 강화 — 빌드·프리뷰 검증 완료, ⚠️ 아직 미배포(커밋/푸시 안 함)**. 한국어는 루트 그대로, 영문은 `/en/` 4페이지(인트로·피자·피클·인포 / how-to 제외). 상단바 깃허브 오른쪽 **EN/KO 세로 토글**(위 KO/아래 EN) + **접속지역 자동 언어분기**(IP 국가 헤더, 위치권한 팝업 없음 — 한국=한글/그 외=영문, 첫 진입 1회·미들웨어, ⚠️배포 후 검증). 4개 페이지를 `lang` 받는 **공유 컴포넌트**(`src/components/pages/*`)로 리팩터링해 한·영이 마크업·CSS 1벌을 공유, 텍스트만 `src/i18n/*` 사전에서. hreflang·og:locale·JSON-LD inLanguage 언어별 분기, sitemap i18n alternate, llms.txt 영문·양앱 전면개정. 자세히는 §3 **2026-06-14 (i18n+AEO)**. 이전: 🚀 **튜토리얼 영상 팝업 + 피클 노크 카운트 — 둘 다 라이브 배포·검증 완료**. ① 피자·피클 히어로 다운로드 버튼 옆 '튜토리얼' 버튼 → 누르면 유튜브 영상 팝업(`VideoModal.astro` 신설, 커밋 ca3ac11). ② DAU 노크 카운트에 피클앱(`/pickle/appcast.xml`) 추가 — 앱별 키 분리, `/api/stats` 에 `apps.{pizza,pickle}`+`combined`(커밋 37d33e1). 자세히는 §3 2026-06-14. 이전: 가이드 풀버전 재반영 86a003c, PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
 
 ---
 
-## 🔖 세션 이어받기 (2026-06-14, 튜토리얼 영상 팝업 + 피클 노크 카운트 — **둘 다 라이브 배포·검증 완료**)
+## 🔖 세션 이어받기 (2026-06-14, 🌐 영문 사이트 EN/KO + AEO/GEO 강화 — **빌드·프리뷰 검증 완료, 아직 미커밋·미배포**)
+
+> ⚠️ **배포 전**: 이번 변경은 `git` 에 커밋/푸시하지 않았습니다(사용자 확인 후 배포). 배포하려면 master 푸시 = Vercel 자동배포.
+
+이번 세션은 **사이트 전체를 한국어/영어 2개국어로** 만들고, 지난 AEO 작업의 미흡한 부분을 보강했습니다.
+
+### 1) i18n 구조 (한국어=루트, 영문=`/en/`)
+- **라우팅**: `astro.config.mjs` 에 `i18n: { defaultLocale:"ko", locales:["ko","en"], routing:{prefixDefaultLocale:false} }`. 한국어는 기존 URL 그대로(`/`,`/pizzaclip`,`/pickle`,`/info`), 영문은 `/en/`,`/en/pizzaclip`,`/en/pickle`,`/en/info`. **how-to 는 영문 제외**(한국어 전용 유지).
+- **중복 방지 — 핵심**: 4개 페이지를 `lang` 프롭 받는 **공유 컴포넌트 `src/components/pages/{Intro,Pizza,Pickle,Info}Page.astro`** 로 리팩터링. 마크업·`<style>` 는 한 벌만 존재하고 한·영이 공유. **텍스트(카피)만** `src/i18n/{intro,pizza,pickle,info}.ts` 사전(`Record<"ko"|"en", …>`)에서 가져옴. → 앞으로 디자인/CSS 수정은 **공유 컴포넌트 1곳만** 고치면 양 언어에 동시 반영(절대 두 벌로 갈라지지 않음).
+- 페이지 파일(`src/pages/*.astro`, `src/pages/en/*.astro`)은 전부 `<XxxPage lang="ko|en" />` 2~4줄짜리 래퍼.
+- **i18n 중앙 헬퍼 `src/i18n/ui.ts`**: `type Lang`, `ROUTES`, `href(lang,key)`(내부 링크를 항상 같은 언어판으로), `enHref()`, `ui[lang]`(네비/푸터/소셜 aria·라벨), `siteMeta[site][lang]`(기본 title/description). **내부 링크는 전부 `href(lang,...)` 통과** — 한국어 페이지 링크는 ko 경로, 영문 페이지 링크는 `/en/` 경로로 자동.
+
+### 2) EN/KO 토글 (상단바 깃허브 오른쪽) — **세로(위 KO / 아래 EN) 토글**
+- `SocialIcons.astro` 에 `.langtog`(틸 테두리, **세로 2칸** — KO 위·EN 아래) 추가 — `koPath` 가 있을 때만 노출(양 언어판 존재 페이지). 현재 언어 칸이 채워진(틸) 상태, 반대 언어 누르면 **같은 페이지의 반대 언어판**으로 이동. 데이터 흐름: BaseLayout → NavMinimal → SocialIcons 로 `lang`·`koPath` 전달. (가로→세로 변경: 사용자 요청. 폭 22px 로 더 좁아져 모바일 여유↑.)
+- **how-to 는 koPath 안 넘김** → 토글·hreflang 둘 다 안 나옴(영문판 없으니 정답). 데스크톱·**375px 모바일 모두 한 줄 유지·가로 오버플로 0**, 활성표시는 쿠키가 아니라 **현재 페이지 lang** 반영(측정 확인).
+
+### 2-b) 접속지역 기반 언어 자동 분기 (위치권한 팝업 없음)
+- **`middleware.js`(Vercel Edge) 에 로케일 리다이렉트 추가** — 노크 카운트 로직은 **그대로 보존**, matcher 에 8개 페이지 경로 추가.
+- 판단 수단 = **`x-vercel-ip-country` 헤더**(Vercel 이 IP 로 붙여줌, **위치권한 확인창 안 뜸**). 한국(KR) 외 → 한국어 경로 진입 시 영문(`/en/…`)으로, 한국(KR) → 영문 경로 진입 시 한국어로 **307 1회** 리다이렉트.
+- **과한 개입 방지 4중 가드**: ① `pclang` 쿠키 있으면(=이미 한 번 봄) 안 함 ② referer 가 우리 도메인(=토글/내부 링크 클릭)이면 안 함(토글 무한바운스 방지) ③ 검색/AI 크롤러 UA 면 안 함(두 언어 URL 모두 색인) ④ 국가 모르면 기본(한국어) 유지.
+- **짝꿍 쿠키**: BaseLayout 인라인 스크립트가 첫 방문 후 `pclang`=현재언어 기록 + 토글 클릭 시 선택언어 기록 → 자동분기는 **첫 외부 진입 1회만**, 이후엔 사용자 네비 존중. 리다이렉트 응답에도 `Set-Cookie`.
+- ⚠️ **로컬 검증 불가**: Edge 미들웨어는 Vercel 플랫폼에서만 실행됨(`astro build`/preview 에선 안 돎). `node --check` 구문검사 + 경로매핑 로직만 로컬 확인. **실제 지역 리다이렉트는 배포 후 확인**(예: VPN 으로 해외 IP → 한국어 페이지 접속 시 `/en/` 으로 튀는지). SEO 주의: 크롤러는 건드리지 않게 했고 hreflang 로 양 URL 안내하지만, 지역 리다이렉트는 일반적으로 신중히 — 문제 시 미들웨어 (2) 블록만 들어내면 됨.
+
+### 3) AEO/GEO 보강 (지난 작업 대비 추가/수정)
+- **hreflang**: 양 언어판 페이지에 `ko`·`en`·`x-default`(=ko) `<link rel=alternate>` 발행(BaseLayout, `koPath` 있을 때만). how-to 는 미발행.
+- **og:locale + og:locale:alternate**, **`<html lang>`·JSON-LD `inLanguage`** 언어별 분기.
+- **`@astrojs/sitemap` i18n**: `sitemap-0.xml` 에 4개 페이지 ko-KR/en-US `xhtml:link` alternate 자동 주석, how-to 는 alternate 없음(검증함).
+- **SoftwareApplication 강화**(피자·피클만, 인트로/인포는 미발행): `featureList`(앱별 6개·언어별), `softwareVersion`(피자 1.1.0·피클 1.0.0), `operatingSystem:"macOS 13.0+"`, `applicationSubCategory`, `isAccessibleForFree`, `offers`(price 0 USD), `author`+`publisher`, `screenshot`, 피자 ko 에 `softwareHelp`(how-to). **가짜 aggregateRating 은 의도적으로 넣지 않음**(가이드라인 위반).
+- **Organization**: `logo` + `sameAs`(github×2 + instagram + threads).
+- **robots 메타**: `index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1`.
+- **llms.txt 전면 개정**: 기존(한국어·피자만) → **영문·양 앱(PIZZA CLIP+PICkle)·FAQ 10문항·페이지 목록(ko+en URL)**. AI 답변엔진(ChatGPT/Perplexity/Claude/구글 AI) 핵심 콘텐츠 통로.
+
+### 검증
+- `cd web && npm run build` → **9페이지 통과**(ko 5 + en 4). 콘솔 에러 0.
+- 프리뷰: 한국어 피자 페이지 **스티커·띠·straddle·뱃지 전부 원위치(회귀 0)**, 영문 4페이지 모두 영문 렌더, 토글 양방향 동작·현재언어 하이라이트, 375px 무오버플로, hreflang/og:locale/inLanguage/sitemap alternate HTML 산출물 직접 확인. `set:html` 로 들어가는 팀소개 brand 스팬은 `:global(.brand)` 로 폰트 적용됨(스코프 함정 회피, 검증).
+
+### 영문 카피 메모
+- 마케팅 톤(피자=조각 쌓기, 피클=절임/병 은유)을 영어로 자연스럽게 재창작(직역 X). 단축키 글리프(⌘⇧V 등)·버전·이모지·브랜드명(PizzaClip/PICkle/Team JAM) 보존.
+- **튜토리얼 영상은 한·영 동일 videoId**(영문 전용 영상 없음) — EN 페이지는 버튼·제목 라벨만 영문. 영문 영상 생기면 `VideoModal videoId` 만 교체.
+- **OG 이미지는 ko·en 공용**(`og-*.jpg` 한국어 텍스트 포함) — 영문 전용 OG 는 차후 과제(이미지 자산 없음).
+
+### 이어받기 팁(이번 세션)
+- 새 카피 수정 = **`src/i18n/{intro,pizza,pickle,info}.ts` 의 `ko`/`en` 만** 고침. 디자인/레이아웃 = **`src/components/pages/*Page.astro`** 만 고침(양 언어 동시 반영). 새 내부 링크 = `href(lang, "intro|pizza|pickle|info")` 사용(직접 `/pickle` 쓰지 말 것 — 영문에서 깨짐).
+- 새 페이지를 양 언어로 추가 = ① `ROUTES` 에 키 추가 ② 공유 컴포넌트에서 `koPath={ROUTES.key}` ③ `src/pages/key.astro`(ko) + `src/pages/en/key.astro`(en) 래퍼. hreflang·sitemap·토글이 자동으로 따라옴.
+- `eval` 로 `location.href` 네비게이션 후 `window.innerWidth=0` 글리치 여전 → `preview_resize` 프리셋으로 리셋 후 측정(기존 함정 §4-6 재확인).
+
+---
+
+## 🔖 (이전) 세션 이어받기 (2026-06-14, 튜토리얼 영상 팝업 + 피클 노크 카운트 — **둘 다 라이브 배포·검증 완료**)
 
 이번 세션 작업은 **커밋 37d33e1·ca3ac11 master 푸시 = Vercel 라이브**. 워킹트리 잔여는 **이번 세션 무관**(`web/guide/**` 디자인 원본 등 미커밋 참고 자산).
 
@@ -103,11 +151,26 @@ web/
 └── guide/                         # 디자인 원본 에셋 (design.md=SSOT, *.png/jpg 목업·소스)
 ```
 
+- **🌐 i18n(2026-06-14 추가) — 어디를 고치나**:
+  - `src/i18n/ui.ts` = 중앙 헬퍼(`Lang`·`ROUTES`·`href(lang,key)`·`enHref`·`ui[lang]` UI문자열·`siteMeta` 메타기본값). `src/i18n/{intro,pizza,pickle,info}.ts` = 페이지별 카피 사전(`ko`/`en`).
+  - `src/components/pages/{Intro,Pizza,Pickle,Info}Page.astro` = **마크업+CSS 공유 컴포넌트**(한·영 공용, `lang` 프롭). ← **디자인/레이아웃 수정은 여기서만**.
+  - `src/pages/*.astro`(ko) + `src/pages/en/*.astro`(en) = `<XxxPage lang=… />` 래퍼만.
+  - 내부 링크는 항상 `href(lang, "intro|pizza|pickle|info")` 사용(영문에서 `/en/` 자동). how-to 는 한국어 전용(영문·토글·hreflang 없음).
 - **디자인 SSOT**: `web/guide/design.md` (색 5종·폰트 3종·버튼·카드·🍕디바이더 규칙). 토큰 값 헷갈리면 여기 따름.
 - **컬러**: 크림 `#FCF6EF` / 벽돌빨강 `#A2371F`(포인트·CTA) / 피자옐로우 `#FFB703`(메뉴·카드) / 네이비 `#102138`(제목) / 차콜 `#333`(본문).
 - **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
 
 ## 3. 완료된 작업
+
+### 2026-06-14 (i18n+AEO) — 영문 사이트 EN/KO + AEO/GEO 강화(⚠️ 미커밋·미배포)
+
+**무엇을/왜:** 검색 노출(특히 AI 답변엔진)을 위해 ① 지난 AEO 작업의 미흡분을 보강하고 ② 사이트 전체를 한국어/영어 2개국어로 만듦. 상단바 깃허브 오른쪽에 EN/KO 토글, 영문 4페이지(인트로·피자클립·피클·인포 / how-to 제외).
+
+- **i18n 아키텍처**: Astro 내장 i18n(ko 기본=루트, en=`/en/`, `prefixDefaultLocale:false`). 4개 페이지를 `lang` 받는 **공유 컴포넌트**(`src/components/pages/*Page.astro`)로 리팩터링 → 한·영이 마크업·CSS 1벌 공유, 텍스트만 `src/i18n/*` 사전에서. 중앙 헬퍼 `src/i18n/ui.ts`(`href()`/`ui`/`siteMeta`). 자세한 위치는 §2 i18n 항목.
+- **EN/KO 토글**: `SocialIcons.astro` `.langtog`(틸 두칸 알약), 현재 페이지의 반대 언어판으로. `koPath` 있을 때만 노출(how-to 제외). 데스크톱·375px 무오버플로.
+- **AEO/GEO**: hreflang(ko/en/x-default)·og:locale(+alternate)·`<html lang>`·JSON-LD `inLanguage` 언어별, `@astrojs/sitemap` i18n alternate, SoftwareApplication 강화(featureList·softwareVersion·operatingSystem"macOS 13.0+"·offers·screenshot·softwareHelp), Organization logo+sameAs(인스타·스레드 추가), robots `max-image-preview:large`, **llms.txt 영문·양앱·FAQ 전면개정**.
+- **검증**: `npm run build` 9페이지 통과·콘솔 0, 프리뷰로 한국어 회귀 0·영문 4페이지·토글 양방향·모바일·산출물 hreflang/sitemap 직접 확인.
+- **남은 것/주의**: 커밋·푸시 안 함(배포 전). 영문 튜토리얼 영상·영문 전용 OG 이미지는 차후(현재 한·영 공용).
 
 ### 2026-06-14 — 튜토리얼 영상 팝업 + 피클 노크 카운트(라이브, 커밋 37d33e1·ca3ac11)
 

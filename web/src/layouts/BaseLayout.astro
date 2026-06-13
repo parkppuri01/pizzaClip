@@ -1,94 +1,131 @@
 ---
 /**
  * BaseLayout — 모든 페이지 공통 틀
- * <head> 메타 + canonical + og + 폰트, 그리고 site 별 네비/푸터.
+ * <head> 메타 + canonical + og + hreflang + 폰트, 그리고 site 별 네비/푸터.
  *
  * site:
- *   "pizza"  (기본) → 크림 NavMinimal(theme=pizza, 옐로우 #FFB703 밑줄) + 네이비 Footer (홈/how-to/info)
+ *   "pizza"  (기본) → 크림 NavMinimal(theme=pizza, 옐로우 #FFB703 밑줄) + 네이비 Footer (홈/info)
  *   "pickle"        → 크림 NavMinimal(theme=pickle, 올리브 밑줄) + PickleFooter
  *   "intro"         → 떠 있는 NavMinimal(theme=intro, JAM), 푸터 없음 (정보 페이지도 이 톤 사용)
+ *
+ * lang:  "ko"(기본, 루트 경로) | "en"(/en/ 경로). <html lang>·og:locale·JSON-LD inLanguage 분기.
+ * koPath: 이 페이지의 한국어(기본) 경로. 주면 ko↔en hreflang + og:locale:alternate 발행
+ *         (= 두 언어판이 모두 존재하는 페이지). how-to 처럼 한국어 전용이면 안 넘김.
  */
 import "../styles/global.css";
 import Footer from "../components/Footer.astro";
 import NavMinimal from "../components/NavMinimal.astro";
 import PickleFooter from "../components/PickleFooter.astro";
 import {
-  SITE_TITLE, SITE_DESC, DOWNLOAD_URL, GITHUB_URL,
-  PICKLE_TITLE, PICKLE_DESC, PICKLE_GITHUB_URL, PICKLE_DOWNLOAD_URL, PICKLE_RELEASED,
+  GITHUB_URL, PICKLE_GITHUB_URL, INSTAGRAM_URL, THREADS_URL,
+  DOWNLOAD_URL, PICKLE_DOWNLOAD_URL, PICKLE_RELEASED,
 } from "../consts.ts";
+import {
+  type Lang, HTML_LANG, OG_LOCALE, enHref, otherLang, siteMeta, APP_NAME,
+} from "../i18n/ui.ts";
 
 interface Props {
   title?: string;
   description?: string;
   image?: string;        // og 이미지 (사이트 루트 기준 경로)
   site?: "pizza" | "pickle" | "intro";
+  lang?: Lang;           // 기본 "ko"
+  koPath?: string;       // 양 언어판 존재 시 한국어 경로(hreflang 발행 트리거)
   bodyClass?: string;    // <body> 추가 클래스 (인트로 슬레이트 배경 등)
+  featureList?: string[]; // SoftwareApplication.featureList (AEO 강화)
+  softwareVersion?: string;
 }
 const {
   title,
   site = "pizza",
-  description = site === "pickle" ? PICKLE_DESC : SITE_DESC,
+  lang = "ko",
+  koPath,
   image = site === "pickle" ? "/img/og-pickle.jpg"
         : site === "intro"  ? "/img/og-intro.jpg"
         : "/img/og-home.jpg",
   bodyClass = "",
+  featureList,
+  softwareVersion,
 } = Astro.props;
 
+const defaults = siteMeta[site][lang];
+const description = Astro.props.description ?? defaults.desc;
+
 // 제품/메타 — site 별 분기
-const appName  = site === "pickle" ? PICKLE_TITLE
-               : site === "intro"  ? "PIZZA CLIP & PICkle"
-               : SITE_TITLE;
-const appDesc  = site === "pickle" ? PICKLE_DESC : SITE_DESC;
+const appName  = APP_NAME[site];
 const appCat   = "UtilitiesApplication";
 const ghUrl    = site === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
 const dlUrl    = site === "pickle" ? PICKLE_DOWNLOAD_URL : DOWNLOAD_URL;
 const released = site === "pickle" ? PICKLE_RELEASED : true;
 
-const defaultTitle =
-  site === "pickle" ? `${PICKLE_TITLE} — 맥 스크린샷 정리 앱`
-  : site === "intro" ? `PIZZA CLIP & PICkle — Team JAM`
-  : `${SITE_TITLE} — 맥 클립보드 히스토리 앱`;
-const pageTitle = title ? `${title} · ${appName}` : defaultTitle;
+const pageTitle = title ? `${title} · ${appName}` : defaults.title;
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL(image, Astro.site);
 const siteUrl = Astro.site?.toString() ?? "https://pizza-clip.com/";
+
+// ── hreflang / 언어 대체 ──
+// koPath 가 있으면 ko·en·x-default 대체링크를 발행(두 언어판 모두 존재).
+const koUrl = koPath ? new URL(koPath, Astro.site).toString() : null;
+const enUrl = koPath ? new URL(enHref(koPath), Astro.site).toString() : null;
+const ogLocale = OG_LOCALE[lang];
+const ogLocaleAlt = koPath ? OG_LOCALE[otherLang(lang)] : null;
 
 // 페이지별 파비콘(탭 아이콘): 피자=🍕 / 피클=🥒 / 인트로·인포=JAM 로고
 const faviconSvg = site === "pickle" ? "/favicon-pickle.svg"
                  : site === "intro"  ? "/favicon-jam.svg"
                  : "/favicon-pizza.svg";
 
-// 구조화 데이터(JSON-LD)
+// ── 구조화 데이터(JSON-LD) ──
 const softwareApp: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   name: appName,
   applicationCategory: appCat,
-  operatingSystem: "macOS",
-  description: appDesc,
+  applicationSubCategory: site === "pickle" ? "Screenshot organizer" : "Clipboard manager",
+  operatingSystem: "macOS 13.0+",
+  description,
   url: canonical.toString(),
   image: ogImage.toString(),
-  inLanguage: "ko",
-  offers: { "@type": "Offer", price: "0", priceCurrency: "KRW" },
+  screenshot: ogImage.toString(),
+  inLanguage: lang,
+  isAccessibleForFree: true,
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD", availability: "https://schema.org/InStock" },
   author: { "@type": "Organization", name: "Team JAM", url: siteUrl },
+  publisher: { "@type": "Organization", name: "Team JAM", url: siteUrl },
 };
+if (softwareVersion) softwareApp.softwareVersion = softwareVersion;
+if (featureList && featureList.length) softwareApp.featureList = featureList;
 if (released) softwareApp.downloadUrl = new URL(dlUrl, Astro.site).toString();
+// 한국어 피자 페이지에만 사용법(how-to) 도움말 연결(영문판 how-to 는 없음)
+if (site === "pizza" && lang === "ko") {
+  softwareApp.softwareHelp = { "@type": "WebPage", url: new URL("/how-to", Astro.site).toString() };
+}
+
+const orgSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Team JAM",
+  url: siteUrl,
+  logo: new URL("/img/jam-logo.png", Astro.site).toString(),
+  sameAs: [GITHUB_URL, PICKLE_GITHUB_URL, INSTAGRAM_URL, THREADS_URL],
+};
 
 const jsonLd = [
   // 인트로(/)는 '두 앱 선택 화면'이라 특정 앱(SoftwareApplication)으로 선언하지 않는다.
   // (루트 URL=PizzaClip 앱+다운로드로 잘못 색인되는 것 방지) → WebSite/Organization 만.
   ...(site === "intro" ? [] : [softwareApp]),
-  { "@context": "https://schema.org", "@type": "WebSite", name: appName, url: siteUrl, inLanguage: "ko" },
-  { "@context": "https://schema.org", "@type": "Organization", name: "Team JAM", url: siteUrl, sameAs: [GITHUB_URL, PICKLE_GITHUB_URL] },
+  { "@context": "https://schema.org", "@type": "WebSite", name: appName, url: siteUrl, inLanguage: lang },
+  orgSchema,
 ];
 ---
 <!doctype html>
-<html lang="ko">
+<html lang={HTML_LANG[lang]}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
     <!-- Google tag (gtag.js) — GA4 방문/이벤트 측정 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-30DB0P1HWL"></script>
@@ -124,6 +161,15 @@ const jsonLd = [
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
 
+    <!-- 언어 대체(hreflang) — 두 언어판이 모두 있는 페이지에만 -->
+    {koUrl && enUrl && (
+      <>
+        <link rel="alternate" hreflang="ko" href={koUrl} />
+        <link rel="alternate" hreflang="en" href={enUrl} />
+        <link rel="alternate" hreflang="x-default" href={koUrl} />
+      </>
+    )}
+
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={appName} />
@@ -131,7 +177,8 @@ const jsonLd = [
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:locale" content={ogLocale} />
+    {ogLocaleAlt && <meta property="og:locale:alternate" content={ogLocaleAlt} />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
@@ -156,14 +203,14 @@ const jsonLd = [
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" />
   </head>
   <body class={bodyClass}>
-    {site === "pizza" && <NavMinimal theme="pizza" />}
-    {site === "pickle" && <NavMinimal theme="pickle" />}
-    {site === "intro" && <NavMinimal theme="intro" />}
+    {site === "pizza" && <NavMinimal theme="pizza" lang={lang} koPath={koPath} />}
+    {site === "pickle" && <NavMinimal theme="pickle" lang={lang} koPath={koPath} />}
+    {site === "intro" && <NavMinimal theme="intro" lang={lang} koPath={koPath} />}
 
     <main id="main"><slot /></main>
 
-    {site === "pizza" && <Footer />}
-    {site === "pickle" && <PickleFooter />}
+    {site === "pizza" && <Footer lang={lang} />}
+    {site === "pickle" && <PickleFooter lang={lang} />}
 
     <!-- 스크롤 등장(점진적 향상): JS 있을 때만 숨겼다가 뷰포트 진입 시 표시 -->
     <script is:inline>
@@ -179,6 +226,24 @@ const jsonLd = [
           });
         }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
         els.forEach(function (el) { io.observe(el); });
+      })();
+    </script>
+
+    <!-- 언어 선택 기억(pclang 쿠키): 첫 방문 후엔 미들웨어 자동 분기를 멈추고 사용자 네비를 존중.
+         토글 클릭 시 고른 언어를 기록. (미들웨어와 짝 — middleware.js 참고) -->
+    <script is:inline define:vars={{ pageLang: lang }}>
+      (function () {
+        try {
+          function setLang(l) { document.cookie = 'pclang=' + l + '; path=/; max-age=31536000; samesite=lax'; }
+          if (!/(?:^|;\s*)pclang=(?:ko|en)\b/.test(document.cookie)) setLang(pageLang);
+          var opts = document.querySelectorAll('.langtog__opt');
+          for (var i = 0; i < opts.length; i++) {
+            opts[i].addEventListener('click', function () {
+              var l = this.getAttribute('hreflang');
+              if (l === 'ko' || l === 'en') setLang(l);
+            });
+          }
+        } catch (e) {}
       })();
     </script>
   </body>

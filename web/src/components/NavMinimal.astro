@@ -6,27 +6,32 @@
  *  theme="pickle" : 크림 상단 바 + 얇은 올리브 밑줄. 로고 = "PICKle" + 피자클립 크로스링크.
  */
 import SocialIcons from "./SocialIcons.astro";
-import { GITHUB_URL, PICKLE_GITHUB_URL, PIZZA_HOME } from "../consts.ts";
+import { GITHUB_URL, PICKLE_GITHUB_URL } from "../consts.ts";
+import { type Lang, href, ui } from "../i18n/ui.ts";
 interface Props {
   theme?: "intro" | "pizza" | "pickle";
+  lang?: Lang;
+  koPath?: string;
   logoHref?: string;
 }
-const { theme = "intro" } = Astro.props;
-const defaultHref = theme === "pizza" ? PIZZA_HOME : theme === "pickle" ? "/pickle" : "/";
+const { theme = "intro", lang = "ko", koPath } = Astro.props;
+const themeKey = theme === "pizza" ? "pizza" : theme === "pickle" ? "pickle" : "intro";
+const defaultHref = href(lang, themeKey);
 const { logoHref = defaultHref } = Astro.props;
 const github = theme === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
+const t = ui[lang];
 
 // 상대 앱으로 가는 크로스링크(피자↔피클). 로고 바로 옆 워드마크.
 const cross =
-  theme === "pizza"  ? { href: "/pickle",   label: "PICkle",     cls: "navm__cross--pickle", aria: "피클 페이지로 이동" } :
-  theme === "pickle" ? { href: PIZZA_HOME,  label: "PIZZA CLIP", cls: "navm__cross--pizza", aria: "피자클립 페이지로 이동" } :
+  theme === "pizza"  ? { href: href(lang, "pickle"), label: "PICkle",     cls: "navm__cross--pickle", aria: t.navCrossToPickle } :
+  theme === "pickle" ? { href: href(lang, "pizza"),  label: "PIZZA CLIP", cls: "navm__cross--pizza",  aria: t.navCrossToPizza } :
   null;
 ---
 <header class:list={["navm", `navm--${theme}`]}>
   <div class="navm__bar">
     <div class="navm__brand">
       {theme === "intro" && (
-        <a class="navm__logo navm__logo--jam" href={logoHref} aria-label="Team JAM 홈">
+        <a class="navm__logo navm__logo--jam" href={logoHref} aria-label={t.jamHome}>
           <img src="/img/jam-logo.png" width="40" height="40" alt="Team JAM" />
         </a>
       )}
@@ -40,7 +45,7 @@ const cross =
         <a class:list={["navm__cross", cross.cls]} href={cross.href} aria-label={cross.aria}>{cross.label}</a>
       )}
     </div>
-    <SocialIcons github={github} />
+    <SocialIcons github={github} lang={lang} koPath={koPath} />
   </div>
 </header>
 
