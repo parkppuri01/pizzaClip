@@ -1,15 +1,15 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-14** (🌐 **영문 사이트(EN/KO) + AEO/GEO 강화 — 빌드·프리뷰 검증 완료, ⚠️ 아직 미배포(커밋/푸시 안 함)**. 한국어는 루트 그대로, 영문은 `/en/` 4페이지(인트로·피자·피클·인포 / how-to 제외). 상단바 깃허브 오른쪽 **EN/KO 세로 토글**(위 KO/아래 EN) + **접속지역 자동 언어분기**(IP 국가 헤더, 위치권한 팝업 없음 — 한국=한글/그 외=영문, 첫 진입 1회·미들웨어, ⚠️배포 후 검증). 4개 페이지를 `lang` 받는 **공유 컴포넌트**(`src/components/pages/*`)로 리팩터링해 한·영이 마크업·CSS 1벌을 공유, 텍스트만 `src/i18n/*` 사전에서. hreflang·og:locale·JSON-LD inLanguage 언어별 분기, sitemap i18n alternate, llms.txt 영문·양앱 전면개정. 자세히는 §3 **2026-06-14 (i18n+AEO)**. 이전: 🚀 **튜토리얼 영상 팝업 + 피클 노크 카운트 — 둘 다 라이브 배포·검증 완료**. ① 피자·피클 히어로 다운로드 버튼 옆 '튜토리얼' 버튼 → 누르면 유튜브 영상 팝업(`VideoModal.astro` 신설, 커밋 ca3ac11). ② DAU 노크 카운트에 피클앱(`/pickle/appcast.xml`) 추가 — 앱별 키 분리, `/api/stats` 에 `apps.{pizza,pickle}`+`combined`(커밋 37d33e1). 자세히는 §3 2026-06-14. 이전: 가이드 풀버전 재반영 86a003c, PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
+마지막 업데이트: **2026-06-14** (🌐 **영문 사이트(EN/KO) + AEO/GEO 강화 — 라이브 배포 완료(커밋 `dfd7c44`)**. ⚠️ 단, 접속지역 자동 언어분기(미들웨어)는 Vercel 에서만 돌아 **배포 후 실제 확인 필요**(VPN 해외IP→`/en/` 리다이렉트 등). 한국어는 루트 그대로, 영문은 `/en/` 4페이지(인트로·피자·피클·인포 / how-to 제외). 상단바 깃허브 오른쪽 **EN/KO 세로 토글**(위 KO/아래 EN) + **접속지역 자동 언어분기**(IP 국가 헤더, 위치권한 팝업 없음 — 한국=한글/그 외=영문, 첫 진입 1회·미들웨어, ⚠️배포 후 검증). 4개 페이지를 `lang` 받는 **공유 컴포넌트**(`src/components/pages/*`)로 리팩터링해 한·영이 마크업·CSS 1벌을 공유, 텍스트만 `src/i18n/*` 사전에서. hreflang·og:locale·JSON-LD inLanguage 언어별 분기, sitemap i18n alternate, llms.txt 영문·양앱 전면개정. 자세히는 §3 **2026-06-14 (i18n+AEO)**. 이전: 🚀 **튜토리얼 영상 팝업 + 피클 노크 카운트 — 둘 다 라이브 배포·검증 완료**. ① 피자·피클 히어로 다운로드 버튼 옆 '튜토리얼' 버튼 → 누르면 유튜브 영상 팝업(`VideoModal.astro` 신설, 커밋 ca3ac11). ② DAU 노크 카운트에 피클앱(`/pickle/appcast.xml`) 추가 — 앱별 키 분리, `/api/stats` 에 `apps.{pizza,pickle}`+`combined`(커밋 37d33e1). 자세히는 §3 2026-06-14. 이전: 가이드 풀버전 재반영 86a003c, PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
 
 ---
 
-## 🔖 세션 이어받기 (2026-06-14, 🌐 영문 사이트 EN/KO + AEO/GEO 강화 — **빌드·프리뷰 검증 완료, 아직 미커밋·미배포**)
+## 🔖 세션 이어받기 (2026-06-14, 🌐 영문 사이트 EN/KO + AEO/GEO 강화 — **라이브 배포 완료, 커밋 `dfd7c44`**)
 
-> ⚠️ **배포 전**: 이번 변경은 `git` 에 커밋/푸시하지 않았습니다(사용자 확인 후 배포). 배포하려면 master 푸시 = Vercel 자동배포.
+> ✅ **배포됨**: 커밋 `dfd7c44` master 푸시 = Vercel 자동배포(파일 27개). ⚠️ **배포 후 직접 확인할 것**: 접속지역 자동 언어분기는 Edge 미들웨어라 Vercel 에서만 동작 — VPN 으로 해외 IP 잡고 `pizza-clip.com` → `/en/` 로 튀는지, 한국에서 `/en/` → 한국어로 튀는지. 과하면 `middleware.js` 의 (2) 언어분기 블록만 들어내면 됨(토글은 유지).
 
 이번 세션은 **사이트 전체를 한국어/영어 2개국어로** 만들고, 지난 AEO 작업의 미흡한 부분을 보강했습니다.
 
@@ -162,7 +162,7 @@ web/
 
 ## 3. 완료된 작업
 
-### 2026-06-14 (i18n+AEO) — 영문 사이트 EN/KO + AEO/GEO 강화(⚠️ 미커밋·미배포)
+### 2026-06-14 (i18n+AEO) — 영문 사이트 EN/KO + AEO/GEO 강화(라이브, 커밋 dfd7c44)
 
 **무엇을/왜:** 검색 노출(특히 AI 답변엔진)을 위해 ① 지난 AEO 작업의 미흡분을 보강하고 ② 사이트 전체를 한국어/영어 2개국어로 만듦. 상단바 깃허브 오른쪽에 EN/KO 토글, 영문 4페이지(인트로·피자클립·피클·인포 / how-to 제외).
 
@@ -170,7 +170,7 @@ web/
 - **EN/KO 토글**: `SocialIcons.astro` `.langtog`(틸 두칸 알약), 현재 페이지의 반대 언어판으로. `koPath` 있을 때만 노출(how-to 제외). 데스크톱·375px 무오버플로.
 - **AEO/GEO**: hreflang(ko/en/x-default)·og:locale(+alternate)·`<html lang>`·JSON-LD `inLanguage` 언어별, `@astrojs/sitemap` i18n alternate, SoftwareApplication 강화(featureList·softwareVersion·operatingSystem"macOS 13.0+"·offers·screenshot·softwareHelp), Organization logo+sameAs(인스타·스레드 추가), robots `max-image-preview:large`, **llms.txt 영문·양앱·FAQ 전면개정**.
 - **검증**: `npm run build` 9페이지 통과·콘솔 0, 프리뷰로 한국어 회귀 0·영문 4페이지·토글 양방향·모바일·산출물 hreflang/sitemap 직접 확인.
-- **남은 것/주의**: 커밋·푸시 안 함(배포 전). 영문 튜토리얼 영상·영문 전용 OG 이미지는 차후(현재 한·영 공용).
+- **남은 것/주의**: ① **접속지역 자동분기 배포 후 실제 확인**(VPN 해외IP → `/en/` 리다이렉트, 한국 → 한국어). ② 영문 튜토리얼 영상·영문 전용 OG 이미지는 차후(현재 한·영 공용). ③ `consts.ts` 의 `PIZZA_HOME`·`NAV_LINKS` 는 이제 미사용(href 헬퍼로 대체) — 정리 가능.
 
 ### 2026-06-14 — 튜토리얼 영상 팝업 + 피클 노크 카운트(라이브, 커밋 37d33e1·ca3ac11)
 
