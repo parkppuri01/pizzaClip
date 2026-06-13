@@ -10,15 +10,16 @@ interface Props {
   variant?: "primary" | "secondary" | "tertiary";
   href?: string;
   class?: string;
+  [key: string]: unknown;
 }
-const { variant = "primary", href, class: className } = Astro.props;
+const { variant = "primary", href, class: className, ...rest } = Astro.props;
 const cls = `btn btn--${variant} ${className ?? ""}`.trim();
 ---
 {
   href ? (
-    <a class={cls} href={href}><slot /></a>
+    <a class={cls} href={href} {...rest}><slot /></a>
   ) : (
-    <button class={cls} type="button"><slot /></button>
+    <button class={cls} type="button" {...rest}><slot /></button>
   )
 }
 

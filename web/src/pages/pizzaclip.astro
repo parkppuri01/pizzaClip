@@ -8,6 +8,7 @@
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Button from "../components/Button.astro";
+import VideoModal from "../components/VideoModal.astro";
 import { DOWNLOAD_URL } from "../consts.ts";
 
 // 피자클립이 하는 일 — 기능 3개. 가이드 빨간 박스 순서대로 peach → yellow → green 패널에 1개씩.
@@ -65,6 +66,7 @@ const shortcuts = [
         </p>
         <div class="hero__cta">
           <Button href={DOWNLOAD_URL} variant="primary">다운로드</Button>
+          <Button variant="secondary" class="hero__tut" data-open-video>튜토리얼</Button>
         </div>
       </div>
       <figure class="hero__art" data-reveal>
@@ -182,6 +184,9 @@ const shortcuts = [
            alt="" aria-hidden="true" loading="lazy" />
     </div>
   </section>
+
+  <!-- 튜토리얼 영상 팝업 (히어로 ▶ 튜토리얼 버튼이 염) -->
+  <VideoModal videoId="9nhJBjU_JtQ" title="피자클립🍕튜토리얼" />
 </BaseLayout>
 
 <style>

@@ -1,0 +1,146 @@
+---
+/**
+ * VideoModal — '튜토리얼' 버튼이 누르면 뜨는 유튜브 영상 팝업(오버레이).
+ *
+ * 사용법: 페이지 어딘가에 <VideoModal videoId="..." title="..." /> 1개를 두고,
+ *         여는 버튼에는 data-open-video 속성만 달면 됨.
+ *
+ * 동작:
+ *  - 열기 = 어두운 배경 + 16:9 영상 가운데, 클릭 시점에 iframe src 주입(autoplay).
+ *  - 닫기 = 배경/✕/ESC. 닫을 때 src 를 비워 영상 재생 정지(소리 끊김 방지).
+ *  - 영상은 클릭 전엔 로드 안 됨(초기 페이지 가벼움).
+ */
+interface Props {
+  videoId: string;
+  title?: string;
+}
+const { videoId, title = "튜토리얼" } = Astro.props;
+---
+
+<div class="vmodal" id="videoModal" hidden aria-hidden="true">
+  <div class="vmodal__backdrop" data-close></div>
+  <div class="vmodal__dialog" role="dialog" aria-modal="true" aria-label={title}>
+    <button class="vmodal__close" type="button" data-close aria-label="닫기">✕</button>
+    <div class="vmodal__frame">
+      <iframe
+        id="videoModalFrame"
+        title={title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+    </div>
+  </div>
+</div>
+
+<style>
+  .vmodal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(1rem, 4vw, 2.5rem);
+  }
+  .vmodal[hidden] { display: none; }
+
+  .vmodal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(16, 33, 56, 0.78); /* 네이비 톤 반투명 */
+    backdrop-filter: blur(2px);
+    animation: vmodal-fade 0.18s ease;
+  }
+  .vmodal__dialog {
+    position: relative;
+    width: min(960px, 100%);
+    animation: vmodal-pop 0.2s ease;
+  }
+  .vmodal__frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 3px solid var(--border-ink, #333);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+  .vmodal__frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .vmodal__close {
+    position: absolute;
+    top: -0.65rem;
+    right: -0.65rem;
+    z-index: 2;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    border: 2px solid var(--border-ink, #333);
+    background: var(--color-bg, #fcf6ef);
+    color: var(--color-ink, #102138);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s ease, filter 0.12s ease;
+  }
+  .vmodal__close:hover { transform: scale(1.08); filter: brightness(0.96); }
+
+  @keyframes vmodal-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes vmodal-pop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vmodal__backdrop, .vmodal__dialog { animation: none; }
+  }
+
+  @media (max-width: 600px) {
+    .vmodal__close { top: -0.5rem; right: -0.25rem; }
+  }
+</style>
+
+<script is:inline define:vars={{ videoId }}>
+  (function () {
+    var modal = document.getElementById("videoModal");
+    var frame = document.getElementById("videoModalFrame");
+    if (!modal || !frame) return;
+    var src =
+      "https://www.youtube-nocookie.com/embed/" +
+      videoId +
+      "?rel=0&playsinline=1&autoplay=1";
+
+    function open(e) {
+      if (e) e.preventDefault();
+      frame.src = src;
+      modal.hidden = false;
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden"; // 뒤 배경 스크롤 잠금
+    }
+    function close() {
+      modal.hidden = true;
+      modal.setAttribute("aria-hidden", "true");
+      frame.src = "about:blank"; // 영상 정지(소리 끊기) — 빈 문자열은 현재 페이지를 다시 로드하므로 about:blank 사용
+      document.body.style.overflow = "";
+    }
+
+    document.querySelectorAll("[data-open-video]").forEach(function (b) {
+      b.addEventListener("click", open);
+    });
+    modal.querySelectorAll("[data-close]").forEach(function (b) {
+      b.addEventListener("click", close);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !modal.hidden) close();
+    });
+  })();
+</script>

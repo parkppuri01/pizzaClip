@@ -8,6 +8,7 @@
  * 1.0.0 정식 출시 — 다운로드는 PICKLE_DOWNLOAD_URL(로컬 호스팅 DMG) 직링크.
  */
 import BaseLayout from "../layouts/BaseLayout.astro";
+import VideoModal from "../components/VideoModal.astro";
 import { PICKLE_DOWNLOAD_URL } from "../consts.ts";
 
 // 캡처 단축키 — 피클 전용 글로벌 단축키(KeyboardShortcuts, Settings에서 변경 가능).
@@ -56,6 +57,7 @@ const picklePoints = [
         </p>
         <div class="hero__cta">
           <a class="pill pill--go" href={PICKLE_DOWNLOAD_URL}>다운로드</a>
+          <button class="pill pill--tut" type="button" data-open-video>튜토리얼</button>
         </div>
       </div>
       <figure class="hero__art" data-reveal>
@@ -162,6 +164,9 @@ const picklePoints = [
       <img class="sticker s-person" src="/img/pickle/sticker-person.png" alt="" aria-hidden="true" loading="lazy" />
     </div>
   </section>
+
+  <!-- 튜토리얼 영상 팝업 (히어로 ▶ 튜토리얼 버튼이 염) -->
+  <VideoModal videoId="HJ1hLgfnWfQ" title="PICkle🥒튜토리얼" />
 </BaseLayout>
 
 <style>
@@ -250,6 +255,9 @@ const picklePoints = [
   /* 다운로드(채운 올리브) */
   .pill--go { background: var(--pk-olive-ink); color: var(--color-bg); border-color: var(--pk-olive-ink); }
   .pill--go:hover { background: var(--pk-green); border-color: var(--pk-green); transform: translateY(-1px); }
+  /* 튜토리얼(외곽선 올리브) */
+  .pill--tut { background: transparent; color: var(--pk-olive-ink); border-color: var(--pk-olive-ink); cursor: pointer; }
+  .pill--tut:hover { background: var(--pk-olive-ink); color: var(--color-bg); transform: translateY(-1px); }
 
   /* ── 절대배치 스티커: 카드 사이 경계에 얹힘(위로 삐짐), 카드 폭 기준 좌·중·우 ── */
   .sticker { position: absolute; pointer-events: none; user-select: none; z-index: 3;
