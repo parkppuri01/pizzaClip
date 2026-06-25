@@ -32,6 +32,24 @@ export const info: Record<Lang, InfoContent> = {
     relHeadingSuffix: "릴리스노트",
     releases: [
       {
+        version: "1.3.0",
+        label: "새 아이콘 · 더 먹음직한 피자 폭죽 🍕",
+        notes: [
+          "‘I’m a PizzaClip’ 스티커가 붙은 산뜻한 새 앱 아이콘으로 바뀌었어요.",
+          "기록이 가득 찼을 때 보이는 메뉴바 아이콘도 새 ‘피자 박스’ 그림으로 단장했어요.",
+          "‘pizza’·‘피자’를 복사하면 터지는 피자 폭죽이, 이모지 대신 통통한 피자 그림으로 더 크고 먹음직스러워졌어요.",
+        ],
+      },
+      {
+        version: "1.2.0",
+        label: "한국어 지원 · 개인정보 설정 간편화",
+        notes: [
+          "이제 앱을 한국어로 쓸 수 있어요 — 설정 → 일반 → 언어에서 시스템·English·한국어 중 선택.",
+          "‘기록하지 않을 앱’을 앱 아이콘과 이름으로 보면서 ‘앱 추가…’ 버튼으로 손쉽게 골라 넣어요(복잡한 식별자 입력은 이제 끝).",
+          "자물쇠를 잠그고 붙여넣으면 포커스가 팝업으로 돌아와, 숫자키·클릭으로 여러 개를 쭉쭉 붙여넣기 좋아졌어요.",
+        ],
+      },
+      {
         version: "1.1.0",
         label: "팝업 잠금 · 여러 개 고정",
         notes: [
@@ -69,22 +87,33 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.1.0",
+        label: "펜 색상, 마음대로 🎨",
+        notes: [
+          "펜 색을 고를 때 무지개 버튼을 누르면 그 자리에서 색상 피커가 열려요.",
+          "채도·명도 사각형과 색조 바를 움직여 원하는 색을 직접 만들 수 있어요.",
+          "스포이드로 화면 어디든 클릭하면 그 픽셀의 색을 펜 색으로 쏙 뽑아와요.",
+          "색상 코드(#RRGGBB)를 보여주고, 누르면 클립보드로 바로 복사돼요.",
+          "작은 편집 창에서도 도구 옵션 팝업이 잘리지 않게 다듬었어요.",
+        ],
+      },
+      {
         version: "1.0.0",
         label: "정식 출시 🥒",
         notes: [
-          "스크린샷을 찍으면 자동으로 문서 속 ‘피클병’ 폴더에 차곡차곡 저장돼요.",
-          "메뉴바 아이콘에서 최근 캡처를 미리보기로 확인하고, 드래그 한 번으로 어디든 붙여넣기.",
-          "잃어버린 캡처 찾으려고 폴더를 뒤질 필요가 없어요.",
-          "가격은 0원, Intel·Apple Silicon 모든 Mac 지원.",
-          "Apple 인증 완료로 설치 경고 없이 실행, 새 버전은 알아서 업데이트.",
+          "단축키 한 번으로 화면 영역을 슥 캡처 — 저장·편집·클립보드 복사 중에 골라서.",
+          "찍은 자리에서 바로 편집 — 펜·블러(모자이크)·워터마크(글자+로고)·자르기, ⌘Z 되돌리기까지.",
+          "캡처는 문서 속 ‘피클병’ 폴더에 자동으로 차곡차곡, 메뉴바에서 미리보고 드래그 한 번으로 어디든 붙여넣기.",
+          "정해둔 기간이 지난 캡처는 알아서 휴지통으로 정리 — 잃어버린 캡처 찾아 폴더 뒤질 일이 없어요.",
+          "가격은 0원, Intel·Apple Silicon 모든 Mac 지원 · Apple 인증 완료로 경고 없이 실행, 새 버전은 알아서 업데이트.",
         ],
       },
     ],
     infoMore: "자세한 변경 내역은 GitHub에서 —",
     infoMoreLinkPizza: "피자클립",
     infoMoreLinkPickle: "피클",
-    relMoreBold: "피클은 이제 막 1.0으로 출발했어요.",
-    relMoreRest: "새 소식이 쌓이면 여기에 담을게요 — 피클 둘러보기 →",
+    relMoreBold: "피클이 1.1로 한 뼘 더 자랐어요.",
+    relMoreRest: "새 소식이 쌓일 때마다 여기에 담을게요 — 피클 둘러보기 →",
     teamTitle: "Team jAm",
     teamTagline: "“모든 것은 장난스러운 상상에서 시작된다.”",
     teamBody1Html: `<span class="brand">PIZZA&nbsp;CLIP</span> 과 <span class="brand">PICkle</span> 을 만든 '<strong>Team&nbsp;jAm</strong>'은 jae_keun과 min_gyeol, 두 사람이 가벼운 상상을 현실로 옮기며 시작한 작은 프로젝트 팀입니다.`,
@@ -101,6 +130,24 @@ export const info: Record<Lang, InfoContent> = {
     headSub: "Version history for both apps — and the people behind them.",
     relHeadingSuffix: "Release Notes",
     releases: [
+      {
+        version: "1.3.0",
+        label: "New Icon · Tastier Pizza Burst 🍕",
+        notes: [
+          "A fresh new app icon with an ‘I’m a PizzaClip’ sticker.",
+          "The menu-bar icon you see when your history is full got a makeover too — a new ‘pizza box’ look.",
+          "Copy ‘pizza’ (or ‘피자’) and the burst is now a plump pizza illustration instead of an emoji — bigger, tastier, and bouncing at all sorts of heights.",
+        ],
+      },
+      {
+        version: "1.2.0",
+        label: "Korean Support · Easier Privacy Setup",
+        notes: [
+          "You can now use the app in Korean — Settings → General → Language, then pick System, English, or Korean.",
+          "Add apps to your ‘don’t record’ list by icon and name with an ‘Add App…’ button — no more typing cryptic identifiers.",
+          "Lock the popup and paste, and focus returns to the popup — rattle off several items with number keys or clicks.",
+        ],
+      },
       {
         version: "1.1.0",
         label: "Lock the Popup · Pin Several at Once",
@@ -139,22 +186,33 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.1.0",
+        label: "Pen Colors, Your Way 🎨",
+        notes: [
+          "Hit the rainbow button while picking a pen color and a full color picker opens right there.",
+          "Drag the saturation/brightness square and the hue bar to mix any color you want.",
+          "Use the eyedropper to click anywhere on screen and lift that pixel’s color into your pen.",
+          "Shows the hex code (#RRGGBB) — click it to copy straight to your clipboard.",
+          "Tidied things up so the tool-option popup no longer gets clipped in a small editor window.",
+        ],
+      },
+      {
         version: "1.0.0",
         label: "Official Launch 🥒",
         notes: [
-          "Take a screenshot and it’s auto-saved, neatly tucked into a ‘pickle jar’ folder in your Documents.",
-          "Preview recent captures right from the menu-bar icon, and drag one anywhere to drop it in.",
-          "No more digging through folders for that lost capture.",
-          "Free, and it runs on every Mac — Intel and Apple Silicon.",
-          "Apple-notarized, so it runs with no install warnings, and new versions update themselves.",
+          "Grab any area of the screen with a single shortcut — save it, edit it, or copy it to the clipboard.",
+          "Edit right where you captured — pen, blur/mosaic, watermark (text + logo), crop, and ⌘Z to undo.",
+          "Captures auto-save into a ‘pickle jar’ folder in your Documents; preview from the menu bar and drag one anywhere to drop it in.",
+          "Captures past the age you set tidy themselves into the Trash — no more digging through folders for a lost one.",
+          "Free, runs on every Mac (Intel + Apple Silicon), Apple-notarized so it opens with no warnings, and it updates itself.",
         ],
       },
     ],
     infoMore: "For the full change log, head to GitHub —",
     infoMoreLinkPizza: "PizzaClip",
     infoMoreLinkPickle: "PICkle",
-    relMoreBold: "PICkle just launched at 1.0.",
-    relMoreRest: "As the news piles up, we’ll jar it right here — take a look around PICkle →",
+    relMoreBold: "PICkle just grew up to 1.1.",
+    relMoreRest: "We’ll keep jarring the news right here as it lands — take a look around PICkle →",
     teamTitle: "Team jAm",
     teamTagline: "“It all starts with a playful imagination.”",
     teamBody1Html: `Team jAm — the makers of <span class="brand">PIZZA&nbsp;CLIP</span> and <span class="brand">PICkle</span> — is a tiny project team started by jae_keun and min_gyeol, two people turning light little ideas into real things.`,
