@@ -12,6 +12,9 @@ interface Props { lang?: Lang; }
 const { lang = "ko" } = Astro.props;
 const c = info[lang];
 const appsNavAria = lang === "en" ? "Browse the apps" : "앱 둘러보기";
+const moreLabel = lang === "en" ? "Show more" : "더보기";
+const lessLabel = lang === "en" ? "Show less" : "접기";
+const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라데이션+더보기로 접힘
 ---
 <BaseLayout site="intro" bodyClass="intro-body" lang={lang} koPath={ROUTES.info}
             title={c.metaTitle} description={c.metaDescription}>
@@ -25,36 +28,60 @@ const appsNavAria = lang === "en" ? "Browse the apps" : "앱 둘러보기";
     <div class="info__grid">
       <section class="rel">
         <h2 class="rel__brand">🍕 PIZZA CLIP <span>{c.relHeadingSuffix}</span></h2>
-        <ul class="releases releases--pizza">
-          {c.releases.map((r) => (
-            <li class="release">
-              <div class="release__head">
-                <span class="release__ver release__ver--pizza">v{r.version}</span>
-                <span class="release__label">{r.label}</span>
-              </div>
-              <ul class="release__notes">
-                {r.notes.map((n) => (<li>{n}</li>))}
-              </ul>
-            </li>
-          ))}
-        </ul>
+        <div class="releases-collapse" data-collapse={c.releases.length > VISIBLE_RELEASES ? "" : undefined}>
+          <ul class="releases releases--pizza">
+            {c.releases.map((r) => (
+              <li class="release">
+                <div class="release__head">
+                  <span class="release__ver release__ver--pizza">v{r.version}</span>
+                  <span class="release__label">{r.label}</span>
+                </div>
+                <ul class="release__notes">
+                  {r.notes.map((n) => (<li>{n}</li>))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+          {c.releases.length > VISIBLE_RELEASES && (
+            <>
+              <div class="releases-fade" aria-hidden="true"></div>
+              <button class="releases-more" type="button" hidden aria-expanded="false"
+                      data-more={moreLabel} data-less={lessLabel}>
+                <span class="releases-more__txt">{moreLabel}</span>
+                <span class="releases-more__chev" aria-hidden="true">▾</span>
+              </button>
+            </>
+          )}
+        </div>
       </section>
 
       <section class="rel">
         <h2 class="rel__brand">🥒 PICkle <span>{c.relHeadingSuffix}</span></h2>
-        <ul class="releases releases--pickle">
-          {c.pickleReleases.map((r) => (
-            <li class="release">
-              <div class="release__head">
-                <span class="release__ver release__ver--pickle">v{r.version}</span>
-                <span class="release__label">{r.label}</span>
-              </div>
-              <ul class="release__notes">
-                {r.notes.map((n) => (<li>{n}</li>))}
-              </ul>
-            </li>
-          ))}
-        </ul>
+        <div class="releases-collapse" data-collapse={c.pickleReleases.length > VISIBLE_RELEASES ? "" : undefined}>
+          <ul class="releases releases--pickle">
+            {c.pickleReleases.map((r) => (
+              <li class="release">
+                <div class="release__head">
+                  <span class="release__ver release__ver--pickle">v{r.version}</span>
+                  <span class="release__label">{r.label}</span>
+                </div>
+                <ul class="release__notes">
+                  {r.notes.map((n) => (<li>{n}</li>))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+          {c.pickleReleases.length > VISIBLE_RELEASES && (
+            <>
+              <div class="releases-fade" aria-hidden="true"></div>
+              <button class="releases-more" type="button" hidden aria-expanded="false"
+                      data-more={moreLabel} data-less={lessLabel}>
+                <span class="releases-more__txt">{moreLabel}</span>
+                <span class="releases-more__chev" aria-hidden="true">▾</span>
+              </button>
+            </>
+          )}
+        </div>
         <a class="rel__more" href={href(lang, "pickle")}>
           <span class="rel__more-emoji" aria-hidden="true">🥒</span>
           <span><b>{c.relMoreBold}</b><br />{c.relMoreRest}</span>
@@ -159,6 +186,40 @@ const appsNavAria = lang === "en" ? "Browse the apps" : "앱 둘러보기";
   .rel__more-emoji { font-size: 1.5rem; line-height: 1.2; }
   .rel__more b { color: var(--pk-olive-ink); }
 
+  /* ===== 릴리스 접기/펼치기 (4건 초과 시 그라데이션 + 더보기) ===== */
+  .releases-collapse { position: relative; }
+  /* 접힌 상태: 목록을 측정된 높이(--collapse-h)로 잘라냄 */
+  .releases-collapse.is-collapsed .releases {
+    max-height: var(--collapse-h, 640px);
+    overflow: hidden;
+  }
+  /* 슬레이트 페이지 배경으로 사르륵 녹아드는 그라데이션 */
+  .releases-fade {
+    display: none;
+    position: absolute;
+    left: 0; right: 0;
+    top: calc(var(--collapse-h, 640px) - 104px);
+    height: 104px;
+    background: linear-gradient(to bottom, rgba(116, 153, 178, 0), var(--intro-bg) 92%);
+    pointer-events: none;
+  }
+  .releases-collapse.is-collapsed .releases-fade { display: block; }
+  /* 더보기/접기 버튼 */
+  .releases-more {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    margin: 1rem auto 0; padding: 0.5rem 1.3rem;
+    font-family: var(--font-sans); font-weight: 700; font-size: 0.95rem;
+    color: var(--intro-cream);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1.5px solid rgba(255, 255, 255, 0.55);
+    border-radius: 999px; cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .releases-more:hover { background: rgba(255, 255, 255, 0.22); transform: translateY(-1px); }
+  .releases-more:focus-visible { outline: 2px solid var(--intro-cream); outline-offset: 3px; }
+  .releases-more__chev { font-size: 0.85em; transition: transform 0.2s ease; }
+  .releases-collapse:not(.is-collapsed) .releases-more__chev { transform: rotate(180deg); }
+
   .info__more { margin-top: 1.5rem; font-size: var(--fs-small); color: var(--intro-cream); }
   .info__more a { text-decoration: underline; }
   .info__more a:hover { opacity: 0.8; }
@@ -225,3 +286,54 @@ const appsNavAria = lang === "en" ? "Browse the apps" : "앱 둘러보기";
     .info__grid { grid-template-columns: 1fr; }
   }
 </style>
+
+<script>
+  // 릴리스 목록이 4건을 넘으면 4건까지만 보여주고 그라데이션 + '더보기'로 접는다.
+  // 진보적 향상: JS 없으면 전체 목록이 그대로 보임(크롤러/AEO 안전).
+  const VISIBLE = 4;
+  const PEEK = 60; // 5번째 카드를 살짝 보여주는 여백(px)
+
+  function setupCollapse() {
+    document.querySelectorAll<HTMLElement>("[data-collapse]").forEach((wrap) => {
+      const ul = wrap.querySelector<HTMLElement>(".releases");
+      const btn = wrap.querySelector<HTMLButtonElement>(".releases-more");
+      if (!ul || !btn) return;
+      const items = ul.querySelectorAll<HTMLElement>(".release");
+      if (items.length <= VISIBLE) return;
+
+      const txt = btn.querySelector<HTMLElement>(".releases-more__txt");
+      const measure = () => {
+        const ulTop = ul.getBoundingClientRect().top;
+        const fourthBottom = items[VISIBLE - 1].getBoundingClientRect().bottom;
+        wrap.style.setProperty("--collapse-h", `${fourthBottom - ulTop + PEEK}px`);
+      };
+      const collapse = () => {
+        wrap.classList.add("is-collapsed");
+        measure();
+        if (txt) txt.textContent = btn.dataset.more || "더보기";
+        btn.setAttribute("aria-expanded", "false");
+      };
+      const expand = () => {
+        wrap.classList.remove("is-collapsed");
+        if (txt) txt.textContent = btn.dataset.less || "접기";
+        btn.setAttribute("aria-expanded", "true");
+      };
+
+      btn.hidden = false;
+      collapse();
+      btn.addEventListener("click", () => {
+        wrap.classList.contains("is-collapsed") ? expand() : collapse();
+      });
+
+      let raf = 0;
+      window.addEventListener("resize", () => {
+        if (!wrap.classList.contains("is-collapsed")) return;
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(measure);
+      });
+    });
+  }
+
+  if (document.readyState !== "loading") setupCollapse();
+  else document.addEventListener("DOMContentLoaded", setupCollapse);
+</script>
