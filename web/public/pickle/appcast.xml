@@ -6,30 +6,33 @@
         <description>PICkle updates</description>
         <language>en</language>
         <item>
-            <title>PICkle 1.1.0</title>
-            <pubDate>Sun, 14 Jun 2026 07:53:33 +0000</pubDate>
-            <sparkle:version>7</sparkle:version>
-            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+            <title>PICkle 1.2.0</title>
+            <pubDate>Thu, 25 Jun 2026 17:54:56 +0000</pubDate>
+            <sparkle:version>14</sparkle:version>
+            <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-<h2>PICkle 1.1</h2>
-<p>펜 도구의 색상 선택이 강력해졌어요 🎨</p>
-<h3>펜 색상</h3>
+<h2>PICkle 1.2</h2>
+<p>캡처가 더 또렷하고 안정적으로 바뀌었어요 ✨</p>
+<h3>캡처</h3>
 <ul>
-<li>색상 팔레트 — 무지개 버튼을 누르면 그 자리에서 색상 피커가 열려요</li>
-<li>채도·명도 사각형과 색조 바로 원하는 색을 직접 만들기</li>
-<li>스포이드 — 화면 어디든 클릭해 그 픽셀의 색을 펜 색으로 추출</li>
-<li>색상 코드(#RRGGBB) 표시 — 클릭하면 클립보드로 복사</li>
+<li>십자선 커서 — 캡처를 시작하면 마우스에 십자선이 항상 또렷하게 따라와요</li>
+<li>다른 앱 방해 없음 — 전체화면으로 보던 사진·영상이 캡처를 시작해도 닫히지 않아요</li>
+</ul>
+<h3>클립보드 · PizzaClip 연동</h3>
+<ul>
+<li>보관함 썸네일의 🍕 버튼으로 이미지를 바로 클립보드에 복사</li>
+<li>PizzaClip 앱이 깔려 있으면 그쪽으로 이어서 붙여넣기</li>
 </ul>
 <h3>개선</h3>
 <ul>
-<li>작은 편집 창에서도 도구 옵션 팝업이 잘리지 않도록 정리</li>
+<li>설정 일반 탭에 버전·빌드 번호 표시</li>
 </ul>
 ]]></description>
             <!-- ⚠️ Put the REAL DMG download URL here (GitHub Release asset, etc.). -->
-            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.1.0.dmg"
+            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.2.0.dmg"
                        type="application/octet-stream"
-                       sparkle:edSignature="8xLUR8cKnAmEwzYX/PkM+ZsnBXAhQafHz6IosQJmH+U2vrizRNsL5pmWNXA8mrPQGYiqVJ/0kDixbrm2oAweAA==" length="3749549" />
+                       sparkle:edSignature="QmEzT97vtZsmQlI3tCFv0/3XjatZiw0hpX5WKziOmH440vJcVTkRHWIKGtEbP7w8D5MUZvgoNBXHC1y+IbQ/AA==" length="3756464" />
         </item>
     </channel>
 </rss>
