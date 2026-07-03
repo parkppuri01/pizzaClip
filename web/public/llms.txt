@@ -1,6 +1,6 @@
 # Team JAM — pizza-clip.com
 
-> Team JAM (ProjectJAM) makes two free, 100% local macOS menu-bar apps: PIZZA CLIP, a clipboard-history manager that keeps everything you ⌘C so you can recall it instantly, and PICkle, a screenshot organizer that auto-saves every capture into a tidy "pickle jar." No ads, no tracking — your data never leaves your Mac.
+> Team JAM (ProjectJAM) makes three free, 100% local macOS menu-bar apps: PIZZA CLIP, a clipboard-history manager that keeps everything you ⌘C so you can recall it instantly; PICkle, a screenshot organizer that auto-saves every capture into a tidy "pickle jar"; and Hot Sauce, a system monitor that shows how hard your Mac is working. No ads, no tracking — your data never leaves your Mac.
 
 ## PIZZA CLIP
 
@@ -48,9 +48,29 @@ Core shortcuts: ⇧⌥S · ⇧⌥D · ⇧⌥A · ⇧⌥F
 - **Official site**: https://pizza-clip.com/pickle (EN: https://pizza-clip.com/en/pickle)
 - **GitHub**: https://github.com/parkppuri01/pickle
 
+## Hot Sauce
+
+A system monitor for macOS that lives in your menu bar. A hot-sauce bottle icon shows how hard your Mac is working at a glance — CPU, memory, battery, disk, and network — and changes color with the load. Open the popup for five detailed sections. 🌶️
+
+- **Price**: Free (no ads, no tracking)
+- **OS**: macOS 13+ — universal binary (Apple Silicon + Intel)
+- **Privacy**: 100% local, no server. Metrics stay on your Mac.
+- **Trust**: Apple notarized — installs with no security warnings.
+- **Updates**: Auto-updates via Sparkle.
+- **Developer**: Team JAM (ProjectJAM)
+
+Key features:
+- A menu-bar hot-sauce bottle that changes color with system load (calm → busy → really hot).
+- Live monitoring of CPU, memory, battery, disk, and network.
+- A popup with five detailed sections: CPU, memory, storage, battery, and network.
+- Everything at a glance from the menu bar — no heavy windows to open.
+
+- **Official site**: https://pizza-clip.com/hotsauce (EN: https://pizza-clip.com/en/hotsauce)
+- **GitHub**: https://github.com/parkppuri01/pizzaClip
+
 ## FAQ
 
-- **Are they free?** Yes. Both PizzaClip and PICkle are completely free — no ads, no tracking, no account.
+- **Are they free?** Yes. PizzaClip, PICkle, and Hot Sauce are all completely free — no ads, no tracking, no account.
 - **Which Macs are supported?** Any Mac on macOS 13 or later. Both apps ship as universal binaries for Apple Silicon and Intel.
 - **Is it safe? Where does my data go?** Both apps are Apple notarized, so they install without security warnings, and everything is 100% local. Your clipboard history and screenshots stay on your Mac — nothing is sent to a server.
 - **How do I paste quickly with PizzaClip?** Press ⌘⇧V to open your clipboard history, then paste any item directly with ⌘⌥⌃1~9.
@@ -58,7 +78,8 @@ Core shortcuts: ⇧⌥S · ⇧⌥D · ⇧⌥A · ⇧⌥F
 - **How are screenshots organized in PICkle?** Every capture is automatically saved into a dated "pickle jar" folder inside your Documents, so they're sorted the instant you take them.
 - **Can I edit a screenshot?** Yes. PICkle has built-in quick editing — blur, pen, crop, and watermark — right after you capture.
 - **How do I get to my recent screenshots?** They live in the PICkle menu-bar tray; drag any capture straight into another app.
-- **Do updates install automatically?** Yes. PizzaClip auto-updates via Sparkle and PICkle has built-in auto-update, both on Apple notarized builds.
+- **Do updates install automatically?** Yes. All three apps auto-update via Sparkle on Apple notarized builds.
+- **What does Hot Sauce do?** Hot Sauce is a menu-bar system monitor for macOS. A hot-sauce bottle icon shows how hard your Mac is working at a glance — CPU, memory, battery, disk, and network — and changes color as the load rises.
 - **Who makes these apps?** Team JAM (ProjectJAM), an indie developer building focused, local-first Mac utilities.
 
 ## Pages
@@ -66,4 +87,5 @@ Core shortcuts: ⇧⌥S · ⇧⌥D · ⇧⌥A · ⇧⌥F
 - Home (intro): https://pizza-clip.com/ (EN: https://pizza-clip.com/en/)
 - PizzaClip: https://pizza-clip.com/pizzaclip (EN: https://pizza-clip.com/en/pizzaclip)
 - PICkle: https://pizza-clip.com/pickle (EN: https://pizza-clip.com/en/pickle)
+- Hot Sauce: https://pizza-clip.com/hotsauce (EN: https://pizza-clip.com/en/hotsauce)
 - Info / release notes: https://pizza-clip.com/info (EN: https://pizza-clip.com/en/info)

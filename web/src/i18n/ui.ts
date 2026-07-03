@@ -20,6 +20,7 @@ export const ROUTES = {
   intro: "/",
   pizza: "/pizzaclip",
   pickle: "/pickle",
+  hotsauce: "/hotsauce",
   info: "/info",
 } as const;
 export type RouteKey = keyof typeof ROUTES;
@@ -40,8 +41,9 @@ export const otherLang = (lang: Lang): Lang => (lang === "ko" ? "en" : "ko");
 
 // ── 공유 UI 문자열(네비/푸터/소셜/버튼/모달) ──
 type UiStrings = {
-  navCrossToPickle: string; // 피자 네비의 PICkle 크로스링크 aria
-  navCrossToPizza: string; // 피클 네비의 PIZZA CLIP 크로스링크 aria
+  navCrossToPickle: string; // 크로스링크 aria — PICkle 로
+  navCrossToPizza: string; // 크로스링크 aria — PIZZA CLIP 으로
+  navCrossToHotsauce: string; // 크로스링크 aria — Hot Sauce 로
   socialInfo: string;
   socialInstagram: string;
   socialThreads: string;
@@ -52,6 +54,8 @@ type UiStrings = {
   langGroup: string; // 토글 그룹 aria
   footerIntro: string;
   footerPizza: string;
+  footerPickle: string;
+  footerHotsauce: string;
   footerGithub: string;
   footerNav: string;
   footerSocial: string;
@@ -62,6 +66,7 @@ export const ui: Record<Lang, UiStrings> = {
   ko: {
     navCrossToPickle: "피클 페이지로 이동",
     navCrossToPizza: "피자클립 페이지로 이동",
+    navCrossToHotsauce: "핫소스 페이지로 이동",
     socialInfo: "정보 — 릴리스노트와 팀 소개",
     socialInstagram: "Team JAM 인스타그램 (새 창에서 열림)",
     socialThreads: "Team JAM 스레드 (새 창에서 열림)",
@@ -72,6 +77,8 @@ export const ui: Record<Lang, UiStrings> = {
     langGroup: "언어 선택 / Language",
     footerIntro: "인트로",
     footerPizza: "피자클립",
+    footerPickle: "피클",
+    footerHotsauce: "핫소스",
     footerGithub: "깃허브",
     footerNav: "하단 메뉴",
     footerSocial: "소셜 미디어",
@@ -80,6 +87,7 @@ export const ui: Record<Lang, UiStrings> = {
   en: {
     navCrossToPickle: "Go to the PICkle page",
     navCrossToPizza: "Go to the PizzaClip page",
+    navCrossToHotsauce: "Go to the Hot Sauce page",
     socialInfo: "Info — release notes and the team",
     socialInstagram: "Team JAM on Instagram (opens in a new tab)",
     socialThreads: "Team JAM on Threads (opens in a new tab)",
@@ -90,6 +98,8 @@ export const ui: Record<Lang, UiStrings> = {
     langGroup: "언어 선택 / Language",
     footerIntro: "Intro",
     footerPizza: "PizzaClip",
+    footerPickle: "PICkle",
+    footerHotsauce: "Hot Sauce",
     footerGithub: "GitHub",
     footerNav: "Footer menu",
     footerSocial: "Social media",
@@ -100,13 +110,14 @@ export const ui: Record<Lang, UiStrings> = {
 // ── 페이지 메타 기본값(<title> · description) — site × lang ──
 // description 은 AEO 핵심이므로 각 언어에서 고유·키워드 풍부하게.
 type Meta = { title: string; desc: string };
-export const APP_NAME: Record<"pizza" | "pickle" | "intro", string> = {
+export const APP_NAME: Record<"pizza" | "pickle" | "hotsauce" | "intro", string> = {
   pizza: "PIZZA CLIP",
   pickle: "PICkle",
+  hotsauce: "Hot Sauce",
   intro: "PIZZA CLIP & PICkle",
 };
 
-export const siteMeta: Record<"pizza" | "pickle" | "intro", Record<Lang, Meta>> = {
+export const siteMeta: Record<"pizza" | "pickle" | "hotsauce" | "intro", Record<Lang, Meta>> = {
   pizza: {
     ko: {
       title: "PIZZA CLIP — 맥 클립보드 히스토리 앱",
@@ -127,14 +138,24 @@ export const siteMeta: Record<"pizza" | "pickle" | "intro", Record<Lang, Meta>> 
       desc: "A free macOS screenshot organizer. Every capture is auto-saved into a tidy pickle-jar folder, with quick edits and a menu-bar tray — 100% on-device.",
     },
   },
-  intro: {
+  hotsauce: {
     ko: {
-      title: "PIZZA CLIP & PICkle — Team JAM",
-      desc: "맥 메뉴바에 사는 두 개의 작은 도구. 복사는 PIZZA CLIP 으로, 캡처는 PICkle 로 똑똑하게 관리하세요. 무료·100% 로컬.",
+      title: "Hot Sauce — 맥 시스템 모니터 메뉴바 앱",
+      desc: "맥이 얼마나 열심히 일하는지 메뉴바에서 보여주는 macOS 시스템 모니터. CPU·메모리·배터리·디스크·네트워크를 핫소스 병으로 한눈에. 무료·100% 로컬.",
     },
     en: {
-      title: "PIZZA CLIP & PICkle — Team JAM",
-      desc: "Two tiny tools that live in your Mac menu bar. PIZZA CLIP remembers everything you copy; PICkle keeps every screenshot — free, private, no ads.",
+      title: "Hot Sauce — Mac menu-bar system monitor",
+      desc: "A free macOS menu-bar system monitor. See how hard your Mac works — CPU, memory, battery, disk, and network at a glance through a hot-sauce bottle. 100% on-device.",
+    },
+  },
+  intro: {
+    ko: {
+      title: "PIZZA CLIP · PICkle · Hot Sauce — Team JAM",
+      desc: "맥 메뉴바에 사는 세 개의 작은 도구. 복사는 PIZZA CLIP, 캡처는 PICkle, 맥 상태는 Hot Sauce 로 똑똑하게. 무료·100% 로컬.",
+    },
+    en: {
+      title: "PIZZA CLIP · PICkle · Hot Sauce — Team JAM",
+      desc: "Three tiny tools that live in your Mac menu bar. PIZZA CLIP remembers what you copy, PICkle keeps every screenshot, Hot Sauce shows how hard your Mac works — free, private, no ads.",
     },
   },
 };

@@ -7,8 +7,8 @@ options:
 settings:
   base:
     SWIFT_VERSION: "5.9"
-    MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "2"
     # Manual + Developer ID gives a STABLE code signature so macOS TCC remembers
     # granted permissions across rebuilds. Ad-hoc dev signatures change every
     # build → grants never stick. Team ID + identity live in Signing.xcconfig

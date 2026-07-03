@@ -9,6 +9,7 @@ export type InfoContent = {
   relHeadingSuffix: string; // "릴리스노트" / "Release Notes"
   releases: Release[]; // 피자클립
   pickleReleases: Release[];
+  hotsauceReleases: Release[];
   infoMore: string;
   infoMoreLinkPizza: string;
   infoMoreLinkPickle: string;
@@ -21,6 +22,7 @@ export type InfoContent = {
   teamSignQuote: string; // 반대 언어 문구(서명 위치)
   appbtnPizza: string;
   appbtnPickle: string;
+  appbtnHotsauce: string;
   metaTitle: string;
   metaDescription: string;
 };
@@ -28,7 +30,7 @@ export type InfoContent = {
 export const info: Record<Lang, InfoContent> = {
   ko: {
     headH1: "Info · 정보",
-    headSub: "두 앱의 버전 기록과 만드는 사람들을 소개합니다.",
+    headSub: "세 앱의 버전 기록과 만드는 사람들을 소개합니다.",
     relHeadingSuffix: "릴리스노트",
     releases: [
       {
@@ -135,6 +137,19 @@ export const info: Record<Lang, InfoContent> = {
         ],
       },
     ],
+    hotsauceReleases: [
+      {
+        version: "1.0.0",
+        label: "정식 출시 🌶️",
+        notes: [
+          "메뉴바 핫소스 병 아이콘으로 CPU·메모리·배터리·디스크·네트워크를 한눈에.",
+          "부하에 따라 병 색이 바뀌어요 — 쾌적할 땐 빨강, 바쁠 땐 노랑, 아주 뜨거우면 레인보우.",
+          "팝업에서 CPU·메모리·저장용량·배터리·네트워크 5개 섹션을 상세히 확인.",
+          "Apple 인증 완료로 경고 없이 실행, 새 버전은 알아서 업데이트.",
+          "가격은 0원, Intel·Apple Silicon 모든 Mac 지원 · 100% 로컬.",
+        ],
+      },
+    ],
     infoMore: "자세한 변경 내역은 GitHub에서 —",
     infoMoreLinkPizza: "피자클립",
     infoMoreLinkPickle: "피클",
@@ -142,18 +157,19 @@ export const info: Record<Lang, InfoContent> = {
     relMoreRest: "새 소식이 쌓일 때마다 여기에 담을게요 — 피클 둘러보기 →",
     teamTitle: "Team jAm",
     teamTagline: "“모든 것은 장난스러운 상상에서 시작된다.”",
-    teamBody1Html: `<span class="brand">PIZZA&nbsp;CLIP</span> 과 <span class="brand">PICkle</span> 을 만든 '<strong>Team&nbsp;jAm</strong>'은 jae_keun과 min_gyeol, 두 사람이 가벼운 상상을 현실로 옮기며 시작한 작은 프로젝트 팀입니다.`,
+    teamBody1Html: `<span class="brand">PIZZA&nbsp;CLIP</span>, <span class="brand">PICkle</span>, <span class="brand">Hot&nbsp;Sauce</span> 를 만든 '<strong>Team&nbsp;jAm</strong>'은 jae_keun과 min_gyeol, 두 사람이 가벼운 상상을 현실로 옮기며 시작한 작은 프로젝트 팀입니다.`,
     teamBody2: "우리가 필요해서 만들었고, 만드는 과정 자체가 즐거워서 오늘도 기분 좋은 상상을 더해가며 계속 만들고 있습니다.",
     teamSignQuote: "“It all starts with a playful imagination.”",
     appbtnPizza: "피자클립 보러가기 →",
     appbtnPickle: "피클 보러가기 →",
+    appbtnHotsauce: "핫소스 보러가기 →",
     metaTitle: "Info",
     metaDescription:
-      "PIZZA CLIP 과 PICkle 의 버전 기록과 만드는 사람들(Team JAM) 소개. 두 macOS 메뉴바 앱의 릴리스노트를 한곳에서.",
+      "PIZZA CLIP · PICkle · Hot Sauce 의 버전 기록과 만드는 사람들(Team JAM) 소개. 세 macOS 메뉴바 앱의 릴리스노트를 한곳에서.",
   },
   en: {
     headH1: "Info",
-    headSub: "Version history for both apps — and the people behind them.",
+    headSub: "Version history for all three apps — and the people behind them.",
     relHeadingSuffix: "Release Notes",
     releases: [
       {
@@ -260,6 +276,19 @@ export const info: Record<Lang, InfoContent> = {
         ],
       },
     ],
+    hotsauceReleases: [
+      {
+        version: "1.0.0",
+        label: "Official Launch 🌶️",
+        notes: [
+          "See CPU, memory, battery, disk, and network at a glance from a menu-bar hot-sauce bottle.",
+          "The bottle changes color with load — red when idle, yellow when busy, rainbow when it’s really hot.",
+          "A popup with five detailed sections: CPU, memory, storage, battery, and network.",
+          "Apple-notarized so it opens with no warnings, and it updates itself.",
+          "Free, runs on every Mac (Intel + Apple Silicon), 100% on-device.",
+        ],
+      },
+    ],
     infoMore: "For the full change log, head to GitHub —",
     infoMoreLinkPizza: "PizzaClip",
     infoMoreLinkPickle: "PICkle",
@@ -267,13 +296,14 @@ export const info: Record<Lang, InfoContent> = {
     relMoreRest: "We’ll keep jarring the news right here as it lands — take a look around PICkle →",
     teamTitle: "Team jAm",
     teamTagline: "“It all starts with a playful imagination.”",
-    teamBody1Html: `Team jAm — the makers of <span class="brand">PIZZA&nbsp;CLIP</span> and <span class="brand">PICkle</span> — is a tiny project team started by jae_keun and min_gyeol, two people turning light little ideas into real things.`,
+    teamBody1Html: `Team jAm — the makers of <span class="brand">PIZZA&nbsp;CLIP</span>, <span class="brand">PICkle</span>, and <span class="brand">Hot&nbsp;Sauce</span> — is a tiny project team started by jae_keun and min_gyeol, two people turning light little ideas into real things.`,
     teamBody2: "We built these because we wanted them ourselves, and because making them is just plain fun. So we keep going, adding a few more feel-good ideas every day.",
     teamSignQuote: "“모든 것은 장난스러운 상상에서 시작된다.”",
     appbtnPizza: "See PizzaClip →",
     appbtnPickle: "See PICkle →",
+    appbtnHotsauce: "See Hot Sauce →",
     metaTitle: "Info",
     metaDescription:
-      "Release notes for PIZZA CLIP and PICkle, two macOS menu-bar apps — plus the story of Team JAM, the two-person crew turning playful ideas into real Mac apps.",
+      "Release notes for PIZZA CLIP, PICkle, and Hot Sauce — three macOS menu-bar apps — plus the story of Team JAM, the two-person crew turning playful ideas into real Mac apps.",
   },
 };

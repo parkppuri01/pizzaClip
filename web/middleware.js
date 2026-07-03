@@ -25,12 +25,15 @@ export const config = {
     // (1) 노크 카운트
     '/appcast.xml',
     '/pickle/appcast.xml',
+    '/hotsauce/appcast.xml',
     // (2) 언어 자동 분기 대상(한국어 4 + 영문 4, 트레일링 슬래시 변형 포함)
     '/',
     '/pizzaclip',
     '/pizzaclip/',
     '/pickle',
     '/pickle/',
+    '/hotsauce',
+    '/hotsauce/',
     '/info',
     '/info/',
     '/en',
@@ -39,6 +42,8 @@ export const config = {
     '/en/pizzaclip/',
     '/en/pickle',
     '/en/pickle/',
+    '/en/hotsauce',
+    '/en/hotsauce/',
     '/en/info',
     '/en/info/',
   ],
@@ -49,6 +54,7 @@ const KO_TO_EN = {
   '/': '/en/',
   '/pizzaclip': '/en/pizzaclip',
   '/pickle': '/en/pickle',
+  '/hotsauce': '/en/hotsauce',
   '/info': '/en/info',
 };
 // 영문 경로 → 한국어 경로
@@ -56,6 +62,7 @@ const EN_TO_KO = {
   '/en': '/',
   '/en/pizzaclip': '/pizzaclip',
   '/en/pickle': '/pickle',
+  '/en/hotsauce': '/hotsauce',
   '/en/info': '/info',
 };
 
@@ -64,8 +71,10 @@ export default function middleware(request, context) {
   const path = url.pathname;
 
   // (1) 노크 카운트 — 기존 동작 그대로
-  if (path === '/appcast.xml' || path === '/pickle/appcast.xml') {
-    const prefix = path === '/pickle/appcast.xml' ? 'knock:pickle:' : 'knock:';
+  if (path === '/appcast.xml' || path === '/pickle/appcast.xml' || path === '/hotsauce/appcast.xml') {
+    const prefix = path === '/pickle/appcast.xml' ? 'knock:pickle:'
+                 : path === '/hotsauce/appcast.xml' ? 'knock:hotsauce:'
+                 : 'knock:';
     context.waitUntil(countKnock(prefix));
     return next();
   }

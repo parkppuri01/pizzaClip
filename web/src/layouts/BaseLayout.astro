@@ -16,9 +16,11 @@ import "../styles/global.css";
 import Footer from "../components/Footer.astro";
 import NavMinimal from "../components/NavMinimal.astro";
 import PickleFooter from "../components/PickleFooter.astro";
+import HotSauceFooter from "../components/HotSauceFooter.astro";
 import {
   GITHUB_URL, PICKLE_GITHUB_URL, INSTAGRAM_URL, THREADS_URL,
   DOWNLOAD_URL, PICKLE_DOWNLOAD_URL, PICKLE_RELEASED,
+  HOTSAUCE_DOWNLOAD_URL, HOTSAUCE_RELEASED,
 } from "../consts.ts";
 import {
   type Lang, HTML_LANG, OG_LOCALE, enHref, otherLang, siteMeta, APP_NAME,
@@ -28,7 +30,7 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;        // og 이미지 (사이트 루트 기준 경로)
-  site?: "pizza" | "pickle" | "intro";
+  site?: "pizza" | "pickle" | "hotsauce" | "intro";
   lang?: Lang;           // 기본 "ko"
   koPath?: string;       // 양 언어판 존재 시 한국어 경로(hreflang 발행 트리거)
   bodyClass?: string;    // <body> 추가 클래스 (인트로 슬레이트 배경 등)
@@ -40,8 +42,9 @@ const {
   site = "pizza",
   lang = "ko",
   koPath,
-  image = site === "pickle" ? "/img/og-pickle.jpg?v=2"
-        : site === "intro"  ? "/img/og-intro.jpg"
+  image = site === "pickle"   ? "/img/og-pickle.jpg?v=2"
+        : site === "hotsauce" ? "/img/og-hotsauce.jpg"
+        : site === "intro"    ? "/img/og-intro.jpg"
         : "/img/og-home.jpg",
   bodyClass = "",
   featureList,
@@ -55,8 +58,8 @@ const description = Astro.props.description ?? defaults.desc;
 const appName  = APP_NAME[site];
 const appCat   = "UtilitiesApplication";
 const ghUrl    = site === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
-const dlUrl    = site === "pickle" ? PICKLE_DOWNLOAD_URL : DOWNLOAD_URL;
-const released = site === "pickle" ? PICKLE_RELEASED : true;
+const dlUrl    = site === "pickle" ? PICKLE_DOWNLOAD_URL : site === "hotsauce" ? HOTSAUCE_DOWNLOAD_URL : DOWNLOAD_URL;
+const released = site === "pickle" ? PICKLE_RELEASED : site === "hotsauce" ? HOTSAUCE_RELEASED : true;
 
 const pageTitle = title ? `${title} · ${appName}` : defaults.title;
 
@@ -72,8 +75,9 @@ const ogLocale = OG_LOCALE[lang];
 const ogLocaleAlt = koPath ? OG_LOCALE[otherLang(lang)] : null;
 
 // 페이지별 파비콘(탭 아이콘): 피자=🍕 / 피클=🥒 / 인트로·인포=JAM 로고
-const faviconSvg = site === "pickle" ? "/favicon-pickle.svg"
-                 : site === "intro"  ? "/favicon-jam.svg"
+const faviconSvg = site === "pickle"   ? "/favicon-pickle.svg"
+                 : site === "hotsauce" ? "/favicon-hotsauce.svg"
+                 : site === "intro"    ? "/favicon-jam.svg"
                  : "/favicon-pizza.svg";
 
 // ── 구조화 데이터(JSON-LD) ──
@@ -82,7 +86,7 @@ const softwareApp: Record<string, unknown> = {
   "@type": "SoftwareApplication",
   name: appName,
   applicationCategory: appCat,
-  applicationSubCategory: site === "pickle" ? "Screenshot organizer" : "Clipboard manager",
+  applicationSubCategory: site === "pickle" ? "Screenshot organizer" : site === "hotsauce" ? "System monitor" : "Clipboard manager",
   operatingSystem: "macOS 13.0+",
   description,
   url: canonical.toString(),
@@ -205,12 +209,14 @@ const jsonLd = [
   <body class={bodyClass}>
     {site === "pizza" && <NavMinimal theme="pizza" lang={lang} koPath={koPath} />}
     {site === "pickle" && <NavMinimal theme="pickle" lang={lang} koPath={koPath} />}
+    {site === "hotsauce" && <NavMinimal theme="hotsauce" lang={lang} koPath={koPath} />}
     {site === "intro" && <NavMinimal theme="intro" lang={lang} koPath={koPath} />}
 
     <main id="main"><slot /></main>
 
     {site === "pizza" && <Footer lang={lang} />}
     {site === "pickle" && <PickleFooter lang={lang} />}
+    {site === "hotsauce" && <HotSauceFooter lang={lang} />}
 
     <!-- 스크롤 등장(점진적 향상): JS 있을 때만 숨겼다가 뷰포트 진입 시 표시 -->
     <script is:inline>

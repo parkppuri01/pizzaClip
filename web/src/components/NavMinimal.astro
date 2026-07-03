@@ -9,23 +9,28 @@ import SocialIcons from "./SocialIcons.astro";
 import { GITHUB_URL, PICKLE_GITHUB_URL } from "../consts.ts";
 import { type Lang, href, ui } from "../i18n/ui.ts";
 interface Props {
-  theme?: "intro" | "pizza" | "pickle";
+  theme?: "intro" | "pizza" | "pickle" | "hotsauce";
   lang?: Lang;
   koPath?: string;
   logoHref?: string;
 }
 const { theme = "intro", lang = "ko", koPath } = Astro.props;
-const themeKey = theme === "pizza" ? "pizza" : theme === "pickle" ? "pickle" : "intro";
+const themeKey = theme === "pizza" ? "pizza" : theme === "pickle" ? "pickle" : theme === "hotsauce" ? "hotsauce" : "intro";
 const defaultHref = href(lang, themeKey);
 const { logoHref = defaultHref } = Astro.props;
 const github = theme === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
 const t = ui[lang];
 
-// 상대 앱으로 가는 크로스링크(피자↔피클). 로고 바로 옆 워드마크.
-const cross =
-  theme === "pizza"  ? { href: href(lang, "pickle"), label: "PICkle",     cls: "navm__cross--pickle", aria: t.navCrossToPickle } :
-  theme === "pickle" ? { href: href(lang, "pizza"),  label: "PIZZA CLIP", cls: "navm__cross--pizza",  aria: t.navCrossToPizza } :
-  null;
+// 상대 앱 크로스링크 — 자기 자신을 뺀 나머지 앱 전부(고정 순서 pizza→pickle→hotsauce).
+const ALL_APPS = [
+  { key: "pizza" as const,    label: "PIZZA CLIP", cls: "navm__cross--pizza",    aria: t.navCrossToPizza },
+  { key: "pickle" as const,   label: "PICkle",     cls: "navm__cross--pickle",   aria: t.navCrossToPickle },
+  { key: "hotsauce" as const, label: "Hot Sauce",  cls: "navm__cross--hotsauce", aria: t.navCrossToHotsauce },
+];
+const isAppTheme = theme === "pizza" || theme === "pickle" || theme === "hotsauce";
+const crossLinks = isAppTheme
+  ? ALL_APPS.filter((a) => a.key !== theme).map((a) => ({ ...a, href: href(lang, a.key) }))
+  : [];
 ---
 <header class:list={["navm", `navm--${theme}`]}>
   <div class="navm__bar">
@@ -41,9 +46,12 @@ const cross =
       {theme === "pickle" && (
         <a class="navm__logo navm__logo--text" href={logoHref}>PICkle</a>
       )}
-      {cross && (
-        <a class:list={["navm__cross", cross.cls]} href={cross.href} aria-label={cross.aria}>{cross.label}</a>
+      {theme === "hotsauce" && (
+        <a class="navm__logo navm__logo--hotsauce" href={logoHref}>Hot&nbsp;Sauce</a>
       )}
+      {crossLinks.map((c) => (
+        <a class:list={["navm__cross", c.cls]} href={c.href} aria-label={c.aria}>{c.label}</a>
+      ))}
     </div>
     <SocialIcons github={github} lang={lang} koPath={koPath} />
   </div>
@@ -70,6 +78,7 @@ const cross =
   .navm__cross:hover { opacity: 1; transform: translateY(-1px); text-decoration: underline; text-underline-offset: 3px; }
   .navm__cross--pickle { color: var(--pk-olive-ink); font-family: "Alfa Slab One", var(--font-en); letter-spacing: 0; }
   .navm__cross--pizza  { color: var(--color-point); }
+  .navm__cross--hotsauce { color: var(--hs-teal); }
 
   /* ── 인트로: 떠 있는 크림 바(둥근 사각) ── */
   .navm--intro { padding: clamp(0.75rem, 2vw, 1.25rem) clamp(0.75rem, 2.5vw, 1.75rem) 0; }
@@ -92,14 +101,15 @@ const cross =
   }
 
   /* ── 피자/피클: 크림 상단 바 + 얇은 밑줄(테마색) ── */
-  .navm--pizza, .navm--pickle {
+  .navm--pizza, .navm--pickle, .navm--hotsauce {
     background: var(--color-bg);
     position: sticky;
     top: 0;
   }
   .navm--pizza  { border-bottom: 3px solid var(--color-menu); }   /* 피자 상단바색(옐로우) — 크림 위 가시성 위해 3px */
   .navm--pickle { border-bottom: 2px solid var(--pk-olive-ink); } /* 피클 포인트(올리브) */
-  .navm--pizza .navm__bar, .navm--pickle .navm__bar {
+  .navm--hotsauce { border-bottom: 2px solid var(--hs-teal); }    /* 핫소스 포인트(틸) */
+  .navm--pizza .navm__bar, .navm--pickle .navm__bar, .navm--hotsauce .navm__bar {
     max-width: var(--maxw);
     margin-inline: auto;
     display: flex;
@@ -110,7 +120,7 @@ const cross =
     padding-inline: var(--gutter);
   }
   /* 메인 로고 워드마크(피클=올리브, 피자=빨강) */
-  .navm__logo--text, .navm__logo--pizza {
+  .navm__logo--text, .navm__logo--pizza, .navm__logo--hotsauce {
     font-family: var(--font-en);
     font-weight: 700;
     font-size: clamp(1.2rem, 4vw, 1.7rem);
@@ -125,10 +135,21 @@ const cross =
     font-size: clamp(1.02rem, 3.2vw, 1.42rem);
   }
   .navm__logo--pizza { color: var(--color-point); letter-spacing: 0.04em; }
-  .navm__logo--text:hover, .navm__logo--pizza:hover { opacity: 0.8; }
+  .navm__logo--hotsauce { color: var(--hs-teal); letter-spacing: 0.03em; }
+  .navm__logo--text:hover, .navm__logo--pizza:hover, .navm__logo--hotsauce:hover { opacity: 0.8; }
 
-  /* 아주 좁은 화면: 크로스링크는 줄여서 한 줄 유지 */
+  /* 아주 좁은 화면: 앱 3개 체제라 크로스링크가 2개 → 폰트·여백 압축 + 화살표 생략으로 한 줄 유지 */
   @media (max-width: 420px) {
-    .navm__cross { font-size: 0.72rem; padding-left: 0.5rem; }
+    .navm--pizza .navm__bar, .navm--pickle .navm__bar, .navm--hotsauce .navm__bar { gap: 0.5rem; }
+    .navm__brand { gap: 0.4rem; }
+    .navm__cross {
+      font-size: 0.64rem;
+      padding-left: 0.4rem;
+      letter-spacing: 0;
+      border-left-width: 1.5px;
+    }
+    .navm__cross--pickle { letter-spacing: 0; }
+    /* 좁은 화면에선 '↗' 를 빼 폭을 아낀다(데스크톱은 유지) */
+    .navm__cross::after { content: ""; margin-left: 0; }
   }
 </style>

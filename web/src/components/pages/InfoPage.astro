@@ -87,6 +87,25 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
           <span><b>{c.relMoreBold}</b><br />{c.relMoreRest}</span>
         </a>
       </section>
+
+      <section class="rel">
+        <h2 class="rel__brand">🌶️ Hot Sauce <span>{c.relHeadingSuffix}</span></h2>
+        <div class="releases-collapse">
+          <ul class="releases releases--hotsauce">
+            {c.hotsauceReleases.map((r) => (
+              <li class="release">
+                <div class="release__head">
+                  <span class="release__ver release__ver--hotsauce">v{r.version}</span>
+                  <span class="release__label">{r.label}</span>
+                </div>
+                <ul class="release__notes">
+                  {r.notes.map((n) => (<li>{n}</li>))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
     </div>
 
     <p class="info__more">
@@ -122,6 +141,10 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
         <img src="/img/intro/card-pickle.png" width="900" height="900" alt="" loading="lazy" />
         <span>{c.appbtnPickle}</span>
       </a>
+      <a class="info__appbtn" href={href(lang, "hotsauce")}>
+        <img src="/img/intro/card-hotsauce.png" width="900" height="900" alt="" loading="lazy" />
+        <span>{c.appbtnHotsauce}</span>
+      </a>
     </nav>
   </section>
 </BaseLayout>
@@ -134,7 +157,7 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
   /* 두 제품 릴리스노트 2열(좁으면 1열) */
   .info__grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: clamp(1.5rem, 4vw, 2.75rem);
     align-items: start;
   }
@@ -166,11 +189,13 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
   .release__ver { font-family: var(--font-en); font-weight: 700; font-size: 1.15rem; }
   .release__ver--pizza  { color: var(--color-point); }
   .release__ver--pickle { color: var(--pk-olive-ink); }
+  .release__ver--hotsauce { color: var(--hs-teal); }
   .release__label { font-weight: 700; color: var(--color-ink); }
   .release__notes { margin-top: 0.7rem; display: grid; gap: 0.4rem; }
   .release__notes li { position: relative; padding-left: 1.4rem; color: var(--color-text); }
   .releases--pizza  .release__notes li::before { content: "🍕"; position: absolute; left: 0; font-size: 0.8em; }
   .releases--pickle .release__notes li::before { content: "🥒"; position: absolute; left: 0; font-size: 0.8em; }
+  .releases--hotsauce .release__notes li::before { content: "🌶️"; position: absolute; left: 0; font-size: 0.8em; }
 
   /* 피클 컬럼 균형용 안내 카드(피자 8개 vs 피클 1개 빈자리 보완) */
   .rel__more {

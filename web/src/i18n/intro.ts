@@ -12,6 +12,9 @@ export type IntroContent = {
   pickleCaption: string;
   pickleAria: string;
   pickleIconAlt: string;
+  hotsauceCaption: string;
+  hotsauceAria: string;
+  hotsauceIconAlt: string;
 };
 
 export const intro: Record<Lang, IntroContent> = {
@@ -26,6 +29,9 @@ export const intro: Record<Lang, IntroContent> = {
     pickleCaption: "캡쳐한건 다 보관해주는 피클",
     pickleAria: "피클 — 캡처한 건 다 보관해주는 맥 스크린샷 앱 보러가기",
     pickleIconAlt: "피클 앱 아이콘",
+    hotsauceCaption: "열심히 일하는 맥을 보여주는 핫소스",
+    hotsauceAria: "핫소스 — 맥이 얼마나 열심히 일하는지 보여주는 시스템 모니터 앱 보러가기",
+    hotsauceIconAlt: "핫소스 앱 아이콘",
   },
   en: {
     titleLine1: "Lives in your menu bar —",
@@ -38,5 +44,8 @@ export const intro: Record<Lang, IntroContent> = {
     pickleCaption: "PICkle keeps every capture fresh.",
     pickleAria: "PICkle — meet the Mac screenshot app that keeps every capture you take",
     pickleIconAlt: "PICkle app icon",
+    hotsauceCaption: "Hot Sauce shows how hard your Mac works.",
+    hotsauceAria: "Hot Sauce — meet the Mac system monitor that shows how hard your Mac is working",
+    hotsauceIconAlt: "Hot Sauce app icon",
   },
 };
