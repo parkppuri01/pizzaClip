@@ -87,6 +87,13 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.3.1",
+        label: "더 가볍고 조용하게 ⚡",
+        notes: [
+          "편집 창을 열어두기만 해도 CPU 사용량이 계속 높던 문제를 고쳤어요 — 이제 편집 중에도 팬 소음이나 배터리 걱정 없이 조용해요.",
+        ],
+      },
+      {
         version: "1.3.0",
         label: "열린 메뉴도 그대로 캡처 📸",
         notes: [
@@ -204,6 +211,13 @@ export const info: Record<Lang, InfoContent> = {
       { version: "0.1.1", label: "First Release", notes: ["The essentials are in: auto copy-history, the popup, pinning, and clear-all."] },
     ],
     pickleReleases: [
+      {
+        version: "1.3.1",
+        label: "Lighter, Quieter Editing ⚡",
+        notes: [
+          "Fixed a bug where just having the editor open kept the CPU busy — editing is now quiet and easy on your battery.",
+        ],
+      },
       {
         version: "1.3.0",
         label: "Capture Open Menus, As-Is 📸",
