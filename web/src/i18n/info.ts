@@ -87,6 +87,25 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.3.0",
+        label: "열린 메뉴도 그대로 캡처 📸",
+        notes: [
+          "이제 메뉴나 팝업을 펼친 상태 그대로 캡처할 수 있어요 — 캡처를 시작해도 열려 있던 메뉴가 닫히지 않아요.",
+          "캡처를 macOS 기본 방식으로 바꿔서, 드래그 중 픽셀 크기 표시와 스페이스로 영역 옮기기도 자연스럽게 돼요.",
+          "화면 깜빡임 없이 매끄럽게 찍혀요.",
+        ],
+      },
+      {
+        version: "1.2.0",
+        label: "또렷한 십자선 · 방해 없는 캡처 🥒",
+        notes: [
+          "캡처를 시작하면 마우스에 십자선이 항상 또렷하게 따라와요.",
+          "전체화면으로 보던 사진·영상이 캡처를 시작해도 닫히지 않아요.",
+          "보관함 썸네일의 🍕 버튼으로 이미지를 바로 클립보드에 복사 — PizzaClip이 깔려 있으면 그쪽으로 이어붙여요.",
+          "설정 일반 탭에 버전·빌드 번호를 표시해요.",
+        ],
+      },
+      {
         version: "1.1.0",
         label: "펜 색상, 마음대로 🎨",
         notes: [
@@ -112,7 +131,7 @@ export const info: Record<Lang, InfoContent> = {
     infoMore: "자세한 변경 내역은 GitHub에서 —",
     infoMoreLinkPizza: "피자클립",
     infoMoreLinkPickle: "피클",
-    relMoreBold: "피클이 1.1로 한 뼘 더 자랐어요.",
+    relMoreBold: "피클이 1.3으로 한 뼘 더 자랐어요.",
     relMoreRest: "새 소식이 쌓일 때마다 여기에 담을게요 — 피클 둘러보기 →",
     teamTitle: "Team jAm",
     teamTagline: "“모든 것은 장난스러운 상상에서 시작된다.”",
@@ -186,6 +205,25 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.3.0",
+        label: "Capture Open Menus, As-Is 📸",
+        notes: [
+          "You can now capture a menu or popup while it’s open — starting a capture no longer dismisses whatever menu was showing.",
+          "Capture now uses the native macOS flow, so live pixel dimensions and Space-to-move come built in.",
+          "Captures come out smooth, with no screen flicker.",
+        ],
+      },
+      {
+        version: "1.2.0",
+        label: "Crisp Crosshair · Distraction-Free Capture 🥒",
+        notes: [
+          "A crosshair follows your mouse, sharp and steady, the moment you start a capture.",
+          "Full-screen photos and videos you were viewing stay open when you begin a capture.",
+          "The 🍕 button on a stored thumbnail copies the image straight to the clipboard — and hands off to PizzaClip if it’s installed.",
+          "Settings → General now shows the version and build number.",
+        ],
+      },
+      {
         version: "1.1.0",
         label: "Pen Colors, Your Way 🎨",
         notes: [
@@ -211,7 +249,7 @@ export const info: Record<Lang, InfoContent> = {
     infoMore: "For the full change log, head to GitHub —",
     infoMoreLinkPizza: "PizzaClip",
     infoMoreLinkPickle: "PICkle",
-    relMoreBold: "PICkle just grew up to 1.1.",
+    relMoreBold: "PICkle just grew up to 1.3.",
     relMoreRest: "We’ll keep jarring the news right here as it lands — take a look around PICkle →",
     teamTitle: "Team jAm",
     teamTagline: "“It all starts with a playful imagination.”",
