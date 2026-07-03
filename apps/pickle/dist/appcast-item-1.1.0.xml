@@ -1,0 +1,26 @@
+        <item>
+            <title>PICkle 1.1.0</title>
+            <pubDate>Sun, 14 Jun 2026 07:53:33 +0000</pubDate>
+            <sparkle:version>7</sparkle:version>
+            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<h2>PICkle 1.1</h2>
+<p>펜 도구의 색상 선택이 강력해졌어요 🎨</p>
+<h3>펜 색상</h3>
+<ul>
+<li>색상 팔레트 — 무지개 버튼을 누르면 그 자리에서 색상 피커가 열려요</li>
+<li>채도·명도 사각형과 색조 바로 원하는 색을 직접 만들기</li>
+<li>스포이드 — 화면 어디든 클릭해 그 픽셀의 색을 펜 색으로 추출</li>
+<li>색상 코드(#RRGGBB) 표시 — 클릭하면 클립보드로 복사</li>
+</ul>
+<h3>개선</h3>
+<ul>
+<li>작은 편집 창에서도 도구 옵션 팝업이 잘리지 않도록 정리</li>
+</ul>
+]]></description>
+            <!-- ⚠️ Put the REAL DMG download URL here (GitHub Release asset, etc.). -->
+            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.1.0.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="8xLUR8cKnAmEwzYX/PkM+ZsnBXAhQafHz6IosQJmH+U2vrizRNsL5pmWNXA8mrPQGYiqVJ/0kDixbrm2oAweAA==" length="3749549" />
+        </item>

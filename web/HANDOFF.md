@@ -1,9 +1,41 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-14** (🌐 **영문 사이트(EN/KO) + AEO/GEO 강화 — 라이브 배포 완료(커밋 `dfd7c44`)**. ⚠️ 단, 접속지역 자동 언어분기(미들웨어)는 Vercel 에서만 돌아 **배포 후 실제 확인 필요**(VPN 해외IP→`/en/` 리다이렉트 등). 한국어는 루트 그대로, 영문은 `/en/` 4페이지(인트로·피자·피클·인포 / how-to 제외). 상단바 깃허브 오른쪽 **EN/KO 세로 토글**(위 KO/아래 EN) + **접속지역 자동 언어분기**(IP 국가 헤더, 위치권한 팝업 없음 — 한국=한글/그 외=영문, 첫 진입 1회·미들웨어, ⚠️배포 후 검증). 4개 페이지를 `lang` 받는 **공유 컴포넌트**(`src/components/pages/*`)로 리팩터링해 한·영이 마크업·CSS 1벌을 공유, 텍스트만 `src/i18n/*` 사전에서. hreflang·og:locale·JSON-LD inLanguage 언어별 분기, sitemap i18n alternate, llms.txt 영문·양앱 전면개정. 자세히는 §3 **2026-06-14 (i18n+AEO)**. 이전: 🚀 **튜토리얼 영상 팝업 + 피클 노크 카운트 — 둘 다 라이브 배포·검증 완료**. ① 피자·피클 히어로 다운로드 버튼 옆 '튜토리얼' 버튼 → 누르면 유튜브 영상 팝업(`VideoModal.astro` 신설, 커밋 ca3ac11). ② DAU 노크 카운트에 피클앱(`/pickle/appcast.xml`) 추가 — 앱별 키 분리, `/api/stats` 에 `apps.{pizza,pickle}`+`combined`(커밋 37d33e1). 자세히는 §3 2026-06-14. 이전: 가이드 풀버전 재반영 86a003c, PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
+마지막 업데이트: **2026-06-20** (📝 **info 릴리스노트 전면 최신화 + 4건 초과 접기(더보기) + 새 피클 OG — 모두 라이브 배포 완료**. ① info 페이지 릴리스노트를 두 앱 모두 최신화: 피자 v1.3.0·v1.2.0 추가(앱 1.3.0 대비 1.1.0까지였던 갭 해소), 피클 v1.1.0 추가 + v1.0.0에 편집기능(펜·블러·워터마크·크롭) 설명 보강(커밋 `ffc0cd2`). ② 릴리스노트가 길어져 **컬럼별 4건 초과 시 그라데이션+'더보기/접기'로 접힘**(`InfoPage.astro`, 측정 기반 max-height, 진보적 향상, 한·영 라벨 분기 — 커밋 `2b42135`). ③ **피클 OG 이미지 교체**: 옛 히어로(크림+노트북피클) → 현재 그린 PIC/KLE 포스터 기준 새 디자인(PIL 합성, 1200×630), 캐시버스터 `?v=2`(커밋 `7da2cb4`). 자세히는 §3 **2026-06-20**. 이전: 🌐 **영문 사이트(EN/KO) + AEO/GEO 강화 — 라이브 배포 완료(커밋 `dfd7c44`)**. ⚠️ 단, 접속지역 자동 언어분기(미들웨어)는 Vercel 에서만 돌아 **배포 후 실제 확인 필요**(VPN 해외IP→`/en/` 리다이렉트 등). 한국어는 루트 그대로, 영문은 `/en/` 4페이지(인트로·피자·피클·인포 / how-to 제외). 상단바 깃허브 오른쪽 **EN/KO 세로 토글**(위 KO/아래 EN) + **접속지역 자동 언어분기**(IP 국가 헤더, 위치권한 팝업 없음 — 한국=한글/그 외=영문, 첫 진입 1회·미들웨어, ⚠️배포 후 검증). 4개 페이지를 `lang` 받는 **공유 컴포넌트**(`src/components/pages/*`)로 리팩터링해 한·영이 마크업·CSS 1벌을 공유, 텍스트만 `src/i18n/*` 사전에서. hreflang·og:locale·JSON-LD inLanguage 언어별 분기, sitemap i18n alternate, llms.txt 영문·양앱 전면개정. 자세히는 §3 **2026-06-14 (i18n+AEO)**. 이전: 🚀 **튜토리얼 영상 팝업 + 피클 노크 카운트 — 둘 다 라이브 배포·검증 완료**. ① 피자·피클 히어로 다운로드 버튼 옆 '튜토리얼' 버튼 → 누르면 유튜브 영상 팝업(`VideoModal.astro` 신설, 커밋 ca3ac11). ② DAU 노크 카운트에 피클앱(`/pickle/appcast.xml`) 추가 — 앱별 키 분리, `/api/stats` 에 `apps.{pizza,pickle}`+`combined`(커밋 37d33e1). 자세히는 §3 2026-06-14. 이전: 가이드 풀버전 재반영 86a003c, PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
+
+---
+
+## 🔖 세션 이어받기 (2026-06-20, info 릴리스노트 최신화 + 접기(더보기) + 새 피클 OG — **모두 라이브 배포 완료**)
+
+> ✅ **배포됨**: 커밋 `7da2cb4`(피클 OG) → `ffc0cd2`(info 릴리스노트 최신화) → `2b42135`(4건 초과 접기) 순서로 master 푸시 = Vercel 자동배포. 전부 `web/src/i18n/info.ts` + `web/src/components/pages/InfoPage.astro` + `web/public/img/og-pickle.jpg` 변경.
+
+### 1) info 릴리스노트 두 앱 모두 최신화 (커밋 `ffc0cd2`)
+- **피자**: `src/i18n/info.ts` `releases[]`(ko·en)에 **v1.3.0**(새 아이콘·메뉴바 피자박스·피자폭죽 개선) + **v1.2.0**(한국어 지원·개인정보 설정 간편화·잠금 연달아 붙여넣기) 추가. 앱은 1.3.0(build 13)인데 사이트는 1.1.0까지였던 갭 해소. 원본 노트는 앱 레포 `dist/notes-1.2.0.md`·`notes-1.3.0.md`를 사이트 톤(친근한 한 줄)으로 재작성.
+- **피클**: `pickleReleases[]`(ko·en)에 **v1.1.0**(펜 색상 피커: 팔레트·스포이드·#RRGGBB) 추가 + **v1.0.0**에 편집기능(펜·블러/모자이크·워터마크·크롭·⌘Z) 설명 보강. 안내 카드 문구(`relMoreBold`)도 "1.1로 자랐어요"로 갱신. (원본 = 피클 레포 `../../pic.kle/dist/notes-1.1.0.md`)
+- **요령**: 앞으로 새 버전 = `src/i18n/info.ts`의 ko/en `releases`(피자)·`pickleReleases`(피클) 배열 **맨 위**에 항목 추가만 하면 됨(최신순). 4건 넘으면 아래 접기 자동 적용.
+
+### 2) 릴리스노트 4건 초과 시 그라데이션 + 더보기/접기 (커밋 `2b42135`, `InfoPage.astro`)
+- 컬럼별 릴리스가 **4건(`VISIBLE_RELEASES`)을 넘으면** 4건까지만 보이고 그 아래는 **슬레이트 페이지 배경(`--intro-bg #7499B2`)으로 녹아드는 그라데이션** + **'더보기 ▾' 버튼**. 누르면 전체 펼침('접기'로 토글).
+- **측정 기반**: 카드 높이가 제각각이라 고정 px가 아니라 인라인 `<script>`가 `getBoundingClientRect`로 4번째 카드 바닥을 재서 `--collapse-h`(CSS 변수) 설정 → 정확히 4건 노출 + 5번째 살짝 peek. resize 시 재측정.
+- **진보적 향상**: JS 없으면 전체 목록 그대로 노출(크롤러/AEO 안전). 버튼은 `hidden`으로 시작해 JS가 노출. 라벨 한·영 분기(더보기/접기 · Show more/less)는 `data-more`/`data-less` 속성으로.
+- 현재 **피자(10건)만 접힘**, 피클(2건)은 그대로. 마크업: 각 `<ul class="releases">`를 `.releases-collapse`(+`data-collapse`)로 감싸고 뒤에 `.releases-fade`+`.releases-more` 버튼. **Astro `<script>`는 TS 문법 OK**(generics 등 esbuild가 처리), 런타임 의존성 0이라 인라인 번들됨.
+
+### 3) 새 피클 OG 이미지 (커밋 `7da2cb4`, `public/img/og-pickle.jpg`)
+- **문제**: 다른 사이트에 피클 링크 공유 시 미리보기가 옛 히어로(크림+노트북피클 "캡처는 했는데 어디 갔지?")로 떴음 — OG가 6/11 히어로 변경(그린 PIC/KLE 포스터) 전 버전이었음. (피자 OG `og-home.jpg`는 현재와 일치해 그대로 둠.)
+- **해결**: 현재 그린 PIC/KLE 포스터(`public/img/pickle/hero-poster.jpg`) 기준 새 OG(1200×630, 크림 배경+좌측 카피"캡처하고·편집하고·절여두세요"+우측 포스터 카드)를 **PIL(python3)로 합성**. 스크립트 `/tmp/make_og_pickle.py`. BaseLayout og:image/twitter:image에 캐시버스터 `?v=2`.
+- ⚠️ **소셜 캐시**: 이미 공유한 링크는 플랫폼 캐시 때문에 한동안 옛 이미지 → Facebook 공유 디버거 "Scrape Again" 또는 `?v=` 트릭으로 강제 갱신.
+- **OG 만드는 법(다음에 또)**: 헤드리스로 페이지 히어로를 그대로 찍으면 `data-reveal` opacity 미완으로 흐릿하게 나옴 → **전용 합성(PIL/sips)이 나음**. 폰트는 `/System/Library/Fonts/AppleSDGothicNeo.ttc`(index 6=Bold·4=SemiBold·2=Medium) PIL로 사용 가능.
+
+### 다음에 할 일 (바로 착수 가능)
+- ⚠️ **접속지역 자동 언어분기 실제 검증**(2026-06-14부터 미완) — Edge 미들웨어라 로컬 불가. VPN 해외IP로 `pizza-clip.com`→`/en/`, 한국에서 `/en/`→한국어 리다이렉트 되는지. 과하면 `middleware.js` (2) 블록만 제거.
+- **정리거리**: `consts.ts`의 `PIZZA_HOME`·`NAV_LINKS`(href 헬퍼로 대체돼 미사용), 폐기 블로그 파일(`src/pages/blog/`·`content/blog/hello.md`·`content.config.ts`). 빌드 무관이라 급하지 않음.
+- **차후**: 영문 전용 OG 이미지(현재 새 피클 OG도 한국어 카피 포함)·영문 튜토리얼 영상, GA4 다운로드 전환 추적.
+- **앱 새 버전 나오면**: `src/i18n/info.ts`의 ko/en `releases`(피자)·`pickleReleases`(피클) 맨 위에 항목 추가(원본 노트는 각 앱 레포 `dist/notes-*.md`). 4건 넘으면 접기 자동.
+
+### 곁다리(이번 세션, 핸드오프 무관)
+- `/save-wiki` 로 프로젝트 위키 `~/RAG/raw/pizzaClip-2026-06-20.md` 생성(RAG용, 레포 밖).
 
 ---
 
@@ -161,6 +193,16 @@ web/
 - **폰트**: Pretendard(한글 본문, CDN dynamic-subset) / 리디바탕(감성·블로그 본문, self-host) / OSP-DIN(영문 로고·메뉴·버튼, self-host).
 
 ## 3. 완료된 작업
+
+### 2026-06-20 — info 릴리스노트 최신화 + 4건 초과 접기 + 새 피클 OG(라이브, 커밋 7da2cb4·ffc0cd2·2b42135)
+
+**무엇을/왜:** 릴리스노트가 길어져 늘어지는 문제 + 사이트 릴리스노트가 앱보다 뒤처진 갭 + 옛 피클 OG를 한 번에 정리.
+
+- **info 릴리스노트 최신화**(`ffc0cd2`, `src/i18n/info.ts`): 피자 v1.3.0·v1.2.0 추가(앱 1.3.0 대비 1.1.0까지였던 갭 해소), 피클 v1.1.0 추가 + v1.0.0 편집기능 설명 보강, 안내문구 1.1 반영. 한·영 동시. (원본 노트 = 앱 `dist/notes-1.{2,3}.0.md`, 피클 `../../pic.kle/dist/notes-1.1.0.md`)
+- **4건 초과 접기**(`2b42135`, `InfoPage.astro`): 컬럼별 릴리스 4건 초과 시 그라데이션 페이드 + '더보기/접기' 토글. 측정 기반 max-height(`getBoundingClientRect`→`--collapse-h`), 진보적 향상(JS 없으면 전체 노출), 한·영 라벨 분기. 피자(10건) 적용·피클(2건) 미적용.
+- **새 피클 OG**(`7da2cb4`, `public/img/og-pickle.jpg`): 옛 히어로 → 현재 그린 PIC/KLE 포스터 기준 새 디자인(PIL 합성 1200×630), 캐시버스터 `?v=2`. 피자 OG는 현재와 일치해 유지.
+
+**교훈:** ① 새 릴리스노트 = info.ts ko/en `releases`·`pickleReleases` 맨 위에 추가(4건 넘으면 자동 접힘). ② OG는 헤드리스 페이지 스크린샷(`data-reveal` opacity로 흐릿)보다 PIL/sips 전용 합성이 나음. ③ Astro `<script>`는 TS 문법 가능. ④ preview 측정은 `getBoundingClientRect`가 진실.
 
 ### 2026-06-14 (i18n+AEO) — 영문 사이트 EN/KO + AEO/GEO 강화(라이브, 커밋 dfd7c44)
 

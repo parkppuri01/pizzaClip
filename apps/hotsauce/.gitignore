@@ -1,0 +1,23 @@
+# Xcode / build
+HotSauce.xcodeproj/
+build/
+DerivedData/
+*.xcuserstate
+
+# Local signing identity (see Signing.xcconfig.example)
+Signing.xcconfig
+scripts/release.local.sh
+
+# macOS
+.DS_Store
+
+# Design source files & references (kept locally, not in repo)
+샘플_런캣/
+내부아이콘/
+메뉴바아이콘/
+사이트 디자인/
+a/
+*.pxd
+
+# OMC state
+.omc/

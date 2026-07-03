@@ -1,0 +1,52 @@
+name: HotSauce
+options:
+  bundleIdPrefix: com.Team-jAm
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    # Manual + Developer ID gives a STABLE code signature so macOS TCC remembers
+    # granted permissions across rebuilds. Ad-hoc dev signatures change every
+    # build → grants never stick. Team ID + identity live in Signing.xcconfig
+    # (gitignored) — see Signing.xcconfig.example.
+    CODE_SIGN_STYLE: Manual
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
+targets:
+  HotSauce:
+    type: application
+    platform: macOS
+    sources:
+      - path: HotSauce
+    configFiles:
+      Debug: Signing.xcconfig
+      Release: Signing.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.Team-jAm.HotSauce
+        PRODUCT_NAME: HotSauce
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: HotSauce/Resources/Info.plist
+        ENABLE_HARDENED_RUNTIME: YES
+        OTHER_CODE_SIGN_FLAGS: "--timestamp"
+        CODE_SIGN_ENTITLEMENTS: HotSauce/HotSauce.entitlements
+      configs:
+        Release:
+          # Prevent Xcode from auto-injecting get-task-allow (notarization rejects it).
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+    dependencies:
+      - package: Sparkle
+        product: Sparkle
+schemes:
+  HotSauce:
+    build:
+      targets:
+        HotSauce: all
+    run:
+      config: Debug

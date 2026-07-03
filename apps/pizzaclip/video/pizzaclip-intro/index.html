@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>PIZZA CLIP — Intro</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* ===== Fonts (local woff2, compiler-embedded) ===== */
+      @font-face { font-family:"OSP-DIN"; src:url("fonts/OSP-DIN.woff2") format("woff2"); font-weight:400 700; font-style:normal; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-Regular.woff2") format("woff2"); font-weight:400; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-Medium.woff2") format("woff2"); font-weight:500; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-SemiBold.woff2") format("woff2"); font-weight:600; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-Bold.woff2") format("woff2"); font-weight:700; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-ExtraBold.woff2") format("woff2"); font-weight:800; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-Black.woff2") format("woff2"); font-weight:900; }
+
+      :root{
+        --cream:#FCF6EF; --ink:#102138; --char:#333333; --red:#A2371F;
+        --yellow:#FFB703; --cheese:#F4C84B; --pep:#E0492B;
+        --peach:#F2BC7E; --coral:#F1765C; --green:#468365;
+      }
+      *{ margin:0; padding:0; box-sizing:border-box; }
+      html,body{ width:1920px; height:1080px; overflow:hidden; background:var(--cream); }
+      body{ font-family:"Pretendard", sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; word-break:keep-all; }
+
+      /* ===== Scenes ===== */
+      .scene{ position:absolute; inset:0; width:1920px; height:1080px; overflow:hidden; background:var(--cream); }
+      #s1{ z-index:1; }
+      #s2{ z-index:2; opacity:0; }
+      #s3{ z-index:3; opacity:0; }
+      #s4{ z-index:4; opacity:0; }
+      #s5{ z-index:5; opacity:0; }
+
+      /* ===== Global chrome (above scenes) ===== */
+      .chrome{ position:absolute; inset:0; z-index:50; pointer-events:none; }
+      .grain{ position:absolute; inset:0; opacity:.05; mix-blend-mode:multiply; }
+      .progress{ position:absolute; top:0; left:0; height:5px; width:1920px; background:var(--yellow); transform:scaleX(0); transform-origin:left center; }
+      .slate{ position:absolute; top:46px; left:64px; display:flex; align-items:center; gap:12px;
+              font-family:"OSP-DIN",sans-serif; font-size:23px; letter-spacing:.14em; color:var(--ink); opacity:.62; }
+      .slate .dot{ width:9px; height:9px; border-radius:50%; background:var(--red); }
+      .urltag{ position:absolute; bottom:46px; right:64px; font-family:"OSP-DIN",sans-serif; font-size:22px;
+               letter-spacing:.1em; color:var(--ink); opacity:.5; }
+      .crop{ position:absolute; width:26px; height:26px; border:2px solid var(--ink); opacity:.28; }
+      .crop.tl{ top:40px; left:40px; border-right:0; border-bottom:0; }
+      .crop.tr{ top:40px; right:40px; border-left:0; border-bottom:0; }
+      .crop.bl{ bottom:40px; left:40px; border-right:0; border-top:0; }
+      .crop.br{ bottom:40px; right:40px; border-left:0; border-top:0; }
+
+      /* ===== Type ===== */
+      .kicker{ font-family:"Pretendard",sans-serif; font-size:25px; letter-spacing:.02em; color:var(--red); font-weight:700; }
+      .kicker.en{ font-family:"OSP-DIN",sans-serif; font-size:27px; letter-spacing:.22em; }
+      .kicker-rule{ height:3px; width:78px; background:var(--red); transform-origin:left center; }
+      h1.head{ font-family:"Pretendard",sans-serif; font-weight:900; color:var(--ink);
+               font-size:128px; line-height:1.04; letter-spacing:-.02em; }
+      .sub{ font-family:"Pretendard",sans-serif; font-weight:500; color:var(--char); font-size:40px; line-height:1.5; }
+
+      /* keycap */
+      .keycap{ display:inline-flex; align-items:center; justify-content:center; background:#fff;
+               border:3px solid var(--ink); border-radius:18px; box-shadow:0 7px 0 var(--ink), 0 12px 20px rgba(16,33,56,.20);
+               font-family:"OSP-DIN",sans-serif; color:var(--ink); font-weight:700; }
+
+      /* ===== Scene 1 ===== */
+      #s1 .copy{ position:absolute; left:140px; top:50%; transform:translateY(-50%); width:1020px; }
+      #s1 .k-row{ display:flex; align-items:center; gap:22px; margin-bottom:30px; }
+      #s1 .ghost{ position:absolute; right:-150px; top:50%; width:760px; height:760px; transform:translateY(-50%);
+                  border:9px solid var(--ink); border-radius:50%; opacity:.07; }
+      #s1 .keys{ position:absolute; right:300px; top:50%; transform:translateY(-50%); display:flex; gap:20px; }
+      #s1 .keycap.big{ width:168px; height:168px; font-size:92px; }
+      #s1 .slice-pos{ position:absolute; right:360px; top:50%; }
+      #s1 .slice-art{ width:150px; height:150px; }
+      #s1 .slice-glow{ position:absolute; right:300px; top:42%; width:360px; height:360px; border-radius:50%;
+                       background:radial-gradient(circle, rgba(255,183,3,.42), rgba(255,183,3,0) 68%); }
+
+      /* ===== Scene 2 ===== */
+      #s2 .copy{ position:absolute; left:140px; top:170px; width:980px; }
+      #s2 .sub{ margin-top:34px; max-width:760px; }
+      #s2 .stage{ position:absolute; right:150px; top:50%; transform:translateY(-50%); width:560px; height:560px; }
+      #s2 .slot{ position:absolute; left:50%; top:120px; transform:translateX(-50%); width:520px; background:#fff;
+                 border:3px solid var(--ink); border-radius:22px; box-shadow:0 16px 0 rgba(16,33,56,.10);
+                 padding:38px 40px; }
+      #s2 .slot .lab{ font-family:"OSP-DIN",sans-serif; font-size:21px; letter-spacing:.16em; color:var(--red); margin-bottom:16px; }
+      #s2 .slot .val{ font-family:"OSP-DIN",sans-serif; font-size:50px; letter-spacing:.04em; color:var(--ink); }
+      #s2 .lost{ position:absolute; left:50%; top:300px; transform:translateX(-50%); font-family:"OSP-DIN",sans-serif;
+                 font-size:42px; letter-spacing:.04em; color:var(--ink); white-space:nowrap; }
+      #s2 .qmark{ position:absolute; left:50%; bottom:34px; transform:translateX(-50%); font-family:"Pretendard"; font-weight:900;
+                  font-size:120px; color:var(--ink); opacity:.12; }
+
+      /* ===== Scene 3 ===== */
+      #s3 .copy{ position:absolute; left:140px; top:50%; transform:translateY(-50%); width:820px; }
+      #s3 .hl-wrap{ position:relative; display:inline-block; }
+      #s3 .hl{ position:absolute; left:-10px; right:-10px; bottom:14px; height:46px; background:var(--yellow);
+               opacity:.9; transform:scaleX(0); transform-origin:left center; z-index:-1; border-radius:4px; }
+      #s3 .pizza-zone{ position:absolute; right:170px; top:50%; transform:translateY(-50%); width:560px; height:560px; }
+      #s3 .glow{ position:absolute; inset:-40px; border-radius:50%;
+                 background:radial-gradient(circle, rgba(255,183,3,.34), rgba(255,183,3,0) 66%); }
+      #s3 .plate{ position:absolute; inset:34px; border:3px dashed rgba(16,33,56,.20); border-radius:50%; }
+      #s3 .pizza{ position:absolute; left:50%; top:50%; width:460px; height:460px; transform:translate(-50%,-50%); }
+      #s3 .wedge{ position:absolute; inset:0; }
+      #s3 .stamp{ position:absolute; right:84px; top:70px; width:150px; height:150px; border-radius:50%;
+                  border:4px solid var(--red); display:flex; align-items:center; justify-content:center; text-align:center;
+                  font-family:"Pretendard"; font-weight:900; font-size:38px; line-height:1.04; color:var(--red);
+                  background:rgba(252,246,239,.7); transform:rotate(-12deg); }
+
+      /* ===== Scene 4 ===== */
+      #s4 .head4{ position:absolute; left:140px; top:150px; }
+      #s4 .cols{ position:absolute; left:140px; right:140px; top:360px; display:flex; gap:0; }
+      #s4 .col{ flex:1; padding:0 56px; position:relative; }
+      #s4 .col + .col{ border-left:2px solid rgba(16,33,56,.16); }
+      #s4 .num{ font-family:"OSP-DIN",sans-serif; font-weight:700; font-size:128px; line-height:1; color:var(--yellow);
+                -webkit-text-stroke:2px var(--ink); }
+      #s4 .icon{ height:96px; margin:18px 0 26px; }
+      #s4 .clabel{ font-family:"Pretendard"; font-weight:800; font-size:46px; color:var(--ink); }
+      #s4 .cdesc{ font-family:"Pretendard"; font-weight:500; font-size:30px; color:var(--char); margin-top:14px; line-height:1.45; }
+
+      /* ===== Scene 5 ===== */
+      #s5 .center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      #s5 .appicon{ width:188px; height:188px; border-radius:42px; box-shadow:0 22px 44px rgba(16,33,56,.26); }
+      #s5 .wordmark{ font-family:"OSP-DIN",sans-serif; font-weight:700; font-size:184px; letter-spacing:.02em; color:var(--ink);
+                     margin-top:30px; line-height:.9; }
+      #s5 .wordmark b{ color:var(--red); }
+      #s5 .tag{ font-family:"Pretendard"; font-weight:600; font-size:42px; color:var(--char); margin-top:18px; }
+      #s5 .cta{ margin-top:40px; display:inline-flex; align-items:center; gap:16px; background:var(--red); color:var(--cream);
+                font-family:"Pretendard"; font-weight:800; font-size:38px; padding:22px 52px; border-radius:999px;
+                box-shadow:0 12px 26px rgba(162,55,31,.34); }
+      #s5 .meta{ font-family:"OSP-DIN",sans-serif; font-size:26px; letter-spacing:.12em; color:var(--ink); opacity:.6; margin-top:26px; }
+      #s5 .mascot{ position:absolute; right:140px; bottom:0; width:300px; }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-exfx" id="root" data-composition-id="main" data-start="0" data-duration="26.5" data-width="1920" data-height="1080">
+
+      <!-- ============ SCENE 1 — Cold open ============ -->
+      <div data-hf-id="hf-yihu" id="s1" class="scene">
+        <div data-hf-id="hf-oer9" class="ghost"></div>
+        <div data-hf-id="hf-8opp" class="slice-glow" style="opacity:0"></div>
+        <div data-hf-id="hf-bdx3" class="copy">
+          <div data-hf-id="hf-105c" class="k-row">
+            <span data-hf-id="hf-46ow" class="kicker">맥 메뉴바 클립보드</span>
+            <span data-hf-id="hf-q6rp" class="kicker-rule"></span>
+          </div>
+          <h1 data-hf-id="hf-f3ii" class="head s1-head">복사한 모든 순간,</h1>
+        </div>
+        <div data-hf-id="hf-rgbw" class="keys">
+          <span data-hf-id="hf-8b5m" class="keycap big kc">⌘</span>
+          <span data-hf-id="hf-3uxr" class="keycap big kc">C</span>
+        </div>
+        <div data-hf-id="hf-x2az" class="slice-pos">
+          <div data-hf-id="hf-5e1a" class="slice-art">
+            <svg data-hf-id="hf-ndzu" viewBox="0 0 460 460" width="150" height="150">
+              <path data-hf-id="hf-r1kv" d="M230,230 L151.6,40.6 A205,205 0 0 1 308.4,40.6 Z" fill="var(--cheese)" stroke="var(--ink)" stroke-width="11" stroke-linejoin="round" />
+              <circle data-hf-id="hf-djbw" cx="232" cy="104" r="15" fill="var(--pep)" stroke="var(--ink)" stroke-width="4" />
+              <circle data-hf-id="hf-jk5d" cx="212" cy="146" r="12" fill="var(--pep)" stroke="var(--ink)" stroke-width="4" />
+              <circle data-hf-id="hf-st1x" cx="254" cy="152" r="11" fill="var(--pep)" stroke="var(--ink)" stroke-width="4" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ SCENE 2 — The problem ============ -->
+      <div data-hf-id="hf-ukdt" id="s2" class="scene">
+        <div data-hf-id="hf-r8s7" class="copy">
+          <div data-hf-id="hf-1z7a" class="k-row" style="margin-bottom:28px"><span data-hf-id="hf-8s6c" class="kicker">예전 방식</span><span data-hf-id="hf-0kn7" class="kicker-rule s2-rule"></span></div>
+          <h1 data-hf-id="hf-axet" class="head s2-l1">방금 복사한 거,</h1>
+          <h1 data-hf-id="hf-zlov" class="head s2-l2" style="color:var(--red)">어디 갔지?</h1>
+          <p data-hf-id="hf-0akb" class="sub s2-sub">새로 복사하면 이전 건 사라지죠. 예전 클립보드는 딱 ‘마지막 하나’만 기억하니까요.</p>
+        </div>
+        <div data-hf-id="hf-tan6" class="stage">
+          <div data-hf-id="hf-ecz0" class="slot s2-slot">
+            <div data-hf-id="hf-jj09" class="lab">CLIPBOARD</div>
+            <div data-hf-id="hf-p9l3" class="val s2-val">9f!Kx2•••</div>
+          </div>
+          <div data-hf-id="hf-klq1" class="lost s2-lost">9f!Kx2•••</div>
+          <div data-hf-id="hf-b3ck" class="qmark s2-q">?</div>
+        </div>
+      </div>
+
+      <!-- ============ SCENE 3 — Reveal (peak) ============ -->
+      <div data-hf-id="hf-tsq0" id="s3" class="scene">
+        <div data-hf-id="hf-quh6" class="copy">
+          <div data-hf-id="hf-kvwx" class="k-row" style="margin-bottom:30px"><span data-hf-id="hf-yw9l" class="kicker en s3-kick">WITH PIZZA CLIP</span><span data-hf-id="hf-do10" class="kicker-rule s3-rule"></span></div>
+          <h1 data-hf-id="hf-nvci" class="head s3-l1">복사할수록,</h1>
+          <h1 data-hf-id="hf-0rnt" class="head s3-l2"><span data-hf-id="hf-tw54" class="hl-wrap"><span data-hf-id="hf-8gny" class="hl s3-hl"></span>쌓입니다.</span></h1>
+        </div>
+        <div data-hf-id="hf-qcpl" class="pizza-zone">
+          <div data-hf-id="hf-kz2v" class="glow s3-glow"></div>
+          <div data-hf-id="hf-w3i1" class="plate s3-plate"></div>
+          <div data-hf-id="hf-h2nd" class="pizza s3-pizza"></div>
+          <div data-hf-id="hf-o9fd" class="stamp s3-stamp" style="opacity:0">한 판<br data-hf-id="hf-x5px">완성</div>
+        </div>
+      </div>
+
+      <!-- ============ SCENE 4 — Three strengths ============ -->
+      <div data-hf-id="hf-pulz" id="s4" class="scene">
+        <div data-hf-id="hf-krbq" class="head4">
+          <div data-hf-id="hf-6dlk" class="k-row" style="margin-bottom:0"><span data-hf-id="hf-0hj1" class="kicker s4-kick">왜, 피자클립일까</span><span data-hf-id="hf-iugx" class="kicker-rule s4-rule"></span></div>
+        </div>
+        <div data-hf-id="hf-6ra9" class="cols">
+          <div data-hf-id="hf-sjhu" class="col s4-col">
+            <div data-hf-id="hf-rokj" class="num">01</div>
+            <svg data-hf-id="hf-ql4m" class="icon" viewBox="0 0 120 120" width="96" height="96">
+              <path data-hf-id="hf-lmy1" d="M60,64 L36,12 A52,52 0 0 1 84,12 Z" fill="var(--cheese)" stroke="var(--ink)" stroke-width="7" stroke-linejoin="round" />
+              <circle data-hf-id="hf-gms5" cx="60" cy="30" r="7" fill="var(--pep)" stroke="var(--ink)" stroke-width="2.5" />
+              <circle data-hf-id="hf-o8c5" cx="46" cy="44" r="6" fill="var(--pep)" stroke="var(--ink)" stroke-width="2.5" />
+              <path data-hf-id="hf-zje9" d="M30,84 H90" stroke="var(--ink)" stroke-width="7" stroke-linecap="round" />
+              <path data-hf-id="hf-j334" d="M44,100 H76" stroke="var(--ink)" stroke-width="7" stroke-linecap="round" opacity=".5" />
+            </svg>
+            <div data-hf-id="hf-ycw7" class="clabel">자동 저장</div>
+            <div data-hf-id="hf-r2b9" class="cdesc">복사하는 즉시 알아서 차곡차곡.</div>
+          </div>
+          <div data-hf-id="hf-hit2" class="col s4-col">
+            <div data-hf-id="hf-ra9i" class="num">02</div>
+            <div data-hf-id="hf-ei9a" class="icon" style="display:flex;align-items:center">
+              <span data-hf-id="hf-lg13" class="keycap" style="height:88px;padding:0 26px;font-size:40px;border-radius:16px">⌘⇧V</span>
+            </div>
+            <div data-hf-id="hf-76oi" class="clabel">1초 소환</div>
+            <div data-hf-id="hf-s5rw" class="cdesc">키보드만으로 바로 붙여넣기.</div>
+          </div>
+          <div data-hf-id="hf-hx43" class="col s4-col">
+            <div data-hf-id="hf-qvyh" class="num">03</div>
+            <svg data-hf-id="hf-muoq" class="icon" viewBox="0 0 120 120" width="96" height="96">
+              <rect data-hf-id="hf-3978" x="28" y="54" width="64" height="50" rx="10" fill="var(--yellow)" stroke="var(--ink)" stroke-width="7" />
+              <path data-hf-id="hf-muu3" d="M40,54 V40 a20 20 0 0 1 40,0 V54" fill="none" stroke="var(--ink)" stroke-width="7" />
+              <circle data-hf-id="hf-h4v0" cx="60" cy="76" r="7" fill="var(--ink)" />
+              <path data-hf-id="hf-b1pc" d="M60,76 V90" stroke="var(--ink)" stroke-width="6" stroke-linecap="round" />
+            </svg>
+            <div data-hf-id="hf-8591" class="clabel">로컬 보안</div>
+            <div data-hf-id="hf-zgv2" class="cdesc">오직 내 맥 안에서만 안전하게.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ SCENE 5 — CTA / Logo ============ -->
+      <div data-hf-id="hf-lwhy" id="s5" class="scene">
+        <img data-hf-id="hf-ksae" class="mascot s5-mascot" src="assets/mascot-hi.png" alt="">
+        <div data-hf-id="hf-0oij" class="center">
+          <img data-hf-id="hf-hp9j" class="appicon s5-icon" src="assets/app-icon.png" alt="PizzaClip">
+          <div data-hf-id="hf-szeg" class="wordmark s5-word">PIZZA <b data-hf-id="hf-8f17">CLIP</b></div>
+          <div data-hf-id="hf-1v88" class="tag s5-tag">맥 메뉴바에 배달된, 피자 한 판.</div>
+          <div data-hf-id="hf-hajp" class="cta s5-cta">무료 다운로드</div>
+          <div data-hf-id="hf-90v9" class="meta s5-meta">pizza-clip.com · macOS 13+ · FREE</div>
+        </div>
+      </div>
+
+      <!-- ============ Global chrome ============ -->
+      <audio data-hf-id="hf-yl6e" id="bgm" src="assets/bgm.m4a" data-start="0" data-duration="26.5" data-track-index="9" data-volume="0.85" crossorigin="anonymous"></audio>
+
+      <div data-hf-id="hf-6ex2" class="chrome">
+        <svg data-hf-id="hf-m7uu" class="grain" width="1920" height="1080">
+          <filter data-hf-id="hf-6i7z" id="gr"><feturbulence data-hf-id="hf-qp2j" type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
+            <fecolormatrix data-hf-id="hf-skw8" type="saturate" values="0" /></filter>
+          <rect data-hf-id="hf-2q41" width="1920" height="1080" filter="url(#gr)" />
+        </svg>
+        <div data-hf-id="hf-btfq" class="crop tl"></div><div data-hf-id="hf-b59c" class="crop tr"></div><div data-hf-id="hf-dnpg" class="crop bl"></div><div data-hf-id="hf-5rhe" class="crop br"></div>
+        <div data-hf-id="hf-h8rj" class="slate"><span data-hf-id="hf-zi4d">PIZZA CLIP</span><span data-hf-id="hf-9gry" class="dot"></span><span data-hf-id="hf-1enw">MACOS CLIPBOARD</span></div>
+        <div data-hf-id="hf-myk5" class="urltag">pizza-clip.com</div>
+        <div data-hf-id="hf-thmr" class="progress prog"></div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      /* Build the 8 pizza wedges synchronously (deterministic) before the timeline */
+      (function buildPizza(){
+        const pizza = document.querySelector(".s3-pizza");
+        if (!pizza) return;
+        const wedge =
+          '<svg viewBox="0 0 460 460" width="460" height="460">' +
+          '<path d="M230,230 L151.6,40.6 A205,205 0 0 1 308.4,40.6 Z" fill="#F4C84B" stroke="#102138" stroke-width="9" stroke-linejoin="round"/>' +
+          '<circle cx="232" cy="104" r="15" fill="#E0492B" stroke="#102138" stroke-width="4"/>' +
+          '<circle cx="212" cy="146" r="12" fill="#E0492B" stroke="#102138" stroke-width="4"/>' +
+          '<circle cx="254" cy="152" r="11" fill="#E0492B" stroke="#102138" stroke-width="4"/></svg>';
+        for (let i = 0; i < 8; i++) {
+          const d = document.createElement("div");
+          d.className = "wedge s3-wedge";
+          d.innerHTML = wedge;
+          pizza.appendChild(d);
+        }
+      })();
+
+      const tl = gsap.timeline({ paused: true });
+      const E = { out:"power3.out", soft:"power2.out", expo:"expo.out", back:"back.out(1.5)", inE:"power2.in", sine:"sine.inOut" };
+
+      /* ---- Global chrome ---- */
+      tl.fromTo(".prog", { scaleX:0 }, { scaleX:1, duration:26.5, ease:"none" }, 0);
+
+      /* ============ SCENE 1  (0 – 4.5) ============ */
+      tl.fromTo("#s1 .kicker", { opacity:0, y:18 }, { opacity:1, y:0, duration:.5, ease:E.out }, 0.3);
+      tl.fromTo("#s1 .kicker-rule", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 0.45);
+      tl.fromTo(".s1-head", { opacity:0, y:46 }, { opacity:1, y:0, duration:.9, ease:E.out }, 0.55);
+      tl.fromTo("#s1 .keys", { opacity:0, y:30, scale:.9 }, { opacity:1, y:0, scale:1, duration:.7, ease:E.back }, 0.95);
+      tl.to("#s1 .kc", { y:10, duration:.12, ease:E.inE }, 1.9);
+      tl.to("#s1 .kc", { y:0, duration:.18, ease:E.back }, 2.05);
+      tl.fromTo("#s1 .slice-glow", { opacity:0, scale:.6 }, { opacity:1, scale:1, duration:.5, ease:E.soft }, 1.98);
+      tl.fromTo("#s1 .slice-art", { opacity:0, scale:.2, rotation:-25 }, { opacity:1, scale:1, rotation:0, duration:.55, ease:E.back }, 2.0);
+      tl.to("#s1 .slice-pos", { y:-150, x:60, duration:1.1, ease:E.soft }, 2.7);
+      tl.to("#s1 .slice-glow", { opacity:0, duration:.8, ease:E.sine }, 2.9);
+      tl.to("#s1 .ghost", { rotation:18, duration:4.2, ease:E.sine }, 0);
+
+      /* ============ SCENE 2  (4.5 – 9.0) ============ */
+      tl.fromTo("#s2", { opacity:0, scale:1.025, filter:"blur(10px)" }, { opacity:1, scale:1, filter:"blur(0px)", duration:.7, ease:E.soft }, 4.2);
+      tl.fromTo("#s2 .kicker", { opacity:0, y:16 }, { opacity:1, y:0, duration:.5, ease:E.out }, 4.55);
+      tl.fromTo(".s2-rule", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 4.6);
+      tl.fromTo(".s2-l1", { opacity:0, y:40 }, { opacity:1, y:0, duration:.7, ease:E.out }, 4.7);
+      tl.fromTo(".s2-l2", { opacity:0, y:40 }, { opacity:1, y:0, duration:.7, ease:E.out }, 4.9);
+      tl.fromTo(".s2-sub", { opacity:0, y:24 }, { opacity:1, y:0, duration:.6, ease:E.soft }, 5.5);
+      tl.fromTo("#s2 .slot", { opacity:0, y:30, scale:.94 }, { opacity:1, y:0, scale:1, duration:.6, ease:E.back }, 4.8);
+      tl.fromTo("#s2 .s2-lost", { opacity:0 }, { opacity:1, duration:.01 }, 5.9);
+      tl.to(".s2-slot", { y:-6, duration:.1, ease:E.inE }, 5.92);
+      tl.to(".s2-slot", { y:0, duration:.16, ease:E.back }, 6.02);
+      tl.set(".s2-val", { innerText:"010-2345-6789", opacity:0 }, 6.0);
+      tl.fromTo(".s2-val", { opacity:0, y:14 }, { opacity:1, y:0, duration:.4, ease:E.out, immediateRender:false }, 6.05);
+      tl.to(".s2-lost", { y:150, opacity:0, color:"#9a9a9a", duration:1.0, ease:E.inE }, 6.05);
+      tl.set(".s2-lost", { opacity:0 }, 7.1);
+      tl.fromTo(".s2-q", { opacity:0, scale:.7 }, { opacity:.12, scale:1, duration:.6, ease:E.back }, 6.7);
+
+      /* ============ SCENE 3  (9.0 – 15.5) — PEAK ============ */
+      tl.fromTo("#s3", { opacity:0, scale:1.03, filter:"blur(12px)" }, { opacity:1, scale:1, filter:"blur(0px)", duration:.7, ease:E.expo }, 8.7);
+      tl.fromTo(".s3-kick", { opacity:0, y:16 }, { opacity:1, y:0, duration:.5, ease:E.out }, 8.95);
+      tl.fromTo(".s3-rule", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 9.0);
+      tl.fromTo(".s3-l1", { opacity:0, y:42 }, { opacity:1, y:0, duration:.7, ease:E.out }, 9.05);
+      tl.fromTo(".s3-l2", { opacity:0, y:42 }, { opacity:1, y:0, duration:.7, ease:E.out }, 9.3);
+      tl.fromTo(".s3-hl", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 9.95);
+      tl.fromTo(".s3-glow", { opacity:0, scale:.7 }, { opacity:1, scale:1, duration:.7, ease:E.soft }, 9.2);
+      tl.fromTo(".s3-plate", { opacity:0, scale:.9 }, { opacity:1, scale:1, duration:.6, ease:E.soft }, 9.3);
+      tl.fromTo(".s3-wedge",
+        { opacity:0, scale:.25, rotation:(i)=> i*45 - 38, transformOrigin:"50% 50%" },
+        { opacity:1, scale:1, rotation:(i)=> i*45, transformOrigin:"50% 50%", duration:.5, ease:E.back, stagger:.14 }, 9.7);
+      tl.fromTo(".s3-stamp", { opacity:0, scale:.4, rotation:18 }, { opacity:1, scale:1, rotation:-12, duration:.5, ease:"back.out(2.2)" }, 11.5);
+      tl.to(".s3-glow", { scale:1.06, duration:1.6, ease:E.sine, repeat:2, yoyo:true }, 11.4);
+
+      /* ============ SCENE 4  (15.5 – 21.0) ============ */
+      tl.fromTo("#s4", { opacity:0, scale:1.02, filter:"blur(8px)" }, { opacity:1, scale:1, filter:"blur(0px)", duration:.6, ease:E.soft }, 15.2);
+      tl.fromTo(".s4-kick", { opacity:0, y:16 }, { opacity:1, y:0, duration:.5, ease:E.out }, 15.45);
+      tl.fromTo(".s4-rule", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 15.5);
+      tl.fromTo(".s4-col", { opacity:0, y:54 }, { opacity:1, y:0, duration:.6, ease:E.out, stagger:.18 }, 15.7);
+      tl.fromTo("#s4 .num", { opacity:0, scale:.6 }, { opacity:1, scale:1, duration:.55, ease:E.back, stagger:.18 }, 15.85);
+
+      /* ============ SCENE 5  (21.0 – 26.5) — close ============ */
+      tl.fromTo("#s5", { opacity:0, scale:1.02, filter:"blur(10px)" }, { opacity:1, scale:1, filter:"blur(0px)", duration:.7, ease:E.expo }, 20.7);
+      tl.fromTo(".s5-icon", { opacity:0, y:40, scale:.8 }, { opacity:1, y:0, scale:1, duration:.7, ease:E.back }, 21.05);
+      tl.fromTo(".s5-word", { opacity:0, y:30 }, { opacity:1, y:0, duration:.7, ease:E.out }, 21.35);
+      tl.fromTo(".s5-tag", { opacity:0, y:22 }, { opacity:1, y:0, duration:.6, ease:E.soft }, 21.75);
+      tl.fromTo(".s5-cta", { opacity:0, y:22, scale:.92 }, { opacity:1, y:0, scale:1, duration:.6, ease:E.back }, 22.1);
+      tl.fromTo(".s5-meta", { opacity:0 }, { opacity:.6, duration:.6, ease:E.soft }, 22.45);
+      tl.fromTo(".s5-mascot", { opacity:0, y:120, rotation:8 }, { opacity:1, y:0, rotation:0, duration:.8, ease:E.back }, 22.4);
+      tl.to(".s5-cta", { scale:1.04, duration:1.1, ease:E.sine, repeat:1, yoyo:true }, 23.4);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

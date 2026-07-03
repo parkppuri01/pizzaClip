@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>PICkle — Intro</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* ===== Fonts ===== */
+      @font-face { font-family:"OSP-DIN"; src:url("fonts/OSP-DIN.woff2") format("woff2"); font-weight:400 700; font-style:normal; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-Regular.woff2") format("woff2"); font-weight:400; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-Medium.woff2") format("woff2"); font-weight:500; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-SemiBold.woff2") format("woff2"); font-weight:600; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-Bold.woff2") format("woff2"); font-weight:700; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-ExtraBold.woff2") format("woff2"); font-weight:800; }
+      @font-face { font-family:"Pretendard"; src:url("fonts/Pretendard-Black.woff2") format("woff2"); font-weight:900; }
+
+      :root{
+        --cream:#F1F2E0; --ink:#28401C; --char:#3C4232; --point:#798904;
+        --olive:#B0BB51; --lime:#C6D94E; --greendark:#2F5E2C; --gold:#E5BD68;
+        --blue:#97B7CD; --red:#BC3F24; --outline:#1A2410; --cuke:#6E8030; --brine:#ECECC2;
+      }
+      *{ margin:0; padding:0; box-sizing:border-box; }
+      html,body{ width:1920px; height:1080px; overflow:hidden; background:var(--cream); }
+      body{ font-family:"Pretendard", sans-serif; color:var(--ink); -webkit-font-smoothing:antialiased; word-break:keep-all; }
+
+      .scene{ position:absolute; inset:0; width:1920px; height:1080px; overflow:hidden; background:var(--cream); }
+      #s1{ z-index:1; } #s2{ z-index:2; opacity:0; } #s3{ z-index:3; opacity:0; }
+      #s4{ z-index:4; opacity:0; } #s5{ z-index:5; opacity:0; }
+
+      /* ===== chrome ===== */
+      .chrome{ position:absolute; inset:0; z-index:50; pointer-events:none; }
+      .grain{ position:absolute; inset:0; opacity:.05; mix-blend-mode:multiply; }
+      .progress{ position:absolute; top:0; left:0; height:5px; width:1920px; background:var(--point); transform:scaleX(0); transform-origin:left center; }
+      .slate{ position:absolute; top:46px; left:64px; display:flex; align-items:center; gap:12px;
+              font-family:"OSP-DIN",sans-serif; font-size:23px; letter-spacing:.14em; color:var(--ink); opacity:.6; }
+      .slate .dot{ width:9px; height:9px; border-radius:50%; background:var(--point); }
+      .urltag{ position:absolute; bottom:46px; right:64px; font-family:"OSP-DIN",sans-serif; font-size:22px;
+               letter-spacing:.1em; color:var(--ink); opacity:.5; }
+      .crop{ position:absolute; width:26px; height:26px; border:2px solid var(--ink); opacity:.26; }
+      .crop.tl{ top:40px; left:40px; border-right:0; border-bottom:0; }
+      .crop.tr{ top:40px; right:40px; border-left:0; border-bottom:0; }
+      .crop.bl{ bottom:40px; left:40px; border-right:0; border-top:0; }
+      .crop.br{ bottom:40px; right:40px; border-left:0; border-top:0; }
+
+      /* ===== type ===== */
+      .kicker{ font-family:"Pretendard",sans-serif; font-size:25px; letter-spacing:.02em; color:var(--point); font-weight:700; }
+      .kicker.en{ font-family:"OSP-DIN",sans-serif; font-size:27px; letter-spacing:.22em; }
+      .kicker-rule{ height:3px; width:78px; background:var(--point); transform-origin:left center; }
+      h1.head{ font-family:"Pretendard",sans-serif; font-weight:900; color:var(--ink);
+               font-size:124px; line-height:1.05; letter-spacing:-.02em; }
+      .sub{ font-family:"Pretendard",sans-serif; font-weight:500; color:var(--char); font-size:39px; line-height:1.5; }
+
+      .keycap{ display:inline-flex; align-items:center; justify-content:center; background:#fff;
+               border:3px solid var(--outline); border-radius:18px; box-shadow:0 7px 0 var(--outline), 0 12px 20px rgba(26,36,16,.18);
+               font-family:"OSP-DIN",sans-serif; color:var(--outline); font-weight:700; }
+
+      /* screenshot card (capture) */
+      .shot{ background:#fff; border:3px solid var(--outline); border-radius:8px; overflow:hidden;
+             box-shadow:0 6px 0 rgba(26,36,16,.16); }
+      .shot svg{ display:block; width:100%; height:100%; }
+
+      /* ===== Scene 1 ===== */
+      #s1 .copy{ position:absolute; left:140px; top:50%; transform:translateY(-50%); width:1020px; }
+      #s1 .k-row{ display:flex; align-items:center; gap:22px; margin-bottom:30px; }
+      #s1 .ghost{ position:absolute; right:-160px; top:50%; width:760px; height:760px; transform:translateY(-50%);
+                  border:9px solid var(--ink); border-radius:48% 48% 46% 46%; opacity:.06; }
+      #s1 .keys{ position:absolute; right:250px; top:38%; transform:translateY(-50%); display:flex; gap:18px; }
+      #s1 .keycap.big{ height:150px; font-size:62px; padding:0 30px; }
+      #s1 .marquee{ position:absolute; right:300px; top:54%; width:300px; height:200px;
+                    border:3px dashed var(--point); border-radius:4px; }
+      #s1 .mq-h{ position:absolute; width:16px; height:16px; background:#fff; border:3px solid var(--point); }
+      #s1 .mq-h.a{ left:-9px; top:-9px; } #s1 .mq-h.b{ right:-9px; top:-9px; }
+      #s1 .mq-h.c{ left:-9px; bottom:-9px; } #s1 .mq-h.d{ right:-9px; bottom:-9px; }
+      #s1 .flash{ position:absolute; right:300px; top:54%; width:300px; height:200px; background:#fff; border-radius:4px; opacity:0; }
+      #s1 .s1shot{ position:absolute; right:360px; top:58%; width:188px; height:128px; }
+
+      /* ===== Scene 2 ===== */
+      #s2 .copy{ position:absolute; left:140px; top:168px; width:980px; }
+      #s2 .sub{ margin-top:32px; max-width:780px; }
+      #s2 .stage{ position:absolute; right:120px; top:50%; transform:translateY(-50%); width:600px; height:560px; }
+      #s2 .qmark{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); font-family:"Pretendard"; font-weight:900;
+                  font-size:330px; color:var(--ink); opacity:.08; }
+      #s2 .shot{ position:absolute; width:212px; height:144px; }
+      #s2 .sc1{ left:60px;  top:70px;  transform:rotate(-9deg); }
+      #s2 .sc2{ left:250px; top:40px;  transform:rotate(6deg); }
+      #s2 .sc3{ left:120px; top:240px; transform:rotate(4deg); }
+      #s2 .sc4{ left:300px; top:250px; transform:rotate(-6deg); }
+
+      /* ===== Scene 3 — jar fill (peak) ===== */
+      #s3 .copy{ position:absolute; left:140px; top:50%; transform:translateY(-50%); width:840px; }
+      #s3 .hl-wrap{ position:relative; display:inline-block; }
+      #s3 .hl{ position:absolute; left:-10px; right:-10px; bottom:14px; height:44px; background:var(--lime);
+               opacity:.95; transform:scaleX(0); transform-origin:left center; z-index:-1; border-radius:4px; }
+      #s3 .jarzone{ position:absolute; right:210px; top:50%; transform:translateY(-50%); width:330px; height:470px; }
+      #s3 .glow{ position:absolute; inset:-70px -50px; border-radius:50%;
+                 background:radial-gradient(circle, rgba(176,187,81,.40), rgba(176,187,81,0) 66%); }
+      #s3 .jar{ position:absolute; left:0; top:0; width:330px; height:470px; }
+      #s3 .jar-lid{ position:absolute; left:50%; top:6px; transform:translateX(-50%); width:252px; height:54px;
+                    background:var(--gold); border:7px solid var(--outline); border-radius:12px; z-index:4; }
+      #s3 .jar-neck{ position:absolute; left:50%; top:52px; transform:translateX(-50%); width:212px; height:34px;
+                     background:var(--brine); border:7px solid var(--outline); border-top:0; z-index:1; }
+      #s3 .jar-glass{ position:absolute; left:12px; top:84px; width:306px; height:374px; background:var(--brine);
+                      border:8px solid var(--outline); border-radius:18px 18px 30px 30px; z-index:1; }
+      #s3 .jar-shine{ position:absolute; left:44px; top:120px; width:34px; height:250px; background:rgba(255,255,255,.30);
+                      border-radius:20px; transform:rotate(7deg); z-index:5; }
+      #s3 .pk{ position:absolute; width:118px; height:62px; z-index:2; }
+      #s3 .pk1{ left:40px; top:368px; transform:rotate(-6deg); }
+      #s3 .pk2{ left:158px; top:392px; transform:rotate(8deg); }
+      #s3 .fill-shot{ position:absolute; width:120px; height:80px; background:#fff; border:3px solid var(--outline);
+                      border-radius:7px; overflow:hidden; box-shadow:0 4px 0 rgba(26,36,16,.16); z-index:3; }
+      #s3 .fill-shot svg{ display:block; width:100%; height:100%; }
+      #s3 .stamp{ position:absolute; right:-6px; top:62px; width:142px; height:142px; border-radius:50%;
+                  border:4px solid var(--greendark); display:flex; align-items:center; justify-content:center; text-align:center;
+                  font-family:"Pretendard"; font-weight:900; font-size:36px; line-height:1.05; color:var(--greendark);
+                  background:rgba(241,242,224,.78); transform:rotate(-11deg); z-index:6; }
+
+      /* ===== Scene 4 ===== */
+      #s4 .head4{ position:absolute; left:140px; top:150px; }
+      #s4 .cols{ position:absolute; left:140px; right:140px; top:356px; display:flex; }
+      #s4 .col{ flex:1; padding:0 56px; position:relative; }
+      #s4 .col + .col{ border-left:2px solid rgba(40,64,28,.18); }
+      #s4 .num{ font-family:"OSP-DIN",sans-serif; font-weight:700; font-size:126px; line-height:1; color:var(--olive);
+                -webkit-text-stroke:2px var(--ink); }
+      #s4 .icon{ height:100px; margin:16px 0 26px; }
+      #s4 .clabel{ font-family:"Pretendard"; font-weight:800; font-size:46px; color:var(--ink); }
+      #s4 .cdesc{ font-family:"Pretendard"; font-weight:500; font-size:30px; color:var(--char); margin-top:14px; line-height:1.45; }
+
+      /* ===== Scene 5 ===== */
+      #s5 .center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+      #s5 .brandjar{ width:150px; height:172px; position:relative; }
+      #s5 .wordmark{ font-family:"OSP-DIN",sans-serif; font-weight:700; font-size:172px; letter-spacing:.03em; color:var(--ink);
+                     margin-top:24px; line-height:.9; }
+      #s5 .wordmark b{ color:var(--point); }
+      #s5 .tag{ font-family:"Pretendard"; font-weight:600; font-size:40px; color:var(--char); margin-top:18px; }
+      #s5 .cta{ margin-top:38px; background:var(--red); color:#fff; font-family:"Pretendard"; font-weight:800; font-size:38px;
+                padding:22px 52px; border-radius:999px; box-shadow:0 12px 26px rgba(188,63,36,.32); }
+      #s5 .meta{ font-family:"OSP-DIN",sans-serif; font-size:26px; letter-spacing:.10em; color:var(--ink); opacity:.6; margin-top:26px; }
+      #s5 .mascot{ position:absolute; left:110px; bottom:-12px; width:320px; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="26.5" data-width="1920" data-height="1080">
+
+      <!-- ===== SCENE 1 — cold open (capture) ===== -->
+      <div id="s1" class="scene">
+        <div class="ghost"></div>
+        <div class="copy">
+          <div class="k-row"><span class="kicker">맥 스크린샷 보관함</span><span class="kicker-rule"></span></div>
+          <h1 class="head s1-head">캡처한 모든 순간,</h1>
+        </div>
+        <div class="keys">
+          <span class="keycap big kc">⇧</span><span class="keycap big kc">⌥</span><span class="keycap big kc">S</span>
+        </div>
+        <div class="marquee s1-mq"><span class="mq-h a"></span><span class="mq-h b"></span><span class="mq-h c"></span><span class="mq-h d"></span></div>
+        <div class="flash s1-flash"></div>
+        <div class="shot s1shot s1-shot">
+          <svg viewBox="0 0 188 128"><rect width="188" height="128" fill="#D7E6F0"/><circle cx="145" cy="34" r="16" fill="var(--gold)"/><path d="M0,128 L52,66 L88,104 L134,56 L188,112 L188,128 Z" fill="#7E9B5A"/><path d="M0,128 L66,84 L116,124 Z" fill="#5E7A3E"/></svg>
+        </div>
+      </div>
+
+      <!-- ===== SCENE 2 — problem (lost screenshots) ===== -->
+      <div id="s2" class="scene">
+        <div class="copy">
+          <div class="k-row" style="margin-bottom:28px"><span class="kicker">예전 방식</span><span class="kicker-rule s2-rule"></span></div>
+          <h1 class="head s2-l1">캡처는 했는데,</h1>
+          <h1 class="head s2-l2" style="color:var(--red)">어디 갔지?</h1>
+          <p class="sub s2-sub">찍을 땐 좋았는데, 바탕화면은 스크린샷으로 테트리스 중. 정작 필요한 한 장은 실종.</p>
+        </div>
+        <div class="stage">
+          <div class="qmark s2-q">?</div>
+          <div class="shot sc1 s2-shot"><svg viewBox="0 0 212 144"><rect width="212" height="144" fill="#D7E6F0"/><circle cx="165" cy="36" r="17" fill="var(--gold)"/><path d="M0,144 L60,80 L100,118 L150,64 L212,124 L212,144 Z" fill="#7E9B5A"/></svg></div>
+          <div class="shot sc2 s2-shot"><svg viewBox="0 0 212 144"><rect width="212" height="144" fill="#EAD9C0"/><rect x="22" y="26" width="168" height="20" rx="6" fill="#B7C07A"/><rect x="22" y="58" width="120" height="14" rx="5" fill="#C9CBB0"/><rect x="22" y="82" width="150" height="14" rx="5" fill="#C9CBB0"/></svg></div>
+          <div class="shot sc3 s2-shot"><svg viewBox="0 0 212 144"><rect width="212" height="144" fill="#DDE7CF"/><circle cx="106" cy="72" r="40" fill="none" stroke="#8AA15E" stroke-width="10"/><path d="M134,100 L168,128" stroke="#8AA15E" stroke-width="12" stroke-linecap="round"/></svg></div>
+          <div class="shot sc4 s2-shot"><svg viewBox="0 0 212 144"><rect width="212" height="144" fill="#D7E6F0"/><path d="M0,144 L70,70 L120,120 L212,52 L212,144 Z" fill="#7E9B5A"/><circle cx="48" cy="40" r="14" fill="var(--gold)"/></svg></div>
+        </div>
+      </div>
+
+      <!-- ===== SCENE 3 — reveal: jar fills (peak) ===== -->
+      <div id="s3" class="scene">
+        <div class="copy">
+          <div class="k-row" style="margin-bottom:30px"><span class="kicker en s3-kick">WITH PICKLE</span><span class="kicker-rule s3-rule"></span></div>
+          <h1 class="head s3-l1">찍는 즉시,</h1>
+          <h1 class="head s3-l2">피클병에 <span class="hl-wrap"><span class="hl s3-hl"></span>차곡차곡</span>.</h1>
+        </div>
+        <div class="jarzone">
+          <div class="glow s3-glow"></div>
+          <div class="jar s3-jar">
+            <div class="jar-glass"></div>
+            <div class="jar-neck"></div>
+            <div class="jar-lid"></div>
+            <div class="jar-shine"></div>
+            <div class="pk pk1 s3-pk"><svg viewBox="0 0 120 64"><path d="M12,32 Q14,11 42,11 L82,11 Q110,13 108,33 Q110,55 82,55 L42,55 Q10,55 12,32 Z" fill="var(--cuke)" stroke="var(--outline)" stroke-width="5"/><circle cx="46" cy="29" r="3" fill="var(--outline)"/><circle cx="64" cy="29" r="3" fill="var(--outline)"/><path d="M44,39 Q55,47 66,39" stroke="var(--outline)" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div>
+            <div class="pk pk2 s3-pk"><svg viewBox="0 0 120 64"><path d="M12,32 Q14,11 42,11 L82,11 Q110,13 108,33 Q110,55 82,55 L42,55 Q10,55 12,32 Z" fill="var(--cuke)" stroke="var(--outline)" stroke-width="5"/><circle cx="46" cy="29" r="3" fill="var(--outline)"/><circle cx="64" cy="29" r="3" fill="var(--outline)"/><path d="M44,39 Q55,47 66,39" stroke="var(--outline)" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div>
+          </div>
+          <div class="stamp s3-stamp" style="opacity:0">신선<br />보관</div>
+        </div>
+      </div>
+
+      <!-- ===== SCENE 4 — three strengths ===== -->
+      <div id="s4" class="scene">
+        <div class="head4"><div class="k-row" style="margin-bottom:0"><span class="kicker s4-kick">왜, 피클일까</span><span class="kicker-rule s4-rule"></span></div></div>
+        <div class="cols">
+          <div class="col s4-col">
+            <div class="num">01</div>
+            <svg class="icon" viewBox="0 0 120 120" width="100" height="100">
+              <rect x="34" y="18" width="52" height="16" rx="4" fill="var(--gold)" stroke="var(--outline)" stroke-width="5"/>
+              <rect x="29" y="40" width="62" height="66" rx="13" fill="var(--brine)" stroke="var(--outline)" stroke-width="6"/>
+              <path d="M44,70 q16,-9 32,0" stroke="var(--cuke)" stroke-width="9" fill="none" stroke-linecap="round"/>
+              <path d="M44,86 q16,-9 32,0" stroke="var(--cuke)" stroke-width="9" fill="none" stroke-linecap="round"/>
+            </svg>
+            <div class="clabel">자동 저장</div>
+            <div class="cdesc">찍으면 바로 피클병으로.</div>
+          </div>
+          <div class="col s4-col">
+            <div class="num">02</div>
+            <svg class="icon" viewBox="0 0 120 120" width="100" height="100">
+              <path d="M30,92 L74,48 L90,64 L46,108 L26,112 Z" fill="var(--lime)" stroke="var(--outline)" stroke-width="6" stroke-linejoin="round"/>
+              <path d="M74,48 L86,36 a9 9 0 0 1 13,13 L90,64 Z" fill="var(--gold)" stroke="var(--outline)" stroke-width="6" stroke-linejoin="round"/>
+              <path d="M30,104 L42,100" stroke="var(--outline)" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+            <div class="clabel">1초 편집</div>
+            <div class="cdesc">블러·펜·크롭, 그 자리에서.</div>
+          </div>
+          <div class="col s4-col">
+            <div class="num">03</div>
+            <svg class="icon" viewBox="0 0 120 120" width="100" height="100">
+              <rect x="10" y="28" width="100" height="22" rx="6" fill="#fff" stroke="var(--outline)" stroke-width="5"/>
+              <rect x="80" y="33" width="12" height="12" rx="2" fill="var(--cuke)"/><rect x="96" y="33" width="10" height="12" rx="2" fill="var(--blue)"/>
+              <rect x="46" y="62" width="36" height="46" rx="9" fill="var(--brine)" stroke="var(--outline)" stroke-width="5"/>
+              <rect x="50" y="55" width="28" height="11" rx="3" fill="var(--gold)" stroke="var(--outline)" stroke-width="4"/>
+            </svg>
+            <div class="clabel">메뉴바 보관함</div>
+            <div class="cdesc">메뉴바에서 슥- 꺼내 쓰기.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SCENE 5 — CTA / logo ===== -->
+      <div id="s5" class="scene">
+        <img class="mascot s5-mascot" src="assets/mascot.png" alt="" />
+        <div class="center">
+          <div class="brandjar s5-jar">
+            <svg viewBox="0 0 150 172" width="150" height="172">
+              <rect x="40" y="6" width="70" height="22" rx="6" fill="var(--gold)" stroke="var(--outline)" stroke-width="6"/>
+              <rect x="22" y="34" width="106" height="130" rx="22" fill="var(--brine)" stroke="var(--outline)" stroke-width="7"/>
+              <path d="M44,86 q31,-16 62,0" stroke="var(--cuke)" stroke-width="13" fill="none" stroke-linecap="round"/>
+              <path d="M44,116 q31,-16 62,0" stroke="var(--cuke)" stroke-width="13" fill="none" stroke-linecap="round"/>
+              <rect x="44" y="52" width="14" height="86" rx="7" fill="rgba(255,255,255,.34)"/>
+            </svg>
+          </div>
+          <div class="wordmark s5-word">PIC<b>KLE</b></div>
+          <div class="tag s5-tag">스크린샷을 피클처럼, 새콤하게 절여두세요.</div>
+          <div class="cta s5-cta">무료 다운로드</div>
+          <div class="meta s5-meta">pizza-clip.com/pickle · macOS 13+ · FREE</div>
+        </div>
+      </div>
+
+      <!-- ===== chrome ===== -->
+      <audio id="bgm" src="assets/bgm.m4a" data-start="0" data-duration="26.5" data-track-index="9" data-volume="0.85" crossorigin="anonymous"></audio>
+
+      <div class="chrome">
+        <svg class="grain" width="1920" height="1080"><filter id="gr"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter><rect width="1920" height="1080" filter="url(#gr)"/></svg>
+        <div class="crop tl"></div><div class="crop tr"></div><div class="crop bl"></div><div class="crop br"></div>
+        <div class="slate"><span>PICKLE</span><span class="dot"></span><span>MACOS SCREENSHOTS</span></div>
+        <div class="urltag">pizza-clip.com/pickle</div>
+        <div class="progress prog"></div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      /* generate the jar's stacking screenshots synchronously (deterministic) */
+      (function buildJar(){
+        const jar = document.querySelector(".s3-jar");
+        if (!jar) return;
+        const shot =
+          '<svg viewBox="0 0 120 80"><rect width="120" height="80" fill="#D7E6F0"/>' +
+          '<circle cx="92" cy="22" r="10" fill="#E5BD68"/>' +
+          '<path d="M0,80 L34,44 L56,66 L86,38 L120,72 L120,80 Z" fill="#7E9B5A"/>' +
+          '<path d="M0,80 L42,54 L72,78 Z" fill="#5E7A3E"/></svg>';
+        const slots = [
+          {t:344,l:58,r:-7},{t:312,l:150,r:6},{t:272,l:80,r:-4},{t:230,l:150,r:8},{t:190,l:98,r:-3}
+        ];
+        slots.forEach((s)=>{
+          const d=document.createElement("div");
+          d.className="fill-shot s3-fillshot";
+          d.style.top=s.t+"px"; d.style.left=s.l+"px"; d.dataset.rot=s.r;
+          d.innerHTML=shot; jar.appendChild(d);
+        });
+      })();
+
+      const tl = gsap.timeline({ paused: true });
+      const E = { out:"power3.out", soft:"power2.out", expo:"expo.out", back:"back.out(1.5)", inE:"power2.in", sine:"sine.inOut" };
+
+      tl.fromTo(".prog", { scaleX:0 }, { scaleX:1, duration:26.5, ease:"none" }, 0);
+
+      /* ===== SCENE 1 (0–4.5) ===== */
+      tl.fromTo("#s1 .kicker", { opacity:0, y:18 }, { opacity:1, y:0, duration:.5, ease:E.out }, 0.3);
+      tl.fromTo("#s1 .kicker-rule", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 0.45);
+      tl.fromTo(".s1-head", { opacity:0, y:46 }, { opacity:1, y:0, duration:.9, ease:E.out }, 0.55);
+      tl.fromTo("#s1 .keys", { opacity:0, y:30, scale:.9 }, { opacity:1, y:0, scale:1, duration:.7, ease:E.back }, 0.95);
+      tl.fromTo(".s1-mq", { opacity:0, scale:1.3 }, { opacity:1, scale:1, duration:.55, ease:E.expo }, 1.3);
+      tl.to("#s1 .kc", { y:10, duration:.12, ease:E.inE }, 1.9);
+      tl.to("#s1 .kc", { y:0, duration:.18, ease:E.back }, 2.05);
+      tl.fromTo(".s1-flash", { opacity:0 }, { opacity:.85, duration:.08, ease:E.out }, 1.98);
+      tl.to(".s1-flash", { opacity:0, duration:.3, ease:E.soft }, 2.08);
+      tl.set(".s1-mq", { opacity:0 }, 2.06);
+      tl.fromTo(".s1-shot", { opacity:0, scale:.5, y:20 }, { opacity:1, scale:1, y:0, duration:.5, ease:E.back }, 2.06);
+      tl.to(".s1-shot", { y:-150, x:60, duration:1.1, ease:E.soft }, 2.7);
+      tl.to("#s1 .ghost", { rotation:14, duration:4.2, ease:E.sine }, 0);
+
+      /* ===== SCENE 2 (4.5–9.0) ===== */
+      tl.fromTo("#s2", { opacity:0, scale:1.025, filter:"blur(10px)" }, { opacity:1, scale:1, filter:"blur(0px)", duration:.7, ease:E.soft }, 4.2);
+      tl.fromTo("#s2 .kicker", { opacity:0, y:16 }, { opacity:1, y:0, duration:.5, ease:E.out }, 4.55);
+      tl.fromTo(".s2-rule", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 4.6);
+      tl.fromTo(".s2-l1", { opacity:0, y:40 }, { opacity:1, y:0, duration:.7, ease:E.out }, 4.7);
+      tl.fromTo(".s2-l2", { opacity:0, y:40 }, { opacity:1, y:0, duration:.7, ease:E.out }, 4.9);
+      tl.fromTo(".s2-sub", { opacity:0, y:24 }, { opacity:1, y:0, duration:.6, ease:E.soft }, 5.5);
+      tl.fromTo(".s2-q", { opacity:0, scale:.7 }, { opacity:.08, scale:1, duration:.8, ease:E.soft }, 4.8);
+      tl.fromTo(".s2-shot", { opacity:0, scale:.7, y:30 }, { opacity:1, scale:1, y:0, duration:.55, ease:E.back, stagger:.12 }, 4.85);
+      // one screenshot gets "lost" — sinks & greys
+      tl.to(".sc4", { y:120, opacity:0, filter:"grayscale(1)", rotation:-16, duration:1.0, ease:E.inE }, 6.6);
+      tl.set(".sc4", { opacity:0 }, 7.7);
+
+      /* ===== SCENE 3 (9.0–15.5) — PEAK ===== */
+      tl.fromTo("#s3", { opacity:0, scale:1.03, filter:"blur(12px)" }, { opacity:1, scale:1, filter:"blur(0px)", duration:.7, ease:E.expo }, 8.7);
+      tl.fromTo(".s3-kick", { opacity:0, y:16 }, { opacity:1, y:0, duration:.5, ease:E.out }, 8.95);
+      tl.fromTo(".s3-rule", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 9.0);
+      tl.fromTo(".s3-l1", { opacity:0, y:42 }, { opacity:1, y:0, duration:.7, ease:E.out }, 9.05);
+      tl.fromTo(".s3-l2", { opacity:0, y:42 }, { opacity:1, y:0, duration:.7, ease:E.out }, 9.3);
+      tl.fromTo(".s3-hl", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 9.95);
+      tl.fromTo(".s3-glow", { opacity:0, scale:.7 }, { opacity:1, scale:1, duration:.7, ease:E.soft }, 9.2);
+      tl.fromTo(".s3-jar .jar-glass, .s3-jar .jar-neck, .s3-jar .jar-lid, .s3-jar .jar-shine",
+        { opacity:0, y:24 }, { opacity:1, y:0, duration:.6, ease:E.back, stagger:.06 }, 9.3);
+      tl.fromTo(".s3-pk", { opacity:0, scale:.5 }, { opacity:1, scale:1, duration:.5, ease:E.back, stagger:.12 }, 9.7);
+      // screenshots drop into the jar and stack
+      tl.fromTo(".s3-fillshot",
+        { opacity:0, y:-300, rotation:(i,t)=> parseFloat(t.dataset.rot)-14 },
+        { opacity:1, y:0, rotation:(i,t)=> parseFloat(t.dataset.rot), duration:.5, ease:E.back, stagger:.18 }, 10.0);
+      tl.fromTo(".s3-stamp", { opacity:0, scale:.4, rotation:16 }, { opacity:1, scale:1, rotation:-11, duration:.5, ease:"back.out(2.2)" }, 11.9);
+      tl.to(".s3-glow", { scale:1.06, duration:1.6, ease:E.sine, repeat:2, yoyo:true }, 11.6);
+
+      /* ===== SCENE 4 (15.5–21.0) ===== */
+      tl.fromTo("#s4", { opacity:0, scale:1.02, filter:"blur(8px)" }, { opacity:1, scale:1, filter:"blur(0px)", duration:.6, ease:E.soft }, 15.2);
+      tl.fromTo(".s4-kick", { opacity:0, y:16 }, { opacity:1, y:0, duration:.5, ease:E.out }, 15.45);
+      tl.fromTo(".s4-rule", { scaleX:0 }, { scaleX:1, duration:.5, ease:E.expo }, 15.5);
+      tl.fromTo(".s4-col", { opacity:0, y:54 }, { opacity:1, y:0, duration:.6, ease:E.out, stagger:.18 }, 15.7);
+      tl.fromTo("#s4 .num", { opacity:0, scale:.6 }, { opacity:1, scale:1, duration:.55, ease:E.back, stagger:.18 }, 15.85);
+
+      /* ===== SCENE 5 (21.0–26.5) ===== */
+      tl.fromTo("#s5", { opacity:0, scale:1.02, filter:"blur(10px)" }, { opacity:1, scale:1, filter:"blur(0px)", duration:.7, ease:E.expo }, 20.7);
+      tl.fromTo(".s5-jar", { opacity:0, y:40, scale:.8 }, { opacity:1, y:0, scale:1, duration:.7, ease:E.back }, 21.05);
+      tl.fromTo(".s5-word", { opacity:0, y:30 }, { opacity:1, y:0, duration:.7, ease:E.out }, 21.35);
+      tl.fromTo(".s5-tag", { opacity:0, y:22 }, { opacity:1, y:0, duration:.6, ease:E.soft }, 21.75);
+      tl.fromTo(".s5-cta", { opacity:0, y:22, scale:.92 }, { opacity:1, y:0, scale:1, duration:.6, ease:E.back }, 22.1);
+      tl.fromTo(".s5-meta", { opacity:0 }, { opacity:.6, duration:.6, ease:E.soft }, 22.45);
+      tl.fromTo(".s5-mascot", { opacity:0, y:120, rotation:8 }, { opacity:1, y:0, rotation:0, duration:.8, ease:E.back }, 22.4);
+      tl.to(".s5-cta", { scale:1.04, duration:1.1, ease:E.sine, repeat:1, yoyo:true }, 23.4);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

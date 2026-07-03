@@ -32,3 +32,15 @@ guide/pizza store.jpg
 
 # 리뉴얼 디자인 원본(대용량 283MB) — 레포 제외. 축소본은 guide/renewal/ 에 커밋.
 site-renewal/
+
+# 가이드 폴더의 대용량 원본/작업 미디어 — 로컬 보관, 커밋 제외.
+# (사이트는 public/ 의 축소본을 사용. 원본 repo에서도 커밋하지 않던 파일들)
+guide/*.mp4
+guide/*.mov
+guide/howto_guide/
+guide/og_image1.png
+guide/og_image2.jpg
+guide/og_image3.jpg
+
+# OMC tooling state
+.omc/

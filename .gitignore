@@ -1,14 +1,14 @@
-.DS_Store
-build/
-DerivedData/
-*.xcodeproj/
-.swiftpm/
-.build/
-xcuserdata/
-dist/
+# ─────────────────────────────────────────────────────────────
+#  pizza-clip.com monorepo — 저장소 전역 무시 규칙
+#  (각 앱/웹의 상세 규칙은 apps/*/.gitignore 와 web/.gitignore 에 있음)
+# ─────────────────────────────────────────────────────────────
 
-# OMC tooling state (session memory, plans, logs)
+# macOS
+.DS_Store
+
+# OMC / Claude Code 툴링 상태 (소스 아님: 세션 메모리·플랜·로그)
 .omc/
 
-# Claude Code 런타임 부산물 (스케줄러 lock 등)
+# Claude Code 런타임 부산물 · 개인 로컬설정 (소스 아님)
 .claude/scheduled_tasks.lock
+.claude/settings.local.json

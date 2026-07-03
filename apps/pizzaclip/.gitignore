@@ -1,0 +1,17 @@
+.DS_Store
+build/
+DerivedData/
+*.xcodeproj/
+.swiftpm/
+.build/
+xcuserdata/
+dist/
+
+# OMC tooling state (session memory, plans, logs)
+.omc/
+
+# Claude Code 런타임 부산물 (스케줄러 lock 등)
+.claude/scheduled_tasks.lock
+
+# 렌더링된 인트로 영상 출력물 (재생성 가능) — 소스는 추적, 렌더 결과만 제외
+video/**/renders/
