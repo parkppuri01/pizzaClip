@@ -4,6 +4,48 @@
 
 ---
 
+## 세션 3 — 2026-07-04: 1.0.1 다듬기 (⚠️ 진행 중 · 미배포)
+
+> 루트 `handoff.md`에 임시로 있던 내용을 이관. **아직 안 끝났고 배포 안 함.** 다음 hotsauce 세션은 여기서 이어받는다.
+
+### 마지막으로 한 일
+- **커밋됨**: 배터리 충전 시 왼쪽 아이콘을 플러그(`bat2_icon`)로 전환 (`1de0c42`, repo 버전은 **1.0.0 그대로**). pxd 숨김레이어(plug-svgrepo-com) 기반.
+- **미커밋(로컬/테스트빌드 1.0.1빌드4에만 반영)**:
+  - 배터리 조건 `IsCharging` → **`ExternalConnected`(꽂힘)** 로 변경 (최적화충전으로 IsCharging이 꽂혀도 자주 false).
+  - 타이틀 폰트·아이콘 축소 (27→22, 64→48).
+  - 사이드바 아이콘 5개 **62px·x=126** 정렬 (활성상태보기와 통일).
+  - 앱 아이콘 `hotsauce_mainicon.png`로 교체 (`AppIcon.icns` 재생성).
+- 테스트 빌드 **`1.0.1(빌드4)`** = `/Applications/HotSauce.app`에 설치·실행 중. **배포 안 함**(공증·appcast·push 없음). `project.yml`은 여전히 1.0.0(빌드타임 override로 테스트).
+
+### 다음에 할 일 (바로 착수)
+1. **남은 요청 3개 구현** (`apps/hotsauce/HotSauce/`):
+   - **네트워크 이름(Wi-Fi SSID)** 한 줄 추가 → `Metrics/Snapshot.swift`의 `NetworkSnapshot`에 `ssid` 필드 + `Metrics/NetworkSampler.swift`에서 `CWWiFiClient.shared().interface()?.ssid()` 캡처 + `Popup/PopupView.swift`의 `networkSection`에 표시(로컬IP 근처, 레이아웃 빡빡하니 배치 주의).
+   - **자물쇠 잠금** → 헤더 우상단 토글. 잠금 시 `MenuBar/FocusablePanel.swift`의 `resignKey`가 `orderOut` 안 하게(잠금 상태를 `MetricsEngine` 등 공유 상태로 두고 뷰·패널이 함께 참조).
+   - **병 폭발 이스터에그** → 5개 섹션(cpu/memory/disk/battery/network) 중 `.bad` 4개+ 일 때 트리거. **피클/피자클립 이스터에그 구현부터 재조사**. 병 이미지는 `DesignAssets/title_icon.png`(TEAM JAM 병) 또는 `menubar_1.png` 재사용 가능.
+2. **앱 아이콘 둥근 모서리** 여부 결정 — 지금 `hotsauce_mainicon.png`가 꽉 찬 정사각형이라 독/파인더에서 각져 보임. 사용자 확인 후 필요하면 마스크 적용해 재생성.
+3. 완료·검증 후 **미커밋 앱 변경 전부 커밋**: `BatterySampler.swift`·`Snapshot.swift`·`DesignTokens.swift`·`PopupView.swift`·`Resources/AppIcon.icns`·`assets/HotSauceAppIcon.png` 등.
+
+### 주의사항 / 컨텍스트
+- **배터리 아이콘 로직**: `battery.externalConnected`(꽂힘) 기준. `IsCharging`은 최적화충전 때문에 꽂혀도 자주 false → 안 씀. `bat2_icon`(플러그)은 `bat_icon`과 픽셀 동일(1024×833). `Assets.exists()` 폴백 있어 에셋 없어도 안 깨짐. (사용자 "플러그가 작아 보인다" → 배터리 모양이 원래 납작(높이 81%)해서 그런 것, 크기는 동일 — "그대로 두기" 결정.)
+- **🚫 computer-use로 팝업 스크린샷 불가** — LSUIElement(메뉴바 전용)라 허용목록에 못 올림. **팝업 UI 검증은 사용자가 직접** 메뉴바 병 아이콘 클릭. (좌표 기반 수정 후 사용자 확인 루프.)
+- **테스트 빌드/설치**: `cd apps/hotsauce && xcodebuild -project HotSauce.xcodeproj -scheme HotSauce -configuration Release MARKETING_VERSION=1.0.1 CURRENT_PROJECT_VERSION=N CODE_SIGNING_ALLOWED=NO build`(컴파일 체크) 또는 서명 포함(`CODE_SIGNING_ALLOWED` 빼면 Developer ID). 설치: `pkill -x HotSauce; ditto <DerivedData>/…/Release/HotSauce.app /Applications/HotSauce.app; open`. 로컬 실행은 공증 없어도 OK(`spctl` reject는 정상 — quarantine 없어 실행됨).
+- **배포는 아직**: 앱 릴리스(버전 bump→공증→DMG→appcast→push, 8단계)는 사용자가 따로 요청 시. 웹은 master push=Vercel 자동배포.
+- **디자인 원본 `apps/hotsauce/hotsauce.pxd`**: 실은 zip(내부 `metadata.info`=SQLite + `data/UUID`=`PTBitmapBuffer` 비트맵). SQLite `document_layers`/`layer_info`로 레이어 이름·flags(하위비트=visible) 조회 가능. 벡터 도형(type 3)은 비트맵 캐시 없어 직접 추출 불가 → 필요 아이콘은 사용자가 Pixelmator로 내보내(`내부아이콘/`은 gitignore, 번들은 `HotSauce/Resources/DesignAssets/`).
+- **⚠️ NBSP 주의**: `NavMinimal.astro` 등에 non-breaking space(U+00A0) 섞여 있어 Edit 매칭 실패 가능 → Python 라인 교체 우회.
+- ~~(구 경고) pickle 미커밋 변경~~ → **해소됨**: pickle은 이 기간에 **1.3.2 배포 완료**([`../../pickle/docs/HANDOFF.md`](../../pickle/docs/HANDOFF.md)).
+
+---
+
+## 세션 2 — 2026-07-04: 웹 신설 + 1.0.0 공식 배포
+
+- **웹 페이지 신설**: pizza-clip.com 모노레포 `web/`(Astro)에 핫소스를 세 번째 앱으로 추가. 시안(`web/hotsauce_page.png`) 그대로 재현 — 크림 히어로(틸 심전도-병 포스터) → 슬레이트 설명카드 → 빨강 스티커섹션 → 샌드 CTA. 한/영 공용(`components/pages/HotSaucePage.astro` + `i18n/hotsauce.ts`).
+- **3앱 확장**: 인트로 3번째 카드, 네비 크로스링크를 "상대 1개 → 나머지 앱 전부"로 개조(피자/피클 페이지 회귀 0 검증 — dev+빌드+프로덕션), 정보 3열 릴리스노트(v1.0.0), llms.txt 3앱 갱신, 색토큰(`--hs-teal/slate/red/sand/poster/ink`)·미들웨어 언어분기 추가.
+- **1.0.0 첫 공식 배포**: `project.yml` 0.1.0→1.0.0(빌드1→2) → `release-test-dmg.sh`로 공증 DMG(앱+DMG 2회 Accepted·staple) → `sparkle-appcast.sh`로 EdDSA appcast → `web/public/hotsauce/`에 DMG+appcast 복사 → `consts.ts` `HOTSAUCE_RELEASED=true` → 커밋 `516d1e4` push → Vercel 배포 → 프로덕션 검증(핫소스 URL 200·언어 자동분기·기존 페이지 회귀0).
+- **자동업데이트**: 팀원 0.1.0(빌드1) 설치자는 1.0.0(빌드2)으로 자동 업데이트됨.
+- 웹쪽 상세(앱 추가 패턴·릴리스 절차·NBSP 주의)는 모노레포 루트 `handoff.md` 참고.
+
+---
+
 ## 세션 1 후반 — 2026-07-02 밤: 사용자 피드백 반영
 
 - **병 매핑 사용자 확정**: 기본(쾌적)=빨강, 중부하=노랑, 고부하=레인보우 — 기존 구현 그대로, 종결.
