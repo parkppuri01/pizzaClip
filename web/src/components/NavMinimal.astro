@@ -78,7 +78,7 @@ const crossLinks = isAppTheme
   .navm__cross:hover { opacity: 1; transform: translateY(-1px); text-decoration: underline; text-underline-offset: 3px; }
   .navm__cross--pickle { color: var(--pk-olive-ink); font-family: "Alfa Slab One", var(--font-en); letter-spacing: 0; }
   .navm__cross--pizza  { color: var(--color-point); }
-  .navm__cross--hotsauce { color: var(--hs-teal); }
+  .navm__cross--hotsauce { color: var(--hs-teal); font-family: "Futura", var(--font-en); font-weight: 700; letter-spacing: 0.01em; }
 
   /* ── 인트로: 떠 있는 크림 바(둥근 사각) ── */
   .navm--intro { padding: clamp(0.75rem, 2vw, 1.25rem) clamp(0.75rem, 2.5vw, 1.75rem) 0; }
@@ -135,7 +135,8 @@ const crossLinks = isAppTheme
     font-size: clamp(1.02rem, 3.2vw, 1.42rem);
   }
   .navm__logo--pizza { color: var(--color-point); letter-spacing: 0.04em; }
-  .navm__logo--hotsauce { color: var(--hs-teal); letter-spacing: 0.03em; }
+  /* 핫소스 로고 = Futura Bold (애플 시스템 폰트, 비-애플 환경은 --font-en 폴백) */
+  .navm__logo--hotsauce { color: var(--hs-teal); font-family: "Futura", var(--font-en); font-weight: 700; letter-spacing: 0.02em; }
   .navm__logo--text:hover, .navm__logo--pizza:hover, .navm__logo--hotsauce:hover { opacity: 0.8; }
 
   /* 아주 좁은 화면: 앱 3개 체제라 크로스링크가 2개 → 폰트·여백 압축 + 화살표 생략으로 한 줄 유지 */
@@ -149,6 +150,9 @@ const crossLinks = isAppTheme
       border-left-width: 1.5px;
     }
     .navm__cross--pickle { letter-spacing: 0; }
+    /* Futura는 OSP-DIN(초압축)보다 폭이 ~2배라 좁은 화면에서 겹침 → 핫소스 워드마크만 축소해 한 줄 유지 */
+    .navm__logo--hotsauce { font-size: 0.9rem; letter-spacing: 0.01em; }
+    .navm__cross--hotsauce { font-size: 0.56rem; letter-spacing: 0; }
     /* 좁은 화면에선 '↗' 를 빼 폭을 아낀다(데스크톱은 유지) */
     .navm__cross::after { content: ""; margin-left: 0; }
   }
