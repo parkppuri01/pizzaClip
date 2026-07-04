@@ -32,10 +32,10 @@ export const PICKLE_DESC =
 // ── 핫소스(Hot Sauce) ──
 // 모노레포(pizzaClip) 안에만 존재 — 전용 저장소가 없어 GitHub 은 모노레포로 링크.
 export const HOTSAUCE_GITHUB_URL = "https://github.com/parkppuri01/pizzaClip";
-// 1.0.0 정식 출시 — DMG 는 pizza-clip.com 에 직접 호스팅(web/public/hotsauce/).
+// 1.1.0 — DMG 는 pizza-clip.com 에 직접 호스팅(web/public/hotsauce/).
 // 새 버전 낼 때 아래 파일명만 갱신하면 됨.
 export const HOTSAUCE_RELEASED = true;
-export const HOTSAUCE_DOWNLOAD_URL = "/hotsauce/HotSauce-1.0.0.dmg";
+export const HOTSAUCE_DOWNLOAD_URL = "/hotsauce/HotSauce-1.1.0.dmg";
 export const HOTSAUCE_TITLE = "Hot Sauce";
 export const HOTSAUCE_DESC =
   "맥이 얼마나 열심히 일하는지 메뉴바에서 보여주는 macOS 시스템 모니터 앱. CPU·메모리·배터리·네트워크를 한눈에.";

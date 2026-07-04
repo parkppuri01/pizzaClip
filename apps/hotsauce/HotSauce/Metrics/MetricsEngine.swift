@@ -15,6 +15,19 @@ final class MetricsEngine: ObservableObject {
         didSet { if isPopupVisible { refreshHeavy() } }
     }
 
+    /// 이스터에그: 위험(빨강) 얼굴이 임계치 이상이면 값이 바뀌고, PopupView 의
+    /// HotSauceBurst 가 이를 구독해 폭발을 재생한다. nil = 폭발 없음.
+    @Published private(set) var burstID: UUID?
+    /// 현재 과부하(빨강 4개 이상) 상태인지 — 팝업 열 때 재생 판단에 쓴다.
+    private(set) var isOverloaded = false
+    /// 빨강 얼굴이 몇 개부터 폭발할지(5개 중). 튜닝은 여기만 바꾸면 된다.
+    private let overloadThreshold = 4
+
+    /// 팝업을 열 때 호출 — 이미 과부하 상태면 폭발을 한 번 재생한다.
+    func replayBurstIfOverloaded() {
+        if isOverloaded { burstID = UUID() }
+    }
+
     private let cpuSampler = CPUSampler()
     private let memorySampler = MemorySampler()
     private let diskSampler = DiskSampler()
@@ -62,6 +75,19 @@ final class MetricsEngine: ObservableObject {
             lastReportedState = state
             onStateChange?(state)
         }
+
+        // 이스터에그: 5개 얼굴 중 빨강(.bad) 개수가 임계치 이상이면 폭발.
+        // 위험에 "진입하는 순간" + 팝업이 열려 있을 때만 즉발(닫혀 있으면 열 때 재생).
+        let badCount = [snapshot.cpu.state, snapshot.memory.state, snapshot.disk.state,
+                        snapshot.battery.state, snapshot.network.state]
+                        .filter { $0 == .bad }.count
+        let nowOverloaded = badCount >= overloadThreshold
+        if nowOverloaded {
+            if !isOverloaded && isPopupVisible { burstID = UUID() }
+        } else {
+            burstID = nil
+        }
+        isOverloaded = nowOverloaded
     }
 
     private func refreshHeavy() {

@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import Sparkle
+import CoreLocation
 
 /// 조립 담당(composition root): 지표 엔진, 메뉴바 아이템, 설정 창, 자동 업데이트.
 @main
@@ -11,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemController: StatusItemController?
     private let settingsController = SettingsWindowController()
     private var updaterController: SPUStandardUpdaterController?
+    private let locationManager = CLLocationManager()
 
     static func main() {
         let app = NSApplication.shared
@@ -23,6 +25,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+        // 완전 자동 업데이트: 자동 확인 + 자동 다운로드/설치를 코드로도 못박는다
+        // (Info.plist 의 SUEnableAutomaticChecks / SUAutomaticallyUpdate 와 이중 안전장치).
+        updaterController?.updater.automaticallyChecksForUpdates = true
+        updaterController?.updater.automaticallyDownloadsUpdates = true
+
+        // Wi-Fi 이름(SSID)은 macOS 14+에서 위치권한이 있어야 읽힌다. 켤 때 한 번 요청.
+        // 허용하면 팝업 네트워크 섹션에 이름이 뜨고, 거부하면 "—"로 안전하게 표시된다.
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
 
         let statusItemController = StatusItemController(engine: engine)
         statusItemController.onOpenSettings = { [weak self] in
@@ -78,4 +89,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         engine.stop()
     }
+}
+
+extension AppDelegate: CLLocationManagerDelegate {
+    // 델리게이트가 있어야 권한 요청 프롬프트가 뜬다. 권한이 허용되면 다음 네트워크
+    // 샘플부터 SSID 가 자연히 채워지므로 별도 처리는 필요 없다.
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {}
 }

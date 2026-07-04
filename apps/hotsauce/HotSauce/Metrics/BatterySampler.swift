@@ -40,6 +40,7 @@ final class BatterySampler {
 
         snapshot.cycleCount = props["CycleCount"] as? Int
         snapshot.isCharging = (props["IsCharging"] as? Bool) ?? false
+        snapshot.externalConnected = (props["ExternalConnected"] as? Bool) ?? false
         return snapshot
     }
 }

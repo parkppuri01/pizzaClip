@@ -6,6 +6,8 @@ import AppKit
 struct PopupView: View {
     @ObservedObject var engine: MetricsEngine
     var onOpenSettings: () -> Void = {}
+    var onLockChanged: (Bool) -> Void = { _ in }
+    @State private var isLocked = false
 
     var body: some View {
         let snap = engine.snapshot
@@ -24,6 +26,22 @@ struct PopupView: View {
             networkSection(snap.network)
 
             footer
+
+            // 자물쇠: 헤더 우상단. 잠그면 포커스를 잃어도 팝업이 안 닫힌다.
+            Image(systemName: isLocked ? "lock.fill" : "lock.open")
+                .font(.system(size: DS.u(26)))
+                .foregroundColor(DS.text)
+                .placedCenter(845, 41.4, w: 34, h: 34)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    isLocked.toggle()
+                    onLockChanged(isLocked)
+                }
+
+            // 이스터에그 폭발 오버레이 (맨 위 레이어, 클릭 방해 안 함)
+            HotSauceBurst(trigger: engine.burstID)
+                .frame(width: DS.popupSize.width, height: DS.popupSize.height)
+                .allowsHitTesting(false)
         }
         .frame(width: DS.popupSize.width, height: DS.popupSize.height)
         .clipShape(RoundedRectangle(cornerRadius: DS.u(DS.cornerRadius), style: .continuous))
@@ -36,11 +54,11 @@ struct PopupView: View {
             Image(nsImage: Assets.image("title_icon"))
                 .resizable()
                 .scaledToFit()
-                .placedCenter(52, 41.4, w: 64, h: 64)
+                .placedCenter(50, 41.4, w: 48, h: 48)   // 사용자 요청으로 축소 (64→48)
             Text(L("Hot sauce  -  System Monitor", "Hot sauce  -  시스템 모니터"))
-                .font(DS.font(DS.headerFontSize))
+                .font(DS.font(DS.headerFontSize))       // headerFontSize 27→22 (DesignTokens)
                 .foregroundColor(DS.text)
-                .placedLeft(87, centerY: 41.4, rowHeight: 40)
+                .placedLeft(80, centerY: 41.4, rowHeight: 40)
         }
     }
 
@@ -92,7 +110,7 @@ struct PopupView: View {
 
     private func cpuSection(_ cpu: CPUSnapshot) -> some View {
         Group {
-            sectionIcon("cpu_icon", x: 126, y: 184, size: 96)
+            sectionIcon("cpu_icon", x: 126, y: 184, size: 62)
             sectionTitle("CPU", left: 238.5, centerY: 141.5)
             gauge(fraction: cpu.totalPercent / 100, left: 238, centerY: 183.5)
             statText(L("System", "시스템") + " : " + Fmt.percent1(cpu.systemPercent),
@@ -109,7 +127,7 @@ struct PopupView: View {
 
     private func memorySection(_ memory: MemorySnapshot) -> some View {
         Group {
-            sectionIcon("memory_icon", x: 125.8, y: 339.6, size: 76)
+            sectionIcon("memory_icon", x: 126, y: 339.6, size: 62)
             sectionTitle(L("Memory", "메모리"), left: 238.5, centerY: 297.5)
             gauge(fraction: memory.usedFraction, left: 238.5, centerY: 339.5)
             statText(L("Pressure", "압력") + " : " + Fmt.percent1(memory.pressurePercent),
@@ -128,7 +146,7 @@ struct PopupView: View {
 
     private func diskSection(_ disk: DiskSnapshot) -> some View {
         Group {
-            sectionIcon("disk_icon", x: 126, y: 493.7, size: 90)
+            sectionIcon("disk_icon", x: 126, y: 493.7, size: 62)
             sectionTitle(L("Storage", "저장 용량"), left: 239.5, centerY: 449.5)
             gauge(fraction: disk.usedFraction, left: 240, centerY: 489.5)
             statText(L("Disk Used", "디스크 사용량") + " : "
@@ -141,12 +159,13 @@ struct PopupView: View {
     // MARK: - 배터리
 
     private func batterySection(_ battery: BatterySnapshot) -> some View {
-        // 충전 중이면 왼쪽 아이콘을 플러그(bat2_icon)로 교체.
+        // 충전기가 꽂혀 있으면(ExternalConnected) 왼쪽 아이콘을 플러그(bat2_icon)로 교체.
+        // IsCharging은 macOS 최적화충전으로 꽂혀 있어도 자주 false라, 꽂힘 여부로 판단.
         // 에셋이 없으면 기존 배터리 아이콘으로 안전 폴백(빈 아이콘 방지).
-        let batteryIcon = (battery.isCharging && Assets.exists("bat2_icon"))
-            ? "bat2_icon" : "bat_icon"
+        let batteryIcon = (battery.externalConnected && Assets.exists("bat_icon_charge"))
+            ? "bat_icon_charge" : "bat_icon"
         return Group {
-            sectionIcon(batteryIcon, x: 123, y: 648.5, size: 90)
+            sectionIcon(batteryIcon, x: 126, y: 648.5, size: 62)
             sectionTitle(L("Battery", "배터리"), left: 239.5, centerY: 606.5)
             gauge(fraction: battery.isPresent ? Double(battery.levelPercent) / 100 : 0,
                   left: 239.5, centerY: 648.5)
@@ -167,7 +186,7 @@ struct PopupView: View {
 
     private func networkSection(_ network: NetworkSnapshot) -> some View {
         Group {
-            sectionIcon("wifi_icon", x: 126, y: 803.2, size: 96)
+            sectionIcon("wifi_icon", x: 126, y: 803.2, size: 62)
             sectionTitle(L("Network", "네트워크"), left: 241, centerY: 762.5)
             statText(L("Local IP", "로컬 IP") + " : " + (network.localIP ?? "—"),
                      left: 242, centerY: 802.8)
@@ -177,6 +196,8 @@ struct PopupView: View {
                      left: 241, centerY: 831.2)
             statText(L("Download", "다운로드") + " : " + Fmt.speed(network.downloadBytesPerSec),
                      left: 533.5, centerY: 831.2)
+            statText(L("Wi-Fi", "네트워크 이름") + " : " + (network.ssid ?? "—"),
+                     left: 242, centerY: 860)
             face(network.state, x: 791.8, y: 802.8)
         }
     }

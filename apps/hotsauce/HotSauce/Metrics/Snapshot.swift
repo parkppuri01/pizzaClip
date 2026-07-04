@@ -85,6 +85,8 @@ struct BatterySnapshot {
     var temperatureCelsius: Double? = nil
     var cycleCount: Int? = nil
     var isCharging: Bool = false
+    /// 충전기(어댑터) 연결 여부. IsCharging은 최적화충전으로 자주 false라 아이콘 판단엔 이걸 쓴다.
+    var externalConnected: Bool = false
 
     var state: LoadState {
         guard isPresent else { return .good }  // 데스크톱 맥: 배터리 없음 = 정상
@@ -96,6 +98,8 @@ struct BatterySnapshot {
 
 struct NetworkSnapshot {
     var localIP: String? = nil
+    /// 접속한 Wi-Fi 이름. 유선/미확인/위치권한 없음이면 nil.
+    var ssid: String? = nil
     /// 0~5 (Wi-Fi 신호 세기. 유선이면 5, 연결 없으면 0)
     var signalBars: Int = 0
     var uploadBytesPerSec: Double = 0

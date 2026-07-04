@@ -101,14 +101,19 @@ final class StatusItemController: NSObject {
         positionPanel(panel)
         panel.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+        engine.replayBurstIfOverloaded()   // 위험 상태에서 팝업을 열면 폭발 재생
     }
 
     private func makePanel() -> FocusablePanel {
-        let content = PopupView(engine: engine) { [weak self] in
-            self?.panel?.orderOut(nil)
-            self?.engine.isPopupVisible = false
-            self?.onOpenSettings?()
-        }
+        var panelRef: FocusablePanel?
+        let content = PopupView(
+            engine: engine,
+            onOpenSettings: { [weak self] in
+                self?.panel?.orderOut(nil)
+                self?.engine.isPopupVisible = false
+                self?.onOpenSettings?()
+            },
+            onLockChanged: { locked in panelRef?.isLocked = locked })
         let hosting = NSHostingView(rootView: content)
         hosting.frame = NSRect(origin: .zero, size: DS.popupSize)
 
@@ -127,6 +132,7 @@ final class StatusItemController: NSObject {
         panel.onClose = { [weak self] in
             self?.engine.isPopupVisible = false
         }
+        panelRef = panel   // PopupView 자물쇠 토글이 이 패널의 isLocked 를 제어
         return panel
     }
 

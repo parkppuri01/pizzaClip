@@ -28,7 +28,7 @@ enum DS {
         .custom("Pretendard-Regular", size: u(designSize))
     }
 
-    static let headerFontSize: CGFloat = 27   // "Hot sauce - 시스템 모니터"
+    static let headerFontSize: CGFloat = 35   // "Hot sauce - 시스템 모니터" (피클 타이틀과 같은 크기: u(35)≈18pt)
     static let titleFontSize: CGFloat = 20    // 섹션 제목 (CPU, 메모리 …)
 
     /// 상세 수치 텍스트는 "더 줄면 안 보이는 최소 크기"라서 팝업 축소와 무관하게
