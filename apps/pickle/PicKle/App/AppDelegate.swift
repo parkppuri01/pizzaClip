@@ -26,6 +26,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Create the user-facing `PICkle bottle` folder on first run.
         _ = AppPaths.bottleDirectory
 
+        // Silent auto-update: opt everyone into background download + install.
+        // Sparkle only *checks* automatically by default (SUEnableAutomaticChecks);
+        // it does NOT download/install until told to here. Without this a found
+        // update merely shows an alert — easy to miss on a menu-bar app, which is
+        // exactly what users reported as "auto-update doesn't work". (Sparkle 2.4+)
+        updaterController.updater.automaticallyChecksForUpdates = true
+        updaterController.updater.automaticallyDownloadsUpdates = true
+
         setUpStatusItem()
         setUpShortcuts()
         registerObservers()
@@ -175,32 +183,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSWorkspace.shared.open(AppPaths.bottleDirectory)
     }
 
-    /// Confirm before clearing — folder-as-truth means Clear all sweeps every
-    /// image in the bottle folder to the Trash, so we never do it silently.
-    private func confirmAndClearAll() {
-        let count = ScreenshotStore.count()
-        guard count > 0 else { return }
-        NSApp.activate(ignoringOtherApps: true)
-        let alert = NSAlert()
-        alert.alertStyle = .warning
-        alert.messageText = String(format: L("alert.clearAll.message"), count)
-        alert.informativeText = L("alert.clearAll.info")
-        alert.addButton(withTitle: L("alert.clearAll.confirm"))
-        alert.addButton(withTitle: L("common.cancel"))
-        guard alert.runModal() == .alertFirstButtonReturn else { return }
-        ScreenshotStore.deleteAll()
-        viewModel.reload()
-        refreshStatusIcon()
-    }
-
     // MARK: - Observers
 
     private func registerObservers() {
         NotificationCenter.default.addObserver(forName: .pickleOpenSettings, object: nil, queue: .main) { [weak self] _ in
             self?.showSettingsWindow()
-        }
-        NotificationCenter.default.addObserver(forName: .pickleClearAll, object: nil, queue: .main) { [weak self] _ in
-            self?.confirmAndClearAll()
         }
         // Single refresh path for both captures and editor saves.
         NotificationCenter.default.addObserver(forName: .pickleScreenshotsChanged, object: nil, queue: .main) { [weak self] _ in

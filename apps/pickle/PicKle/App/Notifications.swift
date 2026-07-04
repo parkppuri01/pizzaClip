@@ -3,7 +3,6 @@ import Foundation
 /// Loosely-coupled component messaging — pizzaClip's `.pizzaClip*` pattern,
 /// renamed to `.pickle*`. Components post; AppDelegate observes and acts.
 extension Notification.Name {
-    static let pickleClearAll = Notification.Name("pickleClearAll")
     static let pickleOpenSettings = Notification.Name("pickleOpenSettings")
     static let pickleScreenshotsChanged = Notification.Name("pickleScreenshotsChanged")
     /// Open the editor on a screenshot. `object` is the file `URL`.

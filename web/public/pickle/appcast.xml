@@ -6,23 +6,24 @@
         <description>PICkle updates</description>
         <language>en</language>
         <item>
-            <title>PICkle 1.3.1</title>
-            <pubDate>Fri, 03 Jul 2026 12:35:14 +0000</pubDate>
-            <sparkle:version>16</sparkle:version>
-            <sparkle:shortVersionString>1.3.1</sparkle:shortVersionString>
+            <title>PICkle 1.3.2</title>
+            <pubDate>Sat, 04 Jul 2026 17:07:26 +0000</pubDate>
+            <sparkle:version>17</sparkle:version>
+            <sparkle:shortVersionString>1.3.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-<h2>PICkle 1.3.1</h2>
-<p>더 가볍고 조용해졌어요 ⚡</p>
+<h2>PICkle 1.3.2</h2>
+<p>저장 폴더 바로가기 · 매끄러운 자동 업데이트 🥒</p>
 <h3>개선</h3>
 <ul>
-<li>편집 창을 열어두기만 해도 CPU 사용량이 높아지던 문제를 고쳤어요 — 이제 편집 중에도 팬 소음이나 배터리 걱정 없이 조용하게 작업할 수 있어요.</li>
+<li>보관함 팝업 아래에 저장 폴더 경로가 보여요 — 누르면 ‘PICkle bottle’ 폴더가 Finder에서 바로 열려요.</li>
+<li>새 버전이 나오면 백그라운드에서 알아서 받아 조용히 업데이트돼요. 이제 직접 확인하지 않아도 최신 상태로 유지됩니다.</li>
 </ul>
 ]]></description>
             <!-- ⚠️ Put the REAL DMG download URL here (GitHub Release asset, etc.). -->
-            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.3.1.dmg"
+            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.3.2.dmg"
                        type="application/octet-stream"
-                       sparkle:edSignature="OL8ZvMJ8Z36/5BaXYRkYabNaZ+/f5Md6t2hDfFCVcnPrDRN6yLtTWNogg2EZ1aouVrgRvqu+mlxljJ/T72dhAA==" length="3666146" />
+                       sparkle:edSignature="lFTcPapvEJxr/c+3xcBKkpVzM2JNfg3W3iWJHMrap//+yosXXNlmrOA3ZCQTx6nFg8LAu3WPr82u17iHBXx4DQ==" length="3668299" />
         </item>
     </channel>
 </rss>

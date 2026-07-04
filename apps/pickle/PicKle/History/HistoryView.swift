@@ -131,14 +131,25 @@ struct HistoryView: View {
     }
 
     private var footer: some View {
-        HStack {
-            Button(L("history.clearAll")) {
-                NotificationCenter.default.post(name: .pickleClearAll, object: nil)
+        HStack(spacing: 6) {
+            // 저장 폴더 경로 — 누르면 Finder 에서 `PICkle bottle` 폴더가 바로 열려요.
+            // (pizzaClip 팝업 하단의 저장 경로 표시와 같은 방식)
+            Button(action: revealBottleFolder) {
+                HStack(spacing: 4) {
+                    Image(systemName: "internaldrive")
+                        .font(.system(size: 10))
+                    Text(abbreviatedBottlePath)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                .foregroundStyle(AppColors.tertiaryLabel)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .foregroundStyle(vm.screenshots.isEmpty ? AnyShapeStyle(.tertiary) : AnyShapeStyle(AppColors.accent))
-            .disabled(vm.screenshots.isEmpty)
-            Spacer()
+            .help(L("menu.openBottleFolder"))
+
+            Spacer(minLength: 8)
+
             Button(L("history.settings")) {
                 NotificationCenter.default.post(name: .pickleOpenSettings, object: nil)
             }
@@ -147,6 +158,16 @@ struct HistoryView: View {
         }
         .font(.system(size: 12, weight: .medium))
         .padding(.horizontal, 14).padding(.vertical, 10)
+    }
+
+    /// `PICkle bottle` 폴더의 실제 경로를 `~/…` 로 짧게 줄인 표시용 문자열.
+    private var abbreviatedBottlePath: String {
+        (AppPaths.bottleDirectory.path as NSString).abbreviatingWithTildeInPath
+    }
+
+    /// 하단 경로를 누르면 Finder 에서 저장 폴더를 연다. (pizzaClip 과 동일한 동작)
+    private func revealBottleFolder() {
+        NSWorkspace.shared.open(AppPaths.bottleDirectory)
     }
 }
 

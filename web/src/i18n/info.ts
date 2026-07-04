@@ -13,7 +13,6 @@ export type InfoContent = {
   infoMore: string;
   infoMoreLinkPizza: string;
   infoMoreLinkPickle: string;
-  relMoreBold: string;
   relMoreRest: string;
   teamTitle: string;
   teamTagline: string; // 해당 언어 문구(이탤릭)
@@ -89,6 +88,14 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.3.2",
+        label: "저장 폴더 바로가기 · 매끄러운 자동 업데이트 🥒",
+        notes: [
+          "보관함 팝업 아래에 저장 폴더 경로가 보여요 — 누르면 ‘PICkle bottle’ 폴더가 Finder에서 바로 열려요.",
+          "새 버전이 나오면 백그라운드에서 알아서 받아 조용히 업데이트돼요 — 이제 직접 확인하지 않아도 최신 상태로 유지돼요.",
+        ],
+      },
+      {
         version: "1.3.1",
         label: "더 가볍고 조용하게 ⚡",
         notes: [
@@ -153,7 +160,6 @@ export const info: Record<Lang, InfoContent> = {
     infoMore: "자세한 변경 내역은 GitHub에서 —",
     infoMoreLinkPizza: "피자클립",
     infoMoreLinkPickle: "피클",
-    relMoreBold: "피클이 1.3으로 한 뼘 더 자랐어요.",
     relMoreRest: "새 소식이 쌓일 때마다 여기에 담을게요 — 피클 둘러보기 →",
     teamTitle: "Team jAm",
     teamTagline: "“모든 것은 장난스러운 상상에서 시작된다.”",
@@ -228,6 +234,14 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.3.2",
+        label: "Quick Jump to Your Folder · Smoother Auto-Update 🥒",
+        notes: [
+          "Your bottle folder path now shows at the bottom of the popup — click it to open the ‘PICkle bottle’ folder in Finder.",
+          "New versions now download in the background and install themselves quietly — you stay on the latest without ever checking manually.",
+        ],
+      },
+      {
         version: "1.3.1",
         label: "Lighter, Quieter Editing ⚡",
         notes: [
@@ -292,7 +306,6 @@ export const info: Record<Lang, InfoContent> = {
     infoMore: "For the full change log, head to GitHub —",
     infoMoreLinkPizza: "PizzaClip",
     infoMoreLinkPickle: "PICkle",
-    relMoreBold: "PICkle just grew up to 1.3.",
     relMoreRest: "We’ll keep jarring the news right here as it lands — take a look around PICkle →",
     teamTitle: "Team jAm",
     teamTagline: "“It all starts with a playful imagination.”",
