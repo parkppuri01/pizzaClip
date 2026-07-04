@@ -1,6 +1,6 @@
 # PICkle — HANDOFF (단일 진실 문서)
 
-> **마지막 업데이트**: 2026-07-03 · **🎉 1.3.1 릴리스 완료(build 16, 배포됨 — 편집기 열림 상태 CPU 상시 점유 긴급패치)** · 직전 1.3.0(build 15)에서 **캡처를 macOS 기본 `screencapture -i`로 전환 → 열린 메뉴/팝업도 그대로 캡처**. 자체 오버레이·직접그린 십자선·모드바를 전부 버리고 OS 캡처 호출로 단순화 + 관련 dead 코드(RegionSelectController·CaptureModeBar·CaptureFlyAnimation·SCK 경로) 삭제. pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
+> **마지막 업데이트**: 2026-07-05 · **🎉 1.3.2 릴리스 완료(build 17, 배포됨 — 팝업 하단 저장폴더 경로 표시 + 자동업데이트 무인설치; 상세는 아래 [1.3.2] 섹션)** · 직전 1.3.1(build 16, 편집기 열림 idle CPU 6~9% 긴급패치) · 그 직전 1.3.0(build 15)에서 **캡처를 macOS 기본 `screencapture -i`로 전환 → 열린 메뉴/팝업도 그대로 캡처**. 자체 오버레이·직접그린 십자선·모드바를 전부 버리고 OS 캡처 호출로 단순화 + 관련 dead 코드(RegionSelectController·CaptureModeBar·CaptureFlyAnimation·SCK 경로) 삭제. pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
 > **새 세션은 이 문서를 먼저 읽으면 컨텍스트가 잡힙니다.**
 > **▶ 1.3.0 핵심: 열린 메뉴/팝업(예: 사운드 컨트롤센터)을 펼친 채 캡처하려 하면 단축키 누른 순간 그 메뉴가 닫히던 문제. 근본 원인 = 일반 앱은 캡처용 오버레이 창을 띄우는 순간 macOS가 열린 메뉴를 닫음(오버레이가 key window를 가져가 히스토리 패널이 resignKey로 닫히고, shield 레벨 최상위 창으로 떠 다른 앱 메뉴 트래킹도 취소됨). ⌘⇧4가 멀쩡한 건 WindowServer(OS)가 직접 처리 = OS만의 특권. → 자체 오버레이(⇧⌘5식)를 전부 버리고 macOS 기본 `screencapture -i` 호출로 전환. `-i`는 사용자 동의형이라 권한 상속 문제 없음(과거 `-R` 실패와 대비). 픽셀 치수·스페이스 이동은 OS UI 기본 제공, 모드(S/D/A)는 단축키로 확정. 상세는 아래 [✅ 2026-07-03 — 1.3.0] 섹션.**
 > **테스트 규칙: 빌드마다 `project.yml` MARKETING_VERSION+build 올리고 사용자에게 번호 알림(Settings 일반탭 `v1.x.x (build N)` 표시). 정식 배포=둘째자리(minor) ↑, 테스트 빌드=셋째자리(patch) ↑.**
@@ -11,6 +11,35 @@
 > ⚠️ **개인정보 주의**: 서명에 쓰는 팀 ID·Developer ID 식별자는 **gitignore된 `Signing.xcconfig`** 에만 둡니다 (커밋 금지). 배포 자격증명은 `scripts/release.local.sh`(gitignore)에. 각각 `*.example` 템플릿을 복사해 채우세요.
 >
 > 📛 **이름 표기 규칙(중요)**: 사용자에게 보이는 **브랜드 = `PICkle`**(점·소문자 없이 통일). 단, **번들 ID는 `com.Team-jAm.PICkle`**(건드리면 TCC 권한 깨짐), **Xcode 프로젝트/스킴/소스폴더 이름은 `PicKle`(대문자 K)** 로 그대로 둡니다(내부 식별자라 화면에 안 보임).
+
+---
+
+## ✅ 2026-07-05 — 1.3.2 릴리스 (저장 폴더 경로 표시 + 자동업데이트 무인설치)
+
+> **1.3.2 배포**(build 17). 보관함 팝업 하단 UI 개선 + 자동업데이트 근본 원인 수정. pic.kle·pizzaClip 양쪽 커밋·공증 DMG·Sparkle/사이트 배포 완료.
+
+### 🎯 변경 1 — 팝업 하단 '모두 비우기' → 저장 폴더 경로 표시
+- 요청: 팝업 하단 '모두 비우기' 제거, 대신 pizzaClip처럼 저장 폴더(`PICkle bottle`) 경로 표시 + 누르면 Finder에서 열기.
+- 구현(`History/HistoryView.swift` footer): `internaldrive` 아이콘 + `~/…` 축약 경로(`AppPaths.bottleDirectory` → `abbreviatingWithTildeInPath`) + `Button(revealBottleFolder)` → `NSWorkspace.shared.open`. 툴팁은 기존 `menu.openBottleFolder` 재사용. (pizzaClip `Popup/PopupView.swift`의 `abbreviatedStoragePath`/`revealStorage` 패턴 이식.)
+- dead 배선 정리: '모두 비우기'가 유일 사용처였던 `Notifications.swift` `.pickleClearAll` + `AppDelegate` `confirmAndClearAll()`·옵저버 제거. **단 `ScreenshotStore.deleteAll()`(재사용 가능 저수준 API)·`alert.clearAll.*` 문자열은 보존**(되살리기 쉽게).
+
+### 🎯 변경 2 — 자동업데이트 "안 된다" 근본 원인 수정
+- 증상: 유저 피드백 "자동업데이트가 안 된다 / '업데이트 확인'을 눌러야 하나?".
+- 근본 원인: Sparkle은 기본적으로 **확인만 자동**(`SUEnableAutomaticChecks`)이고 다운로드·설치는 사용자 트리거 대기 → 새 버전을 찾아도 알림만 뜨고(메뉴바 앱이라 놓치기 쉬움) 끝.
+- 해법(`AppDelegate.applicationDidFinishLaunching`): `updaterController.updater.automaticallyChecksForUpdates = true` + `automaticallyDownloadsUpdates = true` → 백그라운드 무인 다운로드·설치(재실행 시 적용). Info.plist `SUAutomaticallyUpdate`만으론 부족했던 것을 코드로 강제.
+- ⚠️ **한계(중요)**: 이미 배포된 1.3.1 이하 앱의 updater 동작은 원격으로 못 고침 → 기존 사용자는 1.3.2로 **한 번은**(알림 클릭/수동 다운로드) 올라와야 이후부터 무인. 자동 확인 주기는 앱 실행 중 하루 1회(`SUScheduledCheckInterval=86400`).
+- 진단(모두 정상 검증): SUFeedURL(`pizza-clip.com/pickle/appcast.xml`)·SUPublicEDKey·전 버전(1.0.0~1.3.1) EdDSA 서명·Keychain 공개키 일치·URL 200·sparkle:version 단조증가(6→7→14→15→16→17).
+
+### 📤 배포
+- pic.kle: 1.3.1/16 → **1.3.2/17**(`project.yml`), `dist/notes-1.3.2.md`, 공증 DMG(`~/Downloads/PICkle-1.3.2.dmg` — notary Accepted·staple·Gatekeeper=Notarized Developer ID, `release-test-dmg.sh`), `DOWNLOAD_BASE_URL=pizza-clip.com/pickle ./scripts/sparkle-appcast.sh` → `dist/appcast.xml`(EdDSA, `--verify` 통과·length 3668299 일치).
+- pizzaClip(웹): DMG+appcast를 `web/public/pickle/`에 복사, `/info` 릴리스노트(`i18n/info.ts` `pickleReleases` 한/영) 1.3.2 추가 + 더보기 아래 '한 뼘' 문구(`relMoreBold` 타입·문자열·`InfoPage.astro` 사용처) 제거. → 커밋 **`3cb44e0`**.
+- **다운로드 링크(체크리스트 a) 별도 수정**: `consts.ts` `PICKLE_DOWNLOAD_URL` + `PicklePage.astro` `softwareVersion` → 1.3.2. → 커밋 **`7399091`**. (처음에 놓쳤다가 랩업 중 + 유저 지적으로 발견.)
+- push(master)=Vercel 배포. 라이브 검증: appcast=1.3.2 · `PICkle-1.3.2.dmg` HTTP 200 · /pickle 다운로드 버튼=1.3.2.
+- 로컬: `/Applications/PICkle.app`=1.3.2 서명본 설치·실행 중(사용자 테스트용, **공증 생략본**). 웹 배포 DMG는 공증 완료본.
+
+### ⚠️ 다음 릴리스 체크리스트 (여전히 유효 — 이번에도 (a) 놓칠 뻔)
+- (a) 사이트 다운로드 = `web/src/consts.ts` `PICKLE_DOWNLOAD_URL` + `web/src/components/pages/PicklePage.astro` `softwareVersion`.
+- (b) 사이트 릴리즈노트 = `web/src/i18n/info.ts` `pickleReleases`(한/영). appcast.xml(자동업데이트)과 별개 — 둘 다 갱신.
 
 ---
 
