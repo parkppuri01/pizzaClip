@@ -96,6 +96,9 @@ const c = hotsauce[lang];
   .band--sand  { background: var(--hs-sand); padding-block: clamp(5rem, 9vw, 7.5rem); }
 
   .bandwrap { position: relative; max-width: 880px; margin-inline: auto; padding-inline: var(--gutter); }
+  /* 설명·CTA 박스 폭 = 히어로(인트로) 콘텐츠 폭과 동일하게 맞춤(--maxw) */
+  .band--slate .bandwrap,
+  .band--sand .bandwrap { max-width: var(--maxw); }
 
   /* ── 히어로 (크림) ── */
   .hero { padding-block: clamp(2.5rem, 6vw, 5rem); background: var(--color-bg); }
@@ -105,12 +108,13 @@ const c = hotsauce[lang];
   .hero__lead { font-size: 1.1rem; margin-top: 1.25rem; color: var(--color-text); max-width: 46ch; }
   .hero__cta { display: flex; gap: 0.75rem; margin-top: 2rem; flex-wrap: wrap; }
   .hero__art { flex: 0 0 auto; margin-inline: auto; width: min(340px, 78vw); }
-  .hero__art img { width: 100%; height: auto; border-radius: 14px;
+  .hero__art img { width: 100%; height: auto; border-radius: 0;
                    box-shadow: 0 16px 36px rgba(16, 33, 56, 0.20); }
 
   /* ── 설명 카드 (슬레이트블루 위 크림/화이트 박스) ── */
-  .panel { background: var(--color-surface); border-radius: var(--radius-card);
-           padding: clamp(1.75rem, 4vw, 2.75rem); box-shadow: 0 16px 40px rgba(16, 33, 56, 0.18); }
+  .panel { background: var(--color-surface); border: 3px solid #007B76; border-radius: 0;
+           padding: clamp(1.75rem, 4vw, 2.75rem); box-shadow: 6px 8px 0 0 var(--hs-ink);
+           width: 100%; max-width: none; }
   .explain__lead { font-size: clamp(1.15rem, 2.6vw, 1.45rem); font-weight: 800;
                    color: var(--color-ink); line-height: 1.4; }
   .explain p:not(.explain__lead) { margin-top: 1.1rem; font-size: 1.05rem;
@@ -118,14 +122,14 @@ const c = hotsauce[lang];
 
   /* ── 빨강 스티커 섹션: 맥북 액자 중앙 + 절대배치 스티커 ── */
   .stickers { display: flex; justify-content: center; }
-  .laptop { width: min(560px, 88%); margin-inline: auto; }
-  .laptop img { width: 100%; height: auto; border-radius: 12px;
-                box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30); }
+  .laptop { width: min(430px, 88%); margin-inline: auto; }
+  .laptop img { width: 100%; height: auto; border-radius: 0px;
+                box-shadow: 0 18px 44px rgba(0, 0, 0, 0.10); transform: rotate(5deg);}
   .sticker { position: absolute; pointer-events: none; user-select: none; z-index: 3;
              filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.22)); }
-  .s-wordmark { width: clamp(220px, 34vw, 420px); left: -6%;  top: -12%;  transform: rotate(-8deg); }
-  .s-spray    { width: clamp(140px, 22vw, 250px); right: -6%; top: -15%; transform: rotate(10deg); }
-  .s-bottle   { width: clamp(120px, 19vw, 210px); left: -4%;  bottom: -10%; transform: rotate(-6deg); }
+  .s-wordmark { width: clamp(220px, 34vw, 420px); left: 0%;  top: -37%;  transform: rotate(-20deg); }
+  .s-spray    { width: clamp(180px, 28vw, 320px); right: -10%; top: -50%; transform: rotate(10deg); }
+  .s-bottle   { width: clamp(180px, 25vw, 310px); left: -20%;  bottom: -10%; transform: rotate(-16deg); }
 
   /* ── 다운로드 CTA (샌드) ── */
   .cta { text-align: center; }
@@ -137,7 +141,7 @@ const c = hotsauce[lang];
   .cta__note { margin-top: 1rem; font-size: var(--fs-small); opacity: 0.72; color: var(--color-ink); }
   /* person 스티커는 정사각형에 가까워 세로가 길다 → bandwrap % 대신 자기 높이 기준(translateY)으로
      카드 상단 위에 얹혀 제목을 안 가림(실제로는 위쪽 빨강 섹션에 걸침). 반응형에도 안정적. */
-  .s-person { width: clamp(190px, 30vw, 360px); right: -4%; top: 0; transform: translateY(-98%) rotate(6deg); z-index: 4; }
+  .s-person { width: clamp(190px, 30vw, 380px); right: -4%; top: 40%; transform: translateY(-98%) rotate(6deg); z-index: 4; }
 
   /* ── 알약 버튼 (핫소스 틸) ── */
   .pill {
@@ -149,7 +153,7 @@ const c = hotsauce[lang];
     transition: transform 0.12s ease, filter 0.12s ease;
   }
   .pill--lg { font-size: 1.05rem; padding: 0.8em 2.1em; }
-  .pill--go { background: var(--hs-teal); color: #fff; border-color: var(--hs-teal); }
+  .pill--go { background: #368599; color: var(--color-bg); border-color: #368599; }
   .pill--go:hover { transform: translateY(-1px); filter: brightness(1.07); }
   /* 릴리스 전: '곧 출시' 비활성 */
   .pill--soon { opacity: 0.62; cursor: default; pointer-events: none; }
