@@ -51,6 +51,12 @@ enum Assets {
         }
         return NSImage(size: NSSize(width: 1, height: 1))
     }
+
+    /// 번들에 해당 PNG(또는 등록된 이미지)가 실제로 있는지. 없으면 폴백 아이콘을 쓰려고 확인.
+    static func exists(_ name: String) -> Bool {
+        NSImage(named: name) != nil
+            || Bundle.main.url(forResource: name, withExtension: "png") != nil
+    }
 }
 
 // ── 디자인 좌표(topLeading 기준) 배치 헬퍼 ──

@@ -141,8 +141,12 @@ struct PopupView: View {
     // MARK: - 배터리
 
     private func batterySection(_ battery: BatterySnapshot) -> some View {
-        Group {
-            sectionIcon("bat_icon", x: 123, y: 648.5, size: 90)
+        // 충전 중이면 왼쪽 아이콘을 플러그(bat2_icon)로 교체.
+        // 에셋이 없으면 기존 배터리 아이콘으로 안전 폴백(빈 아이콘 방지).
+        let batteryIcon = (battery.isCharging && Assets.exists("bat2_icon"))
+            ? "bat2_icon" : "bat_icon"
+        return Group {
+            sectionIcon(batteryIcon, x: 123, y: 648.5, size: 90)
             sectionTitle(L("Battery", "배터리"), left: 239.5, centerY: 606.5)
             gauge(fraction: battery.isPresent ? Double(battery.levelPercent) / 100 : 0,
                   left: 239.5, centerY: 648.5)
