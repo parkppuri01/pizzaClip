@@ -30,10 +30,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         updaterController?.updater.automaticallyChecksForUpdates = true
         updaterController?.updater.automaticallyDownloadsUpdates = true
 
-        // Wi-Fi 이름(SSID)은 macOS 14+에서 위치권한이 있어야 읽힌다. 켤 때 한 번 요청.
-        // 허용하면 팝업 네트워크 섹션에 이름이 뜨고, 거부하면 "—"로 안전하게 표시된다.
+        // Wi-Fi 이름(SSID)은 macOS 14+에서 위치권한이 있어야 읽힌다(Apple DTS 공식 확인).
+        // LSUIElement(.accessory) 앱은 시작 시 권한창이 잘 안 뜰 수 있어, 요청 직전에
+        // 앱을 잠깐 활성화해 프롬프트가 확실히 표시되게 한다.
+        // 요청 자체는 여기서 무조건 쏘지 않고 델리게이트 콜백(권한 상태 분기)에 맡긴다 —
+        // delegate 를 붙이면 시작 시 locationManagerDidChangeAuthorization 가 자동 1회 호출된다.
+        NSApp.activate(ignoringOtherApps: true)
         locationManager.delegate = self
-        locationManager.requestWhenInUseAuthorization()
 
         let statusItemController = StatusItemController(engine: engine)
         statusItemController.onOpenSettings = { [weak self] in
@@ -92,7 +95,26 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 extension AppDelegate: CLLocationManagerDelegate {
-    // 델리게이트가 있어야 권한 요청 프롬프트가 뜬다. 권한이 허용되면 다음 네트워크
-    // 샘플부터 SSID 가 자연히 채워지므로 별도 처리는 필요 없다.
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {}
+    // delegate 를 붙이면 시작 때 자동 1회 호출되고, 이후 권한이 바뀔 때마다 다시 호출된다.
+    // 권한 상태별로 분기하는 게 Apple 공식 권장 패턴.
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        switch manager.authorizationStatus {
+        case .notDetermined:
+            // 아직 안 물어봤으면 이때 권한창을 띄운다.
+            manager.requestWhenInUseAuthorization()
+        case .authorizedWhenInUse, .authorizedAlways:
+            // 핵심: 권한 "허용"만으로는 SSID 가 안 채워지고, 위치 서비스가 실제로
+            // 가동 중이어야 CWInterface.ssid() 가 이름을 돌려준다(커뮤니티 다수 정황).
+            // 위치값 자체는 안 쓰고 SSID 부수효과만 필요하므로 정확도는 최저로 둔다.
+            manager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
+            manager.startUpdatingLocation()
+        case .denied, .restricted:
+            break  // SSID 는 팝업에서 "—" 로 안전 폴백 (NetworkSampler 처리됨)
+        @unknown default:
+            break
+        }
+    }
+
+    // startUpdatingLocation 을 켰으므로 실패 콜백도 받아둔다(위치값은 안 쓰니 조용히 무시).
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {}
 }

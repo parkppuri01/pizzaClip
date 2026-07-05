@@ -28,11 +28,16 @@ struct PopupView: View {
             footer
 
             // 자물쇠: 헤더 우상단. 잠그면 포커스를 잃어도 팝업이 안 닫힌다.
+            // 그림과 탭 영역을 분리한다 — footer(설정·활성보기)와 똑같은 검증된 패턴.
+            // (contentShape 를 placedCenter=offset 뒤에 붙이면 탭 영역이 좌상단 원위치에
+            //  남아 클릭이 안 먹던 버그를 이 방식으로 피한다.)
             Image(systemName: isLocked ? "lock.fill" : "lock.open")
                 .font(.system(size: DS.u(26)))
                 .foregroundColor(DS.text)
                 .placedCenter(845, 41.4, w: 34, h: 34)
+            Color.clear
                 .contentShape(Rectangle())
+                .placedCenter(845, 41.4, w: 60, h: 60)
                 .onTapGesture {
                     isLocked.toggle()
                     onLockChanged(isLocked)
@@ -56,7 +61,7 @@ struct PopupView: View {
                 .scaledToFit()
                 .placedCenter(50, 41.4, w: 48, h: 48)   // 사용자 요청으로 축소 (64→48)
             Text(L("Hot sauce  -  System Monitor", "Hot sauce  -  시스템 모니터"))
-                .font(DS.font(DS.headerFontSize))       // headerFontSize 27→22 (DesignTokens)
+                .font(DS.headerFont)                     // PicKle 히스토리 타이틀과 동일 (SF 13pt semibold)
                 .foregroundColor(DS.text)
                 .placedLeft(80, centerY: 41.4, rowHeight: 40)
         }
@@ -188,16 +193,18 @@ struct PopupView: View {
         Group {
             sectionIcon("wifi_icon", x: 126, y: 803.2, size: 62)
             sectionTitle(L("Network", "네트워크"), left: 241, centerY: 762.5)
-            statText(L("Local IP", "로컬 IP") + " : " + (network.localIP ?? "—"),
-                     left: 242, centerY: 802.8)
-            statText(L("Signal", "신호상태") + " : " + Fmt.signalDots(network.signalBars),
-                     left: 530, centerY: 802.8)
-            statText(L("Upload", "업로드") + " : " + Fmt.speed(network.uploadBytesPerSec),
-                     left: 241, centerY: 831.2)
-            statText(L("Download", "다운로드") + " : " + Fmt.speed(network.downloadBytesPerSec),
-                     left: 533.5, centerY: 831.2)
+            // 네트워크 이름(SSID)을 로컬 IP 바로 위로 배치 (사용자 요청).
+            // 세로 위치(802.8/831.2/860)는 그대로 두고 내용만 한 줄씩 내려 재배치.
             statText(L("Wi-Fi", "네트워크 이름") + " : " + (network.ssid ?? "—"),
-                     left: 242, centerY: 860)
+                     left: 242, centerY: 802.8)
+            statText(L("Local IP", "로컬 IP") + " : " + (network.localIP ?? "—"),
+                     left: 242, centerY: 831.2)
+            statText(L("Signal", "신호상태") + " : " + Fmt.signalDots(network.signalBars),
+                     left: 530, centerY: 831.2)
+            statText(L("Upload", "업로드") + " : " + Fmt.speed(network.uploadBytesPerSec),
+                     left: 241, centerY: 860)
+            statText(L("Download", "다운로드") + " : " + Fmt.speed(network.downloadBytesPerSec),
+                     left: 533.5, centerY: 860)
             face(network.state, x: 791.8, y: 802.8)
         }
     }
