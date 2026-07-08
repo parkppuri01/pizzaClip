@@ -193,18 +193,14 @@ struct PopupView: View {
         Group {
             sectionIcon("wifi_icon", x: 126, y: 803.2, size: 62)
             sectionTitle(L("Network", "네트워크"), left: 241, centerY: 762.5)
-            // 네트워크 이름(SSID)을 로컬 IP 바로 위로 배치 (사용자 요청).
-            // 세로 위치(802.8/831.2/860)는 그대로 두고 내용만 한 줄씩 내려 재배치.
-            statText(L("Wi-Fi", "네트워크 이름") + " : " + (network.ssid ?? "—"),
-                     left: 242, centerY: 802.8)
             statText(L("Local IP", "로컬 IP") + " : " + (network.localIP ?? "—"),
-                     left: 242, centerY: 831.2)
+                     left: 242, centerY: 802.8)
             statText(L("Signal", "신호상태") + " : " + Fmt.signalDots(network.signalBars),
-                     left: 530, centerY: 831.2)
+                     left: 530, centerY: 802.8)
             statText(L("Upload", "업로드") + " : " + Fmt.speed(network.uploadBytesPerSec),
-                     left: 241, centerY: 860)
+                     left: 241, centerY: 831.2)
             statText(L("Download", "다운로드") + " : " + Fmt.speed(network.downloadBytesPerSec),
-                     left: 533.5, centerY: 860)
+                     left: 533.5, centerY: 831.2)
             face(network.state, x: 791.8, y: 802.8)
         }
     }

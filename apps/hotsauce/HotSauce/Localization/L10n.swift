@@ -9,14 +9,14 @@ func L(_ english: String, _ korean: String) -> String {
 
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system
-    case english = "en"
     case korean = "ko"
+    case english = "en"
 
     var id: String { rawValue }
 
     var label: String {
         switch self {
-        case .system: return L("System", "시스템 설정 따름")
+        case .system: return L("System", "시스템")
         case .english: return "English"
         case .korean: return "한국어"
         }

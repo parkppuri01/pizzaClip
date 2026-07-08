@@ -98,8 +98,6 @@ struct BatterySnapshot {
 
 struct NetworkSnapshot {
     var localIP: String? = nil
-    /// 접속한 Wi-Fi 이름. 유선/미확인/위치권한 없음이면 nil.
-    var ssid: String? = nil
     /// 0~5 (Wi-Fi 신호 세기. 유선이면 5, 연결 없으면 0)
     var signalBars: Int = 0
     var uploadBytesPerSec: Double = 0

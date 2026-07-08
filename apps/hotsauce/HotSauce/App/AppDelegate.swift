@@ -1,7 +1,6 @@
 import AppKit
 import SwiftUI
 import Sparkle
-import CoreLocation
 
 /// 조립 담당(composition root): 지표 엔진, 메뉴바 아이템, 설정 창, 자동 업데이트.
 @main
@@ -12,7 +11,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItemController: StatusItemController?
     private let settingsController = SettingsWindowController()
     private var updaterController: SPUStandardUpdaterController?
-    private let locationManager = CLLocationManager()
 
     static func main() {
         let app = NSApplication.shared
@@ -25,18 +23,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
-        // 완전 자동 업데이트: 자동 확인 + 자동 다운로드/설치를 코드로도 못박는다
-        // (Info.plist 의 SUEnableAutomaticChecks / SUAutomaticallyUpdate 와 이중 안전장치).
+        // 자동 업데이트: 백그라운드 확인은 항상 켠다. 자동 다운로드/설치 여부는
+        // SUAutomaticallyUpdate 기본값(true 로 출하 · 설정 → 일반 "자동 다운로드"
+        // 토글에 연동)이 결정한다. 여기서 다운로드를 강제하지 않으므로, 사용자가
+        // 토글을 끄면 다음 실행에도 꺼진 상태가 유지된다.
         updaterController?.updater.automaticallyChecksForUpdates = true
-        updaterController?.updater.automaticallyDownloadsUpdates = true
-
-        // Wi-Fi 이름(SSID)은 macOS 14+에서 위치권한이 있어야 읽힌다(Apple DTS 공식 확인).
-        // LSUIElement(.accessory) 앱은 시작 시 권한창이 잘 안 뜰 수 있어, 요청 직전에
-        // 앱을 잠깐 활성화해 프롬프트가 확실히 표시되게 한다.
-        // 요청 자체는 여기서 무조건 쏘지 않고 델리게이트 콜백(권한 상태 분기)에 맡긴다 —
-        // delegate 를 붙이면 시작 시 locationManagerDidChangeAuthorization 가 자동 1회 호출된다.
-        NSApp.activate(ignoringOtherApps: true)
-        locationManager.delegate = self
 
         let statusItemController = StatusItemController(engine: engine)
         statusItemController.onOpenSettings = { [weak self] in
@@ -47,7 +38,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         self.statusItemController = statusItemController
 
-        settingsController.onCheckForUpdates = { [weak self] in
+        // Settings → "Check for Updates…" → run a manual update check.
+        NotificationCenter.default.addObserver(
+            forName: .hotsauceCheckForUpdates, object: nil, queue: .main
+        ) { [weak self] _ in
             self?.updaterController?.checkForUpdates(nil)
         }
 
@@ -92,29 +86,4 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillTerminate(_ notification: Notification) {
         engine.stop()
     }
-}
-
-extension AppDelegate: CLLocationManagerDelegate {
-    // delegate 를 붙이면 시작 때 자동 1회 호출되고, 이후 권한이 바뀔 때마다 다시 호출된다.
-    // 권한 상태별로 분기하는 게 Apple 공식 권장 패턴.
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        switch manager.authorizationStatus {
-        case .notDetermined:
-            // 아직 안 물어봤으면 이때 권한창을 띄운다.
-            manager.requestWhenInUseAuthorization()
-        case .authorizedWhenInUse, .authorizedAlways:
-            // 핵심: 권한 "허용"만으로는 SSID 가 안 채워지고, 위치 서비스가 실제로
-            // 가동 중이어야 CWInterface.ssid() 가 이름을 돌려준다(커뮤니티 다수 정황).
-            // 위치값 자체는 안 쓰고 SSID 부수효과만 필요하므로 정확도는 최저로 둔다.
-            manager.desiredAccuracy = kCLLocationAccuracyThreeKilometers
-            manager.startUpdatingLocation()
-        case .denied, .restricted:
-            break  // SSID 는 팝업에서 "—" 로 안전 폴백 (NetworkSampler 처리됨)
-        @unknown default:
-            break
-        }
-    }
-
-    // startUpdatingLocation 을 켰으므로 실패 콜백도 받아둔다(위치값은 안 쓰니 조용히 무시).
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {}
 }

@@ -73,32 +73,26 @@ final class NetworkSampler {
         previousCounters = currentCounters
         previousTime = now
 
-        let wifi = wifiInfo(isConnected: snapshot.isConnected)
-        snapshot.signalBars = wifi.bars
-        snapshot.ssid = wifi.ssid
+        snapshot.signalBars = signalBars(isConnected: snapshot.isConnected)
         return snapshot
     }
 
-    /// Wi-Fi 인터페이스에서 신호세기(0~5칸)와 SSID(이름)를 한 번에 읽는다.
-    /// Wi-Fi 가 아니라 유선으로 연결돼 있으면 5칸·이름 없음.
-    /// 주의: rssiValue()는 권한 없이 되지만 ssid()는 macOS 14+에서 위치권한이
-    /// 없으면 nil 이 나올 수 있다(그때는 팝업에 이름을 "—"로 표시).
-    private func wifiInfo(isConnected: Bool) -> (bars: Int, ssid: String?) {
-        guard isConnected else { return (0, nil) }
+    /// Wi-Fi RSSI → 0~5 칸. Wi-Fi 가 아니라 유선으로 연결돼 있으면 5칸.
+    private func signalBars(isConnected: Bool) -> Int {
+        guard isConnected else { return 0 }
         if let interface = CWWiFiClient.shared().interface(),
            interface.powerOn(),
-           interface.ssid() != nil || interface.rssiValue() != 0 {
-            let bars: Int
-            switch interface.rssiValue() {
-            case (-55)...: bars = 5
-            case (-65)...: bars = 4
-            case (-72)...: bars = 3
-            case (-80)...: bars = 2
-            default: bars = 1
+           interface.rssiValue() != 0 {
+            let rssi = interface.rssiValue()
+            switch rssi {
+            case (-55)...: return 5
+            case (-65)...: return 4
+            case (-72)...: return 3
+            case (-80)...: return 2
+            default: return 1
             }
-            return (bars, interface.ssid())
         }
-        // Wi-Fi 미사용(유선 등)인데 연결은 되어 있음 → 최대 신호, 이름 없음
-        return (5, nil)
+        // Wi-Fi 미사용(유선 등)인데 연결은 되어 있음 → 최대 신호로 표시
+        return 5
     }
 }

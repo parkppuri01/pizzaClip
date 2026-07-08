@@ -31,10 +31,6 @@
 	<string>13.0</string>
 	<key>LSUIElement</key>
 	<true/>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>연결된 Wi-Fi 이름을 팝업에 표시하기 위해 위치 정보를 사용합니다.</string>
-	<key>NSLocationUsageDescription</key>
-	<string>연결된 Wi-Fi 이름을 팝업에 표시하기 위해 위치 정보를 사용합니다.</string>
 	<key>ATSApplicationFontsPath</key>
 	<string>.</string>
 	<key>NSHumanReadableCopyright</key>
