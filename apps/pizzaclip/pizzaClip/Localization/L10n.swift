@@ -13,8 +13,8 @@ import Foundation
 /// 사용자가 고를 수 있는 언어 옵션 (System / English / 한국어).
 enum AppLanguage: String, CaseIterable, Identifiable {
     case system
-    case english = "en"
     case korean = "ko"
+    case english = "en"
 
     var id: String { rawValue }
 

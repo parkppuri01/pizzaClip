@@ -66,6 +66,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(forName: .pizzaClipOpenSettings, object: nil, queue: .main) { [weak self] _ in
             self?.showSwiftUISettingsWindow()
         }
+        // Settings → "Check for Updates…" → run a manual update check.
+        NotificationCenter.default.addObserver(forName: .pizzaClipCheckForUpdates, object: nil, queue: .main) { [weak self] _ in
+            self?.updaterController.checkForUpdates(nil)
+        }
         // Status bar pizza reflects the current item count. Re-render every
         // time the store changes (insert / delete / pin / clearAll all fire
         // `.pizzaClipHistoryChanged`). `prune` is silent but always runs right

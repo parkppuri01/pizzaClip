@@ -26,65 +26,72 @@ struct SettingsView: View {
             storageTab
                 .tabItem { Label(L("Storage", "저장공간"), systemImage: "internaldrive") }
         }
-        .frame(width: 560, height: 460)
+        .frame(width: 500, height: 420)
         .background(WindowAccessor { window in
             window.title = L("pizzaClip Settings", "pizzaClip 설정")
         })
     }
 
-    // MARK: - General
+    // MARK: - General (앱 정보 + 언어 + 업데이트) — 세 앱 공통 레이아웃
 
+    /// The shared "General" tab: an app-identity banner on top, then a grouped
+    /// form with Language and Updates sections. PICkle and HotSauce mirror this
+    /// same structure so all three settings windows read as one design.
     private var generalTab: some View {
-        Form {
-            Section(L("Language", "언어")) {
-                Picker(L("Language", "언어"), selection: $appLanguage) {
-                    ForEach(AppLanguage.allCases) { lang in
-                        Text(lang.displayName).tag(lang.rawValue)
-                    }
-                }
-                .onChange(of: appLanguage) { _ in showLanguageRestartAlert() }
-                Text(L("Changes take effect after you restart pizzaClip.",
-                       "변경사항은 pizzaClip을 다시 시작하면 적용됩니다."))
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+        VStack(spacing: 0) {
+            // Identity banner (shared across pizzaClip / PICkle / HotSauce). Uses
+            // the app's own icon from the system so no extra asset is needed.
+            VStack(spacing: 6) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable().scaledToFit().frame(width: 64, height: 64)
+                Text("pizzaClip").font(.system(size: 18, weight: .bold))
+                Text(L("Clipboard history, one slice at a time", "클립보드 히스토리를 한 조각처럼"))
+                    .font(.system(size: 12)).foregroundStyle(.secondary)
+                Text(appVersionString).font(.system(size: 11)).foregroundStyle(.tertiary)
             }
-            Section(L("History", "기록")) {
-                LabeledContent(L("History cap", "기록 개수 제한")) {
-                    HStack(spacing: 8) {
-                        Stepper(value: $historyCap, in: 1...20, step: 1) {
-                            Text(L("\(historyCap) items", "\(historyCap)개"))
-                                .frame(minWidth: 70, alignment: .leading)
-                                .monospacedDigit()
+            .frame(maxWidth: .infinity)
+            .padding(.top, 20)
+            .padding(.bottom, 10)
+
+            Form {
+                Section(L("Language", "언어")) {
+                    Picker(L("Language", "언어"), selection: $appLanguage) {
+                        ForEach(AppLanguage.allCases) { lang in
+                            Text(lang.displayName).tag(lang.rawValue)
                         }
                     }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                    .onChange(of: appLanguage) { _ in showLanguageRestartAlert() }
+                    Text(L("Changes take effect after you restart pizzaClip.",
+                           "변경사항은 pizzaClip을 다시 시작하면 적용됩니다."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
-                Text(L("When the number of non-pinned items exceeds this cap, the oldest entries are deleted automatically. Pinned items are never auto-deleted.",
-                       "고정하지 않은 항목 수가 이 한도를 넘으면 오래된 항목부터 자동으로 삭제됩니다. 고정된 항목은 자동 삭제되지 않습니다."))
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            Section(L("Updates", "업데이트")) {
-                LabeledContent(L("Current version", "현재 버전"), value: appVersionString)
-                Toggle(isOn: $automaticallyDownloadUpdates) {
-                    Text(L("Download updates automatically", "자동으로 업데이트 다운로드"))
+                Section(L("Updates", "업데이트")) {
+                    Toggle(isOn: $automaticallyDownloadUpdates) {
+                        Text(L("Automatically download updates", "업데이트 자동 다운로드"))
+                    }
+                    Text(L("New versions are downloaded automatically and applied the next time you launch.",
+                           "새 버전이 나오면 자동으로 내려받아 다음 실행 때 적용됩니다."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button(L("Check for Updates…", "지금 업데이트 확인…")) {
+                        NotificationCenter.default.post(name: .pizzaClipCheckForUpdates, object: nil)
+                    }
                 }
-                Text(L("When on, new versions download in the background and install on quit. When off, pizzaClip only notifies you and you click Install yourself. Updates are checked once a day either way — or any time via the menu bar's “Check for Updates…”.",
-                       "켜면 새 버전을 백그라운드에서 내려받아 종료 시 설치합니다. 끄면 알림만 주고 설치는 직접 누릅니다. 어느 쪽이든 하루 한 번 자동 확인하며, 메뉴바의 “업데이트 확인…”으로 언제든 확인할 수 있습니다."))
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
             }
+            .formStyle(.grouped)
         }
-        .formStyle(.grouped)
     }
 
     private var appVersionString: String {
         let info = Bundle.main.infoDictionary
         let short = info?["CFBundleShortVersionString"] as? String ?? "?"
         let build = info?["CFBundleVersion"] as? String ?? "?"
-        return "\(short) (\(build))"
+        return "v\(short) (build \(build))"
     }
 
     // MARK: - Shortcuts
@@ -166,6 +173,22 @@ struct SettingsView: View {
 
     private var storageTab: some View {
         Form {
+            Section(L("History cap", "기록 개수 제한")) {
+                LabeledContent(L("History cap", "기록 개수 제한")) {
+                    HStack(spacing: 8) {
+                        Stepper(value: $historyCap, in: 1...20, step: 1) {
+                            Text(L("\(historyCap) items", "\(historyCap)개"))
+                                .frame(minWidth: 70, alignment: .leading)
+                                .monospacedDigit()
+                        }
+                    }
+                }
+                Text(L("When the number of non-pinned items exceeds this cap, the oldest entries are deleted automatically. Pinned items are never auto-deleted.",
+                       "고정하지 않은 항목 수가 이 한도를 넘으면 오래된 항목부터 자동으로 삭제됩니다. 고정된 항목은 자동 삭제되지 않습니다."))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
             Section(L("Location", "위치")) {
                 Text(AppPaths.supportDirectory.path)
                     .font(.system(.caption, design: .monospaced))
@@ -290,4 +313,6 @@ extension Notification.Name {
     static let pizzaClipExportHistory = Notification.Name("pizzaClipExportHistory")
     static let pizzaClipOpenSettings = Notification.Name("pizzaClipOpenSettings")
     static let pizzaClipHangulToggleChanged = Notification.Name("pizzaClipHangulToggleChanged")
+    /// Settings → "Check for Updates…" button → ask the updater to check now.
+    static let pizzaClipCheckForUpdates = Notification.Name("pizzaClipCheckForUpdates")
 }
