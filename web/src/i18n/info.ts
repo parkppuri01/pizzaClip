@@ -33,6 +33,15 @@ export const info: Record<Lang, InfoContent> = {
     relHeadingSuffix: "릴리스노트",
     releases: [
       {
+        version: "1.3.1",
+        label: "설정창 정리 · 자동 업데이트 옵션",
+        notes: [
+          "설정 일반 탭을 형제 앱(피클·핫소스)과 같은 모양으로 통일했어요.",
+          "업데이트를 자동으로 받는 옵션과 ‘지금 업데이트 확인’ 버튼을 더했어요.",
+          "기록 개수 설정은 저장공간 탭으로 옮겼어요.",
+        ],
+      },
+      {
         version: "1.3.0",
         label: "새 아이콘 · 더 먹음직한 피자 폭죽 🍕",
         notes: [
@@ -87,6 +96,16 @@ export const info: Record<Lang, InfoContent> = {
       { version: "0.1.1", label: "첫 공개", notes: ["자동 복사 기록, 팝업, 핀 고정, 전체 비우기 등 기본기를 갖췄어요."] },
     ],
     pickleReleases: [
+      {
+        version: "1.3.3",
+        label: "저장 용량 버그 수정 · 편집기 확대/축소 🥒",
+        notes: [
+          "사진에 워터마크만 넣고 저장해도 파일이 몇 배로 커지던 문제를 고쳤어요 — 이제 원본 포맷과 용량을 그대로 유지해요.",
+          "편집 중 사진을 최대 8배까지 확대할 수 있어요. 트랙패드 핀치와 ⌘+ / ⌘− / ⌘0(맞춤)으로 조절해요.",
+          "블러 도구가 고해상도 사진에서도 버벅임 없이 부드럽게 칠해져요.",
+          "설정 일반 탭을 형제 앱(피자클립·핫소스)과 같은 모양으로 통일하고, 자동 업데이트 옵션을 더했어요.",
+        ],
+      },
       {
         version: "1.3.2",
         label: "저장 폴더 바로가기 · 매끄러운 자동 업데이트 🥒",
@@ -146,6 +165,32 @@ export const info: Record<Lang, InfoContent> = {
     ],
     hotsauceReleases: [
       {
+        version: "1.1.2",
+        label: "위치 권한 없이 · 설정창 정리 🌶️",
+        notes: [
+          "첫 실행 때 뜨던 위치 권한 요청을 없앴어요 — 이제 위치 허용 팝업 없이 바로 쓸 수 있어요.",
+          "설정 일반 탭을 형제 앱(피자클립·피클)과 같은 모양으로 통일하고, 업데이트 자동 다운로드 옵션과 ‘지금 업데이트 확인’ 버튼을 더했어요.",
+        ],
+      },
+      {
+        version: "1.1.1",
+        label: "잠금 버튼 · 자잘한 다듬기",
+        notes: [
+          "팝업의 자물쇠 버튼이 제대로 눌리도록 고쳤어요.",
+          "타이틀 글씨와 몇몇 배치를 형제 앱과 맞춰 다듬었어요.",
+        ],
+      },
+      {
+        version: "1.1.0",
+        label: "팝업 잠금 · 충전 아이콘 · 깜짝 폭발",
+        notes: [
+          "팝업 상단에 자물쇠 버튼이 생겼어요 — 잠그면 다른 곳을 눌러도 팝업이 닫히지 않아요.",
+          "충전 중일 때 배터리 아이콘이 플러그 모양으로 바뀌어요.",
+          "시스템이 아주 바쁠 때 핫소스 병이 팡 터지는 깜짝 연출을 넣었어요.",
+          "새 버전을 백그라운드에서 알아서 받아 조용히 업데이트해요.",
+        ],
+      },
+      {
         version: "1.0.0",
         label: "정식 출시 🌶️",
         notes: [
@@ -178,6 +223,15 @@ export const info: Record<Lang, InfoContent> = {
     headSub: "Version history for all three apps — and the people behind them.",
     relHeadingSuffix: "Release Notes",
     releases: [
+      {
+        version: "1.3.1",
+        label: "Tidied-Up Settings · Auto-Update Option",
+        notes: [
+          "The Settings → General tab now matches its sibling apps (PICkle and HotSauce).",
+          "Added an option to download updates automatically, plus a ‘Check for Updates’ button.",
+          "Moved the history-count setting to the Storage tab.",
+        ],
+      },
       {
         version: "1.3.0",
         label: "New Icon · Tastier Pizza Burst 🍕",
@@ -233,6 +287,16 @@ export const info: Record<Lang, InfoContent> = {
       { version: "0.1.1", label: "First Release", notes: ["The essentials are in: auto copy-history, the popup, pinning, and clear-all."] },
     ],
     pickleReleases: [
+      {
+        version: "1.3.3",
+        label: "Save-Size Fix · Zoom in the Editor 🥒",
+        notes: [
+          "Fixed a bug where adding just a watermark ballooned the file size — it now keeps the original format and size.",
+          "Zoom into a photo up to 8× while editing — pinch on the trackpad or use ⌘+ / ⌘− / ⌘0 (fit).",
+          "The blur tool now paints smoothly even on high-resolution photos.",
+          "The Settings → General tab now matches its sibling apps (PizzaClip and HotSauce), with an auto-update option added.",
+        ],
+      },
       {
         version: "1.3.2",
         label: "Quick Jump to Your Folder · Smoother Auto-Update 🥒",
@@ -291,6 +355,32 @@ export const info: Record<Lang, InfoContent> = {
       },
     ],
     hotsauceReleases: [
+      {
+        version: "1.1.2",
+        label: "No Location Prompt · Tidied-Up Settings 🌶️",
+        notes: [
+          "Removed the location-permission request that popped up on first launch — HotSauce now starts with no location prompt.",
+          "The Settings → General tab now matches its sibling apps (PizzaClip and PICkle), with an auto-download update option and a ‘Check for Updates’ button.",
+        ],
+      },
+      {
+        version: "1.1.1",
+        label: "Lock Button · Small Polish",
+        notes: [
+          "Fixed the lock button in the popup so it clicks reliably.",
+          "Tuned the title text and a few positions to match the sibling apps.",
+        ],
+      },
+      {
+        version: "1.1.0",
+        label: "Lock the Popup · Charging Icon · Surprise Burst",
+        notes: [
+          "A lock button at the top of the popup — lock it and it stays open when you click elsewhere.",
+          "The battery icon switches to a plug shape while charging.",
+          "A little ‘burst’ surprise when your system gets really busy.",
+          "Downloads new versions in the background and updates quietly.",
+        ],
+      },
       {
         version: "1.0.0",
         label: "Official Launch 🌶️",
