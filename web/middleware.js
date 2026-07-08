@@ -70,12 +70,20 @@ export default function middleware(request, context) {
   const url = new URL(request.url);
   const path = url.pathname;
 
-  // (1) 노크 카운트 — 기존 동작 그대로
+  // (1) 노크 카운트 — 기존 raw 카운터(knock:) 유지 + 정밀 지표 추가 수집
   if (path === '/appcast.xml' || path === '/pickle/appcast.xml' || path === '/hotsauce/appcast.xml') {
-    const prefix = path === '/pickle/appcast.xml' ? 'knock:pickle:'
-                 : path === '/hotsauce/appcast.xml' ? 'knock:hotsauce:'
+    const app = path === '/pickle/appcast.xml' ? 'pickle'
+              : path === '/hotsauce/appcast.xml' ? 'hotsauce'
+              : 'pizza';
+    const prefix = app === 'pickle' ? 'knock:pickle:'
+                 : app === 'hotsauce' ? 'knock:hotsauce:'
                  : 'knock:';
-    context.waitUntil(countKnock(prefix));
+    // 정밀 지표용 부가정보: UA(Sparkle 여부·앱 버전) / IP(중복제거 해시) / 국가.
+    const ua = request.headers.get('user-agent') || '';
+    const xff = request.headers.get('x-forwarded-for') || '';
+    const ip = (xff.split(',')[0] || '').trim() || request.headers.get('x-real-ip') || '';
+    const country = (request.headers.get('x-vercel-ip-country') || '').toUpperCase();
+    context.waitUntil(countKnock(app, prefix, { ua, ip, country }));
     return next();
   }
 
@@ -129,7 +137,40 @@ function localeRedirect(request, url, rawPath) {
   });
 }
 
-async function countKnock(prefix) {
+// ── 정밀 지표 수집 ──
+// 기존 raw 카운터(knock:*)는 그대로 두고(과거 데이터·호환 보존), 아래 새 키를 추가한다.
+// 새 키는 "진짜 앱 요청"(User-Agent 에 Sparkle 포함)일 때만 기록 → 봇/크롤러 자동 제외.
+//   real:<app>:<day>  INCR    — 봇 제외 실사용 노크 수
+//   ver:<app>:<day>   HINCRBY — 앱 버전별 카운트(Sparkle UA 가 이미 보내는 버전 파싱)
+//   uniq:<app>:<day>  PFADD   — 중복 제거 순 기기 수(HyperLogLog). IP 를 소금+월 해시 → 원문 IP 저장 안 함
+//   geo:<app>:<day>   HINCRBY — 국가별(Vercel IP 국가 헤더)
+// 새 키는 400일 뒤 자동 만료(EXPIRE). 모든 명령은 파이프라인 1회 요청으로 묶는다(무료 한도 절약).
+const SPARKLE_RE = /Sparkle/i;
+const NEW_KEY_TTL = 60 * 60 * 24 * 400; // 400일
+
+// Sparkle UA 예: "PicKle/1.3.2 Sparkle/2.6.4" → 앱 버전 "1.3.2"
+function parseAppVersion(ua) {
+  const m = ua.match(/\/([0-9][\w.\-]*)\s+Sparkle/i);
+  return m ? m[1] : 'unknown';
+}
+
+// IP 를 소금(월 단위 자동 회전)과 함께 SHA-256 해시 → 원문 IP 는 절대 저장/전송하지 않음.
+async function hashIp(ip, day) {
+  const salt = (process.env.STATS_SALT || 'pizzaclip-fallback-salt') + ':' + day.slice(0, 7);
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + '|' + ip));
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Upstash 파이프라인: 명령 배열을 한 번의 POST 로 실행.
+async function redisPipeline(url, token, commands) {
+  await fetch(`${url}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(commands),
+  });
+}
+
+async function countKnock(app, prefix, meta) {
   const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
   if (!url || !token) return; // 저장소 미설정이면 조용히 통과 (집계만 안 됨)
@@ -138,10 +179,30 @@ async function countKnock(prefix) {
   const kst = new Date(Date.now() + 9 * 3600 * 1000);
   const day = kst.toISOString().slice(0, 10); // YYYY-MM-DD
 
+  // raw 카운터 — 기존 키/동작 그대로.
+  const cmds = [['INCR', prefix + day]];
+
+  // 진짜 앱 요청(Sparkle)일 때만 정밀 지표 기록 → 봇 자동 제외.
+  const ua = meta.ua || '';
+  if (SPARKLE_RE.test(ua)) {
+    const ver = parseAppVersion(ua);
+    const kReal = `real:${app}:${day}`;
+    const kVer = `ver:${app}:${day}`;
+    const kUniq = `uniq:${app}:${day}`;
+    const kGeo = `geo:${app}:${day}`;
+    cmds.push(['INCR', kReal], ['EXPIRE', kReal, NEW_KEY_TTL]);
+    cmds.push(['HINCRBY', kVer, ver, 1], ['EXPIRE', kVer, NEW_KEY_TTL]);
+    if (meta.ip) {
+      const h = await hashIp(meta.ip, day);
+      cmds.push(['PFADD', kUniq, h], ['EXPIRE', kUniq, NEW_KEY_TTL]);
+    }
+    if (meta.country) {
+      cmds.push(['HINCRBY', kGeo, meta.country, 1], ['EXPIRE', kGeo, NEW_KEY_TTL]);
+    }
+  }
+
   try {
-    await fetch(`${url}/incr/${encodeURIComponent(prefix + day)}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    await redisPipeline(url, token, cmds);
   } catch {
     // 카운트 실패는 무시 — 업데이트 피드에 영향 주지 않는다.
   }
