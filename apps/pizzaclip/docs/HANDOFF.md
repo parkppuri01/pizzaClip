@@ -1,8 +1,28 @@
 # Session Handoff — pizzaClip
 
-마지막 업데이트: 2026-06-03 (**🎉 v1.1.0 배포 완료**: 앱 수정 6건 — ① `0` 전체붙여넣기 기능 완전 제거 ② ⌘P = 다중 슬롯 고정(`pinned_at` 순서, 스키마 v3) ③ 우⌘ 한/영 토글 안정화(탭 비활성 시 상태 리셋) ④ Sparkle 업데이트 창 릴리스 노트 표시(appcast `<description>`) ⑤ PIC.kle 헤더 이식(자물쇠 잠금·노란 카운트 배지·X·구분선) — 자물쇠=포커스 잃어도 안 닫기(UserDefaults 저장). **`PUBLISH=1 ./scripts/release.sh` 로 정식 배포**: 공증 2라운드 Accepted+staple → GitHub 릴리스 v1.1.0(자산 3개) → `pizza-clip.com/appcast.xml` 라이브(`sparkle:version=11`, 릴리스 노트 포함) → `/Applications` 1.1.0 설치. **1.0.0(build 10) 사용자에게 첫 자동업데이트 사이클로 내려감.** 이전: 2026-05-30 v1.0.0 출시. 웹 핸드오프는 [`web/HANDOFF.md`](../web/HANDOFF.md) 로 분리)
+마지막 업데이트: 2026-07-09 (**🎉 v1.3.1 배포 완료** — 설정창 '일반' 탭 3앱 통일 + 자동 업데이트 토글 + 기록개수(History cap)를 저장공간 탭으로 이동. `PUBLISH=1 ./scripts/release.sh` 로 공증 2라운드 → GitHub 릴리스 v1.3.1 → 루트 `appcast.xml`(`sparkle:version=14`) 라이브 → `/Applications` 설치. 커밋 `4c08eab`(소스)·`27d16a2`(appcast). 상세는 아래 **세션 노트 — 2026-07-09**. · 그 앞 1.3.0(새 아이콘·피자박스 메뉴바·피자폭죽 개선)·1.2.0(다국어·개인정보 UI). · 이전 2026-06-03 **🎉 v1.1.0 배포 완료**: 앱 수정 6건 — ① `0` 전체붙여넣기 기능 완전 제거 ② ⌘P = 다중 슬롯 고정(`pinned_at` 순서, 스키마 v3) ③ 우⌘ 한/영 토글 안정화(탭 비활성 시 상태 리셋) ④ Sparkle 업데이트 창 릴리스 노트 표시(appcast `<description>`) ⑤ PIC.kle 헤더 이식(자물쇠 잠금·노란 카운트 배지·X·구분선) — 자물쇠=포커스 잃어도 안 닫기(UserDefaults 저장). **`PUBLISH=1 ./scripts/release.sh` 로 정식 배포**: 공증 2라운드 Accepted+staple → GitHub 릴리스 v1.1.0(자산 3개) → `pizza-clip.com/appcast.xml` 라이브(`sparkle:version=11`, 릴리스 노트 포함) → `/Applications` 1.1.0 설치. **1.0.0(build 10) 사용자에게 첫 자동업데이트 사이클로 내려감.** 이전: 2026-05-30 v1.0.0 출시. 웹 핸드오프는 [`web/HANDOFF.md`](../web/HANDOFF.md) 로 분리)
 
 이 문서는 새 Claude 세션에서 작업을 이어갈 때 한 번 읽으면 컨텍스트가 잡히도록 만들어졌습니다.
+
+---
+
+## 세션 노트 — 2026-07-09 (v1.3.1: 설정창 3앱 통일 + 정식 배포)
+
+**범위**: 세 앱(pizzaClip·PICkle·HotSauce) 설정창 '일반' 탭을 같은 구조/크기로 통일하는 크로스컷 작업의 피자 몫 + 정식 배포.
+
+### 한 일 (파일별)
+- **`Settings/SettingsView.swift`**: `generalTab` 재구성 → 아이덴티티 헤더(`Image(nsImage: NSApp.applicationIconImage)` 64 + "pizzaClip" + tagline "클립보드 히스토리를 한 조각처럼" + 버전 `v{short} (build {build})`) → `Form(.grouped)`: 언어(세그먼트 `.pickerStyle(.segmented)`, 재시작 안내 유지) + 업데이트 섹션(기존 자동다운로드 토글 + 한 줄 설명 + '지금 업데이트 확인' → `.pizzaClipCheckForUpdates` notification). **기록 개수(History cap) Stepper를 일반 탭 → 저장공간 탭으로 이동**. 창 `.frame` 560×460 → **500×420**(피클 크기 기준). (WindowAccessor는 title만 설정, 크기 무관 — 확인함.)
+- **`App/AppDelegate.swift`**: `.pizzaClipCheckForUpdates` 옵저버 추가 → `updaterController.checkForUpdates(nil)`. (피자는 자동다운로드를 원래 plist+토글로 구동해 강제코드 없음 — 변경 없음.)
+- **`Localization/L10n.swift`**: `AppLanguage` enum 순서 `system, english, korean` → **`system, korean, english`**(세그먼트 표시 순서 시스템|한국어|English 통일. `allCases`는 설정 피커에서만 사용 — 안전).
+- **웹**: `PizzaPage.astro` softwareVersion **1.1.0→1.3.1**(방치돼 있던 것 교정), `info.ts` `releases`(한/영) 1.3.1 추가. (피자 다운로드 버튼은 GitHub 최신 방식이라 consts 수정 불필요.)
+
+### 배포 (v1.3.1)
+- `project.yml` 1.3.1/14 → `PUBLISH=1 ./scripts/release.sh`: 테스트 통과 → 서명 Release 빌드 → 공증 2라운드(앱+DMG Accepted·staple·Gatekeeper) → `/Applications` 설치 → ZIP EdDSA 서명 → **GitHub 릴리스 v1.3.1**(자산 3개: `pizzaClip-1.3.1.dmg/.zip` + 고정이름 `pizzaClip.dmg`) → 루트 `web/public/appcast.xml` 재생성·커밋(`27d16a2`)·push.
+- 라이브 검증: GitHub DMG HTTP 200 · 루트 appcast `sparkle:version=14`(1.3.1) · `/pizzaclip` softwareVersion 1.3.1.
+
+### 주의사항 / 컨텍스트
+- **언어 방식**: 피자는 인라인 `L("en","ko")` + **재시작 필요** 유지(사용자 결정 A). 피클만 실시간 전환이라 언어 아래 재시작 안내가 없는 건 의도된 차이. 완전 통일하려면 피자·핫소스를 피클 `.lproj` 실시간 방식으로 이관(후속 과제).
+- 설정창 통일 계획서: `.omc/plans/settings-unification.md`. 세 앱 동형 복제(공유 파일 아님, 독립 Xcode 프로젝트).
 
 ## 0. 웹사이트(`web/`)는 별도 핸드오프로 분리 🌐
 

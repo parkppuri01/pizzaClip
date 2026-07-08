@@ -1,6 +1,6 @@
 # PICkle — HANDOFF (단일 진실 문서)
 
-> **마지막 업데이트**: 2026-07-05 · **🎉 1.3.2 릴리스 완료(build 17, 배포됨 — 팝업 하단 저장폴더 경로 표시 + 자동업데이트 무인설치; 상세는 아래 [1.3.2] 섹션)** · 직전 1.3.1(build 16, 편집기 열림 idle CPU 6~9% 긴급패치) · 그 직전 1.3.0(build 15)에서 **캡처를 macOS 기본 `screencapture -i`로 전환 → 열린 메뉴/팝업도 그대로 캡처**. 자체 오버레이·직접그린 십자선·모드바를 전부 버리고 OS 캡처 호출로 단순화 + 관련 dead 코드(RegionSelectController·CaptureModeBar·CaptureFlyAnimation·SCK 경로) 삭제. pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
+> **마지막 업데이트**: 2026-07-09 · **🎉 1.3.3(build 20) 정식 배포 완료 — 워터마크 저장 용량 버그 수정(원본 포맷 유지 + JPEG 품질 0.9) + 편집기 확대/축소(줌)·팬 + 블러 성능 + 설정창 3앱 통일. 공증 DMG·appcast 라이브(상세는 아래 [2026-07-09] 섹션).** · 직전 **🎉 1.3.2 릴리스 완료(build 17, 배포됨 — 팝업 하단 저장폴더 경로 표시 + 자동업데이트 무인설치)** · 그 앞 1.3.1(build 16, 편집기 열림 idle CPU 6~9% 긴급패치) · 1.3.0(build 15) **캡처를 macOS 기본 `screencapture -i`로 전환**(열린 메뉴/팝업도 그대로 캡처, 자체 오버레이·십자선·모드바·dead 코드 대거 삭제). pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
 > **새 세션은 이 문서를 먼저 읽으면 컨텍스트가 잡힙니다.**
 > **▶ 1.3.0 핵심: 열린 메뉴/팝업(예: 사운드 컨트롤센터)을 펼친 채 캡처하려 하면 단축키 누른 순간 그 메뉴가 닫히던 문제. 근본 원인 = 일반 앱은 캡처용 오버레이 창을 띄우는 순간 macOS가 열린 메뉴를 닫음(오버레이가 key window를 가져가 히스토리 패널이 resignKey로 닫히고, shield 레벨 최상위 창으로 떠 다른 앱 메뉴 트래킹도 취소됨). ⌘⇧4가 멀쩡한 건 WindowServer(OS)가 직접 처리 = OS만의 특권. → 자체 오버레이(⇧⌘5식)를 전부 버리고 macOS 기본 `screencapture -i` 호출로 전환. `-i`는 사용자 동의형이라 권한 상속 문제 없음(과거 `-R` 실패와 대비). 픽셀 치수·스페이스 이동은 OS UI 기본 제공, 모드(S/D/A)는 단축키로 확정. 상세는 아래 [✅ 2026-07-03 — 1.3.0] 섹션.**
 > **테스트 규칙: 빌드마다 `project.yml` MARKETING_VERSION+build 올리고 사용자에게 번호 알림(Settings 일반탭 `v1.x.x (build N)` 표시). 정식 배포=둘째자리(minor) ↑, 테스트 빌드=셋째자리(patch) ↑.**
@@ -11,6 +11,66 @@
 > ⚠️ **개인정보 주의**: 서명에 쓰는 팀 ID·Developer ID 식별자는 **gitignore된 `Signing.xcconfig`** 에만 둡니다 (커밋 금지). 배포 자격증명은 `scripts/release.local.sh`(gitignore)에. 각각 `*.example` 템플릿을 복사해 채우세요.
 >
 > 📛 **이름 표기 규칙(중요)**: 사용자에게 보이는 **브랜드 = `PICkle`**(점·소문자 없이 통일). 단, **번들 ID는 `com.Team-jAm.PICkle`**(건드리면 TCC 권한 깨짐), **Xcode 프로젝트/스킴/소스폴더 이름은 `PicKle`(대문자 K)** 로 그대로 둡니다(내부 식별자라 화면에 안 보임).
+
+---
+
+## ✅ 2026-07-09 — 설정창 3앱 통일 + 1.3.3 정식 배포 (배포됨)
+
+> build 20. 아래 1.3.3 편집기 작업분 + 이번 설정창 통일을 함께 정식 배포. 커밋 `ff33090`(피클 소스) → master push → Vercel 라이브 검증 통과.
+
+### 마지막으로 한 일
+- **1.3.3(build 20) 공증 배포 완료.** appcast 1.3.3 · `PICkle-1.3.3.dmg` HTTP 200 · `/pickle` 다운로드 버튼 1.3.3 라이브 확인. 로컬 `/Applications`에 1.3.3(build20) 설치·실행 중.
+- **설정창 3앱 통일**(`Settings/SettingsView.swift` AboutTab): 헤더(아이콘 64 + "PICkle" + tagline + 버전) → `Form(.grouped)`: 언어(세그먼트, **실시간 전환 유지**) + **업데이트 섹션 신설**(자동 다운로드 토글 `@AppStorage("SUAutomaticallyUpdate")=true` + '지금 업데이트 확인' → `.pickleCheckForUpdates` notification). `AppDelegate`의 강제 `automaticallyDownloadsUpdates=true` 제거→토글 실효화(`.pickleCheckForUpdates` 옵저버 추가). 창 500×420 유지(피클이 크기 기준). ko/en `Localizable.strings`에 `settings.updates.*` 키 4개 추가.
+- **아이콘 프레이밍 통일**: 헤더를 `Image("AppMainIcon")` → `Image(nsImage: NSApp.applicationIconImage)`(형제 앱과 동일한 둥근 앱아이콘 프레이밍 — 실제 앱 아이콘=점선 캡처테두리 버전).
+- **배포 절차**: project.yml 1.3.3/20(build 19→20은 아이콘 수정 반영) → 서명 Release 빌드 → `release-test-dmg.sh`(공증 Accepted) → `DOWNLOAD_BASE_URL=https://pizza-clip.com/pickle ./scripts/sparkle-appcast.sh` → `web/public/pickle/` 복사 → consts `PICKLE_DOWNLOAD_URL` 1.3.3 + `PicklePage.astro` softwareVersion 1.3.3 + `info.ts` `pickleReleases`(한/영) 1.3.3 → 커밋 push → 라이브 검증.
+
+### 주의사항 / 컨텍스트
+- 피클은 언어 **실시간 전환**(LocalizationManager) 유지 → 언어 아래 재시작 안내 없음(정상). 피자·핫소스는 재시작 방식이라 안내 있음. **사용자 결정 A**(그대로 둠; 후속으로 피자·핫소스를 피클 방식으로 이관하면 완전 통일 가능).
+- 설정창 통일 계획서: `.omc/plans/settings-unification.md`. 세 앱 동형 복제(공유 파일 아님).
+
+---
+
+## 2026-07-06 — 1.3.3 편집기 작업 (저장 용량 버그 수정 + 편집기 확대/축소 + 블러 성능) — 2026-07-09 배포됨
+
+> build 18(작업 당시). 사용자 실사용 검증 완료(용량·블러 속도·블러 화질 전부 OK). **위 2026-07-09 릴리스로 배포 완료됨.**
+
+### 🎯 문제 1 — 워터마크 저장 시 용량 폭증 (예: 7.4MB JPEG → 31MB)
+- 증상: 기존 JPEG 사진에 **워터마크만** 넣고 저장했는데 용량이 3~4배로 뜀. 워터마크 자체는 용량과 거의 무관.
+- 근본 원인 (2단계로 규명):
+  1. `EditorModel.save()`가 원본 포맷과 무관하게 **무조건 PNG로 재인코딩**(`representation(using: .png)`) → 사진(JPEG=손실압축)을 PNG(무손실)로 바꾸면 2~4배 + `renderBitmap`의 RGBA 알파채널까지 붙음.
+  2. 1차로 원본 포맷 유지(JPEG→JPEG)로 고쳤는데도 여전히 폭증 → 진짜 범인은 `compressionFactor = 1.0`. 이미 압축된 JPEG를 **품질 100%로 재인코딩하면 거의 무압축**이라 오히려 커짐. "품질 100% 유지" 요청을 문자대로 구현한 게 독이었음.
+- 해법(`EditorModel.swift`):
+  - `saveFileType`(신규): `fileURL.pathExtension`로 원본 포맷 판정 — jpg/jpeg→`.jpeg`, png→`.png`, tiff/gif/bmp 매핑, 그 외 `.png`.
+  - `save()`: 해당 포맷으로 인코딩, JPEG는 `compressionFactor 0.9`(육안 무손실 + 원본 용량 근처로 복귀).
+  - ⚠️ 원본이 **HEIC** 등이면 NSBitmapImageRep 미지원 → `.png`로 저장(용량 클 수 있음). 필요 시 `CGImageDestination`로 확장 여지.
+  - ⚠️ `save()`는 원본 `fileURL`을 **덮어씀**(백업 없음) — 과거 PNG로 덮어써진 파일은 이미 변환된 상태라 복구 불가.
+
+### 🎯 문제 2 — 블러 도구 극심한 버벅임 (줌 추가 이전부터 있던 문제)
+- 증상: 블러 도구로 칠할 때 렉으로 작업 불가(고해상도 사진일수록 심함). 사용자 확인: 이번 줌 추가와 **무관**한 기존 문제.
+- 근본 원인:
+  1. 블러 미리보기(`EditorView.drawBlur`)가 **원본 해상도(수천만 픽셀) blurred 이미지**를 매 포인터 이동마다 Canvas에 통째로 그림. 화면 편집 좌표 `displaySize`는 ≤1000×640인데 4000px 이미지를 그리는 낭비.
+  2. 강도 슬라이더 조절 시마다 `baseImage.tiffRepresentation`으로 **원본을 매번 재디코딩**.
+- 해법(`EditorModel.swift`):
+  - `processed()` = 미리보기용 **저해상(displaySize)** 블러(캐시). `processedFull()`(신규) = 저장용 **원본 해상도**(캐시 안 함, 저장 시만). `renderBitmap`의 `drawBlurRegions`는 `processedFull` 사용하도록 변경.
+  - `makeProcessed(_:at:)`로 해상도 파라미터화 — 입력을 목표 크기로 다운스케일 후 필터, blur radius/모자이크 블록을 `size.width` 기준으로 계산 → **미리보기와 저장의 블러 세기가 화면상 일치**.
+  - `baseCICache`+`baseCI()`: 원본 CIImage를 1회만 디코딩해 재사용(강도 조절해도 재디코딩 안 함). 크롭/undo(baseImage 교체) 시 무효화.
+  - 결과: 사용자 실기 확인 — 블러 부드럽게 동작 + 저장 화질 OK.
+
+### 🎯 기능 추가 — 편집 중 확대/축소(줌) + 팬
+- 요청: 편집기에서 사진 확대/축소.
+- 구현(`EditorView.swift`): `canvasArea`를 `ScrollView`로 감쌈. 표시배율 = fit × `zoomFactor`(1~8×, **1=창맞춤=기존 동작**). 확대 시 스크롤로 팬, `scrollDisabled(zoomFactor≈1)`로 fit일 땐 기존과 완전 동일.
+  - 조작: 우하단 플로팅 `− %  +` 캡슐(`zoomControls`) + 트랙패드 핀치(`MagnificationGesture`) + 단축키 `⌘+`/`⌘−`/`⌘0`(맞춤). `ko/en Localizable.strings`에 `editor.zoom.in/out/fit` 추가.
+  - `canvasScale` preference를 fit×zoom으로 올려 크롭 핸들 크기 보정 유지.
+  - **핵심 안전장치**: `canvas` 내부 좌표계(`displaySize`)는 **안 건드림** — `.scaleEffect` 배율만 바뀌므로 펜/블러/워터마크/크롭 좌표가 그대로 정확. (%표시의 100%는 "창맞춤" 기준이지 실제 픽셀 1:1 아님.)
+
+### 📦 버전 / 빌드 / 상태
+- `project.yml`: 1.3.2/17 → **1.3.3/18**(버전의 유일한 소스). `.xcodeproj`는 **gitignore된 생성물**(`apps/pickle/.gitignore`)이라 커밋 대상 아님 — 빌드/배포자는 `xcodegen generate`로 로컬 생성(이번에 실행해 로컬 pbxproj도 1.3.3/18). ⚠️ `release.local.sh`는 xcodegen 자동호출 안 함 → 버전 바꾸면 수동 `xcodegen generate` 필수.
+- 빌드: `xcodebuild -project PicKle.xcodeproj -scheme PicKle -configuration Debug ... build` → `BUILD SUCCEEDED`, 수정 코드 에러·경고 0.
+- **미커밋** — 사용자 요청으로 커밋·배포 보류. 커밋 대상 변경 파일: `PicKle/Editor/EditorModel.swift`, `PicKle/Editor/EditorView.swift`, `PicKle/Resources/{ko,en}.lproj/Localizable.strings`, `project.yml`.
+
+### ▶ 다음 세션 할 일
+1. 사용자의 **"추가 작업"** 내용 확인 후 진행(내용 미정).
+2. 추가 작업 끝나면 **1.3.3 배포**: 피클 스코프 커밋 → `dist/notes-1.3.3.md` 작성 → `release-test-dmg.sh`(공증) → `sparkle-appcast.sh`(DOWNLOAD_BASE_URL=pizza-clip.com/pickle) → DMG+appcast를 `web/public/pickle/` 복사 → 사이트 2곳((a) `consts.ts` `PICKLE_DOWNLOAD_URL`+`PicklePage.astro` `softwareVersion` (b) `info.ts` `pickleReleases` 한/영) 갱신 → push(master)=Vercel.
 
 ---
 

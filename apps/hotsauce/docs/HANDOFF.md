@@ -4,7 +4,108 @@
 
 ---
 
-## 세션 3 — 2026-07-04: 1.0.1 다듬기 (⚠️ 진행 중 · 미배포)
+## 세션 7 — 2026-07-09: 설정창 3앱 통일 + 1.1.2 정식 배포 (✅ 완료·배포됨)
+
+### 마지막으로 한 일
+- **1.1.2(빌드5) 공증 배포 완료.** 세션 6의 SSID·위치권한 제거분 + 이번 설정창 통일을 함께 배포. 커밋 `47580e0`(핫소스 소스) → master push → Vercel 라이브 검증 통과(appcast 1.1.2, DMG 200, 페이지 다운로드 버튼 1.1.2).
+- **설정창 3앱 통일**(`Settings/SettingsView.swift`): 단일 폼 → 통일 '일반' 레이아웃 = 아이콘 헤더(`NSApp.applicationIconImage`) + "HotSauce" + tagline"메뉴바 시스템 모니터" + 버전 `v{short} (build {build})` → `Form(.grouped)`: 로그인시작 / 언어(세그먼트) / 업데이트. 창 `.frame(width:380)`→`500×420`(+`SettingsWindowController` NSWindow `setContentSize` 명시).
+- **자동 다운로드 토글 신설**(`@AppStorage("SUAutomaticallyUpdate")=true`) — `AppDelegate`의 강제 `automaticallyDownloadsUpdates=true` **제거**(이제 사용자가 끄면 실제로 꺼짐, 기본 ON은 plist 폴백으로 보장). '업데이트 확인'을 `onCheckForUpdates` 클로저 → `.hotsauceCheckForUpdates` notification 배선으로 교체. 언어 `.system` 라벨 "시스템 설정 따름"→"시스템", enum 순서 시스템|한국어|English 통일.
+- **배포 절차**: project.yml 1.1.2/5 → 서명 Release 빌드 → `release-test-dmg.sh`(공증 Accepted·staple·Gatekeeper) → `DOWNLOAD_BASE_URL=https://pizza-clip.com/hotsauce ./scripts/sparkle-appcast.sh` → `web/public/hotsauce/` 복사 → consts `HOTSAUCE_DOWNLOAD_URL` 1.1.2 + `HotSaucePage.astro` softwareVersion 1.1.2 + `info.ts` 릴리스노트(한/영: 1.1.2 + **웹에서 누락됐던 1.1.0·1.1.1 보강**) → 커밋 push → 라이브 검증. 로컬 `/Applications`에 1.1.2(build5) 서명본 설치·실행 중.
+
+### 다음에 할 일
+- (선택) 앱 아이콘 둥근 모서리 마스크 · 폭발 파티클 전용 아트 · 옛 `HotSauce-1.0.0.dmg` 정리 (세션 4 이월).
+
+### 주의사항 / 컨텍스트
+- **언어 방식**: 핫소스는 인라인 `L("en","ko")` + 재시작 방식 유지(사용자 결정 A). 피클만 실시간 전환이라 언어 아래 재시작 안내가 없음 — **의도된 차이**(원하면 피자·핫소스를 피클의 `.lproj` 실시간 방식으로 이관하는 게 후속 과제).
+- 설정창 통일은 세 앱 **동형 복제**(공유 파일 아님, 독립 Xcode 프로젝트). 계획서 `.omc/plans/settings-unification.md`.
+- dist/ 는 관례대로 미커밋(web/public에만 배포본 커밋). 세션 6의 "미커밋" 상태는 이번에 커밋·배포로 해소됨.
+
+---
+
+## 세션 6 — 2026-07-06: Wi-Fi 이름(SSID)·위치권한 제거 (✅ 코드 완료 · 미배포·미커밋)
+
+### 마지막으로 한 일
+- **사용자 요청**: "Wi-Fi 이름 나오는 부분 없애줘 — 위치권한 물어보는 게 거부감. 관련 코드 전부 빼줘. Wi-Fi 이름은 표시 안 해도 됨." → 세션 4/5에서 넣었던 SSID 표시 + CoreLocation 위치권한을 **전부 제거**(= SSID 기능 도입 이전 상태로 원복).
+- **수정 파일 5개**:
+  - `Metrics/Snapshot.swift`: `NetworkSnapshot.ssid` 필드 삭제.
+  - `Metrics/NetworkSampler.swift`: `wifiInfo() -> (bars, ssid)` 튜플을 원래 `signalBars() -> Int` 로 복원. 신호 판정 조건의 `interface.ssid() != nil ||` 도 떼어내 `interface.rssiValue() != 0` 만으로 판정(SSID 흔적 완전 제거). **신호세기(칸수)는 그대로 유지**. `import CoreWLAN` 은 신호세기(RSSI)에 필요하므로 **유지**.
+  - `Popup/PopupView.swift`: `networkSection` 에서 "네트워크 이름" 줄 삭제 + 나머지 2줄 `centerY` 원복(로컬IP·신호 831.2→802.8, 업·다운 860→831.2). **`sectionIcon` 의 `size:62` 는 세션3의 별개 변경이라 건드리지 않음**(원본 96으로 되돌리지 않음).
+  - `App/AppDelegate.swift`: `import CoreLocation`, `locationManager` 프로퍼티, `NSApp.activate(...)`+`locationManager.delegate = self` 블록, `CLLocationManagerDelegate` extension **전부 삭제**.
+  - `Resources/Info.plist`: `NSLocationWhenInUseUsageDescription`, `NSLocationUsageDescription` 키 삭제.
+- **원본 대조**: `git show 1104f70~1`(=1.1.0 SSID 추가 직전)의 `networkSection`·`signalBars` 원본과 1:1 비교해 좌표·로직을 정확히 복원.
+- **검증 3중**: (1) `grep -riE "ssid|CoreLocation|CLLocation|locationManager|NSLocation|requestWhenInUse"` → **0건**. (2) Release 컴파일 빌드(`CODE_SIGNING_ALLOWED=NO`) **성공**. (3) `HOTSAUCE_SNAPSHOT` 팝업 렌더 → Wi-Fi 줄 사라지고 네트워크 2줄 정상, 신호세기 ●●●●● 유지 육안 확인.
+- **사용자 결정**: 배포·설치·커밋 **모두 안 함**("코드만 유지"). 변경은 작업트리에만 있음(미커밋).
+
+### 다음에 할 일
+- **설정창(Settings) 편집** — `HotSauce/Settings/SettingsView.swift`(자체 NSWindow: SMAppService 로그인 시작 · 언어 · 업데이트 확인). 구체 편집 내용은 세션 시작 시 사용자에게 확인.
+- (이 세션 변경을 실제 반영하려면 — 사용자 지시 시)
+  - 내 Mac만: 재빌드 → `/Applications` 설치.
+  - 정식 배포: 1.1.2 bump → 공증 DMG → appcast → `web/public/hotsauce/` 복사 → **버전 3곳**(`project.yml` · `consts.ts` · `HotSaucePage.astro` softwareVersion) → push.
+
+### 주의사항 / 컨텍스트
+- **현재 실행 앱은 아직 1.1.1**(위치권한 쓰는 옛 버전). 이번 변경은 소스에만 있음. `build/` 에 검증용 미서명 빌드가 있으나 **설치 안 함**.
+- **SSID 제거 범위**: 화면 표시 + Info.plist 설명 + AppDelegate 권한요청 + Sampler 저장·`ssid()` 호출까지 전부. `import CoreWLAN` 만 남김(신호세기용, 위치권한 무관).
+- 위치권한을 뺐으므로 앱 첫 실행 시 **위치 허용 팝업이 더는 뜨지 않음**(사용자 요청의 핵심). 기존 1.1.1 설치자의 시스템 설정에 남은 위치 항목은 새 버전이 위치를 안 쓰므로 무의미.
+- **미커밋 상태**: 다음 세션에서 설정창 작업을 커밋할 때 이 5개 파일도 함께 커밋할지(또는 별개 커밋으로 분리할지) 결정 필요.
+
+---
+
+## 세션 5 — 2026-07-05: 1.1.1 버그픽스 3종 + 네트워크 이름 재배치 (✅ 완료·배포됨)
+
+### 마지막으로 한 일
+- **1.1.1(빌드4) 공증 배포 완료.** 커밋 `6544a62` → master push → Vercel 라이브 검증 통과(appcast 1.1.1, DMG 200, 페이지 버튼 1.1.1).
+- 버그 3종 + 레이아웃 1건:
+  - **자물쇠 클릭 안 됨**(유일한 실제 코드 결함): `PopupView` 자물쇠의 `.contentShape(Rectangle())`가 `.placedCenter`(=offset) **뒤**에 있어 탭 영역이 팝업 좌상단 원위치에 남던 버그. footer(설정·활성보기)와 동일 패턴 — 그림(Image)과 별도 `Color.clear` 탭영역(placedCenter 845,41.4 w60 h60)으로 분리해 수정. → 사용자 실사용 확인됨.
+  - **타이틀 폰트 불일치**: 세션4의 "u(35)≈18pt=피클과 동일"이 **오판**이었음. 피클 히스토리 타이틀은 실제 `.system(size:13, weight:.semibold)`(SF). `DesignTokens`에서 `headerFontSize` 제거 → `headerFont: Font = .system(size:13, weight:.semibold)` 추가, `PopupView.header`가 `DS.headerFont` 사용. 사용자 선택="피클과 완전 통일".
+  - **위치권한·Wi-Fi 이름 안 뜸**: **근본 원인은 사용자 Mac의 위치 서비스 전역 OFF**였음(코드 아님). 켜니 즉시 해결. 코드도 표준으로 보강 — `AppDelegate`에서 무조건 `requestWhenInUseAuthorization` 제거, `NSApp.activate(ignoringOtherApps:)` + delegate만 설정. `locationManagerDidChangeAuthorization` 상태 분기(.notDetermined→request / .authorized→`startUpdatingLocation`+desiredAccuracy ThreeKilometers / .denied→폴백) + `didFailWithError` 추가. → **startUpdatingLocation 이 SSID 채움의 실질 트리거**임이 실사용으로 확인됨.
+  - **네트워크 이름 위치**(사용자 요청): SSID를 로컬 IP 바로 위로. `networkSection` 세로좌표(802.8/831.2/860) 유지하고 내용만 재배치(이름 → 로컬IP·신호 → 업·다운).
+- **배포 절차**: project.yml 1.1.1/빌드4 → `xcodegen generate` → Developer ID 서명 Release 빌드 → `release-test-dmg.sh`(앱+DMG 공증 Accepted·staple·Gatekeeper 통과) → `sparkle-appcast.sh`(EdDSA) → `web/public/hotsauce/` 복사 → `consts.ts` + `HotSaucePage.astro` softwareVersion 1.1.1 → 웹빌드 검증(11p) → 커밋 push → 라이브 검증.
+- **로컬 설치**: 정식 공증 1.1.1 을 `/Applications` 에도 설치(그전까지 실행되던 테스트 adhoc 1.1.0 빌드 교체). Developer ID 서명이라 이후 재빌드에도 위치 권한이 안정 유지됨(project.yml 주석 참고). 단 adhoc→Developer ID 서명 전환이라 정식본 첫 실행 시 위치 권한을 1회 재요청할 수 있음 — 사용자 확인 대기 중.
+
+### 다음에 할 일
+- (선택) 위치 서비스 OFF/권한 거부 시 팝업이나 설정에 "Wi-Fi 이름을 보려면 위치 서비스를 켜세요" 힌트 UI 추가 고려(지금은 조용히 "—" 폴백이라 사용자가 이유를 모름).
+- (이월) 세션4 선택 항목: 앱 아이콘 둥근 모서리, 폭발 파티클 전용 아트, 옛 `HotSauce-1.0.0.dmg` 정리.
+
+### 주의사항 / 컨텍스트
+- **릴리스 시 버전 갱신 3곳**: `project.yml`(MARKETING_VERSION+CURRENT_PROJECT_VERSION), `consts.ts`(HOTSAUCE_DOWNLOAD_URL), **`HotSaucePage.astro`의 `softwareVersion`**. 마지막 것은 세션2 1.0.0 이후 세션4에서 갱신 누락됐던 걸 이번에 발견·수정. 놓치기 쉬우니 체크.
+- **위치권한 = 시스템 설정 의존**: SSID는 macOS 14+에서 위치권한 필수(Apple DTS 공식). 위치 서비스 전역 OFF면 프롬프트도 안 뜨고 즉시 denied. `tccutil reset Location <bundle>`은 **실패함**(Location은 특수 TCC, 표준 인프라 아님) — 리셋 필요 시 시스템 설정에서 수동.
+- **커밋 범위**: 핫소스 소스 3개 + project.yml + web 배포물 8파일. HANDOFF.md·.claude·`dist/`는 제외(세션4 관행 유지, HANDOFF는 미커밋 로컬).
+
+---
+
+## 세션 4 — 2026-07-05: 1.1.0 기능 4종 + 공증 배포 (✅ 완료·배포됨)
+
+### 마지막으로 한 일
+- **1.1.0(빌드3) 4개 기능 + 공증 DMG 배포 완료.** 커밋 `1104f70` → master push → Vercel 라이브.
+- 세션 3의 "미커밋 로컬 변경"(BatterySampler `externalConnected`, 앱 아이콘 등)도 이번 커밋에 함께 포함됨.
+- 기능별:
+  - **Wi-Fi 이름(SSID)**: `Snapshot.swift` `NetworkSnapshot.ssid` + `NetworkSampler.swift` `wifiInfo()`(bars+ssid 동시 반환) + `PopupView.swift` 네트워크 섹션 새 줄(left 242, centerY 860). **Option B 채택** — `AppDelegate`에 CoreLocation 위치권한 요청(`requestWhenInUseAuthorization`) + Info.plist `NSLocationWhenInUseUsageDescription`. macOS 14+는 권한 허용해야 이름 표시, 거부 시 "—".
+  - **자물쇠 잠금**: `FocusablePanel.isLocked`(resignKey 가드) + `PopupView` 헤더 우상단 SF Symbol 토글(lock.open/lock.fill, placedCenter 845,41.4) + `StatusItemController.makePanel`에서 `panelRef`로 배선.
+  - **배터리 충전 아이콘**: `bat2_icon` → **`bat_icon_charge`** (`내부아이콘/` → `Resources/DesignAssets/` 복사, PopupView batterySection).
+  - **폭발 이스터에그**: 신규 `Popup/HotSauceBurst.swift`(PickleBurst 이식, 이미지=`menubar_1`, gravity 500, 파티클 40개) + `MetricsEngine.burstID`(빨강 `.bad` 4개+ rising edge, `isPopupVisible`일 때 즉발/닫혀 있으면 `replayBurstIfOverloaded()`로 팝업 열 때 발동) + PopupView ZStack 최상단 오버레이.
+  - **타이틀 폰트 확대**: `DesignTokens.headerFontSize` 22→35 (u(35)≈18pt, 피클 타이틀과 동일).
+  - **완전 자동 업데이트**: `AppDelegate`에서 `updater.automaticallyChecksForUpdates=true` + `automaticallyDownloadsUpdates=true` 코드 확정 (Info.plist엔 이미 `SUAutomaticallyUpdate=true`).
+- **배포 절차 실행**: `project.yml` 1.1.0/빌드3 → Release 빌드(Developer ID 서명) → `release-test-dmg.sh`(앱+DMG 공증 2라운드 Accepted·staple, Gatekeeper 통과) → `sparkle-appcast.sh`(EdDSA appcast) → `web/public/hotsauce/`에 DMG+appcast 복사 → `consts.ts` 다운로드 버튼 1.1.0 → push → **라이브 검증**(appcast 1.1.0/build3, DMG 200, 페이지 버튼 1.1.0).
+- **계획 문서**: `docs/PLAN-1.1.0.md` (조사·결정·코드 스케치 전부).
+
+### 다음에 할 일
+- **실사용 검증 2건**(자동 검증 불가 — 사용자 확인 필요):
+  1. 1.1.0 첫 실행 시 뜨는 **위치 허용 팝업 → "허용"** 후 팝업 네트워크에 Wi-Fi 이름이 실제로 뜨는지.
+  2. **폭발 이스터에그 실물** — 빨강 4개+ 상황. 테스트하려면 `MetricsEngine.overloadThreshold`를 잠깐 1~2로 낮춰 팝업 열고 확인 후 원복.
+- (선택) 앱 아이콘 둥근 모서리 마스크 — 세션 3에서 넘어온 미결(`hotsauce_mainicon` 각짐). 사용자 확인 후 재생성.
+- (선택) 폭발 파티클 전용 "폭탄 핫소스" 아트로 교체 — `HotSauceBurst.swift`의 `Assets.image("menubar_1")` 문자열 1줄만 바꾸면 됨.
+- (선택) `web/public/hotsauce/HotSauce-1.0.0.dmg`는 기존 링크 보호용으로 유지 중 — 정리하려면 삭제.
+
+### 주의사항 / 컨텍스트
+- **위치권한 ↔ 배포 무관**: 이 앱은 Sparkle+DMG 직접배포(비샌드박스 Developer ID, 엔타이틀먼트 `<dict/>` 확인). 앱스토어 앱이 아니라 위치권한 추가가 배포에 아무 영향 없음. (설령 앱스토어라도 usage string 있으면 승인됨.)
+- **미커밋 `dist/`**: `apps/hotsauce/dist/`(appcast.xml, appcast-item-*.xml, notes-1.1.0.md)는 로컬 산출물이라 커밋 안 함(1.0.0과 동일 관행). 배포본은 `web/public/hotsauce/`에만 커밋.
+- **커밋 범위**: 핫소스 소스 + 웹 배포 20개 파일만. 피클·무관 web(InfoPage/i18n)·`.claude`·루트 handoff/task는 제외(다른 스트림 보존).
+- **팝업 검증**: `HOTSAUCE_SNAPSHOT=<png>` PNG 렌더로 확인(타이틀·자물쇠·충전아이콘·SSID 줄·레이아웃 OK). 단 스냅샷 모드는 `isPopupVisible=false`라 **폭발은 안 뜸** → 실물은 실사용에서만.
+- 이 HANDOFF.md 갱신은 로컬 작업트리에만 있음(미커밋) — 다음 세션 session-init이 읽음.
+
+---
+
+## 세션 3 — 2026-07-04: 1.0.1 다듬기 (→ 세션 4에서 1.1.0으로 완료·배포됨)
 
 > 루트 `handoff.md`에 임시로 있던 내용을 이관. **아직 안 끝났고 배포 안 함.** 다음 hotsauce 세션은 여기서 이어받는다.
 

@@ -1,9 +1,25 @@
 # Web Handoff — pizza-clip.com (랜딩 사이트)
 
-마지막 업데이트: **2026-06-20** (📝 **info 릴리스노트 전면 최신화 + 4건 초과 접기(더보기) + 새 피클 OG — 모두 라이브 배포 완료**. ① info 페이지 릴리스노트를 두 앱 모두 최신화: 피자 v1.3.0·v1.2.0 추가(앱 1.3.0 대비 1.1.0까지였던 갭 해소), 피클 v1.1.0 추가 + v1.0.0에 편집기능(펜·블러·워터마크·크롭) 설명 보강(커밋 `ffc0cd2`). ② 릴리스노트가 길어져 **컬럼별 4건 초과 시 그라데이션+'더보기/접기'로 접힘**(`InfoPage.astro`, 측정 기반 max-height, 진보적 향상, 한·영 라벨 분기 — 커밋 `2b42135`). ③ **피클 OG 이미지 교체**: 옛 히어로(크림+노트북피클) → 현재 그린 PIC/KLE 포스터 기준 새 디자인(PIL 합성, 1200×630), 캐시버스터 `?v=2`(커밋 `7da2cb4`). 자세히는 §3 **2026-06-20**. 이전: 🌐 **영문 사이트(EN/KO) + AEO/GEO 강화 — 라이브 배포 완료(커밋 `dfd7c44`)**. ⚠️ 단, 접속지역 자동 언어분기(미들웨어)는 Vercel 에서만 돌아 **배포 후 실제 확인 필요**(VPN 해외IP→`/en/` 리다이렉트 등). 한국어는 루트 그대로, 영문은 `/en/` 4페이지(인트로·피자·피클·인포 / how-to 제외). 상단바 깃허브 오른쪽 **EN/KO 세로 토글**(위 KO/아래 EN) + **접속지역 자동 언어분기**(IP 국가 헤더, 위치권한 팝업 없음 — 한국=한글/그 외=영문, 첫 진입 1회·미들웨어, ⚠️배포 후 검증). 4개 페이지를 `lang` 받는 **공유 컴포넌트**(`src/components/pages/*`)로 리팩터링해 한·영이 마크업·CSS 1벌을 공유, 텍스트만 `src/i18n/*` 사전에서. hreflang·og:locale·JSON-LD inLanguage 언어별 분기, sitemap i18n alternate, llms.txt 영문·양앱 전면개정. 자세히는 §3 **2026-06-14 (i18n+AEO)**. 이전: 🚀 **튜토리얼 영상 팝업 + 피클 노크 카운트 — 둘 다 라이브 배포·검증 완료**. ① 피자·피클 히어로 다운로드 버튼 옆 '튜토리얼' 버튼 → 누르면 유튜브 영상 팝업(`VideoModal.astro` 신설, 커밋 ca3ac11). ② DAU 노크 카운트에 피클앱(`/pickle/appcast.xml`) 추가 — 앱별 키 분리, `/api/stats` 에 `apps.{pizza,pickle}`+`combined`(커밋 37d33e1). 자세히는 §3 2026-06-14. 이전: 가이드 풀버전 재반영 86a003c, PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
+마지막 업데이트: **2026-07-09** (🚀 **세 앱 릴리스 반영 배포 완료 — 피자 1.3.1·피클 1.3.3·핫소스 1.1.2**. 다운로드 버튼(`consts.ts` `PICKLE_DOWNLOAD_URL` 1.3.3·`HOTSAUCE_DOWNLOAD_URL` 1.1.2) · softwareVersion 3곳(`*Page.astro`; **피자 1.1.0→1.3.1 방치 교정 포함**) · info 릴리스노트(`info.ts` 한/영: 피자 1.3.1·피클 1.3.3·핫소스 1.1.2 **+ 웹에서 누락됐던 핫소스 1.1.0·1.1.1 보강**). 공증 DMG+appcast를 `web/public/{pickle,hotsauce}/`에 복사. 피자는 GitHub 릴리스 방식이라 루트 `appcast.xml`은 `PUBLISH=1 release.sh`가 재생성·push(`27d16a2`), 웹 반영 커밋 `8c26ea1`. `npm run build` 11p 통과·라이브 검증(DMG 200·appcast 버전·다운로드 버튼). 이전: 📝 **info 릴리스노트 전면 최신화 + 4건 초과 접기(더보기) + 새 피클 OG — 모두 라이브 배포 완료**. ① info 페이지 릴리스노트를 두 앱 모두 최신화: 피자 v1.3.0·v1.2.0 추가(앱 1.3.0 대비 1.1.0까지였던 갭 해소), 피클 v1.1.0 추가 + v1.0.0에 편집기능(펜·블러·워터마크·크롭) 설명 보강(커밋 `ffc0cd2`). ② 릴리스노트가 길어져 **컬럼별 4건 초과 시 그라데이션+'더보기/접기'로 접힘**(`InfoPage.astro`, 측정 기반 max-height, 진보적 향상, 한·영 라벨 분기 — 커밋 `2b42135`). ③ **피클 OG 이미지 교체**: 옛 히어로(크림+노트북피클) → 현재 그린 PIC/KLE 포스터 기준 새 디자인(PIL 합성, 1200×630), 캐시버스터 `?v=2`(커밋 `7da2cb4`). 자세히는 §3 **2026-06-20**. 이전: 🌐 **영문 사이트(EN/KO) + AEO/GEO 강화 — 라이브 배포 완료(커밋 `dfd7c44`)**. ⚠️ 단, 접속지역 자동 언어분기(미들웨어)는 Vercel 에서만 돌아 **배포 후 실제 확인 필요**(VPN 해외IP→`/en/` 리다이렉트 등). 한국어는 루트 그대로, 영문은 `/en/` 4페이지(인트로·피자·피클·인포 / how-to 제외). 상단바 깃허브 오른쪽 **EN/KO 세로 토글**(위 KO/아래 EN) + **접속지역 자동 언어분기**(IP 국가 헤더, 위치권한 팝업 없음 — 한국=한글/그 외=영문, 첫 진입 1회·미들웨어, ⚠️배포 후 검증). 4개 페이지를 `lang` 받는 **공유 컴포넌트**(`src/components/pages/*`)로 리팩터링해 한·영이 마크업·CSS 1벌을 공유, 텍스트만 `src/i18n/*` 사전에서. hreflang·og:locale·JSON-LD inLanguage 언어별 분기, sitemap i18n alternate, llms.txt 영문·양앱 전면개정. 자세히는 §3 **2026-06-14 (i18n+AEO)**. 이전: 🚀 **튜토리얼 영상 팝업 + 피클 노크 카운트 — 둘 다 라이브 배포·검증 완료**. ① 피자·피클 히어로 다운로드 버튼 옆 '튜토리얼' 버튼 → 누르면 유튜브 영상 팝업(`VideoModal.astro` 신설, 커밋 ca3ac11). ② DAU 노크 카운트에 피클앱(`/pickle/appcast.xml`) 추가 — 앱별 키 분리, `/api/stats` 에 `apps.{pizza,pickle}`+`combined`(커밋 37d33e1). 자세히는 §3 2026-06-14. 이전: 가이드 풀버전 재반영 86a003c, PICkle 통일·파비콘 5bf3f80·9b2bcf2·214f95d.)
 
 > 이 문서는 **웹(`web/`) 전용 핸드오프**입니다. 앱(Swift) 쪽은 [`docs/HANDOFF.md`](../docs/HANDOFF.md) 참고.
 > 진입 방법: "pizza-clip.com 수정하자" → `web/` 에서 작업 → `cd web && npm run build` 통과 확인 → master 푸시 = Vercel 자동배포.
+
+---
+
+## 🔖 세션 이어받기 (2026-07-09, 세 앱 릴리스 반영 — **라이브 배포 완료**)
+
+> ✅ **배포됨**: 웹 반영 커밋 `8c26ea1` + 피자 `release.sh`의 루트 appcast 커밋 `27d16a2` → master push → Vercel. 설정창 3앱 통일 릴리스(피자 1.3.1·피클 1.3.3·핫소스 1.1.2)의 웹 몫.
+
+- **다운로드 버튼**: `consts.ts` `PICKLE_DOWNLOAD_URL`=`/pickle/PICkle-1.3.3.dmg`, `HOTSAUCE_DOWNLOAD_URL`=`/hotsauce/HotSauce-1.1.2.dmg`. 피자는 GitHub 최신(`DOWNLOAD_URL`) 방식이라 수정 불필요(release.sh가 v1.3.1 릴리스 생성).
+- **softwareVersion(JSON-LD)**: `PizzaPage.astro` 1.1.0→**1.3.1**(방치 교정), `PicklePage.astro` **1.3.3**, `HotSaucePage.astro` **1.1.2**.
+- **릴리스노트**(`i18n/info.ts` ko/en): 피자 `releases`에 1.3.1, 피클 `pickleReleases`에 1.3.3, 핫소스 `hotsauceReleases`에 **1.1.2 + 누락됐던 1.1.0·1.1.1 보강**(핫소스는 그동안 1.0.0까지만 있었음). 핫소스 1.1.2 문구는 "Wi-Fi 제거"보다 "위치 팝업 없음"으로 프레이밍(1.1.0에서 추가→1.1.2에서 제거된 SSID를 웹 로그에서 add/remove로 보이지 않게).
+- **배포물**: 공증 DMG + appcast → `web/public/{pickle,hotsauce}/` 복사.
+
+### 다음에 할 일 (이월, 급하지 않음)
+- ⚠️ **접속지역 자동 언어분기 실검증**(2026-06-14부터 미완) — VPN 해외IP→`/en/`, 한국→한국어 리다이렉트. Edge 미들웨어라 배포 후에만 확인 가능.
+- (정리) `consts.ts` 미사용 `PIZZA_HOME`·`NAV_LINKS`, 폐기 블로그 파일. (차후) 영문 전용 OG·튜토리얼 영상, 홈화면 아이콘(apple-touch) 아직 🍕, how-to·info 새 톤.
+- **앱 새 버전 나오면**: `info.ts` ko/en `releases`(피자)·`pickleReleases`·`hotsauceReleases` 맨 위에 추가 + `*Page.astro` softwareVersion + (피클/핫소스는) consts 다운로드 URL.
 
 ---
 
