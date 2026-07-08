@@ -59,6 +59,14 @@ struct EditorView: View {
     /// canvas GeometryReader. Keeps the crop handles a constant on-screen size no
     /// matter how far the canvas is scaled down.
     @State private var canvasScale: CGFloat = 1
+    /// User zoom multiplied on top of the fit-to-window scale. 1 = fit (default,
+    /// same behavior as before); up to 8× for close-up editing. The on-screen scale
+    /// is `fit * zoomFactor`, so the canvas keeps its displaySize coordinate space
+    /// and every pen/crop gesture inside it stays correct (see canvasArea).
+    @State private var zoomFactor: CGFloat = 1
+    /// zoomFactor captured when a trackpad pinch begins, so the live magnification
+    /// value multiplies from where the gesture started.
+    @State private var pinchAnchor: CGFloat = 1
     /// The floating tool-option popover shows on tool select and fades out ~2s
     /// after the pointer leaves it, so it stops covering the canvas.
     @State private var popoverVisible = true
@@ -823,34 +831,108 @@ struct EditorView: View {
         .fixedSize()
     }
 
-    // MARK: - Canvas area (dark backdrop, image centered, auto-scaled to fit)
+    // MARK: - Canvas area (dark backdrop, image centered, fit-scaled + user zoom)
 
     /// The canvas is authored at `model.displaySize` (fixed editing coordinates),
     /// then scaled with `.scaleEffect` to fit the available area. scaleEffect is a
     /// render/hit-test transform, so the pen/blur gesture coordinates inside
     /// `canvas` stay in displaySize units — no coordinate math changes needed.
+    ///
+    /// `zoomFactor` (1 = fit) multiplies that scale. Zoomed in, the canvas grows
+    /// past the viewport and the ScrollView pans it — trackpad/wheel scroll, while
+    /// mouse drags still reach the canvas to draw. At fit, scrolling is disabled so
+    /// it looks and behaves exactly as before (image centered, no scrollbars).
     private var canvasArea: some View {
         GeometryReader { geo in
             let availW = max(geo.size.width - Layout.canvasPadding * 2, 1)
             let availH = max(geo.size.height - Layout.canvasPadding * 2, 1)
-            let s = max(min(availW / model.displaySize.width,
-                            availH / model.displaySize.height, 1), 0.05)
+            let fit = max(min(availW / model.displaySize.width,
+                              availH / model.displaySize.height, 1), 0.05)
+            let scale = fit * zoomFactor
+            let atFit = zoomFactor <= 1.001
             ZStack {
                 CheckerboardBackground()
-                canvas
-                    .scaleEffect(s)
-                    .frame(width: model.displaySize.width * s,
-                           height: model.displaySize.height * s)
-                    .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
-                    .shadow(color: .black.opacity(0.55), radius: 14, y: 5)
+                ScrollView([.horizontal, .vertical], showsIndicators: !atFit) {
+                    canvas
+                        .scaleEffect(scale)
+                        .frame(width: model.displaySize.width * scale,
+                               height: model.displaySize.height * scale)
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+                        .shadow(color: .black.opacity(0.55), radius: 14, y: 5)
+                        // Center while the canvas fits; once zoomed larger than the
+                        // viewport its real size wins and the ScrollView pans.
+                        .frame(minWidth: geo.size.width, minHeight: geo.size.height)
+                }
+                .scrollDisabled(atFit)
             }
             .frame(width: geo.size.width, height: geo.size.height)
-            .preference(key: CanvasScaleKey.self, value: s)
+            .preference(key: CanvasScaleKey.self, value: scale)
+            .gesture(pinchToZoom)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onPreferenceChange(CanvasScaleKey.self) { canvasScale = $0 }
         // The crop tool's only control: a Crop button floating at the canvas center.
         .overlay(alignment: .center) { cropApplyOverlay }
+        // Floating − / % / + zoom controls, bottom-right.
+        .overlay(alignment: .bottomTrailing) { zoomControls }
+    }
+
+    // MARK: - Zoom (fit-relative; 1 = fit-to-window, up to 8×)
+
+    private static let zoomMin: CGFloat = 1
+    private static let zoomMax: CGFloat = 8
+
+    private func setZoom(_ z: CGFloat, animated: Bool = false) {
+        let clamped = min(max(z, Self.zoomMin), Self.zoomMax)
+        if animated { withAnimation(.easeOut(duration: 0.15)) { zoomFactor = clamped } }
+        else { zoomFactor = clamped }
+    }
+    private func zoomIn()    { setZoom(zoomFactor * 1.5, animated: true) }
+    private func zoomOut()   { setZoom(zoomFactor / 1.5, animated: true) }
+    private func zoomToFit() { setZoom(1, animated: true); pinchAnchor = 1 }
+
+    /// Trackpad pinch — multiplies from the zoom captured when the pinch began.
+    private var pinchToZoom: some Gesture {
+        MagnificationGesture()
+            .onChanged { v in setZoom(pinchAnchor * v) }
+            .onEnded   { _ in pinchAnchor = zoomFactor }
+    }
+
+    /// Floating − / percentage / + capsule. The percentage doubles as the "fit"
+    /// button (⌘0); 100% = fit-to-window.
+    private var zoomControls: some View {
+        HStack(spacing: 0) {
+            zoomButton("minus", help: L("editor.zoom.out"), key: "-", action: zoomOut)
+            Button(action: zoomToFit) {
+                Text("\(Int((zoomFactor * 100).rounded()))%")
+                    .font(.system(size: 11, weight: .semibold).monospacedDigit())
+                    .foregroundStyle(Palette.icon)
+                    .frame(width: 48, height: 28)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .keyboardShortcut("0", modifiers: .command)
+            .help(L("editor.zoom.fit"))
+            zoomButton("plus", help: L("editor.zoom.in"), key: "+", action: zoomIn)
+        }
+        .background(Capsule(style: .continuous).fill(Palette.popoverBG.opacity(0.92)))
+        .overlay(Capsule(style: .continuous).strokeBorder(Color.white.opacity(0.08)))
+        .shadow(color: .black.opacity(0.35), radius: 8, y: 2)
+        .padding(16)
+    }
+
+    private func zoomButton(_ system: String, help: String, key: KeyEquivalent,
+                            action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: system)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Palette.icon)
+                .frame(width: 34, height: 28)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .keyboardShortcut(key, modifiers: .command)
+        .help(help)
     }
 
     /// One labelled slider row, used across the vertical popover controls.

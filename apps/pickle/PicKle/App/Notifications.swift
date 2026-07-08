@@ -13,4 +13,6 @@ extension Notification.Name {
     static let pickleStorageLocationChanged = Notification.Name("pickleStorageLocationChanged")
     /// The history panel's ✕ button was pressed → close the panel.
     static let pickleCloseHistoryPanel = Notification.Name("pickleCloseHistoryPanel")
+    /// Settings → "Check for Updates…" button → ask the updater to check now.
+    static let pickleCheckForUpdates = Notification.Name("pickleCheckForUpdates")
 }

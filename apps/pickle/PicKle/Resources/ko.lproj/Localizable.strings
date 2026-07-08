@@ -50,6 +50,9 @@
 "editor.pen.copied" = "복사됨!";
 "editor.cancel" = "취소";
 "editor.save" = "저장";
+"editor.zoom.in" = "확대 (⌘+)";
+"editor.zoom.out" = "축소 (⌘−)";
+"editor.zoom.fit" = "창에 맞춤 (⌘0)";
 
 /* Watermark controls */
 "editor.text.add" = "텍스트 추가";
@@ -136,3 +139,9 @@
 "settings.language.system" = "시스템";
 "settings.language.korean" = "한국어";
 "settings.language.english" = "English";
+
+/* Settings — updates */
+"settings.updates.section" = "업데이트";
+"settings.updates.autoDownload" = "업데이트 자동 다운로드";
+"settings.updates.autoDownload.desc" = "새 버전이 나오면 자동으로 내려받아 다음 실행 때 적용됩니다.";
+"settings.updates.checkNow" = "지금 업데이트 확인…";

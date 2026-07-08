@@ -50,6 +50,9 @@
 "editor.pen.copied" = "Copied!";
 "editor.cancel" = "Cancel";
 "editor.save" = "Save";
+"editor.zoom.in" = "Zoom in (⌘+)";
+"editor.zoom.out" = "Zoom out (⌘−)";
+"editor.zoom.fit" = "Fit to window (⌘0)";
 
 /* Watermark controls */
 "editor.text.add" = "Add text";
@@ -136,3 +139,9 @@
 "settings.language.system" = "System";
 "settings.language.korean" = "한국어";
 "settings.language.english" = "English";
+
+/* Settings — updates */
+"settings.updates.section" = "Updates";
+"settings.updates.autoDownload" = "Automatically download updates";
+"settings.updates.autoDownload.desc" = "New versions are downloaded automatically and applied the next time you launch.";
+"settings.updates.checkNow" = "Check for Updates…";

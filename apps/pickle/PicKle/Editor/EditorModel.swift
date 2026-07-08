@@ -103,8 +103,12 @@ final class EditorModel: ObservableObject {
     @Published var blurRegions: [BlurRegion] = []
     @Published var currentBlurStroke: [CGPoint]?
     @Published var currentBlurRect: CGRect?
-    private var gaussianCache: NSImage?
+    private var gaussianCache: NSImage?   // preview-res (displaySize) blur, cached
     private var mosaicCache: NSImage?
+    /// Base image decoded to a CIImage once and reused across blur intensities, so
+    /// dragging the intensity slider doesn't re-decode the full-res photo every
+    /// frame. Invalidated whenever the base image changes (crop / undo).
+    private var baseCICache: CIImage?
 
     static let watermarkBaseFont: CGFloat = 30
     static let watermarkLogoWidthFraction: CGFloat = 0.25
@@ -232,6 +236,7 @@ final class EditorModel: ObservableObject {
         logoWM = nil
         gaussianCache = nil
         mosaicCache = nil
+        baseCICache = nil
         textWM = TextWatermark()
         textWM.center = CGPoint(x: displaySize.width / 2, y: displaySize.height * 0.85)
         undoStack.append(.crop)
@@ -250,6 +255,7 @@ final class EditorModel: ObservableObject {
         undoStack = s.undoStack
         gaussianCache = nil
         mosaicCache = nil
+        baseCICache = nil
     }
 
     // MARK: - Easter egg
@@ -306,34 +312,52 @@ final class EditorModel: ObservableObject {
         currentBlurRect = nil
     }
 
-    /// A fully blurred / pixellated copy of the base image (lazy + cached).
-    /// We reveal it only inside the blur regions.
+    /// A blurred / pixellated copy of the base image, revealed only inside the blur
+    /// regions. Two resolutions:
+    ///   • `processed` — preview quality at `displaySize` (≤1000×640). Cheap to draw
+    ///     on every pointer move; this is what the live canvas uses. Cached.
+    ///   • `processedFull` — full `imagePixelSize`, used only when saving so the
+    ///     exported file keeps its real resolution. Not cached (saving is rare).
+    /// Drawing the old full-res copy every frame is what made the blur tool lag on
+    /// big photos — a 4000px image was re-rendered on every pointer move.
     func processed(_ style: BlurStyle) -> NSImage? {
         switch style {
         case .gaussian:
-            if gaussianCache == nil { gaussianCache = makeProcessed(.gaussian) }
+            if gaussianCache == nil { gaussianCache = makeProcessed(.gaussian, at: displaySize) }
             return gaussianCache
         case .mosaic:
-            if mosaicCache == nil { mosaicCache = makeProcessed(.mosaic) }
+            if mosaicCache == nil { mosaicCache = makeProcessed(.mosaic, at: displaySize) }
             return mosaicCache
         }
     }
 
-    private func makeProcessed(_ style: BlurStyle) -> NSImage? {
-        guard let tiff = baseImage.tiffRepresentation, let ci = CIImage(data: tiff) else { return nil }
+    /// Full-resolution blur for the save pipeline (renderBitmap) — keeps the saved
+    /// file's blur crisp at the image's real pixel size.
+    func processedFull(_ style: BlurStyle) -> NSImage? {
+        makeProcessed(style, at: imagePixelSize)
+    }
+
+    /// Build the blurred copy at `size`. The input is downscaled to `size` first, so
+    /// the filter runs on far fewer pixels and the result is small. The blur radius
+    /// / mosaic block scale with `size.width`, so the preview (displaySize) and the
+    /// full-res save look identical on screen.
+    private func makeProcessed(_ style: BlurStyle, at size: CGSize) -> NSImage? {
+        guard size.width > 0, let full = baseCI() else { return nil }
+        let sx = size.width / full.extent.width
+        let ci = sx < 0.999 ? full.transformed(by: CGAffineTransform(scaleX: sx, y: sx)) : full
         let extent = ci.extent
         let output: CIImage?
         switch style {
         case .gaussian:
             // intensity 0→1 maps radius to ~0.4%→2.4% of image width.
-            let radius = max(4, imagePixelSize.width * (0.004 + 0.020 * blurIntensity))
+            let radius = max(4, size.width * (0.004 + 0.020 * blurIntensity))
             let f = CIFilter(name: "CIGaussianBlur")
             f?.setValue(ci.clampedToExtent(), forKey: kCIInputImageKey)
             f?.setValue(radius, forKey: kCIInputRadiusKey)
             output = f?.outputImage?.cropped(to: extent)
         case .mosaic:
             // intensity 0→1 maps block size to ~0.8%→3.8% of image width.
-            let blockScale = max(6, imagePixelSize.width * (0.008 + 0.030 * blurIntensity))
+            let blockScale = max(6, size.width * (0.008 + 0.030 * blurIntensity))
             let f = CIFilter(name: "CIPixellate")
             f?.setValue(ci, forKey: kCIInputImageKey)
             f?.setValue(blockScale, forKey: "inputScale")
@@ -341,9 +365,17 @@ final class EditorModel: ObservableObject {
         }
         guard let out = output else { return nil }
         let rep = NSCIImageRep(ciImage: out)
-        let img = NSImage(size: imagePixelSize)
+        let img = NSImage(size: size)
         img.addRepresentation(rep)
         return img
+    }
+
+    /// Base image decoded to a CIImage once, then reused (see baseCICache).
+    private func baseCI() -> CIImage? {
+        if baseCICache == nil, let tiff = baseImage.tiffRepresentation {
+            baseCICache = CIImage(data: tiff)
+        }
+        return baseCICache
     }
 
     var hasEdits: Bool { !strokes.isEmpty || textWM.isActive || logoWM != nil || !blurRegions.isEmpty }
@@ -377,7 +409,7 @@ final class EditorModel: ObservableObject {
 
     private func drawBlurRegions(_ ctx: CGContext, scale: CGFloat) {
         for region in blurRegions {
-            guard let proc = processed(region.style) else { continue }
+            guard let proc = processedFull(region.style) else { continue }
             ctx.saveGState()
             switch region.kind {
             case .rect(let r):
@@ -454,12 +486,33 @@ final class EditorModel: ObservableObject {
                         from: .zero, operation: .sourceOver, fraction: logo.opacity)
     }
 
+    /// Encode the flattened bitmap in the SAME format as the source file. Adding a
+    /// watermark used to re-encode everything as PNG, which balloons a photo — a
+    /// 10 MB JPEG became ~30 MB because PNG is lossless (bad for photos) and adds an
+    /// alpha channel. We now keep the original container: JPEG stays JPEG, PNG stays
+    /// PNG. Unknown extensions fall back to PNG.
+    private var saveFileType: NSBitmapImageRep.FileType {
+        switch fileURL.pathExtension.lowercased() {
+        case "jpg", "jpeg": return .jpeg
+        case "tiff", "tif":  return .tiff
+        case "gif":          return .gif
+        case "bmp":          return .bmp
+        default:             return .png
+        }
+    }
+
     @discardableResult
     func save() -> Bool {
+        let type = saveFileType
+        var props: [NSBitmapImageRep.PropertyKey: Any] = [:]
+        // 0.9 = visually lossless yet keeps the file near its original size. Full
+        // quality (1.0) re-encodes an already-compressed JPEG almost uncompressed,
+        // which *inflated* a 7 MB photo to ~30 MB — the opposite of what we want.
+        if type == .jpeg { props[.compressionFactor] = 0.9 }
         guard let rep = renderBitmap(),
-              let png = rep.representation(using: .png, properties: [:]) else { return false }
+              let data = rep.representation(using: type, properties: props) else { return false }
         do {
-            try png.write(to: fileURL)
+            try data.write(to: fileURL)
             // Remember the watermark text for next time, if the user opted in.
             if UserDefaults.standard.bool(forKey: Self.rememberTextKey) {
                 UserDefaults.standard.set(textWM.text, forKey: Self.lastTextKey)

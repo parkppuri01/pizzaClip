@@ -262,10 +262,17 @@ private struct StorageSettingsTab: View {
     }
 }
 
-// MARK: - 일반 (앱 정보 + 언어)
+// MARK: - 일반 (앱 정보 + 언어 + 업데이트) — 세 앱 공통 레이아웃
 
+/// The shared "General" tab: an app-identity banner (icon + name + tagline +
+/// version) on top, then a grouped form with Language and Updates sections.
+/// pizzaClip and HotSauce mirror this same structure so all three settings
+/// windows read as one design.
 private struct AboutTab: View {
     @ObservedObject private var loc = LocalizationManager.shared
+    // Sparkle reads this default live: unchecking it turns off silent
+    // background download/install. Ships true, so updates auto-apply by default.
+    @AppStorage("SUAutomaticallyUpdate") private var autoDownloadUpdates = true
 
     /// App version read from Info.plist (CFBundleShortVersionString) so it always
     /// matches MARKETING_VERSION — no more hand-editing this on every release.
@@ -280,24 +287,44 @@ private struct AboutTab: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            Image("AppMainIcon").resizable().scaledToFit().frame(width: 72, height: 72)
-            Text("PICkle").font(.system(size: 18, weight: .bold))
-            Text(L("settings.about.tagline")).font(.system(size: 12)).foregroundStyle(.secondary)
-            Text(appVersion).font(.system(size: 11)).foregroundStyle(.tertiary)
+        VStack(spacing: 0) {
+            // Identity banner (shared across pizzaClip / PICkle / HotSauce). Uses
+            // the app's own icon from the system so it renders with the same
+            // rounded app-icon framing as the other two apps.
+            VStack(spacing: 6) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable().scaledToFit().frame(width: 64, height: 64)
+                Text("PICkle").font(.system(size: 18, weight: .bold))
+                Text(L("settings.about.tagline")).font(.system(size: 12)).foregroundStyle(.secondary)
+                Text(appVersion).font(.system(size: 11)).foregroundStyle(.tertiary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 20)
+            .padding(.bottom, 10)
 
-            Divider().padding(.horizontal, 60).padding(.top, 4)
-
-            // Runtime language switch. Changing this redraws the settings tree
-            // immediately (SettingsView observes the same manager + `.id`).
-            Picker(L("settings.language"), selection: $loc.language) {
-                ForEach(AppLanguage.allCases, id: \.self) { lang in
-                    Text(L(lang.labelKey)).tag(lang)
+            Form {
+                Section(L("settings.language.section")) {
+                    // Runtime language switch. Changing this redraws the settings
+                    // tree immediately (SettingsView observes the same manager + `.id`).
+                    Picker(L("settings.language"), selection: $loc.language) {
+                        ForEach(AppLanguage.allCases, id: \.self) { lang in
+                            Text(L(lang.labelKey)).tag(lang)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
+                }
+                Section(L("settings.updates.section")) {
+                    Toggle(L("settings.updates.autoDownload"), isOn: $autoDownloadUpdates)
+                    Text(L("settings.updates.autoDownload.desc"))
+                        .font(.caption).foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    Button(L("settings.updates.checkNow")) {
+                        NotificationCenter.default.post(name: .pickleCheckForUpdates, object: nil)
+                    }
                 }
             }
-            .pickerStyle(.segmented)
-            .fixedSize()
+            .formStyle(.grouped)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }

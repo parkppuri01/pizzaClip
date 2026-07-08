@@ -26,13 +26,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Create the user-facing `PICkle bottle` folder on first run.
         _ = AppPaths.bottleDirectory
 
-        // Silent auto-update: opt everyone into background download + install.
-        // Sparkle only *checks* automatically by default (SUEnableAutomaticChecks);
-        // it does NOT download/install until told to here. Without this a found
-        // update merely shows an alert — easy to miss on a menu-bar app, which is
-        // exactly what users reported as "auto-update doesn't work". (Sparkle 2.4+)
+        // Auto-update: always check in the background. Whether a found update is
+        // silently downloaded + installed vs. only announced is driven by the
+        // `SUAutomaticallyUpdate` default (ships true; bound to the Settings →
+        // 일반 "자동 다운로드" toggle). We no longer force downloads on here, so a
+        // user who turns the toggle off actually stays off across launches.
         updaterController.updater.automaticallyChecksForUpdates = true
-        updaterController.updater.automaticallyDownloadsUpdates = true
 
         setUpStatusItem()
         setUpShortcuts()
@@ -212,6 +211,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // History panel ✕ button → close it.
         NotificationCenter.default.addObserver(forName: .pickleCloseHistoryPanel, object: nil, queue: .main) { [weak self] _ in
             self?.panelController.close()
+        }
+        // Settings → "Check for Updates…" → run a manual update check.
+        NotificationCenter.default.addObserver(forName: .pickleCheckForUpdates, object: nil, queue: .main) { [weak self] _ in
+            self?.updaterController.checkForUpdates(nil)
         }
     }
 
