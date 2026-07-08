@@ -181,16 +181,17 @@ function renderHtml({ stats, combined, days, baseKst, provided }) {
     ? String.fromCodePoint(...[...cc.toUpperCase()].map((ch) => 0x1f1e6 + ch.charCodeAt(0) - 65))
     : '🏳️');
 
-  // raw 노크 30일 막대그래프(과거 이력 보유). 오늘 막대 강조.
+  // raw 노크 30일 막대그래프(과거 이력 보유). 막대마다 작은 숫자, 오늘 막대·숫자 강조.
   const chart = (byDay, color) => {
     const max = Math.max(1, ...chronoDays.map((d) => byDay[d] || 0));
-    const bars = chronoDays.map((d, i) => {
+    const cols = chronoDays.map((d, i) => {
       const v = byDay[d] || 0;
-      const h = Math.round((v / max) * 100);
+      const h = Math.round((v / max) * 80); // 상단 여백 20% — 숫자 자리 확보
       const isToday = i === chronoDays.length - 1;
-      return `<div class="bar" title="${d}: ${nf(v)}" style="height:${Math.max(v ? 6 : 2, h)}%;background:${color};opacity:${isToday ? 1 : 0.5}"></div>`;
+      const label = v ? `<span class="v${isToday ? ' vt' : ''}">${nf(v)}</span>` : '';
+      return `<div class="col" title="${d}: ${nf(v)}">${label}<div class="bar" style="height:${Math.max(v ? 6 : 2, h)}%;background:${color};opacity:${isToday ? 1 : 0.55}"></div></div>`;
     }).join('');
-    return `<div class="chart">${bars}</div>`;
+    return `<div class="chart">${cols}</div>`;
   };
 
   // 버전 분포 칩 (내림차순 상위 5)
@@ -287,9 +288,13 @@ function renderHtml({ stats, combined, days, baseKst, provided }) {
     padding:3px 10px;font-size:.78rem;color:#6b6152}
   .chip b{color:var(--ink);font-weight:700}
   .geo{display:flex;flex-wrap:wrap;gap:10px;margin:-6px 0 14px;font-size:.82rem;color:#6b6152}
-  .chart{display:flex;align-items:flex-end;gap:2px;height:52px;padding-top:4px;border-top:1px dashed var(--line)}
-  .chart .bar{flex:1;min-height:2px;border-radius:2px 2px 0 0;transition:opacity .15s}
-  .chart .bar:hover{opacity:1!important}
+  .chart{display:flex;align-items:flex-end;gap:2px;height:66px;padding-top:4px;border-top:1px dashed var(--line)}
+  .chart .col{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}
+  .chart .col .v{font-size:8px;line-height:1.1;margin-bottom:1px;color:#a89d8d;
+    font-variant-numeric:tabular-nums;white-space:nowrap}
+  .chart .col .v.vt{color:var(--accent);font-weight:700}
+  .chart .col .bar{width:100%;min-height:2px;border-radius:2px 2px 0 0;transition:opacity .15s}
+  .chart .col:hover .bar{opacity:1!important}
   .legend{color:#9a8f80;font-size:.72rem;text-align:right;margin-top:12px}
 </style>
 </head><body>
