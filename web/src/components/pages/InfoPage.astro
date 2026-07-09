@@ -43,14 +43,7 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
             ))}
           </ul>
           {c.releases.length > VISIBLE_RELEASES && (
-            <>
-              <div class="releases-fade" aria-hidden="true"></div>
-              <button class="releases-more" type="button" hidden aria-expanded="false"
-                      data-more={moreLabel} data-less={lessLabel}>
-                <span class="releases-more__txt">{moreLabel}</span>
-                <span class="releases-more__chev" aria-hidden="true">▾</span>
-              </button>
-            </>
+            <div class="releases-fade" aria-hidden="true"></div>
           )}
         </div>
       </section>
@@ -72,25 +65,14 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
             ))}
           </ul>
           {c.pickleReleases.length > VISIBLE_RELEASES && (
-            <>
-              <div class="releases-fade" aria-hidden="true"></div>
-              <button class="releases-more" type="button" hidden aria-expanded="false"
-                      data-more={moreLabel} data-less={lessLabel}>
-                <span class="releases-more__txt">{moreLabel}</span>
-                <span class="releases-more__chev" aria-hidden="true">▾</span>
-              </button>
-            </>
+            <div class="releases-fade" aria-hidden="true"></div>
           )}
         </div>
-        <a class="rel__more" href={href(lang, "pickle")}>
-          <span class="rel__more-emoji" aria-hidden="true">🥒</span>
-          <span>{c.relMoreRest}</span>
-        </a>
       </section>
 
       <section class="rel">
         <h2 class="rel__brand">🌶️ Hot Sauce <span>{c.relHeadingSuffix}</span></h2>
-        <div class="releases-collapse">
+        <div class="releases-collapse" data-collapse={c.hotsauceReleases.length > VISIBLE_RELEASES ? "" : undefined}>
           <ul class="releases releases--hotsauce">
             {c.hotsauceReleases.map((r) => (
               <li class="release">
@@ -104,9 +86,20 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
               </li>
             ))}
           </ul>
+          {c.hotsauceReleases.length > VISIBLE_RELEASES && (
+            <div class="releases-fade" aria-hidden="true"></div>
+          )}
         </div>
       </section>
     </div>
+
+    {(c.releases.length > VISIBLE_RELEASES || c.pickleReleases.length > VISIBLE_RELEASES || c.hotsauceReleases.length > VISIBLE_RELEASES) && (
+      <button class="releases-more releases-more--all" type="button" hidden aria-expanded="false"
+              data-more={moreLabel} data-less={lessLabel}>
+        <span class="releases-more__txt">{moreLabel}</span>
+        <span class="releases-more__chev" aria-hidden="true">▾</span>
+      </button>
+    )}
 
     <p class="info__more">
       {c.infoMore}
@@ -199,20 +192,6 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
   .releases--pickle .release__notes li::before { content: "🥒"; position: absolute; left: 0; font-size: 0.8em; }
   .releases--hotsauce .release__notes li::before { content: "🌶️"; position: absolute; left: 0; font-size: 0.8em; }
 
-  /* 피클 컬럼 균형용 안내 카드(피자 8개 vs 피클 1개 빈자리 보완) */
-  .rel__more {
-    display: flex; gap: 0.8rem; align-items: flex-start;
-    margin-top: 1rem; padding: 1.1rem 1.3rem;
-    background: var(--color-bg);
-    border: 2px dashed var(--pk-olive-ink);
-    border-radius: var(--radius-card);
-    color: var(--color-ink); line-height: 1.55;
-    transition: transform 0.14s ease, box-shadow 0.14s ease;
-  }
-  .rel__more:hover { transform: translateY(-2px); box-shadow: 6px 6px 0 0 rgba(16, 33, 56, 0.22); }
-  .rel__more-emoji { font-size: 1.5rem; line-height: 1.2; }
-  .rel__more b { color: var(--pk-olive-ink); }
-
   /* ===== 릴리스 접기/펼치기 (4건 초과 시 그라데이션 + 더보기) ===== */
   .releases-collapse { position: relative; }
   /* 접힌 상태: 목록을 측정된 높이(--collapse-h)로 잘라냄 */
@@ -245,7 +224,9 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
   .releases-more:hover { background: rgba(255, 255, 255, 0.22); transform: translateY(-1px); }
   .releases-more:focus-visible { outline: 2px solid var(--intro-cream); outline-offset: 3px; }
   .releases-more__chev { font-size: 0.85em; transition: transform 0.2s ease; }
-  .releases-collapse:not(.is-collapsed) .releases-more__chev { transform: rotate(180deg); }
+  .releases-more[aria-expanded="true"] .releases-more__chev { transform: rotate(180deg); }
+  /* 세 컬럼을 한꺼번에 접고 펴는 단일 버튼 — 그리드 아래 중앙 */
+  .releases-more--all { display: flex; width: fit-content; margin: clamp(1.75rem, 4vw, 2.75rem) auto 0; }
 
   .info__more { margin-top: 1.5rem; font-size: var(--fs-small); color: var(--intro-cream); }
   .info__more a { text-decoration: underline; }
@@ -315,49 +296,53 @@ const VISIBLE_RELEASES = 4; // 이 개수까지만 보이고 나머지는 그라
 </style>
 
 <script>
-  // 릴리스 목록이 4건을 넘으면 4건까지만 보여주고 그라데이션 + '더보기'로 접는다.
+  // 릴리스가 4건을 넘는 컬럼은 4건까지만 보여주고 그라데이션으로 접는다.
+  // '더보기' 버튼은 하나뿐 — 누르면 접힘 대상 컬럼(피자·피클…)을 한꺼번에 펼치고 접는다.
   // 진보적 향상: JS 없으면 전체 목록이 그대로 보임(크롤러/AEO 안전).
   const VISIBLE = 4;
   const PEEK = 60; // 5번째 카드를 살짝 보여주는 여백(px)
 
   function setupCollapse() {
-    document.querySelectorAll<HTMLElement>("[data-collapse]").forEach((wrap) => {
+    const btn = document.querySelector<HTMLButtonElement>(".releases-more--all");
+    if (!btn) return;
+    // 접힘 대상 = 릴리스가 4건을 넘는 컬럼만
+    const wraps = Array.from(document.querySelectorAll<HTMLElement>("[data-collapse]")).filter((wrap) => {
       const ul = wrap.querySelector<HTMLElement>(".releases");
-      const btn = wrap.querySelector<HTMLButtonElement>(".releases-more");
-      if (!ul || !btn) return;
+      return !!ul && ul.querySelectorAll(".release").length > VISIBLE;
+    });
+    if (!wraps.length) return;
+
+    const txt = btn.querySelector<HTMLElement>(".releases-more__txt");
+    const measure = (wrap: HTMLElement) => {
+      const ul = wrap.querySelector<HTMLElement>(".releases");
+      if (!ul) return;
       const items = ul.querySelectorAll<HTMLElement>(".release");
-      if (items.length <= VISIBLE) return;
+      const ulTop = ul.getBoundingClientRect().top;
+      const fourthBottom = items[VISIBLE - 1].getBoundingClientRect().bottom;
+      wrap.style.setProperty("--collapse-h", `${fourthBottom - ulTop + PEEK}px`);
+    };
+    const collapse = () => {
+      wraps.forEach((wrap) => { wrap.classList.add("is-collapsed"); measure(wrap); });
+      if (txt) txt.textContent = btn.dataset.more || "더보기";
+      btn.setAttribute("aria-expanded", "false");
+    };
+    const expand = () => {
+      wraps.forEach((wrap) => wrap.classList.remove("is-collapsed"));
+      if (txt) txt.textContent = btn.dataset.less || "접기";
+      btn.setAttribute("aria-expanded", "true");
+    };
 
-      const txt = btn.querySelector<HTMLElement>(".releases-more__txt");
-      const measure = () => {
-        const ulTop = ul.getBoundingClientRect().top;
-        const fourthBottom = items[VISIBLE - 1].getBoundingClientRect().bottom;
-        wrap.style.setProperty("--collapse-h", `${fourthBottom - ulTop + PEEK}px`);
-      };
-      const collapse = () => {
-        wrap.classList.add("is-collapsed");
-        measure();
-        if (txt) txt.textContent = btn.dataset.more || "더보기";
-        btn.setAttribute("aria-expanded", "false");
-      };
-      const expand = () => {
-        wrap.classList.remove("is-collapsed");
-        if (txt) txt.textContent = btn.dataset.less || "접기";
-        btn.setAttribute("aria-expanded", "true");
-      };
+    btn.hidden = false;
+    collapse();
+    btn.addEventListener("click", () => {
+      wraps[0].classList.contains("is-collapsed") ? expand() : collapse();
+    });
 
-      btn.hidden = false;
-      collapse();
-      btn.addEventListener("click", () => {
-        wrap.classList.contains("is-collapsed") ? expand() : collapse();
-      });
-
-      let raf = 0;
-      window.addEventListener("resize", () => {
-        if (!wrap.classList.contains("is-collapsed")) return;
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(measure);
-      });
+    let raf = 0;
+    window.addEventListener("resize", () => {
+      if (!wraps[0].classList.contains("is-collapsed")) return;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => wraps.forEach(measure));
     });
   }
 

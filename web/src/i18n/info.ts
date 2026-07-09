@@ -13,7 +13,6 @@ export type InfoContent = {
   infoMore: string;
   infoMoreLinkPizza: string;
   infoMoreLinkPickle: string;
-  relMoreRest: string;
   teamTitle: string;
   teamTagline: string; // 해당 언어 문구(이탤릭)
   teamBody1Html: string; // brand 스팬 포함 HTML
@@ -205,7 +204,6 @@ export const info: Record<Lang, InfoContent> = {
     infoMore: "자세한 변경 내역은 GitHub에서 —",
     infoMoreLinkPizza: "피자클립",
     infoMoreLinkPickle: "피클",
-    relMoreRest: "새 소식이 쌓일 때마다 여기에 담을게요 — 피클 둘러보기 →",
     teamTitle: "Team jAm",
     teamTagline: "“모든 것은 장난스러운 상상에서 시작된다.”",
     teamBody1Html: `<span class="brand">PIZZA&nbsp;CLIP</span>, <span class="brand">PICkle</span>, <span class="brand">Hot&nbsp;Sauce</span> 를 만든 '<strong>Team&nbsp;jAm</strong>'은 jae_keun과 min_gyeol, 두 사람이 가벼운 상상을 현실로 옮기며 시작한 작은 프로젝트 팀입니다.`,
@@ -396,7 +394,6 @@ export const info: Record<Lang, InfoContent> = {
     infoMore: "For the full change log, head to GitHub —",
     infoMoreLinkPizza: "PizzaClip",
     infoMoreLinkPickle: "PICkle",
-    relMoreRest: "We’ll keep jarring the news right here as it lands — take a look around PICkle →",
     teamTitle: "Team jAm",
     teamTagline: "“It all starts with a playful imagination.”",
     teamBody1Html: `Team jAm — the makers of <span class="brand">PIZZA&nbsp;CLIP</span>, <span class="brand">PICkle</span>, and <span class="brand">Hot&nbsp;Sauce</span> — is a tiny project team started by jae_keun and min_gyeol, two people turning light little ideas into real things.`,
