@@ -164,6 +164,13 @@ export const info: Record<Lang, InfoContent> = {
     ],
     hotsauceReleases: [
       {
+        version: "1.1.3",
+        label: "제목 옆 퍼센트 표시",
+        notes: [
+          "CPU·메모리·저장 용량·배터리 제목 옆에 현재 수치가 퍼센트로 바로 보여요 — 게이지를 읽지 않아도 한눈에.",
+        ],
+      },
+      {
         version: "1.1.2",
         label: "위치 권한 없이 · 설정창 정리 🌶️",
         notes: [
@@ -353,6 +360,13 @@ export const info: Record<Lang, InfoContent> = {
       },
     ],
     hotsauceReleases: [
+      {
+        version: "1.1.3",
+        label: "Percent at a Glance",
+        notes: [
+          "CPU, Memory, Storage, and Battery now show their current percentage right next to the section title — no gauge-reading needed.",
+        ],
+      },
       {
         version: "1.1.2",
         label: "No Location Prompt · Tidied-Up Settings 🌶️",

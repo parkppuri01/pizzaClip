@@ -85,8 +85,11 @@ struct PopupView: View {
             .placedCenter(x, y, w: size, h: size)
     }
 
-    private func sectionTitle(_ text: String, left: CGFloat, centerY: CGFloat) -> some View {
-        Text(text)
+    private func sectionTitle(_ text: String, left: CGFloat, centerY: CGFloat,
+                              percent: Double? = nil) -> some View {
+        // percent 가 있으면 제목 옆에 현재 수치를 붙인다. 예: "CPU  43%"
+        let title = percent.map { text + "  " + String(format: "%.0f%%", $0) } ?? text
+        return Text(title)
             .font(DS.font(DS.titleFontSize))
             .foregroundColor(DS.text)
             .placedLeft(left, centerY: centerY)
@@ -116,7 +119,7 @@ struct PopupView: View {
     private func cpuSection(_ cpu: CPUSnapshot) -> some View {
         Group {
             sectionIcon("cpu_icon", x: 126, y: 184, size: 62)
-            sectionTitle("CPU", left: 238.5, centerY: 141.5)
+            sectionTitle("CPU", left: 238.5, centerY: 141.5, percent: cpu.totalPercent)
             gauge(fraction: cpu.totalPercent / 100, left: 238, centerY: 183.5)
             statText(L("System", "시스템") + " : " + Fmt.percent1(cpu.systemPercent),
                      left: 238, centerY: 226.2)
@@ -133,7 +136,8 @@ struct PopupView: View {
     private func memorySection(_ memory: MemorySnapshot) -> some View {
         Group {
             sectionIcon("memory_icon", x: 126, y: 339.6, size: 62)
-            sectionTitle(L("Memory", "메모리"), left: 238.5, centerY: 297.5)
+            sectionTitle(L("Memory", "메모리"), left: 238.5, centerY: 297.5,
+                         percent: memory.usedFraction * 100)
             gauge(fraction: memory.usedFraction, left: 238.5, centerY: 339.5)
             statText(L("Pressure", "압력") + " : " + Fmt.percent1(memory.pressurePercent),
                      left: 238, centerY: 381.2)
@@ -152,7 +156,8 @@ struct PopupView: View {
     private func diskSection(_ disk: DiskSnapshot) -> some View {
         Group {
             sectionIcon("disk_icon", x: 126, y: 493.7, size: 62)
-            sectionTitle(L("Storage", "저장 용량"), left: 239.5, centerY: 449.5)
+            sectionTitle(L("Storage", "저장 용량"), left: 239.5, centerY: 449.5,
+                         percent: disk.usedFraction * 100)
             gauge(fraction: disk.usedFraction, left: 240, centerY: 489.5)
             statText(L("Disk Used", "디스크 사용량") + " : "
                      + Fmt.diskGB(disk.usedBytes) + " / " + Fmt.diskGB(disk.totalBytes),
@@ -171,7 +176,8 @@ struct PopupView: View {
             ? "bat_icon_charge" : "bat_icon"
         return Group {
             sectionIcon(batteryIcon, x: 126, y: 648.5, size: 62)
-            sectionTitle(L("Battery", "배터리"), left: 239.5, centerY: 606.5)
+            sectionTitle(L("Battery", "배터리"), left: 239.5, centerY: 606.5,
+                         percent: battery.isPresent ? Double(battery.levelPercent) : nil)
             gauge(fraction: battery.isPresent ? Double(battery.levelPercent) / 100 : 0,
                   left: 239.5, centerY: 648.5)
             statText(L("Charge", "배터리 잔량") + " : "
