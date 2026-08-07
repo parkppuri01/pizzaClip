@@ -1,0 +1,12 @@
+// Mac App Store 빌드용 로컬 서명 설정.
+// 이 파일을 Signing-MAS.xcconfig 로 복사해서 본인 값을 채우세요.
+// Signing-MAS.xcconfig 는 gitignore 되어 개인 식별자가 저장소에 들어가지 않습니다.
+//
+// 직접 배포용 Signing.xcconfig 와는 별개입니다:
+//   Signing.xcconfig      → Developer ID Application (공증 DMG 직접 배포)
+//   Signing-MAS.xcconfig  → Apple Distribution       (App Store 업로드)
+//
+// 서명 방식(CODE_SIGN_STYLE=Automatic)과 인증서 종류는 project.yml 의
+// HotSauce-MAS 타깃에 이미 박혀 있으므로, 여기엔 팀 ID 만 있으면 됩니다.
+
+DEVELOPMENT_TEAM = YOUR_TEAM_ID

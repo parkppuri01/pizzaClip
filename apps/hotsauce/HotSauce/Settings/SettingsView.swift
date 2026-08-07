@@ -4,11 +4,23 @@ import ServiceManagement
 /// 설정 창 내용 — 세 앱 공통 '일반' 레이아웃.
 /// 위쪽은 앱 정체성(아이콘/이름/소개/버전) 배너, 아래쪽은 grouped 폼(일반=로그인
 /// 시작 / 언어 / 업데이트). pizzaClip·PICkle 과 같은 구조라 한 디자인으로 보인다.
+/// 설정 창 크기 — 뷰와 NSWindow 가 같은 값을 쓰도록 한 곳에 둔다.
+/// 앱스토어 빌드는 '업데이트' 섹션이 없어 그만큼 짧다.
+enum SettingsWindowMetrics {
+    #if MAS
+    static let size = NSSize(width: 500, height: 330)
+    #else
+    static let size = NSSize(width: 500, height: 420)
+    #endif
+}
+
 struct SettingsView: View {
     @AppStorage("appLanguage") private var appLanguage = "system"
+    #if !MAS
     // Sparkle reads this default live: unchecking it turns off silent background
     // download/install. Ships true, so updates auto-apply by default.
     @AppStorage("SUAutomaticallyUpdate") private var autoDownloadUpdates = true
+    #endif
     @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
     @State private var loginToggleError: String?
 
@@ -71,6 +83,8 @@ struct SettingsView: View {
                         .foregroundColor(.secondary)
                 }
 
+                // 앱스토어 빌드는 업데이트를 App Store 가 담당하므로 이 섹션이 없다.
+                #if !MAS
                 Section(L("Updates", "업데이트")) {
                     Toggle(L("Automatically download updates", "업데이트 자동 다운로드"),
                            isOn: $autoDownloadUpdates)
@@ -83,17 +97,21 @@ struct SettingsView: View {
                         NotificationCenter.default.post(name: .hotsauceCheckForUpdates, object: nil)
                     }
                 }
+                #endif
             }
             .formStyle(.grouped)
         }
-        .frame(width: 500, height: 420)
+        .frame(width: SettingsWindowMetrics.size.width,
+               height: SettingsWindowMetrics.size.height)
     }
 }
 
+#if !MAS
 extension Notification.Name {
     /// Settings → "Check for Updates…" button → ask the updater to check now.
     static let hotsauceCheckForUpdates = Notification.Name("hotsauceCheckForUpdates")
 }
+#endif
 
 /// 설정 창 관리 — SwiftUI Settings 씬 대신 직접 NSWindow 를 관리한다.
 /// (LSUIElement 앱에서 Settings 씬 열기는 macOS 버전별로 신뢰할 수 없음)
@@ -106,7 +124,7 @@ final class SettingsWindowController {
             let window = NSWindow(contentViewController: hosting)
             window.title = L("HotSauce Settings", "HotSauce 설정")
             window.styleMask = [.titled, .closable, .miniaturizable]
-            window.setContentSize(NSSize(width: 500, height: 420))
+            window.setContentSize(SettingsWindowMetrics.size)
             window.isReleasedWhenClosed = false
             window.center()
             self.window = window

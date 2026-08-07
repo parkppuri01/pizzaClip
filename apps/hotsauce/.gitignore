@@ -1,11 +1,13 @@
 # Xcode / build
 HotSauce.xcodeproj/
 build/
+build-mas/
 DerivedData/
 *.xcuserstate
 
-# Local signing identity (see Signing.xcconfig.example)
+# Local signing identity (see Signing.xcconfig.example / Signing-MAS.xcconfig.example)
 Signing.xcconfig
+Signing-MAS.xcconfig
 scripts/release.local.sh
 
 # macOS

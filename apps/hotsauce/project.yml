@@ -18,12 +18,31 @@ packages:
   Sparkle:
     url: https://github.com/sparkle-project/Sparkle
     from: "2.6.0"
+
+# ─────────────────────────────────────────────────────────────────────────────
+#  타깃 2개 = 배포 경로 2개. 소스는 같고, 빌드 조건으로 갈린다.
+#
+#   HotSauce      직접 배포 — Developer ID 서명 + 공증 DMG + Sparkle 자동 업데이트
+#   HotSauce-MAS  앱스토어 — App Sandbox + Sparkle 없음 (App Store 가 업데이트 담당)
+#
+#  코드에서 갈라지는 지점은 `#if MAS` 하나뿐이다(AppDelegate · StatusItemController
+#  · SettingsView). MAS 타깃만 SWIFT_ACTIVE_COMPILATION_CONDITIONS 에 MAS 를 준다.
+#
+#  ⚠️ 두 타깃 모두 산출물 이름이 HotSauce.app 이라 같은 derivedDataPath 로 빌드하면
+#     서로 덮어쓴다. 반드시 빌드 폴더를 나눌 것 (build/ vs build-mas/ — 아래 참고).
+# ─────────────────────────────────────────────────────────────────────────────
 targets:
   HotSauce:
     type: application
     platform: macOS
     sources:
       - path: HotSauce
+        excludes:
+          - Resources/Info-MAS.plist
+          # 툴링 상태 폴더가 소스 트리에 섞여도 번들에 딸려가지 않게 막는다.
+          # (실제로 1.1.3 까지 .omc/state 의 jsonl·json 이 앱 Resources 에 배포됐다)
+          - "**/.omc"
+          - "**/.omc/**"
     configFiles:
       Debug: Signing.xcconfig
       Release: Signing.xcconfig
@@ -43,10 +62,50 @@ targets:
     dependencies:
       - package: Sparkle
         product: Sparkle
+
+  HotSauce-MAS:
+    type: application
+    platform: macOS
+    sources:
+      - path: HotSauce
+        excludes:
+          - Resources/Info.plist
+          - "**/.omc"
+          - "**/.omc/**"
+    # 앱스토어는 Apple Distribution 인증서 + Mac App Store 프로비저닝 프로파일이
+    # 필요하다. Developer ID 를 담은 Signing.xcconfig 를 쓰면 안 되므로 별도 파일.
+    configFiles:
+      Debug: Signing-MAS.xcconfig
+      Release: Signing-MAS.xcconfig
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.Team-jAm.HotSauce
+        PRODUCT_NAME: HotSauce
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: HotSauce/Resources/Info-MAS.plist
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_ENTITLEMENTS: HotSauce/HotSauce-MAS.entitlements
+        # 프로젝트 공통값(Manual/Developer ID)을 타깃 레벨에서 덮어쓴다.
+        # 앱스토어는 Xcode 가 프로비저닝 프로파일을 관리하게 두는 편이 안전하다.
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "Apple Distribution"
+      configs:
+        Debug:
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG MAS
+        Release:
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: MAS
+    # Sparkle 의존성 없음 — 앱스토어 앱의 자체 업데이트는 심사 리젝 사유다.
+
 schemes:
   HotSauce:
     build:
       targets:
         HotSauce: all
+    run:
+      config: Debug
+  HotSauce-MAS:
+    build:
+      targets:
+        HotSauce-MAS: all
     run:
       config: Debug

@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  직접 배포(Developer ID + Sparkle + 공증 DMG) 빌드용 Info.plist.
-  ⚠️ Info-MAS.plist(앱스토어용)와 쌍둥이다 — 번들 정보를 바꿀 땐 양쪽 다 고칠 것.
+  Mac App Store 빌드 전용 Info.plist.
+
+  ⚠️ Info.plist(직접 배포용)와 쌍둥이다. 한쪽만 고치면 두 빌드가 어긋난다.
+     번들 정보(버전·아이콘·로컬라이제이션 등)를 바꿀 땐 반드시 양쪽 다 고칠 것.
+
+  직접 배포용과의 차이:
+    빠짐  — SUPublicEDKey / SUFeedURL / SUEnableAutomaticChecks /
+            SUAutomaticallyUpdate / SUScheduledCheckInterval
+            (앱스토어 앱은 자체 업데이트가 금지. 업데이트는 App Store 담당)
+    추가  — LSApplicationCategoryType     (없으면 App Store Connect 업로드 거부)
+            ITSAppUsesNonExemptEncryption (업로드마다 뜨는 암호화 설문 스킵)
 -->
 <plist version="1.0">
 <dict>
@@ -41,15 +50,7 @@
 	<string>© 2026 TEAM jAm. All rights reserved.</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
-	<key>SUPublicEDKey</key>
-	<string>KR0QzoAjNr4/Crb4N+2AEGL2GKvfX8PO/yTA3sTQolg=</string>
-	<key>SUFeedURL</key>
-	<string>https://pizza-clip.com/hotsauce/appcast.xml</string>
-	<key>SUEnableAutomaticChecks</key>
-	<true/>
-	<key>SUAutomaticallyUpdate</key>
-	<true/>
-	<key>SUScheduledCheckInterval</key>
-	<integer>86400</integer>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

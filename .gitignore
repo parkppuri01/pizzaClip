@@ -9,6 +9,9 @@
 # OMC / Claude Code 툴링 상태 (소스 아님: 세션 메모리·플랜·로그)
 .omc/
 
+# CodeGraph 코드 색인 (로컬 산출물 — `codegraph init <경로>` 로 재생성)
+.codegraph/
+
 # Claude Code 런타임 부산물 · 개인 로컬설정 (소스 아님)
 .claude/scheduled_tasks.lock
 .claude/settings.local.json

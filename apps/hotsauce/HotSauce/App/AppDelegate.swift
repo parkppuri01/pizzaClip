@@ -1,6 +1,9 @@
 import AppKit
 import SwiftUI
+#if !MAS
+// 앱스토어 빌드(MAS)는 자체 업데이트가 금지라 Sparkle 을 아예 링크하지 않는다.
 import Sparkle
+#endif
 
 /// 조립 담당(composition root): 지표 엔진, 메뉴바 아이템, 설정 창, 자동 업데이트.
 @main
@@ -10,7 +13,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let engine = MetricsEngine()
     private var statusItemController: StatusItemController?
     private let settingsController = SettingsWindowController()
+    #if !MAS
     private var updaterController: SPUStandardUpdaterController?
+    #endif
 
     static func main() {
         let app = NSApplication.shared
@@ -21,6 +26,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        #if !MAS
         updaterController = SPUStandardUpdaterController(
             startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
         // 자동 업데이트: 백그라운드 확인은 항상 켠다. 자동 다운로드/설치 여부는
@@ -28,15 +34,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 토글에 연동)이 결정한다. 여기서 다운로드를 강제하지 않으므로, 사용자가
         // 토글을 끄면 다음 실행에도 꺼진 상태가 유지된다.
         updaterController?.updater.automaticallyChecksForUpdates = true
+        #endif
 
         let statusItemController = StatusItemController(engine: engine)
         statusItemController.onOpenSettings = { [weak self] in
             self?.settingsController.show()
         }
+        self.statusItemController = statusItemController
+
+        #if !MAS
         statusItemController.onCheckForUpdates = { [weak self] in
             self?.updaterController?.checkForUpdates(nil)
         }
-        self.statusItemController = statusItemController
 
         // Settings → "Check for Updates…" → run a manual update check.
         NotificationCenter.default.addObserver(
@@ -44,6 +53,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         ) { [weak self] _ in
             self?.updaterController?.checkForUpdates(nil)
         }
+        #endif
 
         engine.start()
 
@@ -56,7 +66,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // 디버그용: HOTSAUCE_SNAPSHOT=<경로> 로 실행하면 팝업을 PNG 로 저장하고 종료.
-        // 화면 캡처 권한 없이 디자인 검증을 하기 위한 훅.
+        // 화면 캡처 권한 없이 디자인 검증을 하기 위한 훅. 두 빌드 모두에 남긴다 —
+        // 앱스토어 빌드도 UI 검증이 필요하고, 샌드박스에서도 컨테이너 안 경로면
+        // 정상 저장된다(환경변수를 안 주면 아무 일도 안 하므로 심사에도 무해).
         if let snapshotPath = ProcessInfo.processInfo.environment["HOTSAUCE_SNAPSHOT"] {
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { [weak self] in
                 self?.saveSnapshot(to: snapshotPath)

@@ -9,7 +9,10 @@ final class StatusItemController: NSObject {
     private let contextMenu = NSMenu()
 
     var onOpenSettings: (() -> Void)?
+    #if !MAS
+    /// 직접 배포(Sparkle) 전용. 앱스토어 빌드는 App Store 가 업데이트를 담당한다.
     var onCheckForUpdates: (() -> Void)?
+    #endif
 
     init(engine: MetricsEngine) {
         self.engine = engine
@@ -65,11 +68,13 @@ final class StatusItemController: NSObject {
         settingsItem.target = self
         contextMenu.addItem(settingsItem)
 
+        #if !MAS
         let updateItem = NSMenuItem(
             title: L("Check for Updates…", "업데이트 확인…"),
             action: #selector(checkForUpdatesClicked), keyEquivalent: "")
         updateItem.target = self
         contextMenu.addItem(updateItem)
+        #endif
 
         contextMenu.addItem(.separator())
 
@@ -80,7 +85,9 @@ final class StatusItemController: NSObject {
     }
 
     @objc private func openSettingsClicked() { onOpenSettings?() }
+    #if !MAS
     @objc private func checkForUpdatesClicked() { onCheckForUpdates?() }
+    #endif
 
     // MARK: - 팝업
 
