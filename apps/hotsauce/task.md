@@ -1,5 +1,41 @@
 # HotSauce 작업 현황
 
+## 🍎 앱스토어 출시 준비 — 듀얼 타깃 (2026-08-06, 세션 9) — 코드 완료·미배포·미커밋
+- [x] 샌드박스 실측: 시스템 API 9종을 App Sandbox ON/OFF 로 비교 → **CoreWLAN(Wi-Fi 신호세기)만 차단**, `network.client` 엔타이틀먼트로 해결. 나머지(CPU·메모리·디스크·배터리 IOKit·네트워크·활성보기 실행)는 전부 통과 → **지표 엔진 코드 수정 불필요**
+- [x] 타깃 2개 분리 — `HotSauce`(Developer ID + Sparkle, 기존 그대로) / `HotSauce-MAS`(App Sandbox, Sparkle 없음). 코드 분기는 `#if MAS` 하나
+- [x] 신규: `HotSauce-MAS.entitlements` · `Info-MAS.plist` · `Signing-MAS.xcconfig(.example)` · `Fonts/NOTICE.txt`
+- [x] 양쪽 plist 보강: 저작권 문구 + `LSApplicationCategoryType`, MAS 는 `ITSAppUsesNonExemptEncryption` 추가
+- [x] 검증 4중: 두 타깃 빌드 성공 / MAS 번들에 Sparkle 0건 / 직접 배포 회귀 0 / **샌드박스 서명 실행 → 팝업 렌더 정상**
+- [x] 웹 `/privacy`·`/en/privacy` 신설 (App Store Connect 필수) — 빌드 11→13페이지, 회귀 0
+- [x] 🐞 **실배포 버그 수정** — `.omc` 툴링 상태 파일(jsonl/json)이 앱 번들 Resources 에 섞여 **1.1.3 공개 DMG 까지 배포되고 있었음**. 두 타깃 sources 에 `"**/.omc"` exclude 추가 + 옛 잔여물 삭제 → 번들 잡파일 0건. (피클도 동일 문제 있음 — 별도 스트림)
+- 다음: Apple 포털 App ID·프로파일·인증서 → App Store Connect 메타데이터·스크린샷 → **심사노트에 "메뉴바 아이콘 클릭" 필수 기재**(LSUIElement 리젝 방지)
+- 상세: `docs/HANDOFF.md` 세션 9
+
+## ✅ 1.1.3 제목 옆 퍼센트 표시 + 배포 (2026-07-15, 세션 8)
+- [x] 팝업 섹션 제목 옆에 현재 수치 병기 (`CPU  43%`) — CPU·메모리·저장 용량·배터리. 게이지와 같은 기준값, 네트워크 제외·배터리 미장착 시 생략
+- [x] 1.1.3(빌드6) 공증 DMG → appcast → web(다운로드·softwareVersion·릴리스노트 한/영)
+- 커밋 `ba91981`
+
+## ✅ 1.1.2 설정창 3앱 통일 + 배포 (2026-07-09, 세션 7)
+- [x] 설정창을 피자·피클과 동형으로 통일 — 아이콘·이름·버전 헤더 + `Form(.grouped)`(로그인시작/언어/업데이트), 창 500×420
+- [x] 자동 다운로드 토글 신설(`SUAutomaticallyUpdate`) + AppDelegate 의 강제 `automaticallyDownloadsUpdates` 제거 → 토글이 실제로 동작
+- [x] 세션 6의 SSID·위치권한 제거분을 함께 배포
+- 커밋 `47580e0`
+
+## 🔧 Wi-Fi 이름·위치권한 제거 (2026-07-06, 세션 6) — 세션 7에서 커밋·배포됨
+- [x] SSID 표시 + CoreLocation 위치권한 요청 코드 전부 제거 (위치권한 프롬프트 거부감 때문 → SSID 도입 이전 상태로 원복)
+  - `Snapshot.swift`(ssid 필드) · `NetworkSampler.swift`(signalBars()로 복원, 신호세기 유지·`ssid()`호출 제거) · `PopupView.swift`(네트워크 이름 줄 삭제 + 좌표 원복, 아이콘 size:62는 유지) · `AppDelegate.swift`(CoreLocation 전부) · `Info.plist`(위치 설명 키 2개)
+- [x] 검증 3중: grep 잔여 0건 + Release 컴파일 성공 + 팝업 렌더 육안 확인(Wi-Fi 줄 사라짐, 신호세기 ●●●●● 유지)
+- 상태: 당시 미커밋이었으나 **세션 7(1.1.2)에서 커밋·배포로 해소됨**
+
+## ✅ 1.1.1 버그픽스 + 배포 (2026-07-05, 세션 5)
+- [x] 자물쇠 클릭 버그 수정 — 탭 영역이 offset(placedCenter) 뒤 contentShape라 팝업 좌상단에 남던 문제 → footer 패턴(별도 Color.clear 탭영역)
+- [x] 타이틀 폰트 피클과 통일 — SF 13pt semibold (세션4의 18.2pt Pretendard 오판 바로잡음)
+- [x] 위치권한·Wi-Fi 이름 표시 — 근본원인=위치 서비스 전역 OFF(코드 아님). 코드도 델리게이트 상태분기 + startUpdatingLocation 보강
+- [x] 네트워크 이름(SSID)을 로컬 IP 바로 위로 재배치
+- [x] 1.1.1(빌드4) 공증 DMG → appcast(EdDSA) → web/public → consts.ts+HotSaucePage.astro(softwareVersion) → push → 라이브 검증 통과
+- 커밋 `6544a62`
+
 ## ✅ 1.1.0 기능 추가 + 배포 (2026-07-05, 세션 3)
 - [x] Wi-Fi 네트워크 이름(SSID) 한 줄 추가 — CoreLocation 위치권한 요청 포함(macOS 14+ 필수, 거부 시 "—")
 - [x] 팝업 자물쇠 잠금(고정) — 헤더 우상단 토글, 잠그면 포커스 잃어도 안 닫힘 (FocusablePanel.isLocked)
@@ -28,7 +64,7 @@
 - [ ] (선택) 사용자 실사용 피드백 반영 (병 매핑 순서, 팝업 크기, 웹 색·문구·스티커 위치 등)
 
 ## 미결 사항
-- 앱스토어 버전은 샌드박스 대응 필요 (추후)
+- ~~앱스토어 버전은 샌드박스 대응 필요~~ → **세션 9에서 해소**(듀얼 타깃 + 샌드박스 실측 완료). 남은 건 Apple 포털·App Store Connect 쪽 작업.
 
 ## ✅ 팀원 배포 (2026-07-03)
 - [x] 서명+공증+staple DMG 생성 → `~/Downloads/HotSauce-0.1.0.dmg` (3.1MB)
@@ -45,8 +81,19 @@
 ## 빌드 명령
 ```bash
 xcodegen generate   # .swift 파일 추가/삭제 후 필수
+
+# 직접 배포 타깃 (Developer ID + Sparkle)
 xcodebuild -project HotSauce.xcodeproj -scheme HotSauce -configuration Release \
   -derivedDataPath build -clonedSourcePackagesDirPath build/SourcePackages build
+
+# 앱스토어 타깃 (App Sandbox, Sparkle 없음)
+# ⚠️ 산출물 이름이 둘 다 HotSauce.app 이라 derivedDataPath 를 반드시 분리할 것
+xcodebuild -project HotSauce.xcodeproj -scheme HotSauce-MAS -configuration Release \
+  -derivedDataPath build-mas -clonedSourcePackagesDirPath build/SourcePackages build
+
 # 디자인 검증용 팝업 PNG:
 HOTSAUCE_SNAPSHOT=/tmp/popup.png ./build/Build/Products/Release/HotSauce.app/Contents/MacOS/HotSauce
+# MAS 빌드는 샌드박스라 컨테이너 안 경로로 줘야 한다:
+HOTSAUCE_SNAPSHOT="$HOME/Library/Containers/com.Team-jAm.HotSauce/Data/popup.png" \
+  ./build-mas/Build/Products/Release/HotSauce.app/Contents/MacOS/HotSauce
 ```

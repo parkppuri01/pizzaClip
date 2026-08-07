@@ -4,6 +4,64 @@
 
 ---
 
+## 세션 9 — 2026-08-06: 앱스토어 출시 준비 — 듀얼 타깃 전환 (✅ 코드 완료 · 미배포·미커밋)
+
+### 마지막으로 한 일
+- **샌드박스 실측 먼저.** 앱스토어는 App Sandbox 가 강제라, 핫소스가 쓰는 시스템 API 9종을 프로브 앱(adhoc 서명 + `com.apple.security.app-sandbox`)으로 샌드박스 ON/OFF 각각 돌려 비교했다. 결과:
+  - **통과** — CPU `host_statistics` · 메모리 `host_statistics64` · `sysctl`(압력/스왑) · 루트 볼륨 용량 · `getifaddrs`(속도·로컬IP) · **IOKit `AppleSmartBattery`(온도·사이클까지)** · `NSWorkspace.openApplication`(활성 상태 보기 실행).
+  - **차단** — CoreWLAN `CWWiFiClient.interface()` 가 **nil**. → `com.apple.security.network.client` 를 주면 정상 복귀(rssi 값 확인). **이게 유일한 실제 차단이었다.**
+  - ⚠️ 이걸 놓치면 크래시가 아니라 **조용히 틀린 값** — `NetworkSampler.signalBars()` 가 RSSI 를 못 읽으면 유선으로 간주해 신호를 **항상 5칸**으로 표시한다.
+- **결론: 지표 수집 엔진은 코드 수정이 필요 없다.** 공사는 배포 인프라 쪽뿐이었다.
+- **타깃 2개로 분리**(`project.yml`) — 사용자 결정 "직접 배포 + 앱스토어 둘 다 유지":
+  - `HotSauce` — 기존 그대로(Developer ID · Sparkle · 공증 DMG). 동작 변화 없음.
+  - `HotSauce-MAS` — App Sandbox · **Sparkle 의존성 없음** · `Info-MAS.plist` · `HotSauce-MAS.entitlements` · `CODE_SIGN_STYLE=Automatic` + `Apple Distribution`.
+  - 코드 분기는 `#if MAS` **하나뿐**: `AppDelegate`(Sparkle import·updater·노티 옵저버), `StatusItemController`(우클릭 '업데이트 확인'), `SettingsView`('업데이트' 섹션 + `SUAutomaticallyUpdate` + 알림 이름).
+  - 설정창 높이를 `SettingsWindowMetrics` 로 한 곳에 모음 — MAS 는 업데이트 섹션이 없어 500×330, 직접 배포는 500×420 유지.
+- **신규 파일**: `HotSauce/HotSauce-MAS.entitlements`(sandbox + network.client, 실측 근거 주석 포함) · `HotSauce/Resources/Info-MAS.plist` · `Signing-MAS.xcconfig.example`(+ 로컬 `Signing-MAS.xcconfig` 생성·gitignore) · `HotSauce/Resources/Fonts/NOTICE.txt`(Pretendard OFL 고지).
+- **양쪽 Info.plist 보강**: `NSHumanReadableCopyright` 채움 + `LSApplicationCategoryType=public.app-category.utilities`. MAS 쪽엔 `ITSAppUsesNonExemptEncryption=false` 추가, **SU\* 키 5개는 애초에 없음**.
+- **검증 4중**: (1) 두 타깃 다 Release 빌드 성공(에러 0). (2) MAS 번들에 `Frameworks/` 없음 + `otool -L` 에 Sparkle 없음 + Info.plist 에 SU\* 키 0건. (3) 직접 배포 번들은 `Sparkle.framework`·`SUFeedURL` 그대로 = 회귀 없음. (4) **MAS 빌드를 샌드박스 엔타이틀먼트로 서명해 실제 실행 → 팝업 PNG 렌더 성공**(CPU 28%·메모리 79%·저장 50%·배터리 100%/30.7°C/104사이클·로컬IP·업다운 속도 전부 정상, 신호 5칸은 실제 rssi −43 이라 진짜 값).
+- **🐞 덤으로 실배포 버그 발견·수정 — 앱 번들에 툴링 상태 파일이 섞여 나가고 있었음.**
+  - `HotSauce/Resources/DesignAssets/.omc/state/` 의 `agent-replay-*.jsonl`(765B) · `subagent-tracking-state.json`(131B) 이 XcodeGen 에 리소스로 잡혀 앱 `Contents/Resources/` 에 복사됨. **`web/public/hotsauce/HotSauce-1.1.3.dmg`(공개 배포본)와 `/Applications` 설치본에서 실물 확인.** 2026-07-04 자 파일이라 그 이후 릴리스에 계속 실려 나간 것으로 보인다.
+  - 내용은 에이전트 실행 텔레메트리(`agent`/`agent_type`/`event`/`success`/`t`)로 **대화·소스 내용은 아님** → 유출 피해는 사실상 없음. 다만 앱에 들어갈 파일이 아니고, 앱스토어 심사에서 정체불명 파일은 불필요한 트집거리다.
+  - 원인: `.omc/` 는 gitignore 라 저장소는 깨끗한데, **빌드는 gitignore 를 안 본다**. 소스 폴더에 있으면 그냥 번들에 들어간다.
+  - 수정: 두 타깃 `sources.excludes` 에 `"**/.omc"`·`"**/.omc/**"` 추가 + 리소스 폴더의 옛 `.omc` 삭제. 재생성·재빌드 후 두 번들 모두 잡파일 0건 확인.
+  - ⚠️ **피클도 같은 문제**(`apps/pickle/PicKle/.omc` → `/Applications/PICkle.app` 에 1건). 다른 스트림이라 손대지 않음 — 별도 작업으로 남김. 피자클립은 `.omc` 가 타깃 폴더 밖이라 번들 깨끗(0건).
+- **웹**: `/privacy` · `/en/privacy` 신설 — App Store Connect 필수 입력인 개인정보처리방침. 내용은 `middleware.js` 의 실제 수집 로직(real/ver/uniq/geo 키, IP 월별 소금 해시, 400일 TTL, `pclang` 쿠키)과 1:1로 맞춰 씀. 빌드 11→13페이지, 회귀 0, 한/영·hreflang·모바일 렌더 확인.
+
+### 다음에 할 일
+1. **Apple 쪽 사전 작업**(사용자만 가능): Developer 포털에서 App ID 등록 → Mac App Store 프로비저닝 프로파일 → Apple Distribution 인증서. `Signing-MAS.xcconfig` 에 팀 ID 는 이미 채워둠.
+2. **App Store Connect 메타데이터**: 이름·부제·설명·키워드·카테고리·연령등급·스크린샷(1280×800 등)·지원 URL·개인정보처리방침 URL(`https://pizza-clip.com/privacy`).
+3. **⚠️ 심사 리스크 대비** — LSUIElement 라 리뷰어가 앱을 못 찾아 리젝되는 사례가 흔하다. App Review Information 에 "메뉴바 우측 핫소스 병 아이콘 클릭" + 스크린샷을 **반드시** 적을 것. Guideline 4.2(최소 기능)도 설명으로 방어.
+4. **남은 보강**: `PrivacyInfo.xcprivacy`(macOS 는 아직 강제 아님) · Pretendard `OFL.txt` 사본 확보(NOTICE.txt 에 curl 명령 적어둠) · 앱 이름 "HotSauce" 스토어 선점 여부 확인 · 앱 아이콘 둥근 모서리(이월).
+5. (이월) 폭발 파티클 전용 아트 · 옛 `HotSauce-1.0.0.dmg` 정리.
+
+### 주의사항 / 컨텍스트
+- **두 타깃 산출물이 둘 다 `HotSauce.app`** → 같은 `-derivedDataPath` 로 빌드하면 서로 덮어쓴다. 반드시 분리:
+  ```bash
+  xcodebuild -scheme HotSauce     -derivedDataPath build      …   # 직접 배포
+  xcodebuild -scheme HotSauce-MAS -derivedDataPath build-mas  …   # 앱스토어
+  ```
+- **Info.plist 가 쌍둥이 2개**(`Info.plist` / `Info-MAS.plist`). 버전·아이콘·로컬라이제이션 등 번들 정보를 바꿀 땐 **양쪽 다** 고쳐야 한다. 양쪽 파일 머리에 경고 주석을 달아뒀다.
+- **번들 ID 는 둘 다 `com.Team-jAm.HotSauce`** 로 뒀다. 직접 배포판(비샌드박스)은 `~/Library/Preferences/`, MAS 판은 `~/Library/Containers/` 를 쓰므로 설정은 서로 섞이지 않는다. 기존 1.1.3 직접 설치 사용자는 **App Store 판으로 자동 이전되지 않는다** — 웹에 이전 안내가 필요.
+- **디버그 훅은 두 빌드 모두에 유지**(`HOTSAUCE_SHOW_POPUP`/`HOTSAUCE_SNAPSHOT`). 한때 MAS 에서 빼려다 되돌렸다 — 샌드박스에서도 **컨테이너 안 경로면 정상 저장**되고, 앱스토어 빌드도 UI 검증 수단이 필요하기 때문. 환경변수를 안 주면 아무 일도 안 하므로 심사에 무해.
+- **MAS 팝업 검증법**: `HOTSAUCE_SNAPSHOT="$HOME/Library/Containers/com.Team-jAm.HotSauce/Data/popup.png"` — 컨테이너 밖 경로(/tmp 등)로 주면 샌드박스가 막아 저장이 안 된다.
+- `SUPPORT_EMAIL`(`web/src/consts.ts`)에 개인 메일이 공개 페이지로 노출된다. 별도 문의용 주소를 쓰려면 이 상수만 바꾸면 전 페이지 반영.
+- **미커밋 상태** — 앱 코드·웹 privacy·문서 전부 작업트리에만 있음.
+
+---
+
+## 세션 8 — 2026-07-15: 1.1.3 섹션 제목 옆 퍼센트 표시 (✅ 완료·배포됨 · 기록은 소급 작성)
+
+> 이 세션은 당시 랩업 없이 끝나 HANDOFF·task 에 빠져 있었다. 커밋 `ba91981` 기준으로 세션 9에서 소급 정리.
+
+### 마지막으로 한 일
+- **1.1.3(빌드6) 공증 배포 완료.** 커밋 `ba91981` → master push.
+- **기능 1건**: 팝업 섹션 제목 옆에 현재 수치를 퍼센트로 병기 (`CPU  43%` 꼴). `PopupView.sectionTitle` 에 `percent: Double?` 파라미터를 추가하고 CPU(`cpu.totalPercent`)·메모리(`usedFraction*100`)·저장 용량(`usedFraction*100`)·배터리에 전달. **게이지와 같은 기준값**을 쓴다. 네트워크는 해당 없음, 배터리 미장착 시 생략.
+- **배포 범위**: `project.yml` 1.1.3/6 → 공증 DMG(`web/public/hotsauce/HotSauce-1.1.3.dmg`) → EdDSA appcast → `consts.ts` `HOTSAUCE_DOWNLOAD_URL` → `HotSaucePage.astro` `softwareVersion` → `info.ts` 릴리스노트(한/영) 추가.
+- 로컬 `/Applications` 에 1.1.3(build6) 설치·실행 중.
+
+---
+
 ## 세션 7 — 2026-07-09: 설정창 3앱 통일 + 1.1.2 정식 배포 (✅ 완료·배포됨)
 
 ### 마지막으로 한 일
