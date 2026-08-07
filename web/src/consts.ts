@@ -11,6 +11,11 @@ export const GITHUB_URL = "https://github.com/parkppuri01/pizzaClip";
 export const INSTAGRAM_URL = "https://www.instagram.com/team___jam/";
 export const THREADS_URL = "https://www.threads.com/@team___jam";
 
+// 지원·문의 메일 — /privacy 페이지와 App Store Connect 의 지원 연락처에 쓰인다.
+// ⚠️ 공개 페이지에 그대로 노출되는 주소다. 개인 메일 대신 별도 문의용 주소를 쓰려면
+//    여기만 바꾸면 전 페이지에 반영된다.
+export const SUPPORT_EMAIL = "jekeun.p@gmail.com";
+
 // ── 리뉴얼(2026-06): 루트(/)는 인트로 선택화면. 피자클립 홈은 /pizzaclip 로 이동 ──
 export const PIZZA_HOME = "/pizzaclip";
 

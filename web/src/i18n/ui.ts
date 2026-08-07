@@ -22,6 +22,7 @@ export const ROUTES = {
   pickle: "/pickle",
   hotsauce: "/hotsauce",
   info: "/info",
+  privacy: "/privacy",
 } as const;
 export type RouteKey = keyof typeof ROUTES;
 

@@ -1,0 +1,109 @@
+---
+/**
+ * PRIVACY — 개인정보처리방침. lang 으로 한/영 공용.
+ * 디자인은 INFO(/info) 와 동일한 톤: 슬레이트 블루 배경 + 떠 있는 크림 네비(JAM) + 푸터 없음.
+ *
+ * App Store Connect 가 요구하는 개인정보처리방침 URL 이 이 페이지다.
+ * 본문은 src/i18n/privacy.ts 에 있다 (코드 동작과 1:1로 맞춰 쓴 문서 — 수집 로직을 바꾸면 같이 고칠 것).
+ */
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { SUPPORT_EMAIL } from "../../consts.ts";
+import { type Lang, ROUTES } from "../../i18n/ui.ts";
+import { privacy } from "../../i18n/privacy.ts";
+
+interface Props { lang?: Lang; }
+const { lang = "ko" } = Astro.props;
+const c = privacy[lang];
+---
+<BaseLayout site="intro" bodyClass="intro-body" lang={lang} koPath={ROUTES.privacy}
+            title={c.metaTitle} description={c.metaDescription}>
+  <section class="section container privacy">
+    <header class="privacy__head">
+      <h1>{c.headH1}</h1>
+      <p>{c.headSub}</p>
+      <p class="privacy__updated">{c.updatedLabel}: <time datetime={c.updatedDate}>{c.updatedDate}</time></p>
+    </header>
+
+    <!-- 한 줄 요약 — 나머지를 안 읽어도 핵심은 전달되게 -->
+    <aside class="tldr">
+      <h2>{c.tldrH}</h2>
+      <p>{c.tldr}</p>
+    </aside>
+
+    <div class="privacy__body">
+      {c.sections.map((s) => (
+        <section class="pv">
+          <h2>{s.h}</h2>
+          {s.body?.map((p) => (<p>{p}</p>))}
+          {s.bullets && (
+            <ul>
+              {s.bullets.map((b) => (<li>{b}</li>))}
+            </ul>
+          )}
+        </section>
+      ))}
+
+      <section class="pv">
+        <h2>{c.contactH}</h2>
+        <p>{c.contactBody}</p>
+        <p><a class="pv__mail" href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a></p>
+      </section>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* 슬레이트 배경 위 — 제목/본문은 크림, 읽기 위주라 한 컬럼 고정 */
+  .privacy { max-width: 760px; }
+  .privacy__head { padding-top: clamp(0.75rem, 3vw, 2.5rem); margin-bottom: clamp(1.75rem, 4vw, 2.75rem); }
+  .privacy__head h1 { color: var(--intro-cream); }
+  .privacy__head p { color: var(--intro-cream); margin-top: 0.7rem; }
+  .privacy__updated { font-size: var(--fs-small); opacity: 0.75; }
+
+  /* 요약 카드 — 슬레이트 위 크림 카드 (릴리스노트 카드와 같은 어법) */
+  .tldr {
+    background: var(--color-bg);
+    border: 2px solid var(--border-ink);
+    border-radius: var(--radius-card);
+    box-shadow: 6px 6px 0 0 rgba(16, 33, 56, 0.28);
+    padding: 1.3rem 1.5rem;
+    margin-bottom: clamp(2rem, 5vw, 3rem);
+  }
+  .tldr h2 { font-size: 1.05rem; color: var(--color-ink); }
+  .tldr p { margin-top: 0.5rem; color: var(--color-text); line-height: 1.7; }
+
+  .privacy__body { display: grid; gap: clamp(1.75rem, 4vw, 2.5rem); }
+  .pv h2 {
+    color: var(--intro-cream);
+    font-size: clamp(1.1rem, 2.6vw, 1.3rem);
+    margin-bottom: 0.7rem;
+  }
+  .pv p {
+    color: var(--intro-cream);
+    opacity: 0.92;
+    line-height: 1.75;
+    margin-bottom: 0.6rem;
+  }
+  .pv ul { display: grid; gap: 0.5rem; margin-top: 0.5rem; }
+  .pv li {
+    position: relative;
+    padding-left: 1.15rem;
+    color: var(--intro-cream);
+    opacity: 0.92;
+    line-height: 1.7;
+  }
+  .pv li::before {
+    content: "·";
+    position: absolute;
+    left: 0.3rem;
+    font-weight: 700;
+  }
+
+  .pv__mail {
+    color: var(--intro-cream);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-family: var(--font-en);
+  }
+  .pv__mail:focus-visible { outline: 2px solid var(--intro-cream); outline-offset: 3px; }
+</style>
