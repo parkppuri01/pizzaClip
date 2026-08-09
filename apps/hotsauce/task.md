@@ -7,6 +7,8 @@
 - [x] 양쪽 plist 보강: 저작권 문구 + `LSApplicationCategoryType`, MAS 는 `ITSAppUsesNonExemptEncryption` 추가
 - [x] 검증 4중: 두 타깃 빌드 성공 / MAS 번들에 Sparkle 0건 / 직접 배포 회귀 0 / **샌드박스 서명 실행 → 팝업 렌더 정상**
 - [x] 웹 `/privacy`·`/en/privacy` 신설 (App Store Connect 필수) — 빌드 11→13페이지, 회귀 0
+- [x] 방침 진입점 배치 — 웹 푸터 3개 전부(피자·피클·핫소스) + 앱 설정창 버전 줄 옆. 샌드박스 URL 열기 실측 완료
+- [x] 설정창 MAS 높이 330 → **420 원복** (330 은 추정값이었고 렌더해보니 '언어' 섹션이 잘렸음. 420 = 3앱 통일 규격이자 검증된 값)
 - [x] 🐞 **실배포 버그 수정** — `.omc` 툴링 상태 파일(jsonl/json)이 앱 번들 Resources 에 섞여 **1.1.3 공개 DMG 까지 배포되고 있었음**. 두 타깃 sources 에 `"**/.omc"` exclude 추가 + 옛 잔여물 삭제 → 번들 잡파일 0건. (피클도 동일 문제 있음 — 별도 스트림)
 - 다음: Apple 포털 App ID·프로파일·인증서 → App Store Connect 메타데이터·스크린샷 → **심사노트에 "메뉴바 아이콘 클릭" 필수 기재**(LSUIElement 리젝 방지)
 - 상세: `docs/HANDOFF.md` 세션 9

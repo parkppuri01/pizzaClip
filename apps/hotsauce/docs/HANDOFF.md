@@ -27,6 +27,13 @@
   - 수정: 두 타깃 `sources.excludes` 에 `"**/.omc"`·`"**/.omc/**"` 추가 + 리소스 폴더의 옛 `.omc` 삭제. 재생성·재빌드 후 두 번들 모두 잡파일 0건 확인.
   - ⚠️ **피클도 같은 문제**(`apps/pickle/PicKle/.omc` → `/Applications/PICkle.app` 에 1건). 다른 스트림이라 손대지 않음 — 별도 작업으로 남김. 피자클립은 `.omc` 가 타깃 폴더 밖이라 번들 깨끗(0건).
 - **웹**: `/privacy` · `/en/privacy` 신설 — App Store Connect 필수 입력인 개인정보처리방침. 내용은 `middleware.js` 의 실제 수집 로직(real/ver/uniq/geo 키, IP 월별 소금 해시, 400일 TTL, `pclang` 쿠키)과 1:1로 맞춰 씀. 빌드 11→13페이지, 회귀 0, 한/영·hreflang·모바일 렌더 확인.
+  - "세 앱 모두 외부 전송 없음" 주장을 실제로 검증함 — 피자클립·피클 소스에 `URLSession`/`dataTask`/분석 SDK 0건, 통신은 Sparkle appcast 확인뿐(방침 2번에 기술된 그것). 방침 문구가 사실과 일치.
+- **개인정보처리방침 진입점 3곳 배치**:
+  - 웹 푸터 **세 개 전부**(`Footer.astro` 피자 · `PickleFooter.astro` · `HotSauceFooter.astro`) + `ui.ts` 에 `footerPrivacy`(한 "개인정보처리방침" / 영 "Privacy"). 방침이 세 앱 공통이라 한 앱만 넣으면 나머지에서 도달 불가.
+  - **앱 설정창** — 버전 줄 옆에 `v1.1.3 (build 6) · 개인정보처리방침` 으로 이어붙였다. **줄을 새로 만들지 않은 이유**: 세 앱 설정창 500×420 통일 규격을 지키려고. 앱 언어에 따라 `/privacy` ↔ `/en/privacy` 로 분기(`/privacy` 는 미들웨어 자동 언어분기 대상이 아니라 앱이 고른 주소가 그대로 열린다).
+  - 샌드박스에서 외부 URL 열기 실측 완료(`NSWorkspace.open` → 기본 브라우저). 앱스토어 빌드에서 링크가 죽지 않는다.
+- **⚠️ 자체 정정 — 설정창 MAS 높이 330 → 420 원복**: 커밋 `0ea58f2` 에서 "MAS 는 업데이트 섹션이 없으니 330" 으로 줄였는데 **계산 없이 잡은 값이었고, 실제로 렌더해보니 '언어' 섹션이 잘렸다.** 검증된 420 으로 되돌리고 `SettingsWindowMetrics` 의 `#if MAS` 분기를 제거했다. 아래가 조금 비는 건 무해하지만 섹션 잘림은 치명적이고, 420 은 3앱 통일 규격이라 파리티도 유지된다.
+  - 검증 방법(재사용 가능): 앱 소스를 그대로 컴파일하는 렌더 하네스로 설정창을 PNG 로 뽑았다 — `swiftc main.swift Settings/SettingsView.swift Localization/L10n.swift -framework AppKit -framework SwiftUI -framework ServiceManagement` (MAS 변형은 `-D MAS`). 앱 코드에 검증용 훅을 추가하지 않고도 설정창을 눈으로 볼 수 있다. 단 하네스는 외형(appearance)을 명시하지 않으면 다크로 잡혀 배너 흰 글자가 흰 배경에 묻힌다.
 
 ### 다음에 할 일
 1. **Apple 쪽 사전 작업**(사용자만 가능): Developer 포털에서 App ID 등록 → Mac App Store 프로비저닝 프로파일 → Apple Distribution 인증서. `Signing-MAS.xcconfig` 에 팀 ID 는 이미 채워둠.
