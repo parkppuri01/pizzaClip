@@ -5,13 +5,13 @@ import ServiceManagement
 /// 위쪽은 앱 정체성(아이콘/이름/소개/버전) 배너, 아래쪽은 grouped 폼(일반=로그인
 /// 시작 / 언어 / 업데이트). pizzaClip·PICkle 과 같은 구조라 한 디자인으로 보인다.
 /// 설정 창 크기 — 뷰와 NSWindow 가 같은 값을 쓰도록 한 곳에 둔다.
-/// 앱스토어 빌드는 '업데이트' 섹션이 없어 그만큼 짧다.
+///
+/// 앱스토어 빌드는 '업데이트' 섹션이 없지만 **높이는 줄이지 않는다.**
+/// 500×420 은 세 앱(피자·피클·핫소스) 설정창 통일 규격이자 실제 배포로 검증된 값이고,
+/// 아래가 조금 비는 건 무해하지만 섹션이 잘리는 건 치명적이라 여유 쪽을 택했다.
+/// (한때 MAS 를 330 으로 줄였다가 언어 섹션이 잘려 되돌렸다.)
 enum SettingsWindowMetrics {
-    #if MAS
-    static let size = NSSize(width: 500, height: 330)
-    #else
     static let size = NSSize(width: 500, height: 420)
-    #endif
 }
 
 struct SettingsView: View {
@@ -30,6 +30,14 @@ struct SettingsView: View {
         return "v\(short) (build \(build))"
     }
 
+    /// 앱 언어에 맞는 개인정보처리방침. /privacy 는 미들웨어 자동 언어분기 대상이 아니라
+    /// 여기서 고른 주소가 그대로 열린다.
+    private var privacyURL: URL {
+        URL(string: AppLocale.isKorean
+            ? "https://pizza-clip.com/privacy"
+            : "https://pizza-clip.com/en/privacy")!
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             // Identity banner (shared across pizzaClip / PICkle / HotSauce). Uses
@@ -40,7 +48,15 @@ struct SettingsView: View {
                 Text("HotSauce").font(.system(size: 18, weight: .bold))
                 Text(L("System stats in your menu bar", "메뉴바 시스템 모니터"))
                     .font(.system(size: 12)).foregroundStyle(.secondary)
-                Text(version).font(.system(size: 11)).foregroundStyle(.tertiary)
+                // 버전 옆에 붙여 한 줄로 — 창 높이를 늘리지 않고 방침을 노출한다.
+                // (앱스토어 심사자가 설정에서 바로 찾을 수 있어야 한다)
+                HStack(spacing: 6) {
+                    Text(version)
+                    Text("·")
+                    Link(L("Privacy Policy", "개인정보처리방침"), destination: privacyURL)
+                }
+                .font(.system(size: 11))
+                .foregroundStyle(.tertiary)
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 20)
