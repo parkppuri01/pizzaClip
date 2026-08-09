@@ -12,6 +12,8 @@ import type { Lang } from "./ui.ts";
 
 export type PrivacySection = {
   h: string;
+  /** 섹션 맨 위에 눈에 띄게 박스로 뜨는 단서. 제목만 보고 오해할 수 있는 섹션에 쓴다. */
+  note?: string;
   /** 문단들. HTML 을 넣지 말 것 (그대로 텍스트로 렌더된다) */
   body?: string[];
   bullets?: string[];
@@ -60,7 +62,9 @@ export const privacy: Record<Lang, PrivacyContent> = {
         ],
       },
       {
-        h: "2. 업데이트 확인 시 서버에 남는 기록",
+        h: "2. 업데이트 확인 시 서버에 남는 기록 (직접 다운로드 버전만 해당)",
+        note:
+          "Mac App Store 에서 설치한 버전에는 이 항목이 전혀 해당되지 않습니다. App Store 가 업데이트를 담당하므로, 앱이 저희 서버로 어떤 요청도 보내지 않습니다.",
         body: [
           "pizza-clip.com 에서 직접 내려받은 버전은 하루 한 번 새 버전이 있는지 확인하는 요청을 보냅니다. 이때 저희 서버에는 다음 통계만 남습니다.",
         ],
@@ -143,7 +147,9 @@ export const privacy: Record<Lang, PrivacyContent> = {
         ],
       },
       {
-        h: "2. What our server records during update checks",
+        h: "2. What our server records during update checks (direct downloads only)",
+        note:
+          "None of this applies to copies installed from the Mac App Store. The App Store handles updates there, so the app never sends any request to our server.",
         body: [
           "Copies downloaded directly from pizza-clip.com check once a day whether a new version exists. That request leaves only the following aggregate data on our server:",
         ],
