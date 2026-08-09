@@ -58,6 +58,7 @@ type UiStrings = {
   footerPickle: string;
   footerHotsauce: string;
   footerGithub: string;
+  footerPrivacy: string;
   footerNav: string;
   footerSocial: string;
   videoClose: string;
@@ -81,6 +82,7 @@ export const ui: Record<Lang, UiStrings> = {
     footerPickle: "피클",
     footerHotsauce: "핫소스",
     footerGithub: "깃허브",
+    footerPrivacy: "개인정보처리방침",
     footerNav: "하단 메뉴",
     footerSocial: "소셜 미디어",
     videoClose: "닫기",
@@ -102,6 +104,7 @@ export const ui: Record<Lang, UiStrings> = {
     footerPickle: "PICkle",
     footerHotsauce: "Hot Sauce",
     footerGithub: "GitHub",
+    footerPrivacy: "Privacy",
     footerNav: "Footer menu",
     footerSocial: "Social media",
     videoClose: "Close",

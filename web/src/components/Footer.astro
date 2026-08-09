@@ -21,6 +21,7 @@ const footerLinks = [
       <ul class="footer__links">
         {footerLinks.map((l) => (<li><a href={l.href}>{l.label}</a></li>))}
         <li><a href={GITHUB_URL} target="_blank" rel="noopener">{t.footerGithub}</a></li>
+        <li><a href={href(lang, "privacy")}>{t.footerPrivacy}</a></li>
       </ul>
     </nav>
     <nav class="footer__social" aria-label={t.footerSocial}>
