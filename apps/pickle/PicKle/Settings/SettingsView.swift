@@ -38,6 +38,19 @@ private struct ShortcutsSettingsTab: View {
                 KeyboardShortcuts.Recorder(L("settings.shortcuts.feature"), name: .captureFeature)
                 KeyboardShortcuts.Recorder(L("settings.shortcuts.clipboard"), name: .captureClipboard)
                 KeyboardShortcuts.Recorder(L("settings.shortcuts.openHistory"), name: .openHistory)
+                // Custom label so the BETA pill can sit beside the title — the
+                // string-only initializer can only render plain Text.
+                KeyboardShortcuts.Recorder(for: .scrollCapture) {
+                    HStack(spacing: 6) {
+                        Text(L("settings.shortcuts.scroll"))
+                        BetaBadge()
+                    }
+                }
+                // Sits inside the same Section so it reads as a footnote to the
+                // row above it rather than to the whole shortcut list.
+                Text(L("settings.shortcuts.scroll.note"))
+                    .font(.caption).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             Section {
                 Text(L("settings.shortcuts.note"))
@@ -45,6 +58,24 @@ private struct ShortcutsSettingsTab: View {
             }
         }
         .formStyle(.grouped)
+    }
+}
+
+/// Small amber "BETA" pill for a feature that ships before it's fully proven.
+/// Scrolling capture stitches whatever a page happens to render mid-scroll, so
+/// results still vary by site; the badge sets that expectation in Settings
+/// rather than letting a bad stitch be the user's first hint.
+private struct BetaBadge: View {
+    var body: some View {
+        Text(L("common.beta"))
+            .font(.system(size: 9, weight: .bold))
+            .foregroundStyle(AppColors.amber)
+            .padding(.horizontal, 5)
+            .padding(.vertical, 1)
+            .background(Capsule().fill(AppColors.amber.opacity(0.15)))
+            .overlay(Capsule().strokeBorder(AppColors.amber.opacity(0.4), lineWidth: 0.5))
+            // The pill sits in a Form label, which will happily squeeze it.
+            .fixedSize()
     }
 }
 

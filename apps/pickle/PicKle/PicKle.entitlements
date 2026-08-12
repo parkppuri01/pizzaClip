@@ -2,5 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<!-- Scrolling capture's browser mode asks the front browser where its page is
+	     scrolled to, over Apple Events. Under the Hardened Runtime that send is
+	     blocked outright without this entitlement: the call fails with -1743 and
+	     PICkle never even appears in System Settings → Privacy & Security →
+	     Automation, so the onboarding alert would be pointing at an empty list.
+	     Info.plist's NSAppleEventsUsageDescription is the other half — the string
+	     shown in the consent prompt — and both are required. -->
+	<key>com.apple.security.automation.apple-events</key>
+	<true/>
 </dict>
 </plist>

@@ -18,6 +18,35 @@
 "alert.clearAll.info" = "‘PICkle bottle’ 폴더의 이미지가 휴지통으로 이동합니다. (휴지통에서 복구 가능)";
 "alert.clearAll.confirm" = "모두 비우기";
 "common.cancel" = "취소";
+"common.ok" = "확인";
+"common.beta" = "베타";
+
+/* ===== Scrolling capture (ScrollCapture/) ===== */
+"scroll.panel.title" = "스크롤 캡처 중";
+"scroll.panel.hint" = "아래로 천천히 스크롤하세요";
+"scroll.panel.saving" = "저장 중…";
+"scroll.panel.height" = "현재 %dpx";
+"scroll.panel.done" = "완료";
+"scroll.panel.cancel" = "취소";
+"scroll.alert.unsupported.title" = "스크롤 캡처는 macOS 14 이상이 필요해요";
+"scroll.alert.unsupported.message" = "이 기능은 macOS Sonoma(14)에서 추가된 화면 촬영 기능을 사용합니다. 일반 캡처(⇧⌥S · ⇧⌥D · ⇧⌥A)는 지금 버전에서도 그대로 쓸 수 있어요.";
+"scroll.alert.permission.title" = "화면 기록 권한이 필요해요";
+"scroll.alert.permission.message" = "스크롤 캡처는 같은 영역을 반복해서 촬영하기 때문에 ‘화면 기록’ 권한이 필요합니다. 시스템 설정 → 개인정보 보호 및 보안 → 화면 기록에서 PICkle을 켜주세요. 권한을 켠 뒤에도 안 되면 PICkle을 완전히 종료했다가 다시 실행해 주세요.";
+"scroll.alert.permission.openSettings" = "시스템 설정 열기";
+"scroll.alert.permission.later" = "나중에";
+"scroll.alert.failed.title" = "스크롤 캡처를 마치지 못했어요";
+"scroll.alert.failed.message" = "화면을 촬영하는 중 문제가 생겼습니다. 캡처하려던 창이 닫혔거나 모니터 구성이 바뀌었을 수 있어요. 다시 시도해 주세요.";
+"scroll.panel.seam" = "이음새가 생겼어요 — 조금 더 천천히 스크롤해 주세요";
+
+/* ----- Browser mode (ScrollCapture/Browser/) ----- */
+"scroll.panel.auto.title" = "자동 캡처 중";
+"scroll.panel.auto.progress" = "%d%%";
+"scroll.panel.auto.hint" = "브라우저를 대신 스크롤하고 있어요. 잠깐만 기다려 주세요.";
+"scroll.browser.onboard.title" = "브라우저 자동 캡처를 쓰려면 설정 두 가지가 필요해요";
+"scroll.browser.onboard.message.safari" = "PICkle이 Safari를 대신 스크롤하려면 아래 두 가지를 켜주세요.\n\n1) 시스템 설정 → 개인정보 보호 및 보안 → 자동화 → PICkle 아래의 Safari\n2) Safari 설정 → 고급 → ‘메뉴 막대에서 웹 개발자용 기능 보기’를 켠 다음, 개발자용 메뉴 → ‘Apple 이벤트의 JavaScript 허용’\n\n지금은 직접 스크롤하는 일반 방식으로 계속해도 괜찮아요.";
+"scroll.browser.onboard.message.chromium" = "PICkle이 브라우저를 대신 스크롤하려면 아래 두 가지를 켜주세요.\n\n1) 시스템 설정 → 개인정보 보호 및 보안 → 자동화 → PICkle 아래의 브라우저\n2) 브라우저 메뉴의 보기 → 개발자 정보 → ‘Apple 이벤트의 JavaScript 허용’\n\n지금은 직접 스크롤하는 일반 방식으로 계속해도 괜찮아요.";
+"scroll.browser.onboard.manual" = "일반 방식으로 계속";
+"scroll.browser.onboard.cancel" = "취소";
 
 /* ===== History panel ===== */
 "history.title" = "PICkle 보관함";
@@ -94,6 +123,8 @@
 "settings.shortcuts.feature" = "기능 캡처 (편집창 열기)";
 "settings.shortcuts.clipboard" = "클립보드 복사 (저장 안 함)";
 "settings.shortcuts.openHistory" = "보관함 열기 (캡처 없이)";
+"settings.shortcuts.scroll" = "스크롤 캡처 (긴 화면 이어붙이기)";
+"settings.shortcuts.scroll.note" = "베타 기능입니다 — 페이지에 따라 이어붙인 부분이 어긋나거나 일부가 빠질 수 있어요. 브라우저에서는 자동으로 스크롤하며 더 정확하게 찍습니다.";
 "settings.shortcuts.note" = "단축키를 클릭하고 새 조합을 누르면 바뀝니다. ‘클립보드 복사’는 PICkle bottle 폴더에 저장하지 않고 클립보드로만 복사합니다 (PizzaClip이 켜져 있으면 그쪽으로 들어갑니다).";
 
 /* Settings — watermark */

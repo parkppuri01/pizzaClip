@@ -8,11 +8,14 @@ import KeyboardShortcuts
 ///   - clipboard capture: ⇧⌥A  (capture straight to the clipboard; NOT saved to
 ///                              the bottle. If pizzaClip is running it catches it.)
 ///   - open history:      ⇧⌥F  (just open the bottle history panel — no capture.)
+///   - scrolling capture: ⇧⌥W  (pick a region, scroll it yourself, get one tall
+///                              stitched image. Pressing it again finishes.)
 ///
-/// All four are user-customizable in Settings → 단축키.
+/// All five are user-customizable in Settings → 단축키.
 extension KeyboardShortcuts.Name {
     static let captureNormal = Self("captureNormal", default: .init(.s, modifiers: [.option, .shift]))
     static let captureFeature = Self("captureFeature", default: .init(.d, modifiers: [.option, .shift]))
     static let captureClipboard = Self("captureClipboard", default: .init(.a, modifiers: [.option, .shift]))
     static let openHistory = Self("openHistory", default: .init(.f, modifiers: [.option, .shift]))
+    static let scrollCapture = Self("scrollCapture", default: .init(.w, modifiers: [.option, .shift]))
 }

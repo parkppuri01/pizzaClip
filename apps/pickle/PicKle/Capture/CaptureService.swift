@@ -23,7 +23,7 @@ final class CaptureService {
     /// `screencapture -i` to a new file in the bottle folder. Cancel (Esc / no
     /// drag) leaves no file → completion(nil).
     func interactiveCaptureToFile(completion: @escaping (URL?) -> Void) {
-        let url = uniqueURL()
+        let url = newBottleFileURL()
         runScreencapture(["-i", url.path], fileURL: url, completion: completion)
     }
 
@@ -57,7 +57,9 @@ final class CaptureService {
 
     /// A timestamped path in the bottle folder, guaranteed not to collide with an
     /// existing file (two captures in the same second get ` (2)`, ` (3)`, …).
-    private func uniqueURL() -> URL {
+    /// Internal (not private) so other capture paths — e.g. scrolling capture,
+    /// which writes its stitched PNG itself — land on the same naming rule.
+    func newBottleFileURL() -> URL {
         let dir = AppPaths.bottleDirectory
         let df = DateFormatter()
         df.locale = Locale(identifier: "en_US_POSIX")

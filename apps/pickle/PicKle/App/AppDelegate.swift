@@ -81,6 +81,42 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         KeyboardShortcuts.onKeyDown(for: .openHistory) { [weak self] in
             self?.openPanel()
         }
+        // ⇧⌥W → scrolling capture. Pressing it again during a session finishes it.
+        KeyboardShortcuts.onKeyDown(for: .scrollCapture) { [weak self] in
+            self?.toggleScrollCapture()
+        }
+    }
+
+    // MARK: - Scrolling capture
+
+    /// Lazily created the first time ⇧⌥W is pressed on macOS 14+. Stored as
+    /// `AnyObject` because the coordinator is 14-only while PICkle deploys to 13,
+    /// and a stored property can't be less available than its own type.
+    private var scrollCoordinatorStorage: AnyObject?
+
+    @available(macOS 14.0, *)
+    private var scrollCoordinator: ScrollCaptureCoordinator {
+        if let existing = scrollCoordinatorStorage as? ScrollCaptureCoordinator { return existing }
+        let created = ScrollCaptureCoordinator()
+        scrollCoordinatorStorage = created
+        return created
+    }
+
+    /// Start (or finish) a scrolling capture. Everything about the flow lives in
+    /// the coordinator; the completion is the same post-capture handling as the
+    /// ⇧⌥S save path, so a stitched shot lands in the bottle and pops the panel.
+    private func toggleScrollCapture() {
+        guard #available(macOS 14.0, *) else {
+            // SCScreenshotManager is macOS 14+, and there's no older equivalent
+            // that can silently re-shoot the same rect. Explain rather than fail.
+            ScrollCaptureAlerts.unsupported()
+            return
+        }
+        scrollCoordinator.toggle { [weak self] _ in
+            guard let self else { return }
+            NotificationCenter.default.post(name: .pickleScreenshotsChanged, object: nil)
+            self.panelController.openIfNeeded(anchorRect: self.statusItemFrame)
+        }
     }
 
     /// Run macOS's own interactive capture (`screencapture -i`) for `mode`, then

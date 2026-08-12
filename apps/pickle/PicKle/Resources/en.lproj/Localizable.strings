@@ -18,6 +18,35 @@
 "alert.clearAll.info" = "Images in the ‘PICkle bottle’ folder will be moved to the Trash. (Recoverable from the Trash.)";
 "alert.clearAll.confirm" = "Clear all";
 "common.cancel" = "Cancel";
+"common.ok" = "OK";
+"common.beta" = "BETA";
+
+/* ===== Scrolling capture (ScrollCapture/) ===== */
+"scroll.panel.title" = "Scrolling capture";
+"scroll.panel.hint" = "Scroll down slowly";
+"scroll.panel.saving" = "Saving…";
+"scroll.panel.height" = "%dpx so far";
+"scroll.panel.done" = "Done";
+"scroll.panel.cancel" = "Cancel";
+"scroll.alert.unsupported.title" = "Scrolling capture needs macOS 14 or later";
+"scroll.alert.unsupported.message" = "This feature uses the screen-capture API added in macOS Sonoma (14). Normal captures (⇧⌥S · ⇧⌥D · ⇧⌥A) keep working on this version.";
+"scroll.alert.permission.title" = "Screen Recording permission is required";
+"scroll.alert.permission.message" = "Scrolling capture photographs the same region over and over, which needs the ‘Screen Recording’ permission. Turn PICkle on in System Settings → Privacy & Security → Screen Recording. If it still doesn't work after granting it, quit PICkle completely and open it again.";
+"scroll.alert.permission.openSettings" = "Open System Settings";
+"scroll.alert.permission.later" = "Later";
+"scroll.alert.failed.title" = "Couldn't finish the scrolling capture";
+"scroll.alert.failed.message" = "Something went wrong while photographing the screen. The window you were capturing may have closed, or your display setup changed. Please try again.";
+"scroll.panel.seam" = "There's a seam here — try scrolling a little more slowly";
+
+/* ----- Browser mode (ScrollCapture/Browser/) ----- */
+"scroll.panel.auto.title" = "Capturing automatically";
+"scroll.panel.auto.progress" = "%d%%";
+"scroll.panel.auto.hint" = "Scrolling the browser for you — hold on a moment.";
+"scroll.browser.onboard.title" = "Automatic browser capture needs two switches turned on";
+"scroll.browser.onboard.message.safari" = "To scroll Safari for you, PICkle needs both of these:\n\n1) System Settings → Privacy & Security → Automation → PICkle → Safari\n2) Safari Settings → Advanced → ‘Show features for web developers’, then Develop → ‘Allow JavaScript from Apple Events’\n\nYou can also just carry on and scroll it yourself.";
+"scroll.browser.onboard.message.chromium" = "To scroll your browser for you, PICkle needs both of these:\n\n1) System Settings → Privacy & Security → Automation → PICkle → your browser\n2) In the browser: View → Developer → ‘Allow JavaScript from Apple Events’\n\nYou can also just carry on and scroll it yourself.";
+"scroll.browser.onboard.manual" = "Continue the manual way";
+"scroll.browser.onboard.cancel" = "Cancel";
 
 /* ===== History panel ===== */
 "history.title" = "PICkle Bottle History";
@@ -94,6 +123,8 @@
 "settings.shortcuts.feature" = "Feature capture (open editor)";
 "settings.shortcuts.clipboard" = "Clipboard copy (don't save)";
 "settings.shortcuts.openHistory" = "Open bottle history (no capture)";
+"settings.shortcuts.scroll" = "Scrolling capture (stitch a long page)";
+"settings.shortcuts.scroll.note" = "Beta — seams may drift or skip content depending on the page. In a browser it scrolls for you and captures more accurately.";
 "settings.shortcuts.note" = "Click a shortcut and press a new combination to change it. ‘Clipboard copy’ does not save to the PICkle bottle folder — it only copies to the clipboard (and goes to PizzaClip if it's running).";
 
 /* Settings — watermark */
