@@ -6,24 +6,26 @@
         <description>PICkle updates</description>
         <language>en</language>
         <item>
-            <title>PICkle 1.3.3</title>
-            <pubDate>Wed, 08 Jul 2026 17:19:18 +0000</pubDate>
-            <sparkle:version>20</sparkle:version>
-            <sparkle:shortVersionString>1.3.3</sparkle:shortVersionString>
+            <title>PICkle 1.4.0</title>
+            <pubDate>Wed, 12 Aug 2026 16:12:07 +0000</pubDate>
+            <sparkle:version>28</sparkle:version>
+            <sparkle:shortVersionString>1.4.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-<h2>PICkle 1.3.3</h2>
+<h2>PICkle 1.4.0</h2>
 <ul>
-<li>저장 용량 버그 수정 — 사진에 워터마크만 넣고 저장해도 파일이 몇 배로 커지던 문제를 고쳤어요. 이제 원본 포맷과 용량을 그대로 유지합니다.</li>
-<li>편집기 확대/축소(줌) 추가 — 편집 중 사진을 최대 8배까지 확대할 수 있어요. 트랙패드 핀치, ⌘+ / ⌘− / ⌘0(맞춤)으로 조절합니다.</li>
-<li>블러 도구 성능 개선 — 고해상도 사진에서도 버벅임 없이 부드럽게 칠해집니다.</li>
-<li>설정창 정리 — 일반 탭을 형제 앱(피자클립·핫소스)과 같은 모양으로 통일하고, 업데이트 자동 다운로드 옵션을 추가했어요.</li>
+<li>스크롤 캡처 추가 (베타) — ⌥⇧W로 영역을 지정하면 긴 화면을 세로로 이어붙여 한 장으로 저장합니다. 설정 → 단축키에서 조합을 바꿀 수 있어요.</li>
+<li>브라우저에서는 자동으로 스크롤합니다 — Safari·Chrome 계열에서 영역을 잡으면 PICkle이 알아서 페이지를 내리며 찍고, 끝나면 원래 보던 위치로 돌아갑니다. 처음 쓸 때 한 번만 브라우저의 'Apple Events의 JavaScript 허용'을 켜주세요.</li>
+<li>그 밖의 앱에서는 직접 스크롤하면 됩니다 — 진행 높이가 실시간으로 표시되고, 위로 올리면 그만큼 되돌릴 수 있어요.</li>
+<li>캡처 중인 영역이 한눈에 보입니다 — 지정한 영역만 밝게 남고 나머지는 어두워집니다.</li>
+<li>베타 안내 — 페이지에 따라 이어붙인 부분이 어긋나거나 일부가 빠질 수 있습니다. 떠 있는 광고나 영상처럼 스크롤과 무관하게 제자리에 있는 요소는 반복해서 나올 수 있어요.</li>
+<li>기존 캡처(⌥⇧S / ⌥⇧D / ⌥⇧A)는 그대로입니다 — 동작도 권한도 달라진 것이 없습니다.</li>
 </ul>
 ]]></description>
             <!-- ⚠️ Put the REAL DMG download URL here (GitHub Release asset, etc.). -->
-            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.3.3.dmg"
+            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.4.0.dmg"
                        type="application/octet-stream"
-                       sparkle:edSignature="w+5TFPeyOcxNOsZPiMelwPYNfu8m9k8kGzsGwHtTbcmA88kCEWgxZlTTvs0kj7Jiu/3Jb4FaNjbAkz6iozzEBw==" length="3748612" />
+                       sparkle:edSignature="Htym4UOVkb12z6DRwFTBqscXtvYe44IM4xUEKOWCeTn3c9EC5ZeJA0u2aQ2aPkFBBt6I6BTO2dmyNEjZfMwUCg==" length="3994513" />
         </item>
     </channel>
 </rss>

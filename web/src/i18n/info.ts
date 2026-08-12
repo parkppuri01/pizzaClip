@@ -96,6 +96,16 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.4.0",
+        label: "스크롤 캡처 (베타) 🥒",
+        notes: [
+          "⌥⇧W로 영역을 지정하면 긴 화면을 세로로 이어붙여 한 장으로 저장해요.",
+          "브라우저(Safari·Chrome 계열)에서는 PICkle이 알아서 스크롤하며 찍고, 끝나면 원래 보던 위치로 돌아가요.",
+          "그 밖의 앱에서는 직접 스크롤하면 돼요 — 찍히는 높이가 실시간으로 보이고, 위로 올리면 그만큼 되돌아가요.",
+          "아직 베타예요 — 페이지에 따라 이어붙인 부분이 어긋나거나 일부가 빠질 수 있어요.",
+        ],
+      },
+      {
         version: "1.3.3",
         label: "저장 용량 버그 수정 · 편집기 확대/축소 🥒",
         notes: [
@@ -292,6 +302,16 @@ export const info: Record<Lang, InfoContent> = {
       { version: "0.1.1", label: "First Release", notes: ["The essentials are in: auto copy-history, the popup, pinning, and clear-all."] },
     ],
     pickleReleases: [
+      {
+        version: "1.4.0",
+        label: "Scrolling Capture (Beta) 🥒",
+        notes: [
+          "Press ⌥⇧W, drag a region, and PICkle stitches the long page into a single image.",
+          "In Safari and Chrome-family browsers it scrolls for you, then puts the page back where you were.",
+          "Everywhere else you scroll yourself — the captured height updates live, and scrolling back up rewinds it.",
+          "Still in beta: depending on the page, seams may drift or skip some content.",
+        ],
+      },
       {
         version: "1.3.3",
         label: "Save-Size Fix · Zoom in the Editor 🥒",

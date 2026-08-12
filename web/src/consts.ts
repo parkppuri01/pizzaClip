@@ -29,7 +29,7 @@ export const PICKLE_GITHUB_URL = "https://github.com/parkppuri01/pickle";
 // 1.0.0 정식 출시 — DMG 는 pizza-clip.com 에 직접 호스팅(web/public/pickle/).
 // 새 버전 낼 때 이 파일명만 갱신하면 됨.
 export const PICKLE_RELEASED = true;
-export const PICKLE_DOWNLOAD_URL = "/pickle/PICkle-1.3.3.dmg";
+export const PICKLE_DOWNLOAD_URL = "/pickle/PICkle-1.4.0.dmg";
 export const PICKLE_TITLE = "PICkle";
 export const PICKLE_DESC =
   "캡처한 건 다 보관해주는 macOS 스크린샷 정리 앱. 찍는 즉시 ‘피클병’ 폴더에 차곡차곡.";

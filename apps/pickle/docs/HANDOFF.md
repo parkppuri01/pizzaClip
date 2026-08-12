@@ -1,6 +1,6 @@
 # PICkle — HANDOFF (단일 진실 문서)
 
-> **마지막 업데이트**: 2026-07-09 · **🎉 1.3.3(build 20) 정식 배포 완료 — 워터마크 저장 용량 버그 수정(원본 포맷 유지 + JPEG 품질 0.9) + 편집기 확대/축소(줌)·팬 + 블러 성능 + 설정창 3앱 통일. 공증 DMG·appcast 라이브(상세는 아래 [2026-07-09] 섹션).** · 직전 **🎉 1.3.2 릴리스 완료(build 17, 배포됨 — 팝업 하단 저장폴더 경로 표시 + 자동업데이트 무인설치)** · 그 앞 1.3.1(build 16, 편집기 열림 idle CPU 6~9% 긴급패치) · 1.3.0(build 15) **캡처를 macOS 기본 `screencapture -i`로 전환**(열린 메뉴/팝업도 그대로 캡처, 자체 오버레이·십자선·모드바·dead 코드 대거 삭제). pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
+> **마지막 업데이트**: 2026-08-12 · **🚧 스크롤 캡처 개발 중 — 전부 미커밋, 로컬 build 26(하이브리드) 테스트 중. 아래 [2026-08-12] 섹션 필독.** · 배포 최신: **🎉 1.3.3(build 20) 정식 배포 완료 — 워터마크 저장 용량 버그 수정(원본 포맷 유지 + JPEG 품질 0.9) + 편집기 확대/축소(줌)·팬 + 블러 성능 + 설정창 3앱 통일. 공증 DMG·appcast 라이브(상세는 아래 [2026-07-09] 섹션).** · 직전 **🎉 1.3.2 릴리스 완료(build 17, 배포됨 — 팝업 하단 저장폴더 경로 표시 + 자동업데이트 무인설치)** · 그 앞 1.3.1(build 16, 편집기 열림 idle CPU 6~9% 긴급패치) · 1.3.0(build 15) **캡처를 macOS 기본 `screencapture -i`로 전환**(열린 메뉴/팝업도 그대로 캡처, 자체 오버레이·십자선·모드바·dead 코드 대거 삭제). pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
 > **새 세션은 이 문서를 먼저 읽으면 컨텍스트가 잡힙니다.**
 > **▶ 1.3.0 핵심: 열린 메뉴/팝업(예: 사운드 컨트롤센터)을 펼친 채 캡처하려 하면 단축키 누른 순간 그 메뉴가 닫히던 문제. 근본 원인 = 일반 앱은 캡처용 오버레이 창을 띄우는 순간 macOS가 열린 메뉴를 닫음(오버레이가 key window를 가져가 히스토리 패널이 resignKey로 닫히고, shield 레벨 최상위 창으로 떠 다른 앱 메뉴 트래킹도 취소됨). ⌘⇧4가 멀쩡한 건 WindowServer(OS)가 직접 처리 = OS만의 특권. → 자체 오버레이(⇧⌘5식)를 전부 버리고 macOS 기본 `screencapture -i` 호출로 전환. `-i`는 사용자 동의형이라 권한 상속 문제 없음(과거 `-R` 실패와 대비). 픽셀 치수·스페이스 이동은 OS UI 기본 제공, 모드(S/D/A)는 단축키로 확정. 상세는 아래 [✅ 2026-07-03 — 1.3.0] 섹션.**
 > **테스트 규칙: 빌드마다 `project.yml` MARKETING_VERSION+build 올리고 사용자에게 번호 알림(Settings 일반탭 `v1.x.x (build N)` 표시). 정식 배포=둘째자리(minor) ↑, 테스트 빌드=셋째자리(patch) ↑.**
@@ -11,6 +11,70 @@
 > ⚠️ **개인정보 주의**: 서명에 쓰는 팀 ID·Developer ID 식별자는 **gitignore된 `Signing.xcconfig`** 에만 둡니다 (커밋 금지). 배포 자격증명은 `scripts/release.local.sh`(gitignore)에. 각각 `*.example` 템플릿을 복사해 채우세요.
 >
 > 📛 **이름 표기 규칙(중요)**: 사용자에게 보이는 **브랜드 = `PICkle`**(점·소문자 없이 통일). 단, **번들 ID는 `com.Team-jAm.PICkle`**(건드리면 TCC 권한 깨짐), **Xcode 프로젝트/스킴/소스폴더 이름은 `PicKle`(대문자 K)** 로 그대로 둡니다(내부 식별자라 화면에 안 보임).
+
+---
+
+## ✅ 2026-08-12 — 🎉 1.4.0 정식 배포 (스크롤 캡처 베타 · 하이브리드)
+
+> **1.4.0(build 28) 공증 배포 완료.** 스크롤 캡처를 **베타 표기로 공개**. 커밋 `20e43f4`(앱 소스) → 웹 커밋 → master push → Vercel. 재개 시 **이 섹션 → 계획서 `.omc/plans/scroll-capture-v1.md`(§10 브라우저 설계, §4.2 스티처, §4.2b 폐기 목록) → 레퍼런스 `.omc/research/scroll-capture-references.md`** 순서로 읽을 것. **다음 빌드 = 29.**
+>
+> ⚠️ **알려진 결함을 안고 배포했다(베타 배지·안내 문구로 기대치 조정).** 아래 "1순위/2순위"가 그대로 다음 릴리스 과제다. 특히 **브라우저 모드 배율 ~2배 오차는 내용 유실**을 일으키므로 최우선.
+>
+> **배포 절차 기록**: project.yml 1.4.0/28 → `xcodegen generate`(⚠️ **버전만 고치고 이걸 빼면 빌드 번호가 안 올라간다** — build 27에서 실제로 26으로 설치됨) → 서명 Release 빌드 → `scripts/release-test-dmg.sh`(공증 Accepted·staple·Gatekeeper=Notarized Developer ID) → `dist/notes-1.4.0.md` → `DOWNLOAD_BASE_URL=https://pizza-clip.com/pickle bash scripts/sparkle-appcast.sh ~/Downloads/PICkle-1.4.0.dmg` → DMG+appcast를 `web/public/pickle/` 복사 → 웹 2곳(`consts.ts` `PICKLE_DOWNLOAD_URL`·`PicklePage.astro` `softwareVersion` / `info.ts` `pickleReleases` 한·영) → 커밋·push.
+>
+> **build 27 UI 추가분**(1.4.0에 포함): 설정 → 단축키의 '스크롤 캡처' 행에 **베타 배지**(앰버 캡슐 `SettingsView.BetaBadge`, `common.beta` ko="베타"/en="BETA") + 바로 아래 안내 문구(`settings.shortcuts.scroll.note`). 문자열 초기화자는 Text만 그리므로 `KeyboardShortcuts.Recorder(for:label:)` 커스텀 라벨로 교체.
+>
+> **진단 로그는 베타 기간 유지**(`ScrollSessionLog` → `~/Library/Logs/PICkle/scroll.log`, 1MB 절단). 계획서의 "배포 전 제거" 지침을 의도적으로 보류한 것 — 베타 결함을 사용자 로그로 진단하기 위함. **정식(비베타) 전환 시 제거**.
+
+### 현재 구조 (하이브리드)
+⌥⇧W → 영역 드래그(공통 UI: 직접 그린 십자선 + 영역 밖 25% dim + 플로팅 패널) → **분기**:
+- **브라우저 모드**(앞 창이 Safari/Chrome/Edge/Brave/Vivaldi + 영역이 그 창 안 70%↑): Apple Events로 `scrollTo` 정확 스텝 + settle 대기 + **좌표로 조립**(Vision은 캘리브레이션 1회만). 고정 헤더는 JS 실측 pad로 흡수.
+- **범용 모드**(그 외/브라우저 설정 미완): 기존 v1.2 수동 스티처(Vision 정합 + 지연커밋 + 행 다수결 가드 + 재앵커 + S1 고정영역 크롭·복원 + S4 되감기).
+- 파일: `PicKle/ScrollCapture/` **9파일**(Coordinator·RegionSelectController·FrameGrabber·Stitcher·CapturePanel·SessionLog + `Browser/{Driver,Session,TileComposer}`). 수정: AppDelegate(순수 추가)·Shortcuts·SettingsView·strings ko/en(각 139키)·CaptureService(리네임만)·**entitlements(AE 추가)**·Info.plist(AE 용도문)·project.yml(1.3.4/26). **기존 S/D/A 경로 무변경**(리뷰가 바이트 단위 확인).
+- **진단 로그 = `~/Library/Logs/PICkle/scroll.log`** (통합 로그는 이 macOS가 서드파티 NSLog를 `<private>`로 마스킹해 무용지물 → 파일 로거로 전환). 배포 전 제거 대상.
+
+### ✅ 브라우저 모드 첫 성공 (2026-08-12 13:24, Chrome)
+```
+browser: prepared y=0 vh=928 total=12006
+browser: pad=200css region=1806px vh=928css step=703css
+browser: calibrated pxPerCss=0.9772 (687px over 703.0css, backing 2.00)
+browser: composed 17 tile(s) → 3614x12632px (dropped=0 redundant=0)
+```
+온보딩 흐름도 설계대로 동작: Chrome JS 토글 OFF일 때 3회 모두 `setup required` → 안내 얼럿 → **[일반 방식으로 계속] 폴백 정상**(로그 `mode = manual stitch (fallback from browser)`).
+
+### 🔴 다음 세션 1순위 — 캘리브레이션 배율이 ~2배 틀림 (강력한 단서)
+- 로그: `pxPerCss=0.9772`, `backing 2.00`. 그런데 **기하학적으로는 ~1.95여야 한다** — region 높이 1806px가 뷰포트 928css를 덮으므로 1806/928 ≈ 1.95.
+- 즉 703css 스크롤이면 ~1368px 이동해야 하는데 Vision이 **687px**(정확히 절반쯤)을 반환 → 캘리브레이션이 절반 값을 채택. 유효범위 검사(backing×0.25~×5 = 0.5~10)는 0.977을 통과시켜 못 걸렀다.
+- **귀결**: 타일 간격이 실제 필요 간격의 절반 → 스텝당 드러난 1368px 중 687px만 채택 → **나머지 절반이 유실(=잘림)되고 경계가 튄다.** 사용자가 보고한 "겹치거나 잘리는 영역"과 정확히 일치.
+- **권장 수정(간단·확실)**: Vision 캘리브레이션을 **버리고 `window.devicePixelRatio`를 JS로 읽어라** — 이 값이 곧 `backingScale × 브라우저 줌`이고 정확히 pxPerCss다. Vision 결과는 교차검증(±10% 벗어나면 devicePixelRatio 채택 + 로그)용으로만. 하니스 `[C]`에도 "정확한 pxPerCss" 전제를 깨는 케이스가 없으므로 시나리오 추가 필요.
+- 부수: `step 703 → 728css after calibration` 재보정 로직은 정상 동작(C-2 수정분).
+
+### 🟠 다음 세션 2순위 — 범용 경로의 오정합 난동
+- 같은 로그 수동 세션들: `REJECT guard rowsAgree=0.00~0.56` 다발, `RE-ANCHOR` 3~4회/세션, **`REWIND` 8~14회/세션**(사용자가 위로 안 올렸는데도 344·779·390px 등). M-2 클램프/가드가 일부는 정상 차단(`REJECT rewind up=773px rowsAgree=0.24`)하지만, **오정합 음수 dy가 되감기로 새는 경로가 남아 있다** — 되감기 발동 조건을 더 보수적으로(연속 2회 + 최소 신뢰 + 상한) 재검토할 것.
+- `registration fell back to the FULL frame … pinned chrome is no longer excluded` 도 관측 — 윈도우 퇴화 폴백이 실제로 발생 중.
+
+### 결함→수정 이력 (실기 발견 → 하니스 재현 → 수정, 5라운드)
+1. **b21-22 (v1.0 즉시 커밋)**: 유튜브 플링에서 검은 띠 22개(19~446px) — 가상 렌더가 배경색만 깔린 상태를 즉시 박제. → **v1.1** 지연 커밋(2프레임 연속 동일해야 확정)+완료 0.35s settle+120ms 주기+실측 가드.
+2. **b23 (v1.1)**: 스티칭 전멸(출력=1프레임) — **고정 헤더가 Vision 정합 자체를 오염**(헤더만으로 참값 240→0 실측) + 기각 시 기준 프레임 미전진 → 영구 캐스케이드. → **v1.2** 헤더 감지·윈도우 제외 + 행 다수결(0.60/0.80) + 연속 2기각 재앵커 + 정지 시 기준 전진.
+3. **b24 (v1.2)**: 길게 붙지만 이음새 고스트·문단 유실·위 스크롤 무반응. → 원인 추적 5회, **가설 4종이 전부 하니스에서 반증**(§4.2b에 수치 박제: 밴드 투표·정확일치 폴백·이음새 블렌딩·서브픽셀 보정). 확정 사실: **Vision은 정수 픽셀만 반환**(97.4→97.0000), 모멘텀 스크롤은 소수 이동.
+4. **b25 (계측)**: 커버리지 퍼즈 200시드·673커밋 **이중 커밋 0건** → 스티처 장부 무죄. NSLog 마스킹 발견.
+5. **b26 (하이브리드)**: 브라우저 모드 신설. 독립 리뷰가 **Critical 2**(AE 엔타이틀먼트 누락 → 서명 빌드에서 브라우저 모드 100% 불능 / step을 영역 아닌 뷰포트 기준 계산 → 타일마다 검은 띠) + Major 2(타일 메모리 무제한 ~8.7GB / 되감기 미클램프) 적발, **전건 수정 완료**.
+
+### 자산 (재개 시 그대로 활용)
+- **오프라인 하니스** `.omc/dev/stitch-harness.swift` — `swift stitch-harness.swift`로 실행, 시나리오 `[3][4][5][6][7][C][S][B][U]` 전부 green. 폐기 실험본은 `stitch-harness.experimental.swift`(근거 보존). 결과물 띠 측정기 `band-analysis.swift`.
+- **계획서** `.omc/plans/scroll-capture-v1.md` §10(브라우저 설계)·§10.7~10.8(구현 이탈·리뷰 반영)·§4.2b(폐기 목록 — **재시도 금지**).
+- **레퍼런스** `.omc/research/scroll-capture-references.md` — ShareX/Deepin/ScrollSnap/AOSP 실소스 분석. 결론: 실전 도구는 전부 국소 매칭 또는 좌표 기반, 전역 정합 채택 0.
+
+### 다음 세션 순서 (1.4.1 목표)
+1. **캘리브레이션 `devicePixelRatio` 전환**(위 1순위) → 빌드 29 → 같은 Chrome 페이지 재테스트. 이것만으로 브라우저 모드 품질이 결판날 가능성 높음.
+2. 범용 경로 되감기 오발동 억제(2순위).
+3. 사용자 실기 로그(`~/Library/Logs/PICkle/scroll.log`) 회수·분석 → 남은 결함 패턴 파악.
+4. 베타 딱지를 뗄 때: **진단 제거**(`ScrollSessionLog` 전체 + Stitcher/Coordinator NSLog + 카운터) + 베타 배지·안내 문구 제거.
+
+### 주의
+- 1.4.0으로 **배포 완료**(커밋 `20e43f4` 앱 소스 + 웹 커밋). 이후 작업은 새 빌드 번호(29~)로.
+- 브라우저 모드 사용 전제: 자동화 권한 허용 + 브라우저의 "Apple Events의 JavaScript 허용" 토글(Chrome=보기>개발자, Safari=개발자 메뉴). 미설정 시 안내 얼럿+수동 폴백.
+- 영역은 **페이지 콘텐츠만** 잡을 것 — 주소창·탭바가 들어가면 pad가 모르므로 타일마다 반복(알려진 한계).
 
 ---
 
