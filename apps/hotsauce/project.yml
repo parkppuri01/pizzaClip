@@ -8,7 +8,7 @@ settings:
   base:
     SWIFT_VERSION: "5.9"
     MARKETING_VERSION: "1.2.0"
-    CURRENT_PROJECT_VERSION: "7"
+    CURRENT_PROJECT_VERSION: "8"
     # Manual + Developer ID gives a STABLE code signature so macOS TCC remembers
     # granted permissions across rebuilds. Ad-hoc dev signatures change every
     # build → grants never stick. Team ID + identity live in Signing.xcconfig
@@ -62,6 +62,14 @@ targets:
     dependencies:
       - package: Sparkle
         product: Sparkle
+    postBuildScripts:
+      - name: Strip extended attributes
+        script: |
+          # 번들 안 파일에 붙은 확장속성(xattr)을 전부 턴다.
+          # 자세한 이유는 HotSauce-MAS 타깃의 같은 스크립트 주석 참고.
+          # 코드 서명은 모든 빌드 페이즈 "뒤"에 돌므로 서명을 깨지 않는다.
+          xattr -cr "${TARGET_BUILD_DIR}/${WRAPPER_NAME}"
+        basedOnDependencyAnalysis: false
 
   HotSauce-MAS:
     type: application
@@ -103,6 +111,18 @@ targets:
         Release:
           SWIFT_ACTIVE_COMPILATION_CONDITIONS: MAS
     # Sparkle 의존성 없음 — 앱스토어 앱의 자체 업데이트는 심사 리젝 사유다.
+    postBuildScripts:
+      - name: Strip extended attributes
+        script: |
+          # 🚨 앱스토어 업로드 거부를 막는 필수 단계 (2026-08-14 실제 거부됨).
+          #   ITMS-91109: Invalid package contents — 번들 안 파일에 com.apple.quarantine
+          #   확장속성이 붙어 있으면 App Store / TestFlight 배포가 거부된다.
+          #   디자인 PNG 를 Finder·다운로드 경유로 넣으면 quarantine 이 따라오고,
+          #   macOS 15+ 는 파일 접근만 해도 com.apple.provenance 를 다시 붙인다.
+          #   → 소스를 한 번 청소하는 걸로는 재발을 못 막으므로 빌드마다 턴다.
+          #   코드 서명은 모든 빌드 페이즈 "뒤"에 돌므로 서명을 깨지 않는다.
+          xattr -cr "${TARGET_BUILD_DIR}/${WRAPPER_NAME}"
+        basedOnDependencyAnalysis: false
 
 schemes:
   HotSauce:

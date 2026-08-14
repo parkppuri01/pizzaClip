@@ -15,17 +15,20 @@
 - **푸터 띠 확장** 85.5 → 120 유닛(아이콘 여백 12→29, 탭 영역 70→80). 배너 위 여백 45.5는 섹션 사이 간격(45.3/47.7/46.7)에 맞춘 값.
 - **설정창 개인정보처리방침 링크 + 포커스 링 제거** — SwiftUI `Link`가 macOS에서 버튼으로 만들어져 창의 첫 응답자가 되는 게 원인. `focusable(false)` + `show()`에서 한 턴 미룬 `makeFirstResponder(nil)` 2중 방어. 실제 `SettingsWindowController.show()` 경로로 첫 열기·재열기 모두 포커스 없음 확인.
 - **캔버스 1000 → 1176** (팝업 468×520 → 468×611.5pt).
-- **✅ 앱스토어 1.2.0(빌드7) 업로드 완료** — Organizer 상태 `Uploaded to Apple`, Team `jaekeun park`, Architectures Intel·Apple Silicon, 2026-08-14 13:52 업로드. App ID 등록 + App Store Connect 앱 레코드(macOS · 이름 HotSauce · 번들 `com.Team-jAm.HotSauce` · SKU `hotsauce-mac-001` · 전체 액세스) 생성도 완료.
-  - **가는 길에 서명 지뢰를 하나 밟았다 → 아래 주의사항의 `CODE_SIGN_IDENTITY` 항목 참고.**
+- **앱스토어 업로드 — 빌드7 거부 → 빌드8 재업로드 필요.** App ID 등록 + App Store Connect 앱 레코드(macOS · 이름 HotSauce · Apple ID `6801170433` · 번들 `com.Team-jAm.HotSauce` · SKU `hotsauce-mac-001` · 전체 액세스) 생성 완료.
+  - 빌드7은 Organizer 상태 `Uploaded to Apple`(Team `jaekeun park`, Intel·Apple Silicon)까지 갔으나, 몇 분 뒤 **`ITMS-91109: Invalid package contents`** 메일로 거부됐다 → 아래 주의사항의 **xattr** 항목.
+  - **지뢰 2개를 밟았다**: ① `CODE_SIGN_IDENTITY` (No Team Found in Archive) ② xattr `com.apple.quarantine` (ITMS-91109). 둘 다 `project.yml` 에서 영구 조치했고 주의사항에 상세히 남겼다.
+  - `project.yml` 빌드 번호를 **8** 로 올려뒀다(7은 소진). ⚠️ 직접 배포 1.2.0 은 **빌드7로 이미 배포·라이브** 상태이고 appcast 도 7이다 — 직접 배포를 다시 낼 일이 생기면 빌드 번호가 8부터라는 점만 인지할 것(현재 라이브에는 영향 없음).
 
 ### 다음에 할 일
-1. **App Store Connect 마무리** (빌드는 이미 올라가 있음):
-   - 빌드 처리(5~30분) 완료 후 1.2.0 버전 페이지 "빌드" 섹션에서 **빌드 7 연결**.
+1. **⚠️ 빌드8 재아카이브·재업로드** — Xcode 스킴 `HotSauce-MAS` → Product → Archive → Distribute App → App Store Connect. `project.yml` 은 이미 빌드8 + xattr 방어 스크립트가 들어간 상태라 그대로 아카이브하면 된다. (Xcode 를 켜둔 채였다면 `xcodegen generate` 가 이미 돌았으므로 프로젝트를 다시 열 것.)
+2. **App Store Connect 마무리**:
+   - 빌드 처리(5~30분) 완료 후 1.2.0 버전 페이지 "빌드" 섹션에서 **빌드 8 연결**.
    - 남은 메타데이터: 스크린샷(1280×800 등으로 통일, **팝업 열린 데스크톱 캡처** — 메뉴바 앱이라 팝업이 안 보이면 심사에서 문제) · 설명·키워드·연령등급 · 지원 URL `https://pizza-clip.com/hotsauce` · 개인정보처리방침 URL `https://pizza-clip.com/privacy`.
    - **App Privacy 설문 = "Data Not Collected"** (방침 2번이 "직접 다운로드 버전만 해당"으로 명시돼 있어 모순 없음).
    - **심사노트 필수** — LSUIElement라 리뷰어가 앱을 못 찾아 리젝되는 사례가 흔하다. "메뉴바 우측 핫소스 병 아이콘 클릭" + 스크린샷을 반드시 기재.
-2. **기본 언어가 한국어**라 영어권에도 한국어 설명이 뜬다 → 버전 페이지에서 English (U.S.) 현지화 추가 필요. 문구는 `web/src/i18n/hotsauce.ts` 재활용 가능.
-3. (선택·이월) 앱 아이콘 둥근 모서리 · 폭발 파티클 전용 아트 · 옛 `HotSauce-1.0.0.dmg` 정리 · Pretendard `OFL.txt` 사본(`Fonts/NOTICE.txt`에 curl 명령 있음) · `PrivacyInfo.xcprivacy`.
+3. **기본 언어가 한국어**라 영어권에도 한국어 설명이 뜬다 → 버전 페이지에서 English (U.S.) 현지화 추가 필요. 문구는 `web/src/i18n/hotsauce.ts` 재활용 가능.
+4. (선택·이월) 앱 아이콘 둥근 모서리 · 폭발 파티클 전용 아트 · 옛 `HotSauce-1.0.0.dmg` 정리 · Pretendard `OFL.txt` 사본(`Fonts/NOTICE.txt`에 curl 명령 있음) · `PrivacyInfo.xcprivacy`.
 
 ### 주의사항 / 컨텍스트
 - **설정창 렌더 검증 하네스**(재사용 가능) — 앱 코드에 훅을 추가하지 않고 설정창을 눈으로 볼 수 있다. 실제 `SettingsWindowController.show()`를 그대로 호출하고 `screencapture`로 찍으므로 포커스 링까지 재현된다:
@@ -41,6 +44,13 @@
   - 조치: `project.yml` 에서 `CODE_SIGN_IDENTITY` 줄을 **제거**하고 자동 서명에 맡긴다. 배포용 인증서는 Distribute App 단계에서 Xcode 가 고른다.
   - 직접 배포(HotSauce) 타깃은 `CODE_SIGN_STYLE: Manual` 이라 이 조건부 키가 안 생기고, 게다가 `release-test-dmg.sh` 가 `codesign` 으로 다시 서명하므로 애초에 영향이 없다 — **MAS 타깃만 걸린다.**
   - ⚠️ Xcode Build Settings UI 에서 고치면 `HotSauce.xcodeproj` 에 저장되는데, 이 파일은 gitignore + XcodeGen 생성물이라 다음 `xcodegen generate` 에 **통째로 사라진다.** 반드시 `project.yml` 에서 고칠 것.
+- **🚨 번들 안 파일의 확장속성(xattr)이 앱스토어 업로드를 거부시킨다** (2026-08-14 실제 거부됨):
+  - 증상: 업로드는 성공(`Uploaded to Apple`)하는데 몇 분 뒤 메일로 **`ITMS-91109: Invalid package contents`** — "The package contains one or more files with the com.apple.quarantine extended file attribute, such as …/Resources/bat2_icon.png".
+  - 원인: 디자인 PNG 를 Finder·다운로드 경유로 넣으면 `com.apple.quarantine` 이 따라온다. 실제로 `bat2_icon.png` · `bat_icon_charge.png` · `site_banner.png` 3개가 물고 있었고, Xcode 리소스 복사가 xattr 를 그대로 보존해 번들까지 전파됐다.
+  - 조치: (1) 소스 1회 청소 `xattr -cr HotSauce/`, (2) **두 타깃에 `postBuildScripts` 로 `xattr -cr "${TARGET_BUILD_DIR}/${WRAPPER_NAME}"` 상시 적용.** macOS 15+ 는 파일 접근만 해도 `com.apple.provenance` 를 다시 붙이므로 소스 청소만으로는 재발을 못 막는다 → 빌드마다 터는 게 정답.
+  - 코드 서명은 모든 빌드 페이즈 **뒤**에 돌아서 이 스크립트가 서명을 깨지 않는다(`codesign --verify --deep --strict` 통과로 확인).
+  - 확인법: `find <앱> -exec xattr {} \; | sort | uniq -c` → `com.apple.quarantine` 이 0건이면 OK. `com.apple.provenance` 는 남아도 무방하다(ITMS-91109 는 quarantine 만 지목).
+  - 빌드 7은 이 문제로 거부돼 **소진**됐다. 재업로드는 빌드 8부터.
 - **Apple Distribution 인증서는 아직 없다** (키체인에 Developer ID Application + Apple Development 만 있음). 1.2.0 업로드는 자동 서명이 개발용 인증서로 아카이브하고 Distribute 단계에서 처리해 통과했다. 필요해지면 Xcode → Settings → Accounts → 팀 선택 → Manage Certificates… → `+` → Apple Distribution.
 - **이 맥은 키보드 탐색이 켜져 있다**(`AppleKeyboardUIMode = 2`) → 모든 컨트롤에 포커스 링이 그려진다. 포커스 관련 이슈를 재현할 때 이 전제를 기억할 것.
 - **배너를 다른 그림으로 교체하면 정렬 계산을 다시 해야 한다** — 좌표는 그림 안 아이콘 픽셀 위치에 묶여 있다. `PopupView.siteBanner` 주석에 계산식이 그대로 적혀 있다.
