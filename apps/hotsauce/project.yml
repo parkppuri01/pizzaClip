@@ -86,9 +86,17 @@ targets:
         ENABLE_HARDENED_RUNTIME: YES
         CODE_SIGN_ENTITLEMENTS: HotSauce/HotSauce-MAS.entitlements
         # 프로젝트 공통값(Manual/Developer ID)을 타깃 레벨에서 덮어쓴다.
-        # 앱스토어는 Xcode 가 프로비저닝 프로파일을 관리하게 두는 편이 안전하다.
+        # 앱스토어는 Xcode 가 인증서·프로비저닝 프로파일을 관리하게 두는 편이 안전하다.
+        #
+        # ⚠️ CODE_SIGN_IDENTITY 를 여기에 쓰지 말 것.
+        #   XcodeGen 은 CODE_SIGN_STYLE: Automatic 인 타깃에
+        #   "CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development" 를 자동으로 넣는다.
+        #   Xcode 에서는 조건부([sdk=...]) 설정이 무조건부보다 우선하므로, 여기에
+        #   "Apple Distribution" 을 써도 macOS 빌드에서는 절대 적용되지 않고 오히려
+        #   ad-hoc(-) 서명으로 떨어져 아카이브에 팀이 안 박힌다
+        #   → Organizer 에서 "No Team Found in Archive" 로 배포가 막힌다. (2026-08-14 실제 발생)
+        #   자동 서명에 맡기고, 배포용 인증서는 Distribute App 단계에서 Xcode 가 고르게 둔다.
         CODE_SIGN_STYLE: Automatic
-        CODE_SIGN_IDENTITY: "Apple Distribution"
       configs:
         Debug:
           SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG MAS

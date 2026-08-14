@@ -6,7 +6,9 @@
 - [x] 설정창 개인정보처리방침 링크 + **포커스 링 제거**(Link `focusable(false)` + `makeFirstResponder(nil)`)
 - [x] 캔버스 1000 → 1176 (팝업 468×520 → 468×611.5pt)
 - [x] **1.2.0(빌드7) 공증 배포** — 앱·DMG 2라운드 Accepted, EdDSA appcast, web 다운로드/버전/릴리스노트(한·영) → 라이브 검증 통과. 커밋 `bf02a7e`
-- [ ] **앱스토어(HotSauce-MAS) 1.2.0 아카이브·업로드** — 사용자가 직접 진행
+- [x] **앱스토어(HotSauce-MAS) 1.2.0(빌드7) 업로드 완료** — Organizer `Uploaded to Apple`, Team 정상, Intel+Apple Silicon
+  - 도중에 **"No Team Found in Archive"** 로 막힘 → 원인은 XcodeGen 이 자동 삽입하는 `CODE_SIGN_IDENTITY[sdk=macosx*]` 가 `project.yml` 의 무조건부 설정을 이겨 ad-hoc 서명된 것. `CODE_SIGN_IDENTITY` 줄 제거로 해결(상세는 HANDOFF 주의사항)
+- [ ] **App Store Connect 마무리** — 빌드 7 연결 · 스크린샷 · 설명/키워드/연령등급 · App Privacy "Data Not Collected" · **심사노트에 메뉴바 아이콘 안내 필수** · English (U.S.) 현지화
 
 ## 🍎 앱스토어 출시 준비 — 듀얼 타깃 (2026-08-06, 세션 9)
 - [x] 샌드박스 실측: 시스템 API 9종을 App Sandbox ON/OFF 로 비교 → **CoreWLAN(Wi-Fi 신호세기)만 차단**, `network.client` 엔타이틀먼트로 해결. 나머지(CPU·메모리·디스크·배터리 IOKit·네트워크·활성보기 실행)는 전부 통과 → **지표 엔진 코드 수정 불필요**
