@@ -6,11 +6,12 @@
 - [x] 설정창 개인정보처리방침 링크 + **포커스 링 제거**(Link `focusable(false)` + `makeFirstResponder(nil)`)
 - [x] 캔버스 1000 → 1176 (팝업 468×520 → 468×611.5pt)
 - [x] **1.2.0(빌드7) 공증 배포** — 앱·DMG 2라운드 Accepted, EdDSA appcast, web 다운로드/버전/릴리스노트(한·영) → 라이브 검증 통과. 커밋 `bf02a7e`
-- [ ] **앱스토어(HotSauce-MAS) 업로드 — 빌드7 거부됨, 빌드8 재업로드 필요**
-  - 지뢰 ① **"No Team Found in Archive"** — XcodeGen 이 자동 삽입하는 `CODE_SIGN_IDENTITY[sdk=macosx*]` 가 `project.yml` 의 무조건부 설정을 이겨 ad-hoc 서명. `CODE_SIGN_IDENTITY` 줄 제거로 해결
-  - 지뢰 ② **`ITMS-91109` Invalid package contents** — 디자인 PNG 3개에 `com.apple.quarantine` xattr. 소스 청소 + 두 타깃 `postBuildScripts` 에 `xattr -cr` 상시 적용으로 해결
-  - `project.yml` 은 빌드8 상태. 상세는 `docs/HANDOFF.md` 주의사항
+- [x] **앱스토어(HotSauce-MAS) 빌드8 업로드 완료** — 지뢰 2개 넘고 성공
+  - 지뢰 ① **"No Team Found in Archive"** — XcodeGen 이 자동 삽입하는 `CODE_SIGN_IDENTITY[sdk=macosx*]` 가 `project.yml` 의 무조건부 설정을 이겨 ad-hoc 서명. `CODE_SIGN_IDENTITY` 줄 제거로 해결 (`f8252de`)
+  - 지뢰 ② **`ITMS-91109` Invalid package contents** — 디자인 PNG 3개에 `com.apple.quarantine` xattr. 소스 청소 + 두 타깃 `postBuildScripts` 에 `xattr -cr` 상시 적용으로 해결 (`d64e308`). 빌드7은 이때 소진
+- [ ] 🚨 **ASC 버전 레코드 `1.0` → `1.2.0` 수정** — 안 고치면 빌드8 이 버전 페이지 "빌드" 목록에 안 뜬다 (최우선)
 - [ ] **App Store Connect 마무리** — 빌드 8 연결 · 스크린샷 · 설명/키워드/연령등급 · App Privacy "Data Not Collected" · **심사노트에 메뉴바 아이콘 안내 필수** · English (U.S.) 현지화
+- [ ] **앱 아이콘 macOS 규격화** — 현재 1024 캔버스 100% 꽉 참(iOS 방식). macOS 는 824 스퀘어클 + 사방 100px 여백이라 Dock·스토어에서 크고 각져 보임. 심사엔 무관
 
 ## 🍎 앱스토어 출시 준비 — 듀얼 타깃 (2026-08-06, 세션 9)
 - [x] 샌드박스 실측: 시스템 API 9종을 App Sandbox ON/OFF 로 비교 → **CoreWLAN(Wi-Fi 신호세기)만 차단**, `network.client` 엔타이틀먼트로 해결. 나머지(CPU·메모리·디스크·배터리 IOKit·네트워크·활성보기 실행)는 전부 통과 → **지표 엔진 코드 수정 불필요**

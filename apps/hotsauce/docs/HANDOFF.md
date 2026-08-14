@@ -19,16 +19,26 @@
   - 빌드7은 Organizer 상태 `Uploaded to Apple`(Team `jaekeun park`, Intel·Apple Silicon)까지 갔으나, 몇 분 뒤 **`ITMS-91109: Invalid package contents`** 메일로 거부됐다 → 아래 주의사항의 **xattr** 항목.
   - **지뢰 2개를 밟았다**: ① `CODE_SIGN_IDENTITY` (No Team Found in Archive) ② xattr `com.apple.quarantine` (ITMS-91109). 둘 다 `project.yml` 에서 영구 조치했고 주의사항에 상세히 남겼다.
   - `project.yml` 빌드 번호를 **8** 로 올려뒀다(7은 소진). ⚠️ 직접 배포 1.2.0 은 **빌드7로 이미 배포·라이브** 상태이고 appcast 도 7이다 — 직접 배포를 다시 낼 일이 생기면 빌드 번호가 8부터라는 점만 인지할 것(현재 라이브에는 영향 없음).
+  - **✅ 빌드8 재업로드 완료**(2026-08-14). 두 지뢰를 다 고친 뒤 올렸고 거부 메일 없음. 다만 ASC 버전 레코드가 아직 `1.0` 이라 빌드 연결 전에 고쳐야 한다(아래 "다음에 할 일" 1번).
 
 ### 다음에 할 일
-1. **⚠️ 빌드8 재아카이브·재업로드** — Xcode 스킴 `HotSauce-MAS` → Product → Archive → Distribute App → App Store Connect. `project.yml` 은 이미 빌드8 + xattr 방어 스크립트가 들어간 상태라 그대로 아카이브하면 된다. (Xcode 를 켜둔 채였다면 `xcodegen generate` 가 이미 돌았으므로 프로젝트를 다시 열 것.)
-2. **App Store Connect 마무리**:
-   - 빌드 처리(5~30분) 완료 후 1.2.0 버전 페이지 "빌드" 섹션에서 **빌드 8 연결**.
+1. **🚨 App Store Connect 버전 레코드가 `1.0` 이다 — `1.2.0` 으로 고칠 것 (최우선)**
+   - 앱 목록에 "macOS **1.0** 제출 준비 중" 으로 떠 있는데, 업로드한 빌드는 `CFBundleShortVersionString = 1.2.0` 이다.
+   - ASC 는 **버전 레코드와 같은 버전 문자열을 가진 빌드만** "빌드" 목록에 보여준다 → 지금 상태로는 **빌드 8 이 목록에 안 뜬다.**
+   - 조치: ASC → HotSauce → 사이드바 `macOS 앱 → 1.0 제출 준비 중` → 상단 **버전** 입력란을 `1.2.0` 으로 수정·저장. (제출 준비 중 상태라 자유롭게 수정 가능.)
+   - 앱스토어 첫 버전이 1.0 일 필요는 없다. 형식만 맞고 이후 계속 커지면 된다. 직접 배포판이 이미 1.2.0 이라 **맞추는 쪽이 옳다**(채널별 버전 어긋남·릴리스노트 불일치 방지).
+2. **App Store Connect 마무리** (빌드8 업로드는 2026-08-14 완료):
+   - 버전을 1.2.0 으로 고친 뒤 "빌드" 섹션에서 **빌드 8 연결**.
    - 남은 메타데이터: 스크린샷(1280×800 등으로 통일, **팝업 열린 데스크톱 캡처** — 메뉴바 앱이라 팝업이 안 보이면 심사에서 문제) · 설명·키워드·연령등급 · 지원 URL `https://pizza-clip.com/hotsauce` · 개인정보처리방침 URL `https://pizza-clip.com/privacy`.
    - **App Privacy 설문 = "Data Not Collected"** (방침 2번이 "직접 다운로드 버전만 해당"으로 명시돼 있어 모순 없음).
    - **심사노트 필수** — LSUIElement라 리뷰어가 앱을 못 찾아 리젝되는 사례가 흔하다. "메뉴바 우측 핫소스 병 아이콘 클릭" + 스크린샷을 반드시 기재.
 3. **기본 언어가 한국어**라 영어권에도 한국어 설명이 뜬다 → 버전 페이지에서 English (U.S.) 현지화 추가 필요. 문구는 `web/src/i18n/hotsauce.ts` 재활용 가능.
-4. (선택·이월) 앱 아이콘 둥근 모서리 · 폭발 파티클 전용 아트 · 옛 `HotSauce-1.0.0.dmg` 정리 · Pretendard `OFL.txt` 사본(`Fonts/NOTICE.txt`에 curl 명령 있음) · `PrivacyInfo.xcprivacy`.
+4. **앱 아이콘이 macOS 규격이 아니다** (이월 항목의 정체를 이번에 측정으로 확정):
+   - `assets/HotSauceAppIcon.png` 는 1024×1024 캔버스를 **100% 꽉 채운다**(투명 여백 0px) = **iOS 방식**.
+   - macOS 규격은 1024 캔버스 안에 **824×824 스퀘어클(80.5%)** + 사방 100px 투명 여백이다. 그림자·반사 공간이자 Dock 에서 크기가 들쭉날쭉해 보이지 않게 하는 장치.
+   - 증상: ASC 앱 목록에서 iOS 앱(ZRcamera)보다 작아 보이고, Dock·Launchpad 에서 다른 앱보다 크고 각져 보인다. **심사에는 지장 없다.**
+   - 조치: 1024 안에 824 스퀘어클로 다시 그려 `assets/HotSauceAppIcon.png` 교체 → `./scripts/build-icon.sh`. 코드로 축소·마스크하면 뭉개지므로 Pixelmator 재출력이 품질상 낫다.
+5. (선택·이월) 폭발 파티클 전용 아트 · 옛 `HotSauce-1.0.0.dmg` 정리 · Pretendard `OFL.txt` 사본(`Fonts/NOTICE.txt`에 curl 명령 있음) · `PrivacyInfo.xcprivacy`.
 
 ### 주의사항 / 컨텍스트
 - **설정창 렌더 검증 하네스**(재사용 가능) — 앱 코드에 훅을 추가하지 않고 설정창을 눈으로 볼 수 있다. 실제 `SettingsWindowController.show()`를 그대로 호출하고 `screencapture`로 찍으므로 포커스 링까지 재현된다:
