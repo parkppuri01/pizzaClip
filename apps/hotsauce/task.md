@@ -1,6 +1,14 @@
 # HotSauce 작업 현황
 
-## 🍎 앱스토어 출시 준비 — 듀얼 타깃 (2026-08-06, 세션 9) — 코드 완료·미배포·미커밋
+## ✅ 1.2.0 팝업 배너 + 푸터 여유 + 배포 (2026-08-14, 세션 10)
+- [x] 팝업 네트워크 섹션 아래 **Team JAM 사이트 배너** — 클릭 시 pizza-clip.com. 배너 기하(894.9×148.6, 중심 451.9)는 원본 PNG 아이콘 픽셀(206×206 @ x=407.5/2635.5)에서 역산해 기존 아이콘 열(126 / 790.6)에 정확히 정렬
+- [x] 푸터 띠 85.5 → **120 유닛** (아이콘 여백 12→29, 탭 영역 70→80). 배너 위 여백 45.5 = 섹션 사이 간격과 동일
+- [x] 설정창 개인정보처리방침 링크 + **포커스 링 제거**(Link `focusable(false)` + `makeFirstResponder(nil)`)
+- [x] 캔버스 1000 → 1176 (팝업 468×520 → 468×611.5pt)
+- [x] **1.2.0(빌드7) 공증 배포** — 앱·DMG 2라운드 Accepted, EdDSA appcast, web 다운로드/버전/릴리스노트(한·영) → 라이브 검증 통과. 커밋 `bf02a7e`
+- [ ] **앱스토어(HotSauce-MAS) 1.2.0 아카이브·업로드** — 사용자가 직접 진행
+
+## 🍎 앱스토어 출시 준비 — 듀얼 타깃 (2026-08-06, 세션 9)
 - [x] 샌드박스 실측: 시스템 API 9종을 App Sandbox ON/OFF 로 비교 → **CoreWLAN(Wi-Fi 신호세기)만 차단**, `network.client` 엔타이틀먼트로 해결. 나머지(CPU·메모리·디스크·배터리 IOKit·네트워크·활성보기 실행)는 전부 통과 → **지표 엔진 코드 수정 불필요**
 - [x] 타깃 2개 분리 — `HotSauce`(Developer ID + Sparkle, 기존 그대로) / `HotSauce-MAS`(App Sandbox, Sparkle 없음). 코드 분기는 `#if MAS` 하나
 - [x] 신규: `HotSauce-MAS.entitlements` · `Info-MAS.plist` · `Signing-MAS.xcconfig(.example)` · `Fonts/NOTICE.txt`

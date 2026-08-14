@@ -4,7 +4,43 @@
 
 ---
 
-## 세션 9 — 2026-08-06: 앱스토어 출시 준비 — 듀얼 타깃 전환 (✅ 코드 완료 · 미배포·미커밋)
+## 세션 10 — 2026-08-14: 1.2.0 팝업 배너 + 푸터 여유 + 공증 배포 (✅ 완료·배포됨)
+
+### 마지막으로 한 일
+- **1.2.0(빌드7) 공증 배포 완료.** 커밋 `bf02a7e` → master push → 라이브 검증 통과(appcast 1.2.0/build7, DMG 200·3,452,466B, 페이지 다운로드 버튼 1.2.0, 릴리스노트 한·영).
+- **팝업 사이트 배너 신설** — 네트워크 섹션과 푸터 구분선 사이. 누르면 `https://pizza-clip.com/`.
+  - 에셋: `내부아이콘/핫소스배너1.png` → `Resources/DesignAssets/site_banner.png`로 복사(한글 파일명은 번들 조회 위험이라 ASCII 개명).
+  - **기하는 눈대중이 아니라 이미지 측정에서 역산했다.** 원본 3000×498의 양 끝 아이콘이 정확히 206×206px, 중심 x=407.5 / 2635.5 → 스케일 `(790.6−126)/(2635.5−407.5)=0.298294 유닛/px` → 배너 **894.9×148.6, 중심 451.9**, 배너 아이콘 **61.45 유닛**(섹션 62·얼굴 61 사이). 렌더 PNG를 재측정해 좌우 열 편차 1유닛(0.5pt) 이내 확인.
+  - 언어 분기는 사이트 미들웨어가 접속 국가로 처리 → 앱에서 `/en/`을 붙이지 않는다(붙여도 되돌려 보내짐).
+- **푸터 띠 확장** 85.5 → 120 유닛(아이콘 여백 12→29, 탭 영역 70→80). 배너 위 여백 45.5는 섹션 사이 간격(45.3/47.7/46.7)에 맞춘 값.
+- **설정창 개인정보처리방침 링크 + 포커스 링 제거** — SwiftUI `Link`가 macOS에서 버튼으로 만들어져 창의 첫 응답자가 되는 게 원인. `focusable(false)` + `show()`에서 한 턴 미룬 `makeFirstResponder(nil)` 2중 방어. 실제 `SettingsWindowController.show()` 경로로 첫 열기·재열기 모두 포커스 없음 확인.
+- **캔버스 1000 → 1176** (팝업 468×520 → 468×611.5pt).
+
+### 다음에 할 일
+1. **⚠️ 앱스토어 1.2.0 아카이브·업로드** — 사용자가 직접 진행하기로 함. Xcode에서 스킴을 **`HotSauce-MAS`**로 바꾸고 `Product → Archive` → Organizer → Distribute App → App Store Connect → Upload. 버전은 직접 배포와 동일한 1.2.0(빌드7).
+   - 앱 레코드는 App Store Connect에 **이미 생성됨**(macOS · 이름 HotSauce · 번들 `com.Team-jAm.HotSauce` · SKU `hotsauce-mac-001` · 전체 액세스). App ID도 등록 완료.
+   - 남은 메타데이터: 스크린샷(1280×800 등으로 통일, 팝업 열린 데스크톱 캡처) · 설명·키워드·연령등급 · 지원 URL `https://pizza-clip.com/hotsauce` · 개인정보처리방침 URL `https://pizza-clip.com/privacy`.
+   - **App Privacy 설문 = "Data Not Collected"** (방침 2번이 "직접 다운로드 버전만 해당"으로 명시돼 있어 모순 없음).
+   - **심사노트 필수** — LSUIElement라 리뷰어가 앱을 못 찾아 리젝되는 사례가 흔하다. "메뉴바 우측 핫소스 병 아이콘 클릭" + 스크린샷을 반드시 기재.
+2. **기본 언어가 한국어**라 영어권에도 한국어 설명이 뜬다 → 버전 페이지에서 English (U.S.) 현지화 추가 필요. 문구는 `web/src/i18n/hotsauce.ts` 재활용 가능.
+3. (선택·이월) 앱 아이콘 둥근 모서리 · 폭발 파티클 전용 아트 · 옛 `HotSauce-1.0.0.dmg` 정리 · Pretendard `OFL.txt` 사본(`Fonts/NOTICE.txt`에 curl 명령 있음) · `PrivacyInfo.xcprivacy`.
+
+### 주의사항 / 컨텍스트
+- **설정창 렌더 검증 하네스**(재사용 가능) — 앱 코드에 훅을 추가하지 않고 설정창을 눈으로 볼 수 있다. 실제 `SettingsWindowController.show()`를 그대로 호출하고 `screencapture`로 찍으므로 포커스 링까지 재현된다:
+  ```bash
+  swiftc -o probe main.swift HotSauce/Settings/SettingsView.swift HotSauce/Localization/L10n.swift \
+    -framework AppKit -framework SwiftUI -framework ServiceManagement   # MAS 변형은 -D MAS
+  ```
+  ⚠️ 하네스에서 `app.appearance`를 명시하지 않으면 다크로 잡혀 배너 흰 글자가 흰 배경에 묻힌다(앱 버그 아님). 최상위 실행문을 쓰려면 파일명이 반드시 `main.swift`여야 한다.
+- **이 맥은 키보드 탐색이 켜져 있다**(`AppleKeyboardUIMode = 2`) → 모든 컨트롤에 포커스 링이 그려진다. 포커스 관련 이슈를 재현할 때 이 전제를 기억할 것.
+- **배너를 다른 그림으로 교체하면 정렬 계산을 다시 해야 한다** — 좌표는 그림 안 아이콘 픽셀 위치에 묶여 있다. `PopupView.siteBanner` 주석에 계산식이 그대로 적혀 있다.
+- **오른쪽 아이콘 열의 "안쪽으로 들어가 보이는" 느낌은 위치 문제가 아니다** — 측정상 얼굴·배너·설정이 전부 편차 2유닛 이내다. 얼굴은 꽉 찬 색 블록, 링크·설정은 가는 윤곽선이라 시각적 무게가 달라서 그렇게 보인다. 사용자 판단으로 **그대로 두기로 결정**. 근본 해결은 배너 그림의 링크 아이콘을 채움 스타일로 다시 그리는 것.
+- **얼굴 x가 두 값으로 갈려 있다**(cpu·메모리·저장 788.9 / 배터리·네트워크 791.3, 2.4유닛 차) — 원본 pxd에서 넘어온 기존 오차. 정리 제안했으나 이번엔 손대지 않음.
+- 릴리스 시 버전 갱신 지점은 그대로: `project.yml` · `consts.ts` · `HotSaucePage.astro` softwareVersion · `i18n/info.ts` 릴리스노트. **Info.plist 쌍둥이는 버전을 `$(MARKETING_VERSION)`으로 받으므로 따로 손댈 필요 없다.**
+
+---
+
+## 세션 9 — 2026-08-06: 앱스토어 출시 준비 — 듀얼 타깃 전환 (✅ 코드 완료 · 배포됨 · 커밋 `0ea58f2`)
 
 ### 마지막으로 한 일
 - **샌드박스 실측 먼저.** 앱스토어는 App Sandbox 가 강제라, 핫소스가 쓰는 시스템 API 9종을 프로브 앱(adhoc 서명 + `com.apple.security.app-sandbox`)으로 샌드박스 ON/OFF 각각 돌려 비교했다. 결과:
