@@ -53,7 +53,11 @@ struct SettingsView: View {
                 HStack(spacing: 6) {
                     Text(version)
                     Text("·")
+                    // focusable(false) 가 없으면 이 Link 가 창의 첫 응답자로 잡혀서
+                    // 설정을 열자마자 '개인정보처리방침'에 포커스 링이 걸린다.
+                    // (SwiftUI Link 는 macOS 에서 버튼으로 만들어져 기본 포커스 대상이 된다)
                     Link(L("Privacy Policy", "개인정보처리방침"), destination: privacyURL)
+                        .focusable(false)
                 }
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
@@ -147,5 +151,12 @@ final class SettingsWindowController {
         }
         NSApp.activate(ignoringOtherApps: true)
         window?.makeKeyAndOrderFront(nil)
+        // 창을 열자마자 아무 컨트롤에도 포커스 링이 걸리지 않게 한다.
+        // SwiftUI 가 첫 레이아웃에서 첫 응답자를 잡은 "뒤"라야 먹히므로 한 턴 미룬다.
+        // (이게 혹시 안 먹어도 Link 는 focusable(false) 라 포커스가 '로그인 시 자동 시작'
+        //  토글에 걸릴 뿐, 개인정보처리방침으로 돌아가지는 않는다.)
+        DispatchQueue.main.async { [weak self] in
+            self?.window?.makeFirstResponder(nil)
+        }
     }
 }

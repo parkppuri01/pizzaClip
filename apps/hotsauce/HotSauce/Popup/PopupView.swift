@@ -25,6 +25,7 @@ struct PopupView: View {
             batterySection(snap.battery)
             networkSection(snap.network)
 
+            siteBanner
             footer
 
             // 자물쇠: 헤더 우상단. 잠그면 포커스를 잃어도 팝업이 안 닫힌다.
@@ -72,7 +73,7 @@ struct PopupView: View {
             Rectangle().fill(DS.divider)
                 .placedCenter(450, 85, w: 900, h: 1.5)
             Rectangle().fill(DS.divider)
-                .placedCenter(450, 914.5, w: 900, h: 1.5)
+                .placedCenter(450, 1056, w: 900, h: 1.5)   // 배너 아래 · 푸터 위
         }
     }
 
@@ -211,8 +212,41 @@ struct PopupView: View {
         }
     }
 
+    // MARK: - 사이트 배너
+
+    /// 네트워크 섹션과 푸터 구분선 사이의 프로모 배너. 누르면 pizza-clip.com 이 열린다.
+    /// 배경이 팝업과 같은 차콜이라 테두리 없이 자연스럽게 얹힌다.
+    ///
+    /// **894.9×148.6 은 임의값이 아니라 아이콘 열에서 역산한 값이다.**
+    /// 원본 site_banner.png(3000×498)를 측정하면 양 끝 아이콘이 정확히 206×206px,
+    /// 중심이 각각 x=407.5 / x=2635.5 다. 이 두 아이콘이 팝업의 기존 두 아이콘 열
+    /// (왼쪽 섹션 아이콘 x=126 · 오른쪽 얼굴 x=789.4~791.8)에 얹히도록 스케일을 맞췄다:
+    ///
+    ///   스케일 = (790.6 − 126) / (2635.5 − 407.5) = 0.298294 유닛/px
+    ///   → 배너 3000×498 → 894.9×148.6, 왼쪽 끝 4.45 (중심 451.9)
+    ///   → 배너 아이콘 206px → 61.45 유닛 (섹션 62 · 얼굴 61 사이)
+    ///   → 왼쪽 아이콘 중심 126.0 · 오른쪽 아이콘 중심 790.6 에 안착
+    ///
+    /// ⚠️ 배너 그림을 교체하면 아이콘 픽셀 위치가 달라지므로 이 계산을 다시 해야 한다.
+    private var siteBanner: some View {
+        Group {
+            Image(nsImage: Assets.image("site_banner"))
+                .resizable()
+                .scaledToFit()
+                .placedCenter(451.9, 962, w: 894.9, h: 148.6)
+            // 그림과 탭 영역 분리 — 자물쇠·푸터와 같은 검증된 패턴
+            // (contentShape 를 placedCenter 뒤에 붙이면 탭 영역이 좌상단에 남는다)
+            Color.clear
+                .contentShape(Rectangle())
+                .placedCenter(451.9, 962, w: 894.9, h: 148.6)
+                .onTapGesture { openSite() }
+        }
+    }
+
     // MARK: - 푸터
 
+    // 푸터 띠: 구분선 1056 ~ 캔버스 바닥 1176 = 120 유닛.
+    // (원래 85.5 유닛이라 아이콘 위아래 여백이 12 밖에 없어 답답했다 → 29 로 넓힘)
     private var footer: some View {
         Group {
             // 활성 상태 보기 (Activity Monitor 열기)
@@ -220,25 +254,25 @@ struct PopupView: View {
                 Image(nsImage: Assets.image("activeit_icon"))
                     .resizable()
                     .scaledToFit()
-                    .placedCenter(126, 958, w: 62, h: 62)
+                    .placedCenter(126, 1116, w: 62, h: 62)
                 Text(L("Activity Monitor", "활성 상태 보기"))
                     .font(DS.font(DS.titleFontSize))
                     .foregroundColor(DS.text)
-                    .placedLeft(232.5, centerY: 958)
+                    .placedLeft(232.5, centerY: 1116)
             }
             Color.clear
                 .contentShape(Rectangle())
-                .placedCenter(230, 958, w: 290, h: 70)
+                .placedCenter(230, 1116, w: 290, h: 80)
                 .onTapGesture { openActivityMonitor() }
 
             // 설정
             Image(nsImage: Assets.image("setting_icon"))
                 .resizable()
                 .scaledToFit()
-                .placedCenter(791.8, 957.8, w: 61.5, h: 61.5)
+                .placedCenter(791.8, 1115.8, w: 61.5, h: 61.5)
             Color.clear
                 .contentShape(Rectangle())
-                .placedCenter(791.8, 957.8, w: 80, h: 70)
+                .placedCenter(791.8, 1115.8, w: 80, h: 80)
                 .onTapGesture { onOpenSettings() }
         }
     }
@@ -246,6 +280,13 @@ struct PopupView: View {
     private func openActivityMonitor() {
         let url = URL(fileURLWithPath: "/System/Applications/Utilities/Activity Monitor.app")
         NSWorkspace.shared.openApplication(at: url, configuration: .init())
+    }
+
+    /// 배너 → 제품 사이트. 언어 분기는 사이트 미들웨어가 접속 국가로 알아서 하므로
+    /// 앱에서 /en/ 을 따로 붙이지 않는다(붙여도 되돌려 보내진다).
+    private func openSite() {
+        guard let url = URL(string: "https://pizza-clip.com/") else { return }
+        NSWorkspace.shared.open(url)
     }
 }
 

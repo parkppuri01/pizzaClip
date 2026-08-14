@@ -11,7 +11,10 @@ enum DS {
     static func u(_ value: CGFloat) -> CGFloat { value * scale }
 
     static let canvasWidth: CGFloat = 900
-    static let canvasHeight: CGFloat = 1000
+    /// 원본 디자인은 1000 이었다. 네트워크 섹션 아래에 사이트 배너(894.9×148.6)를 넣고
+    /// 답답하던 푸터 띠를 85.5 → 120 유닛으로 넓히면서 1176 으로 늘렸다.
+    /// (배너 148.6 + 위 여백 45.5[섹션 간격과 동일] + 아래 19.7 + 푸터 여유 34.5 ≈ +176)
+    static let canvasHeight: CGFloat = 1176
     static var popupSize: CGSize { CGSize(width: u(canvasWidth), height: u(canvasHeight)) }
 
     // ── 색상 (pxd 벡터 데이터 + 렌더 샘플에서 추출한 정확한 값) ──

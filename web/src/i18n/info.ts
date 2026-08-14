@@ -174,6 +174,15 @@ export const info: Record<Lang, InfoContent> = {
     ],
     hotsauceReleases: [
       {
+        version: "1.2.0",
+        label: "팝업 배너 · 한결 여유로운 아래 칸",
+        notes: [
+          "팝업 맨 아래에 Team JAM 배너가 생겼어요. 누르면 pizza-clip.com 으로 바로 갑니다.",
+          "‘활성 상태 보기’와 설정이 있는 아래 칸의 위아래 여백을 넓혀 답답함을 덜었어요.",
+          "설정 창에서 개인정보처리방침을 바로 열어볼 수 있어요.",
+        ],
+      },
+      {
         version: "1.1.3",
         label: "제목 옆 퍼센트 표시",
         notes: [
@@ -380,6 +389,15 @@ export const info: Record<Lang, InfoContent> = {
       },
     ],
     hotsauceReleases: [
+      {
+        version: "1.2.0",
+        label: "Popup Banner · Roomier Bottom Bar",
+        notes: [
+          "A Team JAM banner now sits at the bottom of the popup — tap it to jump straight to pizza-clip.com.",
+          "The bottom bar with Activity Monitor and Settings has more breathing room above and below.",
+          "You can open the privacy policy straight from Settings.",
+        ],
+      },
       {
         version: "1.1.3",
         label: "Percent at a Glance",
