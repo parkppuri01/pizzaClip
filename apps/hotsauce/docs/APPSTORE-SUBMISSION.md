@@ -1,0 +1,392 @@
+# HotSauce — App Store Connect 제출 정보
+
+> 작성 2026-08-15 · 대상 버전 **1.3.0 (빌드 9)** · 출시 **무료 / 미국·대한민국**
+> 아래 값을 그대로 복사해 App Store Connect 에 붙여넣으면 된다.
+> ✅ 표시는 채워 넣을 값, 📌 는 선택지에서 고를 값.
+
+---
+
+## 🚨 먼저 할 일 — ASC 버전 레코드를 1.2.0 → **1.3.0** 으로 다시 수정
+
+빌드 8에는 새 아이콘·배너 토글이 없어서 **빌드 9(1.3.0)를 새로 아카이브했다.**
+버전 표기를 1.2.0 그대로 두면 웹 배포판 1.2.0(토글 없음)과 내용이 달라지므로 **1.3.0 으로 올렸다.**
+
+| | 빌드 8 (업로드됨·폐기) | **빌드 9 (신규 · 이걸 올린다)** |
+|---|---|---|
+| 버전 | 1.2.0 | **1.3.0** |
+| 앱 아이콘 | `a0a9e50b…` 옛 iOS식 | `8d25affa…` macOS 스퀘어클 ✅ |
+| 배너 토글 | 없음 | 있음 ✅ |
+
+**조치**: ASC → HotSauce → 사이드바 `macOS 앱 → 1.2.0 제출 준비 중` → `일반 앱 정보` → **버전** 을 `1.3.0` 으로 수정·저장.
+(제출 준비 중 상태라 자유롭게 수정 가능. 저장 후 '빌드' 섹션에 빌드 9가 뜬다.)
+
+### 빌드 9 업로드 방법 (아카이브는 생성 완료)
+
+1. **Xcode → Window → Organizer** (⌥⇧⌘O) → Archives 탭
+2. **`HotSauce-MAS 1.3.0 build9`** (2026-08-15) 선택
+3. **Distribute App** → **App Store Connect** → **Upload** → 자동 서명에 맡기고 진행
+4. 업로드 후 10~30분 처리 대기 → "처리 완료" 메일 도착 → ASC '빌드' 섹션에서 선택
+
+> 아카이브 위치: `~/Library/Developer/Xcode/Archives/2026-08-15/HotSauce-MAS 1.3.0 build9.xcarchive`
+> 검증 완료: 서명 TeamIdentifier `R684FN2S7J` ✅ · quarantine xattr 0건 ✅ · Sparkle 0건 ✅ · 샌드박스 엔타이틀먼트 정상 ✅
+
+---
+
+## 1. 앱 정보 (App Information) — 버전과 무관한 공통 정보
+
+| 항목 | 값 |
+|---|---|
+| 이름 (Name) | ✅ `HotSauce` — **한국어·영어(미국) 양쪽 모두 동일하게** (아래 ⚠️ 참고) |
+| 부제 (Subtitle, 30자 이내) | ✅ 한국어: `메뉴바 시스템 모니터 · CPU 메모리 배터리` (25자)<br>✅ English: `Menu Bar CPU, RAM & Battery` (27자) |
+| 번들 ID | `com.Team-jAm.HotSauce` (등록됨) |
+| SKU | `hotsauce-mac-001` (등록됨) |
+| Apple ID | `6801170433` |
+| 기본 언어 (Primary Language) | 📌 **한국어** (현재 설정) |
+| 카테고리 (Primary) | 📌 **유틸리티 (Utilities)** ※ 번들의 `LSApplicationCategoryType` 과 일치해야 함 |
+| 카테고리 (Secondary) | 📌 **개발자 도구 (Developer Tools)** — 선택 사항, 비워도 무방 |
+| 콘텐츠 권한 (Content Rights) | 📌 **제3자 콘텐츠를 포함하지 않음** |
+| 연령 등급 (Age Rating) | 📌 **4+** (아래 2절 설문 참고) |
+
+> ### ⚠️ 실제로 겪은 함정 — 이름에 설명어를 붙이면 "이미 사용 중" 오류
+>
+> 영어(미국) 이름에 `HotSauce : System Monitor` 를 넣었더니 이렇게 막혔다:
+>
+> ```
+> 입력한 앱 이름이 이미 사용 중이므로 영어(미국)의 필드를 저장할 수 없습니다.
+> 해당 현지화 버전에서 다른 필드가 유효하지 않으므로 영어(미국)의 이름 필드를 저장할 수 없습니다.
+> 해당 현지화 버전에서 다른 필드가 유효하지 않으므로 영어(미국)의 부제 필드를 저장할 수 없습니다.
+> ```
+>
+> **그리고 `HotSauce` 단독으로 줄여도 똑같이 막혔다.** (앱 레코드 생성 때 쓴 이름이라 통과할 줄 알았으나 아니었다.)
+>
+> - **앱 이름은 현지화마다 개별로 전역 중복 검사를 받는다.** 앱 레코드를 만들 때 확보한 이름(= 기본 언어인 한국어)이 다른 현지화에서 자동으로 통하지는 않는다.
+> - 원인은 밖에서 확정 불가. 둘 중 하나다:
+>   ① **다른 개발자가 선점** — 출시하지 않아도 레코드만 만들면 이름이 잠긴다(그래서 스토어 검색에는 안 보인다).
+>   ② **자기 한국어 현지화와 충돌** — 한국어가 이미 `HotSauce` 를 쥐고 있어 영어가 같은 문자열을 요구하면 막히는 사례가 보고된다.
+> - **해법은 어느 쪽이든 같다 — 영어 이름만 조금 다르게 준다.** 시도 순서:
+>   `Hot Sauce`(띄어쓰기) → `HotSauce Monitor` → `HotSauce Stats` → `HotSauce for Mac`
+> - **한국어 이름 `HotSauce` 는 이미 저장돼 있으므로 건드리지 말 것.** 한국에서는 HotSauce, 미국에서만 다른 이름이 된다(허용된다).
+> - **뒤따르는 "다른 필드가 유효하지 않으므로…" 줄들은 도미노일 뿐**이다 — 이름 하나만 통과하면 함께 사라진다.
+> - ⚠️ 이름 오류가 나면 **그 현지화 전체가 저장되지 않는다.** 이름을 고친 뒤 부제·설명·키워드가 실제로 들어갔는지 다시 확인하고 저장할 것.
+> - `이의를 제기하십시오` 링크는 **해당 이름의 상표권을 보유한 경우에만** 쓴다.
+> - 검색 손해는 없다 — `monitor` 등 설명어는 이미 **부제와 키워드**가 담당한다. 애플도 이름에 설명어를 욱여넣는 것을 권장하지 않는다.
+
+---
+
+## 2. 연령 등급 설문 (Age Rating)
+
+모든 항목에 **없음 / 아니요** 로 답한다 → 결과 **4+**
+
+| 설문 항목 | 답 |
+|---|---|
+| 폭력(만화/판타지, 사실적), 성적 내용, 노출, 욕설, 유혈, 공포 | 없음 |
+| 알코올·담배·마약 사용 또는 언급 | 없음 |
+| 도박(시뮬레이션 포함) | 없음 |
+| 콘테스트 / 사용자 생성 콘텐츠 | 없음 |
+| 웹 브라우징 기능 없음 (외부 링크는 기본 브라우저로 열림) | 아니요 |
+| 무제한 웹 접근 | 아니요 |
+| 개인정보 또는 위치 공유 | 아니요 |
+
+---
+
+## 3. 가격 및 사용 가능 여부 (Pricing and Availability)
+
+| 항목 | 값 |
+|---|---|
+| 가격 (Price) | 📌 **무료** — 가격 목록 맨 위의 `무료`(₩0) 를 **선택**한다. 0 을 입력하는 칸이 아니다 |
+| 국가 또는 지역 | 📌 **직접 선택** → **대한민국(South Korea)** · **미국(United States)** 두 곳만 체크 |
+| 사전 주문 (Pre-Order) | 📌 사용 안 함 |
+| 배포 방식 | 📌 **공개 (Public)** — App Store 에서 검색·다운로드 가능 |
+
+> 💡 "모든 국가" 가 기본값이라 **직접 미국·한국만 남기고 나머지를 해제**해야 한다.
+> 나중에 국가를 추가하는 건 심사 없이 언제든 가능하다.
+>
+> 💡 **무료 앱은 은행 계좌·세금 정보를 등록할 필요가 없다.** 유료 앱이라면 '유료 앱 계약'(Paid Apps
+> Agreement)에 은행·세무 정보를 모두 채워야 제출이 가능하지만, 무료는 계정 생성 시 이미 동의된
+> 무료 앱 계약만으로 충분하다.
+
+---
+
+## 4. 버전별 정보 (macOS 앱 → 1.3.0)
+
+### 4-1. 프로모션 텍스트 (Promotional Text, 170자 이내 · 심사 없이 수정 가능)
+
+**한국어** (73자)
+```
+겉으론 조용한 내 Mac, 사실은 열심히 달리는 중일지도. CPU·메모리·배터리·저장 공간·네트워크를 메뉴바에서 한눈에 확인하세요.
+```
+
+**English (U.S.)** (139자)
+```
+Your Mac looks calm — but is it? Check CPU, memory, battery, disk, and network at a glance, right from a hot-sauce bottle in your menu bar.
+```
+
+### 4-2. 설명 (Description, 4000자 이내)
+
+**한국어**
+```
+겉으로는 아무 일 없는 척해도, 뒤에서는 CPU가 뛰고 메모리가 바쁘고 배터리가 조용히 줄어들고 있을지 모릅니다. HotSauce는 내 Mac이 얼마나 열심히 일하고 있는지 메뉴바에서 바로 보여줍니다.
+
+■ 메뉴바에서 한눈에
+복잡한 창을 열 필요가 없습니다. 메뉴바의 핫소스 병 아이콘을 누르면 지금 내 Mac 상태가 한 화면에 펼쳐집니다.
+
+■ 무엇을 볼 수 있나요
+· CPU — 전체 사용률과 시스템/사용자/대기 비율
+· 메모리 — 사용률, 메모리 압력, 사용량, 캐시, 스왑
+· 저장 공간 — 사용량과 전체 용량
+· 배터리 — 잔량, 온도, 충전 사이클 수 (충전 중이면 아이콘이 바뀝니다)
+· 네트워크 — 로컬 IP, 신호 세기, 업로드·다운로드 속도
+
+■ 부하에 따라 변하는 병 아이콘
+Mac이 여유로우면 빨간 병, 바빠지면 노란 병, 아주 뜨거우면 무지개 병으로 바뀝니다. 메뉴바를 힐끗 보는 것만으로 지금 상태를 알 수 있습니다. 각 항목 옆의 얼굴 표정도 함께 바뀝니다.
+
+■ 활성 상태 보기 바로 열기
+더 자세히 파고들고 싶을 땐 팝업 아래의 버튼으로 macOS 활성 상태 보기를 바로 열 수 있습니다.
+
+■ 개인정보를 수집하지 않습니다
+계정도, 로그인도, 광고도, 분석 도구도 없습니다. 읽어들인 지표는 화면에 표시할 뿐 어디로도 전송하지 않습니다. 모든 것이 사용자의 Mac 안에서만 일어납니다.
+
+■ 한국어와 영어를 지원합니다
+설정에서 시스템 언어를 따르거나 한국어·English 중에서 직접 고를 수 있습니다.
+
+■ 사용 방법
+HotSauce는 메뉴 막대에서만 동작하는 앱입니다. 실행하면 Dock 이 아니라 화면 오른쪽 위 메뉴 막대에 핫소스 병 아이콘이 나타납니다. 그 아이콘을 클릭하세요.
+
+macOS 13 이상 · Apple Silicon 및 Intel Mac 지원 · 무료
+
+Team JAM 의 다른 Mac 앱도 만나보세요 — PizzaClip(클립보드 관리)과 PICkle(스크린샷 워크플로).
+```
+
+**English (U.S.)**
+```
+Your Mac seems idle on the surface, but behind the scenes the CPU is racing, memory is busy, and the battery is quietly draining. HotSauce shows you exactly how hard your Mac is working — right from the menu bar.
+
+■ Everything at a glance
+No heavy windows to open. Click the hot-sauce bottle in your menu bar and your Mac's current state unfolds in a single view.
+
+■ What you can see
+· CPU — total load, plus system / user / idle breakdown
+· Memory — usage, memory pressure, used, cached, and swap
+· Storage — used space and total capacity
+· Battery — charge level, temperature, and cycle count (the icon changes while charging)
+· Network — local IP, signal strength, upload and download speed
+
+■ A bottle that changes with the load
+When your Mac is relaxed the bottle is red; as it gets busy it turns yellow; and when things get really hot it goes rainbow. One glance at the menu bar tells you where you stand. The face next to each metric changes too.
+
+■ Open Activity Monitor in one click
+Want to dig deeper? A button at the bottom of the popup opens macOS Activity Monitor right away.
+
+■ No data collection
+No accounts, no sign-in, no ads, no analytics. The metrics it reads are only drawn on screen — nothing is ever sent anywhere. Everything stays on your Mac.
+
+■ English and Korean
+Follow your system language, or pick English or Korean yourself in Settings.
+
+■ How to use it
+HotSauce lives only in the menu bar. When you launch it, no Dock icon appears — instead a hot-sauce bottle shows up in the menu bar at the top-right of your screen. Click that icon.
+
+macOS 13 or later · Apple Silicon and Intel · free
+
+Check out the other Mac apps from Team JAM — PizzaClip (clipboard manager) and PICkle (screenshot workflow).
+```
+
+### 4-3. 키워드 (Keywords, 100자 이내 · 쉼표 구분 · 공백 넣지 말 것)
+
+> **부제와 중복을 걷어낸 버전이다.** 애플 검색은 `앱 이름 + 부제 + 키워드`를 합쳐 색인하므로,
+> 부제에 넣은 말(메뉴바·시스템·모니터·CPU·메모리·배터리 / menu·bar·cpu·ram·battery)을
+> 키워드에 또 넣으면 **자리만 낭비**된다. 그 자리를 다른 검색어로 채웠다.
+
+**한국어** (70자)
+```
+램,디스크,저장공간,네트워크,온도,사용량,성능,모니터링,활성상태보기,맥북,상태바,위젯,발열,인터넷속도,시스템정보,하드웨어,스왑
+```
+
+**English (U.S.)** (95자)
+```
+system,monitor,menubar,memory,network,disk,storage,performance,activity,stats,temperature,usage
+```
+
+> ⚠️ 주의 사항
+> - 앱 이름(HotSauce)·카테고리명은 이미 검색에 반영되므로 키워드에 다시 넣지 않는다.
+> - **쉼표 뒤에 공백을 넣지 말 것** — 공백도 100자에 포함된다.
+> - 앱이 실제로 하지 않는 기능어(최적화·클리너·부스터 등)는 넣지 않았다. 오인을 유발하면 심사에서 지적받을 수 있다.
+> - 영문은 `menubar`(붙여쓴 한 단어)를 남겼다 — 부제의 `Menu Bar`(띄어쓴 두 단어)와 검색 토큰이 다를 수 있어서다.
+
+### 4-4. URL
+
+**URL 은 현지화마다 따로 입력한다. 영어(미국) 로 드롭다운을 바꾼 뒤 반드시 아래 값으로 교체할 것.**
+
+| 항목 | 한국어 | 영어(미국) |
+|---|---|---|
+| 지원 URL (필수) | `https://pizza-clip.com/hotsauce` | `https://pizza-clip.com/en/hotsauce` |
+| 마케팅 URL (선택) | `https://pizza-clip.com/` | `https://pizza-clip.com/` |
+| **개인정보처리방침 URL (필수)** | `https://pizza-clip.com/privacy` | **`https://pizza-clip.com/en/privacy`** |
+
+> ### ⚠️ `/privacy` 는 자동 언어분기가 안 된다
+> `/hotsauce` 같은 일반 페이지는 사이트 미들웨어가 접속 국가로 언어를 자동 분기하지만,
+> **`/privacy` 는 분기 대상이 아니라 입력한 주소가 그대로 열린다.**
+> 영어(미국) 칸에 `/privacy`(한국어) 를 넣어두면 **영어권 심사자에게 한국어 방침이 열린다** — 리젝 사유가 될 수 있다.
+> 두 페이지 모두 라이브 확인 완료(2026-08-15, 각각 200 응답):
+> `https://pizza-clip.com/privacy` (한) · `https://pizza-clip.com/en/privacy` (영)
+
+> ### ✅ 앱 안의 방침 링크는 이미 충족됨
+> 심사 지침 5.1.1 은 방침 링크를 **ASC 메타데이터 + 앱 안** 양쪽에 두라고 요구한다(전문 게재는 불필요, 링크로 충분).
+> 핫소스는 **설정창 버전 줄 옆의 `개인정보처리방침` 링크**가 이를 충족하고,
+> `SettingsView.privacyURL` 이 앱 언어에 따라 `/privacy` ↔ `/en/privacy` 로 알아서 분기한다. **추가 작업 없음.**
+
+### 4-5. 이 버전의 새로운 기능 (What's New)
+
+> 앱스토어 **첫 출시**라면 이 항목이 아예 안 보인다 — 그때는 건너뛴다.
+> 빌드 9(신규 업로드)로 갈 경우의 문구다. **빌드 8 그대로 갈 거면 마지막 줄을 지울 것.**
+
+**한국어**
+```
+· 팝업 맨 아래에 Team JAM 배너가 생겼어요. 누르면 pizza-clip.com 으로 바로 갑니다.
+· '활성 상태 보기'와 설정이 있는 아래 칸의 위아래 여백을 넓혀 답답함을 덜었어요.
+· 설정 창에서 개인정보처리방침을 바로 열어볼 수 있어요.
+· 설정에서 하단 배너를 끄고 켤 수 있어요. 끄면 팝업이 원래 높이로 돌아옵니다.
+```
+
+**English (U.S.)**
+```
+· A Team JAM banner now sits at the bottom of the popup — tap it to open pizza-clip.com.
+· More breathing room above and below the Activity Monitor and Settings row.
+· Open the privacy policy straight from the Settings window.
+· Turn the bottom banner on or off in Settings — turning it off restores the original popup height.
+```
+
+### 4-6. 저작권 (Copyright)
+
+```
+2026 TEAM jAm
+```
+> 번들의 `NSHumanReadableCopyright` 는 `© 2026 TEAM jAm. All rights reserved.` 이지만,
+> ASC 저작권 란은 **© 기호와 "All rights reserved" 없이 연도 + 소유자**만 적는 게 규칙이다.
+
+### 4-7. 스크린샷 (준비해두신 것 업로드)
+
+| 요구사항 | 내용 |
+|---|---|
+| 필수 크기 | **1280×800** 또는 1440×900 / 2560×1600 / 2880×1800 중 하나로 통일 |
+| 개수 | 최소 1장, 최대 10장 |
+| ⚠️ 필수 조건 | **팝업이 열려 있는 데스크톱 화면**이어야 한다 — 메뉴바 앱이라 팝업이 안 보이면 심사에서 "기능을 확인할 수 없다"는 지적을 받는다 |
+| 권장 구성 | ① 팝업 전체 + 메뉴바 아이콘이 함께 보이는 샷 ② 부하 상태(노랑/무지개 병) 샷 ③ 설정 창 샷 |
+| 주의 | 스크린샷에 실제 개인정보(로컬 IP 등)가 크게 노출되면 가려서 올리는 편이 낫다 |
+
+---
+
+## 5. App Privacy (앱 개인정보 보호) 설문
+
+앱 정보 사이드바 → **앱 개인정보 보호** → "데이터 수집" 질문에서:
+
+📌 **"이 앱에서 사용자로부터 데이터를 수집하지 않습니다"** (Data Not Collected) 선택
+
+- 근거: 계정·로그인 없음, 광고/분석 SDK 없음, 지표를 화면 표시 외 전송하지 않음, 네트워크 통신 없음
+- 개인정보처리방침 2번 항목이 "웹사이트 접속 기록은 **직접 다운로드 버전 사이트**에만 해당"으로 명시돼 있어 이 답변과 모순되지 않는다
+- 개인정보처리방침 URL 도 여기서 한 번 더 입력해야 한다 → `https://pizza-clip.com/privacy`
+
+---
+
+## 6. 앱 심사 정보 (App Review Information) — ⚠️ 가장 중요
+
+로그인 계정은 **필요 없음**(체크 해제). 아래 **메모(Notes)** 를 반드시 채운다.
+
+> LSUIElement 앱(메뉴바 전용, Dock 아이콘 없음)이라 **리뷰어가 앱을 못 찾아 리젝되는 사례가 매우 흔하다.** 이 메모가 방어선이다.
+
+**Notes 붙여넣기 (영문 — 심사팀은 영어로 읽는다)**
+```
+IMPORTANT — HOW TO LAUNCH THIS APP
+
+HotSauce is a menu bar utility (LSUIElement). It intentionally does NOT show a
+Dock icon or a main window when launched.
+
+After launching the app, please look at the MENU BAR at the top-right of the
+screen. You will see a small red hot-sauce bottle icon.
+
+  1. LEFT-CLICK the hot-sauce bottle icon in the menu bar.
+     -> The main popup opens, showing CPU, Memory, Storage, Battery and
+        Network statistics for the Mac.
+  2. RIGHT-CLICK the same icon for the context menu (Settings / Quit).
+  3. The gear icon at the bottom-right of the popup opens Settings.
+
+The bottle icon changes color with system load (red = light, yellow = medium,
+rainbow = heavy), so its appearance may differ depending on the state of the
+review machine.
+
+ABOUT FUNCTIONALITY (Guideline 4.2)
+The app reads system metrics via public macOS APIs (host_statistics, sysctl,
+IOKit AppleSmartBattery, getifaddrs, CoreWLAN) and presents them in a single
+custom-designed popup, with load-based visual states and one-click access to
+Activity Monitor. It is a complete, standalone utility, not a repackaged web
+page or a thin wrapper.
+
+PRIVACY
+No accounts, no sign-in, no ads, no analytics, no data collection whatsoever.
+All metrics are read and displayed locally and never leave the device. The app
+is sandboxed; the com.apple.security.network.client entitlement is required
+only because CoreWLAN (Wi-Fi signal strength) returns nil without it.
+
+Thank you for reviewing!
+```
+
+**연락처 정보**
+
+| 항목 | 값 |
+|---|---|
+| 이름 / 성 | ✅ (본인 이름) |
+| 전화번호 | ✅ (본인 번호, 국가번호 포함 `+82…`) |
+| 이메일 | ✅ `jekeun.p@gmail.com` |
+
+---
+
+## 7. 버전 출시 (Version Release)
+
+📌 **"이 버전을 수동으로 출시"** 권장
+
+- 심사 통과 후 원하는 시점에 직접 출시 버튼을 누를 수 있다
+- 웹사이트·릴리스노트 갱신 타이밍과 맞추기 좋다
+- 자동 출시로 하면 심사 통과 즉시(새벽일 수도) 스토어에 올라간다
+
+---
+
+## 8. 제출 전 최종 점검표
+
+- [ ] 버전 레코드를 **1.3.0** 으로 수정 (1.2.0 에서 한 번 더 변경 — 위 🚨 절)
+- [ ] Organizer 에서 **빌드 9 업로드** 후 처리 완료 대기
+- [ ] 빌드 섹션에서 **빌드 9** 선택
+- [ ] 스크린샷 업로드 (팝업이 열린 화면인지 확인)
+- [ ] 부제·설명·키워드·프로모션 텍스트 입력 (한국어)
+- [ ] **English (U.S.) 현지화 추가** — 기본 언어가 한국어라 이걸 안 하면 미국에서도 한국어 설명이 뜬다
+- [ ] 지원 URL · 마케팅 URL · 개인정보처리방침 URL 입력
+- [ ] **영어(미국) 방침 URL 이 `/en/privacy` 인지 확인** (`/privacy` 면 심사자에게 한국어 방침이 열린다)
+- [ ] 연령 등급 설문 완료 (4+)
+- [ ] App Privacy → "데이터를 수집하지 않습니다" 저장
+- [ ] 가격 무료 · 국가를 **미국·대한민국 두 곳만** 으로 설정
+- [ ] **앱 심사 정보 메모에 메뉴바 안내 기재** (가장 중요)
+- [ ] 저작권 `2026 TEAM jAm`
+- [ ] 수동 출시 선택
+- [ ] "심사를 위해 제출" 클릭
+
+---
+
+## 9. English (U.S.) 현지화 추가하는 법
+
+기본 언어가 한국어라, 영어권 사용자에게도 한국어 설명이 나간다. 반드시 추가할 것.
+
+1. 버전 페이지(1.3.0) 좌측 상단의 **언어 드롭다운**(현재 "한국어") 클릭
+2. 목록 아래 **`언어 추가` / `Add Language`** 선택
+3. **English (U.S.)** 선택
+4. 위 4절의 **English (U.S.)** 값들을 채워 넣는다 — 부제 · 프로모션 텍스트 · 설명 · 키워드 · URL · 새로운 기능
+5. **스크린샷도 언어별로 따로 올려야 한다** (같은 이미지를 재사용해도 무방)
+
+---
+
+## 참고 — 이 문서의 출처
+
+- 앱 카피: `web/src/i18n/hotsauce.ts` (웹 페이지 문구 재구성)
+- 릴리스노트: `web/src/i18n/info.ts` 핫소스 1.2.0 항목 + 이번 배너 토글분
+  ⚠️ 웹 릴리스노트에는 아직 **1.3.0 항목이 없다.** 직접배포판 1.3.0 을 낼 때 `info.ts` 에 추가할 것
+- 개인정보 근거: `web/src/i18n/privacy.ts` + 세션 9 샌드박스 실측 결과
+- 번들 정보: `apps/hotsauce/HotSauce/Resources/Info-MAS.plist`
+- 심사 리스크·지뢰: `apps/hotsauce/docs/HANDOFF.md` 세션 9·10
