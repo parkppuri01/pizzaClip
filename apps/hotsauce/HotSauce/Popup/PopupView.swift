@@ -8,6 +8,11 @@ struct PopupView: View {
     var onOpenSettings: () -> Void = {}
     var onLockChanged: (Bool) -> Void = { _ in }
     @State private var isLocked = false
+    /// 설정 토글과 같은 키. 끄면 배너 블록(141.5유닛)이 빠지고 팝업이 짧아진다.
+    @AppStorage("showSiteBanner") private var showSiteBanner = true
+
+    /// 배너를 끄면 푸터 구분선·푸터가 배너 블록만큼 위로 올라온다.
+    private var footerShift: CGFloat { showSiteBanner ? 0 : -DS.bannerBlockHeight }
 
     var body: some View {
         let snap = engine.snapshot
@@ -25,7 +30,7 @@ struct PopupView: View {
             batterySection(snap.battery)
             networkSection(snap.network)
 
-            siteBanner
+            if showSiteBanner { siteBanner }
             footer
 
             // 자물쇠: 헤더 우상단. 잠그면 포커스를 잃어도 팝업이 안 닫힌다.
@@ -73,7 +78,7 @@ struct PopupView: View {
             Rectangle().fill(DS.divider)
                 .placedCenter(450, 85, w: 900, h: 1.5)
             Rectangle().fill(DS.divider)
-                .placedCenter(450, 1056, w: 900, h: 1.5)   // 배너 아래 · 푸터 위
+                .placedCenter(450, 1056 + footerShift, w: 900, h: 1.5)   // 배너 아래 · 푸터 위
         }
     }
 
@@ -247,6 +252,7 @@ struct PopupView: View {
 
     // 푸터 띠: 구분선 1056 ~ 캔버스 바닥 1176 = 120 유닛.
     // (원래 85.5 유닛이라 아이콘 위아래 여백이 12 밖에 없어 답답했다 → 29 로 넓힘)
+    // 배너를 끄면 띠 120 은 그대로 두고 전체가 footerShift 만큼 위로 올라온다.
     private var footer: some View {
         Group {
             // 활성 상태 보기 (Activity Monitor 열기)
@@ -254,25 +260,25 @@ struct PopupView: View {
                 Image(nsImage: Assets.image("activeit_icon"))
                     .resizable()
                     .scaledToFit()
-                    .placedCenter(126, 1116, w: 62, h: 62)
+                    .placedCenter(126, 1116 + footerShift, w: 62, h: 62)
                 Text(L("Activity Monitor", "활성 상태 보기"))
                     .font(DS.font(DS.titleFontSize))
                     .foregroundColor(DS.text)
-                    .placedLeft(232.5, centerY: 1116)
+                    .placedLeft(232.5, centerY: 1116 + footerShift)
             }
             Color.clear
                 .contentShape(Rectangle())
-                .placedCenter(230, 1116, w: 290, h: 80)
+                .placedCenter(230, 1116 + footerShift, w: 290, h: 80)
                 .onTapGesture { openActivityMonitor() }
 
             // 설정
             Image(nsImage: Assets.image("setting_icon"))
                 .resizable()
                 .scaledToFit()
-                .placedCenter(791.8, 1115.8, w: 61.5, h: 61.5)
+                .placedCenter(791.8, 1115.8 + footerShift, w: 61.5, h: 61.5)
             Color.clear
                 .contentShape(Rectangle())
-                .placedCenter(791.8, 1115.8, w: 80, h: 80)
+                .placedCenter(791.8, 1115.8 + footerShift, w: 80, h: 80)
                 .onTapGesture { onOpenSettings() }
         }
     }

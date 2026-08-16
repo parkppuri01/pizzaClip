@@ -14,7 +14,19 @@ enum DS {
     /// 원본 디자인은 1000 이었다. 네트워크 섹션 아래에 사이트 배너(894.9×148.6)를 넣고
     /// 답답하던 푸터 띠를 85.5 → 120 유닛으로 넓히면서 1176 으로 늘렸다.
     /// (배너 148.6 + 위 여백 45.5[섹션 간격과 동일] + 아래 19.7 + 푸터 여유 34.5 ≈ +176)
-    static let canvasHeight: CGFloat = 1176
+    static let canvasHeightWithBanner: CGFloat = 1176
+    /// 설정에서 배너를 끄면 빠지는 높이. 배너 블록만 걷어내 푸터 구분선이 원래
+    /// 자리(914.5)로 돌아오고, 넓힌 푸터 띠 120 은 그대로 유지한다.
+    /// → 1176 − 141.5 = 1034.5 (= 구분선 914.5 + 푸터 120)
+    static let bannerBlockHeight: CGFloat = 141.5
+    /// 설정 → "팝업 하단 사이트 배너" 토글(기본 ON). SettingsView·PopupView 는
+    /// @AppStorage 로 같은 키를 읽고 쓴다.
+    static var showsSiteBanner: Bool {
+        UserDefaults.standard.object(forKey: "showSiteBanner") as? Bool ?? true
+    }
+    static var canvasHeight: CGFloat {
+        showsSiteBanner ? canvasHeightWithBanner : canvasHeightWithBanner - bannerBlockHeight
+    }
     static var popupSize: CGSize { CGSize(width: u(canvasWidth), height: u(canvasHeight)) }
 
     // ── 색상 (pxd 벡터 데이터 + 렌더 샘플에서 추출한 정확한 값) ──

@@ -16,6 +16,9 @@ enum SettingsWindowMetrics {
 
 struct SettingsView: View {
     @AppStorage("appLanguage") private var appLanguage = "system"
+    /// 팝업 하단 사이트 배너 표시 여부. PopupView·DS 가 같은 키를 읽는다.
+    /// 끄면 배너 블록만 빠지고 팝업이 원래 높이대로 짧아진다(푸터 여백은 유지).
+    @AppStorage("showSiteBanner") private var showSiteBanner = true
     #if !MAS
     // Sparkle reads this default live: unchecking it turns off silent background
     // download/install. Ships true, so updates auto-apply by default.
@@ -87,6 +90,8 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundColor(.red)
                     }
+                    Toggle(L("Show site banner in popup", "팝업 하단 사이트 배너 표시"),
+                           isOn: $showSiteBanner)
                 }
 
                 Section(L("Language", "언어")) {

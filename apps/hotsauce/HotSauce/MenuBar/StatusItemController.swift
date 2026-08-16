@@ -33,6 +33,21 @@ final class StatusItemController: NSObject {
                 self?.statusItem.button?.image = Self.bottleImage(for: state)
             }
         }
+
+        // 팝업이 떠 있는 채로(잠금 등) 설정에서 배너 토글을 바꾸면 즉시 크기를 맞춘다.
+        // (닫혀 있을 때는 showPopup 이 열 때마다 최신 크기로 맞추므로 이걸로 충분)
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(defaultsDidChange),
+            name: UserDefaults.didChangeNotification, object: nil)
+    }
+
+    @objc private func defaultsDidChange() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self, let panel = self.panel,
+                  panel.isVisible, panel.frame.size != DS.popupSize else { return }
+            panel.setContentSize(DS.popupSize)
+            self.positionPanel(panel)
+        }
     }
 
     /// 72px 병 PNG → 메뉴바 크기(18pt)로.
@@ -103,6 +118,9 @@ final class StatusItemController: NSObject {
     private func showPopup() {
         let panel = self.panel ?? makePanel()
         self.panel = panel
+
+        // 배너 토글로 팝업 높이가 달라질 수 있어 열 때마다 최신 크기로 맞춘다.
+        panel.setContentSize(DS.popupSize)
 
         engine.isPopupVisible = true
         positionPanel(panel)
