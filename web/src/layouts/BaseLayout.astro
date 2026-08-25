@@ -20,7 +20,7 @@ import HotSauceFooter from "../components/HotSauceFooter.astro";
 import {
   GITHUB_URL, PICKLE_GITHUB_URL, INSTAGRAM_URL, THREADS_URL,
   DOWNLOAD_URL, PICKLE_DOWNLOAD_URL, PICKLE_RELEASED,
-  HOTSAUCE_DOWNLOAD_URL, HOTSAUCE_RELEASED,
+  HOTSAUCE_APPSTORE_URL, HOTSAUCE_RELEASED,
 } from "../consts.ts";
 import {
   type Lang, HTML_LANG, OG_LOCALE, enHref, otherLang, siteMeta, APP_NAME,
@@ -58,7 +58,9 @@ const description = Astro.props.description ?? defaults.desc;
 const appName  = APP_NAME[site];
 const appCat   = "UtilitiesApplication";
 const ghUrl    = site === "pickle" ? PICKLE_GITHUB_URL : GITHUB_URL;
-const dlUrl    = site === "pickle" ? PICKLE_DOWNLOAD_URL : site === "hotsauce" ? HOTSAUCE_DOWNLOAD_URL : DOWNLOAD_URL;
+// 핫소스는 2026-08-25 부터 Mac App Store 로 일원화 → JSON-LD downloadUrl 도 스토어를
+// 가리킨다(언어별 출시 국가 주소). 나머지 두 앱은 그대로 DMG 직접 다운로드.
+const dlUrl    = site === "pickle" ? PICKLE_DOWNLOAD_URL : site === "hotsauce" ? HOTSAUCE_APPSTORE_URL[lang] : DOWNLOAD_URL;
 const released = site === "pickle" ? PICKLE_RELEASED : site === "hotsauce" ? HOTSAUCE_RELEASED : true;
 
 const pageTitle = title ? `${title} · ${appName}` : defaults.title;

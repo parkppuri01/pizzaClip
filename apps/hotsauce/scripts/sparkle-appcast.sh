@@ -49,18 +49,34 @@ SIG_LINE="$("$SIGN_UPDATE" "$DMG")"
 echo "    $SIG_LINE"
 
 # 릴리스 노트: dist/notes-<version>.md 하나로 Sparkle + 사이트 공용.
-# 주의: md_to_html 은 **볼드** 인라인 마크다운을 지원하지 않음 — 별표 금지.
+# 지원: # 제목 · ## 소제목 · - 목록 · [텍스트](주소) 링크.
+# 주의: **볼드** 등 나머지 인라인 마크다운은 지원하지 않음 — 별표 금지.
+#       (링크는 esc 로 HTML 을 이스케이프한 "뒤"에 만든다. 순서를 뒤집으면
+#        생성한 <a> 태그가 그대로 &lt;a&gt; 로 이스케이프돼 텍스트로 보인다.)
 md_to_html() {
     awk '
         function esc(s) { gsub(/&/,"\\&amp;",s); gsub(/</,"\\&lt;",s); gsub(/>/,"\\&gt;",s); return s }
+        function linkify(s,   out, pre, mid, txt, url) {
+            out = ""
+            while (match(s, /\[[^]]+\]\([^)]+\)/)) {
+                pre = substr(s, 1, RSTART-1)
+                mid = substr(s, RSTART, RLENGTH)
+                s   = substr(s, RSTART+RLENGTH)
+                txt = mid; sub(/^\[/, "", txt); sub(/\]\(.*$/, "", txt)
+                url = mid; sub(/^\[[^]]+\]\(/, "", url); sub(/\)$/, "", url)
+                out = out pre "<a href=\"" url "\">" txt "</a>"
+            }
+            return out s
+        }
+        function fmt(s) { return linkify(esc(s)) }
         function closelist() { if (inlist) { print "</ul>"; inlist=0 } }
         BEGIN { inlist=0 }
         { line=$0; sub(/\r$/,"",line) }
         line ~ /^[[:space:]]*$/ { closelist(); next }
-        line ~ /^## /  { closelist(); sub(/^## /,"",line); print "<h3>" esc(line) "</h3>"; next }
-        line ~ /^# /   { closelist(); sub(/^# /,"",line);  print "<h2>" esc(line) "</h2>"; next }
-        line ~ /^[-*] / { if (!inlist){print "<ul>"; inlist=1} sub(/^[-*] /,"",line); print "<li>" esc(line) "</li>"; next }
-        { closelist(); print "<p>" esc(line) "</p>" }
+        line ~ /^## /  { closelist(); sub(/^## /,"",line); print "<h3>" fmt(line) "</h3>"; next }
+        line ~ /^# /   { closelist(); sub(/^# /,"",line);  print "<h2>" fmt(line) "</h2>"; next }
+        line ~ /^[-*] / { if (!inlist){print "<ul>"; inlist=1} sub(/^[-*] /,"",line); print "<li>" fmt(line) "</li>"; next }
+        { closelist(); print "<p>" fmt(line) "</p>" }
         END { closelist() }
     ' "$1"
 }

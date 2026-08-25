@@ -1,0 +1,19 @@
+        <item>
+            <title>HotSauce 1.1.0</title>
+            <pubDate>Sat, 04 Jul 2026 17:52:30 +0000</pubDate>
+            <sparkle:version>3</sparkle:version>
+            <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<h2>HotSauce 1.1.0</h2>
+<ul>
+<li>네트워크 이름(Wi-Fi) 표시 추가</li>
+<li>팝업 잠금(고정) 기능 추가</li>
+<li>배터리 충전 아이콘 개선</li>
+<li>시스템 과부하 시 깜짝 이스터에그</li>
+</ul>
+]]></description>
+            <enclosure url="https://pizza-clip.com/hotsauce/HotSauce-1.1.0.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="6mgbVeLIMm4tC2zpTeboQkPfV9Y+u9lpeQ2foyfQBwPHN1xUJvDxfrpWTLFYlYvF/SZGV0F3aqYI2ikOUJoiBA==" length="3383258" />
+        </item>

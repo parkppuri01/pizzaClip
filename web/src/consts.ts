@@ -37,10 +37,27 @@ export const PICKLE_DESC =
 // ── 핫소스(Hot Sauce) ──
 // 모노레포(pizzaClip) 안에만 존재 — 전용 저장소가 없어 GitHub 은 모노레포로 링크.
 export const HOTSAUCE_GITHUB_URL = "https://github.com/parkppuri01/pizzaClip";
-// 1.1.1 — DMG 는 pizza-clip.com 에 직접 호스팅(web/public/hotsauce/).
-// 새 버전 낼 때 아래 파일명만 갱신하면 됨.
+
+// 🍎 2026-08-25 Mac App Store 출시 → 배포는 App Store 로 일원화했다.
+// 스토어 이름은 "HotSauce - System Monitor" (Apple ID 6801170433).
+//
+// ⚠️ 국가 코드를 명시하는 이유: 미국·한국 2개국에만 출시했다. 국가 없는 주소
+//    (apps.apple.com/app/id…)는 접속 지역으로 자동 분기하는데, 미출시 지역에서는
+//    "사용할 수 없음"이 뜬다. 언어별로 실제 출시 국가를 가리키게 둔다.
+// ⚠️ mt=12 는 Mac App Store 지정 — 빼면 iOS App Store 로 해석될 수 있다.
+export const HOTSAUCE_APPSTORE_URL: Record<"ko" | "en", string> = {
+  ko: "https://apps.apple.com/kr/app/hotsauce/id6801170433?mt=12",
+  en: "https://apps.apple.com/us/app/hotsauce/id6801170433?mt=12",
+};
+
 export const HOTSAUCE_RELEASED = true;
-export const HOTSAUCE_DOWNLOAD_URL = "/hotsauce/HotSauce-1.2.0.dmg";
+// 🗄 직접배포(DMG) 채널은 1.3.0 을 끝으로 마감했다 — 페이지 어디에도 링크하지 않는다.
+//
+// 그래도 상수와 파일을 지우지 않는 이유: web/public/hotsauce/appcast.xml 의
+// enclosure 가 이 DMG 를 가리킨다. 파일을 내리면 아직 구버전을 쓰는 사용자의
+// Sparkle 업데이트 확인이 404 로 실패해 "마지막 안내"조차 못 받게 된다.
+// 앱 안 이전 안내(AppStoreMigration)가 충분히 돌 때까지는 그대로 둔다.
+export const HOTSAUCE_LAST_DMG_URL = "/hotsauce/HotSauce-1.3.0.dmg";
 export const HOTSAUCE_TITLE = "Hot Sauce";
 export const HOTSAUCE_DESC =
   "맥이 얼마나 열심히 일하는지 메뉴바에서 보여주는 macOS 시스템 모니터 앱. CPU·메모리·배터리·네트워크를 한눈에.";

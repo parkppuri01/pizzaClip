@@ -57,6 +57,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         engine.start()
 
+        #if !MAS
+        // 직접배포 채널 마감 안내 — 1.3.0 이 이 경로로 받는 마지막 버전이다.
+        // 메뉴바 아이콘이 자리를 잡은 뒤에 띄운다(안내부터 뜨면 "그래서 그 앱이
+        // 어디 있는데?" 가 된다). 디버그 훅이 걸린 실행에서는 건너뛴다 — runModal
+        // 이 블로킹이라 스냅샷 검증이 그 자리에서 멈춘다.
+        if ProcessInfo.processInfo.environment["HOTSAUCE_SNAPSHOT"] == nil,
+           ProcessInfo.processInfo.environment["HOTSAUCE_SHOW_POPUP"] == nil {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                AppStoreMigration.presentIfNeeded()
+            }
+        }
+        #endif
+
         // 디버그용: HOTSAUCE_SHOW_POPUP=1 로 실행하면 팝업을 바로 띄운다
         // (LSUIElement 앱은 밖에서 클릭을 흉내내기 어렵기 때문)
         if ProcessInfo.processInfo.environment["HOTSAUCE_SHOW_POPUP"] == "1" {

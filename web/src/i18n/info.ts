@@ -174,6 +174,16 @@ export const info: Record<Lang, InfoContent> = {
     ],
     hotsauceReleases: [
       {
+        version: "1.3.0",
+        label: "Mac App Store 출시 🍎 · 새 아이콘 · 배너 끄기",
+        notes: [
+          "Hot Sauce가 Mac App Store에 출시됐어요. 앞으로의 업데이트는 App Store에서 받습니다 — 이 1.3.0이 사이트에서 직접 받는 마지막 버전이에요.",
+          "직접 다운로드로 쓰고 계셨다면 따로 지우실 건 없어요 — App Store 버전이 쓰던 앱을 그대로 대신합니다. 설치한 뒤에 메뉴바의 핫소스 병을 한 번 종료했다 켜주시면 새 버전으로 바뀌고, 설정(언어·로그인 시 자동 시작)만 한 번 다시 맞춰주시면 됩니다.",
+          "앱 아이콘이 macOS 규격에 맞게 단정해졌어요 — Dock과 Launchpad에서 다른 앱들과 크기가 나란해집니다.",
+          "팝업 맨 아래 사이트 배너를 설정에서 끌 수 있어요. 끄면 그만큼 팝업이 짧아집니다.",
+        ],
+      },
+      {
         version: "1.2.0",
         label: "팝업 배너 · 한결 여유로운 아래 칸",
         notes: [
@@ -389,6 +399,16 @@ export const info: Record<Lang, InfoContent> = {
       },
     ],
     hotsauceReleases: [
+      {
+        version: "1.3.0",
+        label: "Now on the Mac App Store 🍎 · New Icon · Hideable Banner",
+        notes: [
+          "Hot Sauce is now on the Mac App Store, and that's where updates come from — this 1.3.0 is the last version delivered as a direct download.",
+          "If you've been using the direct download, there's nothing to delete — the App Store version replaces your existing copy in place. After installing, quit Hot Sauce from the menu bar and open it again to pick up the new version, then set your preferences (language and launch at login) once more.",
+          "The app icon now follows macOS sizing, so it lines up with your other apps in the Dock and Launchpad.",
+          "You can turn off the site banner at the bottom of the popup in Settings — the popup gets shorter by exactly that much.",
+        ],
+      },
       {
         version: "1.2.0",
         label: "Popup Banner · Roomier Bottom Bar",

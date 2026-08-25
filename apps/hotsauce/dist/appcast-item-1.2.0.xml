@@ -1,0 +1,18 @@
+        <item>
+            <title>HotSauce 1.2.0</title>
+            <pubDate>Fri, 14 Aug 2026 04:19:50 +0000</pubDate>
+            <sparkle:version>7</sparkle:version>
+            <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<h2>HotSauce 1.2.0</h2>
+<ul>
+<li>팝업 맨 아래에 Team JAM 배너가 생겼어요. 누르면 pizza-clip.com 으로 바로 갑니다.</li>
+<li>'활성 상태 보기'와 설정이 있는 아래 칸의 위아래 여백을 넓혀 답답함을 덜었어요.</li>
+<li>설정 창에서 개인정보처리방침을 바로 열어볼 수 있어요.</li>
+</ul>
+]]></description>
+            <enclosure url="https://pizza-clip.com/hotsauce/HotSauce-1.2.0.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="AIHlONnDDVqhFTOuYCX4icXKB2ekpTLS9s21lFoLu1OSnlOJwgrvoC+lOpockkfKT25MCdgh6g3Adu0Ct8GsAA==" length="3452466" />
+        </item>

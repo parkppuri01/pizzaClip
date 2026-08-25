@@ -20,6 +20,9 @@ scripts/release.local.sh
 사이트 디자인/
 a/
 *.pxd
+# 앱 아이콘·배너 등 디자인 원본 48MB — 저장소에는 넣지 않는다(루트 handoff 방침).
+# 빌드에 실제로 쓰이는 에셋은 HotSauce/Resources/DesignAssets/ 에 따로 있다.
+images/
 
 # OMC state
 .omc/

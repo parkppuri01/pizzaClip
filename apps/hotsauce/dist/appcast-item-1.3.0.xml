@@ -1,10 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
-<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
-    <channel>
-        <title>HotSauce</title>
-        <link>https://pizza-clip.com/hotsauce/appcast.xml</link>
-        <description>HotSauce updates</description>
-        <language>en</language>
         <item>
             <title>HotSauce 1.3.0</title>
             <pubDate>Tue, 25 Aug 2026 17:15:28 +0000</pubDate>
@@ -29,5 +22,3 @@
                        type="application/octet-stream"
                        sparkle:edSignature="YiuK9MzEZ0DpEizmVlmUNKPfFaZ9FkYONLA06Hvv5ucnwDp+5jfD1jqTvM2yWlWrerCdCLhSYVD8oqWEUL2VBg==" length="3593782" />
         </item>
-    </channel>
-</rss>

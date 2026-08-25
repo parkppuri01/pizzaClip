@@ -1,0 +1,19 @@
+        <item>
+            <title>HotSauce 1.1.1</title>
+            <pubDate>Sun, 05 Jul 2026 02:39:58 +0000</pubDate>
+            <sparkle:version>4</sparkle:version>
+            <sparkle:shortVersionString>1.1.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<h2>HotSauce 1.1.1</h2>
+<ul>
+<li>팝업 자물쇠(고정) 버튼이 클릭되지 않던 문제 수정</li>
+<li>상단 제목 글씨를 다른 앱과 통일되게 정리</li>
+<li>Wi-Fi 이름 표시 안정화 (위치 권한 처리 개선)</li>
+<li>네트워크 이름을 로컬 IP 위로 재배치</li>
+</ul>
+]]></description>
+            <enclosure url="https://pizza-clip.com/hotsauce/HotSauce-1.1.1.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="hwp7EW8MmPxGGMWtZv0CGgFzCtWpgzH0UTvSlY+jifuanmDcBw75nBy0lwo87cQxHYRky9WyusJn+n4o2jKFBA==" length="3380245" />
+        </item>

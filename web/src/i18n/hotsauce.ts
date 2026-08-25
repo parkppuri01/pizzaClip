@@ -15,6 +15,9 @@ export type HotSauceContent = {
   ctaH2: string;
   ctaLead: string;
   ctaNote: string;
+  // 직접배포(DMG) 채널 마감 안내 — 예전에 이 사이트에서 받아 쓰던 사용자용.
+  // 번들 ID 는 같아도 App Store 판은 샌드박스라 설정이 넘어가지 않는다.
+  ctaMigration: string;
   // 이미지 alt / 메타
   heroImgAlt: string;
   laptopAlt: string;
@@ -28,7 +31,7 @@ export const hotsauce: Record<Lang, HotSauceContent> = {
     heroH1b: "왜 이렇게 뜨겁지? 🔥",
     heroLead:
       "겉으로는 아무 일 없는 척해도, 뒤에서는 CPU가 뛰고 메모리가 바쁘고 배터리가 조용히 줄어들고 있을지 몰라요. Hot Sauce로 내 맥이 얼마나 열심히 일하는지 확인해보세요.",
-    ctaDownload: "다운로드",
+    ctaDownload: "Mac App Store에서 받기",
     ctaSoon: "곧 출시",
     explainLead:
       "숫자는 정확하게, 경험은 조금 더 즐겁게. Mac이 얼마나 뜨겁게 일하고 있는지 확인해보세요. 🔥",
@@ -39,7 +42,9 @@ export const hotsauce: Record<Lang, HotSauceContent> = {
     ctaH2: "피자클립, 피클 그리고 빠질 수 없는 핫소스",
     ctaLead:
       "Mac이 지금 열심히 달리는 중인지, 쉬어가는 중인지. 메뉴바의 Hot Sauce 아이콘으로 쉽고 재밌게 확인해 보세요.",
-    ctaNote: "macOS 13 이상 · 모든 Mac 지원 · 무료",
+    ctaNote: "macOS 13 이상 · 모든 Mac 지원 · 무료 · Mac App Store",
+    ctaMigration:
+      "예전에 이 사이트에서 직접 받아 쓰고 계셨나요? App Store 버전이 쓰던 앱을 그대로 대신하니 따로 지우실 건 없어요. 설치한 뒤에 메뉴바의 핫소스 병을 한 번 종료했다 켜주시면 새 버전으로 바뀝니다. 설정(언어·로그인 시 자동 시작)만 한 번 다시 맞춰주세요.",
     heroImgAlt: "Hot Sauce 포스터 — 틸 배경 위 심전도 선이 핫소스 병으로 이어지는 그림",
     laptopAlt: "Team JAM 스티커(핫소스·피자클립·피클)를 붙인 맥북",
     metaDescription:
@@ -57,7 +62,7 @@ export const hotsauce: Record<Lang, HotSauceContent> = {
     heroH1b: "so why’s it running hot? 🔥",
     heroLead:
       "It seems idle on the surface, but behind the scenes your CPU is racing, memory is busy, and the battery is quietly draining. Hot Sauce shows you just how hard your Mac is working.",
-    ctaDownload: "Download",
+    ctaDownload: "Get it on the Mac App Store",
     ctaSoon: "Coming soon",
     explainLead:
       "Precise numbers, a little more fun. See exactly how hard your Mac is working. 🔥",
@@ -68,7 +73,9 @@ export const hotsauce: Record<Lang, HotSauceContent> = {
     ctaH2: "PizzaClip, PICkle, and the Hot Sauce you can’t skip",
     ctaLead:
       "Is your Mac sprinting or taking a breather? Check the fun, easy way — right from the Hot Sauce icon in your menu bar.",
-    ctaNote: "macOS 13+ · works on every Mac · free",
+    ctaNote: "macOS 13+ · works on every Mac · free · on the Mac App Store",
+    ctaMigration:
+      "Downloaded Hot Sauce straight from this site before? The App Store version replaces your existing copy in place — there's nothing to delete. After installing, quit Hot Sauce from the menu bar and open it again to pick up the new version. Your settings — language and launch at login — don't carry over, so set them once more.",
     heroImgAlt: "Hot Sauce poster — a heartbeat line flowing into a hot-sauce bottle on a teal background",
     laptopAlt: "A MacBook covered in Team JAM stickers — Hot Sauce, PizzaClip, and PICkle",
     metaDescription:

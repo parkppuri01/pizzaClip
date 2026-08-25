@@ -11,7 +11,15 @@ import ServiceManagement
 /// 아래가 조금 비는 건 무해하지만 섹션이 잘리는 건 치명적이라 여유 쪽을 택했다.
 /// (한때 MAS 를 330 으로 줄였다가 언어 섹션이 잘려 되돌렸다.)
 enum SettingsWindowMetrics {
+    #if MAS
     static let size = NSSize(width: 500, height: 420)
+    #else
+    // 직접배포 빌드에는 App Store 이전 안내 박스가 하나 더 얹힌다(1.3.0 = 마지막 배포).
+    // 420 을 그대로 두면 안내가 먹는 만큼(실측 ~92pt) 아래 폼이 그만큼 더 잘린다 →
+    // 안내 높이를 더해 폼 가시 영역을 기존과 같게 맞춘 값이 530 이다(렌더로 대조).
+    // '업데이트' 섹션이 스크롤해야 보이는 건 420 시절부터 그랬고 여기서도 같다.
+    static let size = NSSize(width: 500, height: 530)
+    #endif
 }
 
 struct SettingsView: View {
@@ -68,6 +76,38 @@ struct SettingsView: View {
             .frame(maxWidth: .infinity)
             .padding(.top, 20)
             .padding(.bottom, 10)
+
+            // 직접배포 채널 마감 안내 — 실행 시 1회 뜨는 알림(AppStoreMigration)을
+            // 놓쳤거나 나중에 다시 찾는 사용자를 위한 상설 안내다.
+            // 앱스토어 빌드에는 없다(이미 App Store 판이라 안내할 것이 없다).
+            #if !MAS
+            VStack(spacing: 5) {
+                Text(L("This is the last version delivered outside the Mac App Store.",
+                       "직접 다운로드로 받는 마지막 버전이에요."))
+                    .font(.system(size: 11, weight: .semibold))
+                Text(L("Updates now come from the App Store. Installing it replaces this copy — then quit and reopen HotSauce, and set your preferences once more.",
+                       "앞으로의 업데이트는 App Store에서 받습니다. 설치하면 이 앱을 그대로 대신해요 — 설치 후 한 번 종료했다 켜고, 설정만 다시 맞춰주세요."))
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                // 개인정보처리방침 Link 와 같은 이유로 focusable(false) —
+                // 없으면 설정을 열자마자 이 링크에 포커스 링이 걸린다.
+                // storeURL(웹) 이 아니라 storeAppURL — 브라우저를 거치지 않고
+                // App Store 앱이 바로 열린다(AppStoreMigration 주석 참고).
+                Link(L("Get it on the Mac App Store", "Mac App Store에서 받기"),
+                     destination: AppStoreMigration.storeAppURL)
+                    .focusable(false)
+                    .font(.system(size: 11, weight: .semibold))
+            }
+            .multilineTextAlignment(.center)
+            .padding(.vertical, 10)
+            .padding(.horizontal, 14)
+            .frame(maxWidth: .infinity)
+            .background(Color.orange.opacity(0.13),
+                        in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .padding(.horizontal, 20)
+            .padding(.bottom, 6)
+            #endif
 
             Form {
                 Section(L("General", "일반")) {
