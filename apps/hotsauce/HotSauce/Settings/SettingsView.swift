@@ -11,14 +11,16 @@ import ServiceManagement
 /// 아래가 조금 비는 건 무해하지만 섹션이 잘리는 건 치명적이라 여유 쪽을 택했다.
 /// (한때 MAS 를 330 으로 줄였다가 언어 섹션이 잘려 되돌렸다.)
 enum SettingsWindowMetrics {
+    // 높이는 "섹션이 잘리지 않는 최소값"으로 렌더해가며 맞춘 값이다.
+    // 섹션이 반쯤 잘려 보이는 건 아래가 조금 비는 것보다 훨씬 나쁘다(세션 9 결론).
     #if MAS
-    static let size = NSSize(width: 500, height: 420)
+    // 일반 + 모양 + 언어. '모양' 섹션(얼굴 아이콘 Picker + 미리보기)이 들어오면서
+    // 420 으로는 '언어' 가 통째로 잘렸다. 언어 아래 안내 문구까지 다 보이는 값이 550.
+    static let size = NSSize(width: 500, height: 550)
     #else
-    // 직접배포 빌드에는 App Store 이전 안내 박스가 하나 더 얹힌다(1.3.0 = 마지막 배포).
-    // 420 을 그대로 두면 안내가 먹는 만큼(실측 ~92pt) 아래 폼이 그만큼 더 잘린다 →
-    // 안내 높이를 더해 폼 가시 영역을 기존과 같게 맞춘 값이 530 이다(렌더로 대조).
-    // '업데이트' 섹션이 스크롤해야 보이는 건 420 시절부터 그랬고 여기서도 같다.
-    static let size = NSSize(width: 500, height: 530)
+    // 직접배포 빌드에는 App Store 이전 안내 박스(~92pt)와 '업데이트' 섹션이 더 있다.
+    // 채널은 마감됐지만 개발 중 이 빌드로 테스트하므로 잘리지 않게 맞춰 둔다.
+    static let size = NSSize(width: 500, height: 610)
     #endif
 }
 
@@ -27,6 +29,8 @@ struct SettingsView: View {
     /// 팝업 하단 사이트 배너 표시 여부. PopupView·DS 가 같은 키를 읽는다.
     /// 끄면 배너 블록만 빠지고 팝업이 원래 높이대로 짧아진다(푸터 여백은 유지).
     @AppStorage("showSiteBanner") private var showSiteBanner = true
+    /// 팝업 얼굴 아이콘 세트. PopupView 가 같은 키를 보고 즉시 반영한다.
+    @AppStorage("faceIconSet") private var faceIconSet = FaceIconSet.fallback.rawValue
     #if !MAS
     // Sparkle reads this default live: unchecking it turns off silent background
     // download/install. Ships true, so updates auto-apply by default.
@@ -132,6 +136,26 @@ struct SettingsView: View {
                     }
                     Toggle(L("Show site banner in popup", "팝업 하단 사이트 배너 표시"),
                            isOn: $showSiteBanner)
+                }
+
+                Section(L("Appearance", "모양")) {
+                    Picker(L("Face icons", "얼굴 아이콘"), selection: $faceIconSet) {
+                        ForEach(FaceIconSet.allCases) { set in
+                            Text(set.label).tag(set.rawValue)
+                        }
+                    }
+                    // 이름만으론 어떻게 생겼는지 알 수 없어서 고른 세트를 바로 보여준다.
+                    // 순서는 팝업과 같게 쾌적 → 중부하 → 고부하.
+                    HStack(spacing: 12) {
+                        ForEach([LoadState.good, .normal, .bad], id: \.self) { state in
+                            Image(nsImage: Assets.image(
+                                FaceIconSet.resolve(faceIconSet).assetName(for: state)))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 22, height: 22)
+                        }
+                        Spacer()
+                    }
                 }
 
                 Section(L("Language", "언어")) {

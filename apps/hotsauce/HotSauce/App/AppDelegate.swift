@@ -1,4 +1,5 @@
 import AppKit
+import ServiceManagement
 import SwiftUI
 #if !MAS
 // 앱스토어 빌드(MAS)는 자체 업데이트가 금지라 Sparkle 을 아예 링크하지 않는다.
@@ -55,6 +56,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         #endif
 
+        applyFirstLaunchDefaults()
         engine.start()
 
         #if !MAS
@@ -62,8 +64,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // 메뉴바 아이콘이 자리를 잡은 뒤에 띄운다(안내부터 뜨면 "그래서 그 앱이
         // 어디 있는데?" 가 된다). 디버그 훅이 걸린 실행에서는 건너뛴다 — runModal
         // 이 블로킹이라 스냅샷 검증이 그 자리에서 멈춘다.
-        if ProcessInfo.processInfo.environment["HOTSAUCE_SNAPSHOT"] == nil,
-           ProcessInfo.processInfo.environment["HOTSAUCE_SHOW_POPUP"] == nil {
+        if !isDebugHookRun {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 AppStoreMigration.presentIfNeeded()
             }
@@ -87,6 +88,41 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.saveSnapshot(to: snapshotPath)
                 NSApp.terminate(nil)
             }
+        }
+    }
+
+    /// 첫 실행 때 한 번만 기본값을 켠다.
+    ///
+    /// 팝업 배너(`showSiteBanner`)는 `@AppStorage` 기본값이 이미 true 라 여기서
+    /// 손댈 게 없다. 문제는 로그인 항목인데, 이건 UserDefaults 가 아니라
+    /// **시스템에 실제로 등록**해야 켜진다 — 메뉴바 앱은 로그인 때 떠 있는 게
+    /// 자연스러운 기본값이라 첫 실행에 등록해 준다.
+    ///
+    /// ⚠️ 딱 한 번만 한다. 사용자가 설정에서 끈 것을 다음 실행에 되살리면
+    ///    "꺼도 자꾸 켜지는 앱"이 되어 훨씬 나쁘다.
+    /// ⚠️ 실패해도 조용히 넘어간다. 등록은 편의일 뿐이고, 실패하면 설정 창의
+    ///    토글로 사용자가 직접 켜면 된다(그쪽은 실패 사유를 표시한다).
+    /// 스냅샷·팝업 디버그 훅으로 띄운 실행인지.
+    ///
+    /// 이때는 **사용자 환경을 바꾸는 동작을 전부 건너뛴다** — 로그인 항목 등록,
+    /// 1회성 안내 창처럼 "실제 사용자가 앱을 처음 켰을 때"에만 해야 할 일들이다.
+    /// ⚠️ 실제로 당한 적 있다(2026-08-26): 팝업 PNG 를 뽑으려고 빌드 폴더의 앱을
+    ///    잠깐 실행했을 뿐인데 `build/.../HotSauce.app` 이 사용자 로그인 항목에
+    ///    등록됐다. 렌더 한 번에 남의 맥 설정이 바뀌면 안 된다.
+    private var isDebugHookRun: Bool {
+        let env = ProcessInfo.processInfo.environment
+        return env["HOTSAUCE_SNAPSHOT"] != nil || env["HOTSAUCE_SHOW_POPUP"] != nil
+    }
+
+    private func applyFirstLaunchDefaults() {
+        guard !isDebugHookRun else { return }
+        let key = "didApplyFirstLaunchDefaults"
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: key) else { return }
+        defaults.set(true, forKey: key)
+
+        if SMAppService.mainApp.status != .enabled {
+            try? SMAppService.mainApp.register()
         }
     }
 

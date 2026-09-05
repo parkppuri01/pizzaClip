@@ -21,11 +21,31 @@ final class MetricsEngine: ObservableObject {
     /// 현재 과부하(빨강 4개 이상) 상태인지 — 팝업 열 때 재생 판단에 쓴다.
     private(set) var isOverloaded = false
     /// 빨강 얼굴이 몇 개부터 폭발할지(5개 중). 튜닝은 여기만 바꾸면 된다.
-    private let overloadThreshold = 4
+    ///
+    /// 4 → 3 으로 낮췄다(2026-09-06). 4 는 사실상 안 터지는 값이었다 —
+    /// CPU·메모리·네트워크는 쉽게 빨개지지만 나머지 둘의 문턱이 너무 높다
+    /// (저장 90% 이상, 배터리 20% 미만+비충전). 만든 지 두 달이 되도록 실물을
+    /// 본 사람이 없으면 이스터에그로서 값이 없다.
+    private let overloadThreshold = 3
 
     /// 팝업을 열 때 호출 — 이미 과부하 상태면 폭발을 한 번 재생한다.
     func replayBurstIfOverloaded() {
         if isOverloaded { burstID = UUID() }
+    }
+
+    /// 이스터에그로 터뜨린 폭발을 이 시각까지는 refresh 가 지우지 않는다.
+    private var burstHoldUntil: Date?
+    /// 폭발 애니메이션 총 길이(HotSauceBurst: duration 3.0 + maxDelay 0.32 = 3.32)보다 넉넉히.
+    private let burstHoldDuration: TimeInterval = 4.0
+
+    /// 부하와 무관하게 폭발을 한 번 재생한다 — 메뉴바 아이콘 연타 이스터에그용.
+    ///
+    /// ⚠️ 그냥 `burstID` 만 바꾸면 안 된다. refresh 가 1초마다 돌면서 과부하가
+    ///    아니면 `burstID = nil` 로 되돌리는데, 그러면 `.task(id:)` 가 취소돼
+    ///    2.7초짜리 폭발이 1초 만에 끊긴다. 그래서 잠시 지우지 못하게 잠근다.
+    func triggerBurst() {
+        burstID = UUID()
+        burstHoldUntil = Date().addingTimeInterval(burstHoldDuration)
     }
 
     private let cpuSampler = CPUSampler()
@@ -85,7 +105,8 @@ final class MetricsEngine: ObservableObject {
         if nowOverloaded {
             if !isOverloaded && isPopupVisible { burstID = UUID() }
         } else {
-            burstID = nil
+            // 이스터에그로 재생 중이면 건드리지 않는다(위 triggerBurst 주석 참고).
+            if burstHoldUntil.map({ Date() >= $0 }) ?? true { burstID = nil }
         }
         isOverloaded = nowOverloaded
     }

@@ -13,7 +13,15 @@ struct HotSauceBurst: View {
     /// 틱을 멈춰 CPU 를 0 으로 되돌린다. (PickleBurst 의 절전 패턴)
     @State private var isBursting = false
 
-    private let duration: TimeInterval = 2.4
+    /// 파티클 하나의 수명. 페이드 아웃 없이 끝까지 보여주려면 **가장 늦게 떨어지는
+    /// 병이 화면 밖으로 완전히 빠져나갈 때까지** 살아 있어야 한다.
+    ///   최악: vySpeed 680 · size 46 → h(t) = 680t − 250t² 가 −23(반지름)이 되는
+    ///        t ≈ 2.75초. 여기에 여유를 둬 3.0.
+    /// ⚠️ 이 값을 줄이면 세게 쏜 병이 공중에서 뚝 사라진다(예전 2.4초가 그랬고,
+    ///    그걸 마지막 0.35초 페이드 아웃으로 가리고 있었다).
+    /// ⚠️ 늘릴 때는 MetricsEngine.burstHoldDuration 도 함께 키울 것 —
+    ///    refresh 가 burstID 를 지워 애니메이션이 중간에 끊긴다.
+    private let duration: TimeInterval = 3.0
     private let gravity: CGFloat = 500   // px/s² — ~520pt 팝업 높이에 맞춰 튜닝
 
     /// 파티클별 최대 발사 지연. 전체 폭발은 duration + maxDelay 에 끝난다.
@@ -79,12 +87,11 @@ struct HotSauceBurst: View {
             let x = p.x0Norm * size.width + p.vx * tt
             let y = size.height - h
             let angle = p.angle0 + p.omega * tt
-            let life = duration - p.delay
-            let opacity: Double = {
-                if t < 0.12 { return Double(t / 0.12) }
-                if t > life - 0.35 { return max(0, Double((life - t) / 0.35)) }
-                return 1
-            }()
+            // 등장 페이드 인만 남긴다. 사라질 때 페이드 아웃을 걸면 병이 아직
+            // 화면 안에 있는데 흐려져서 "떨어지다 증발"하는 것처럼 보인다.
+            // duration 을 화면 이탈 시간까지 늘렸으므로(위 주석), 병은 흐려지지 않고
+            // 팝업 아래로 빠져나가면서 자연스럽게 사라진다.
+            let opacity: Double = t < 0.12 ? Double(t / 0.12) : 1
 
             Image(nsImage: Assets.image("menubar_1"))
                 .resizable()

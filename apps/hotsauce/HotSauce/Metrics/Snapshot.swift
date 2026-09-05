@@ -6,13 +6,9 @@ enum LoadState {
     case normal  // 중부하 (주황 얼굴)
     case bad     // 고부하 (빨강 얼굴)
 
-    var faceAssetName: String {
-        switch self {
-        case .good: return "good_icon"
-        case .normal: return "nomal_icon"
-        case .bad: return "bad_icon"
-        }
-    }
+    // 얼굴 아이콘 이름은 여기 두지 않는다 — 설정에서 세트를 고를 수 있어서
+    // 상태 하나로 이름이 정해지지 않는다. `FaceIconSet.assetName(for:)` 참고.
+    // (메뉴바 병은 세트와 무관하게 하나뿐이라 아래 bottleAssetName 은 그대로 둔다)
 
     /// 메뉴바 병 매핑: 쾌적=빨강(기본 병), 중부하=노랑, 고부하=레인보우.
     /// 순서를 바꾸고 싶으면 여기 파일명만 바꾸면 된다.

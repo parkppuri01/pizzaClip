@@ -1,34 +1,43 @@
 # HotSauce — App Store Connect 제출 정보
 
-> 작성 2026-08-15 · 대상 버전 **1.3.0 (빌드 9)** · 출시 **무료 / 미국·대한민국**
+> 작성 2026-08-15 · 갱신 2026-09-06 · 대상 버전 **1.4.0 (빌드 11)** · 출시 **무료 / 미국·대한민국**
+> 1.3.0(빌드 9)은 2026-08-25 출시 완료. 이 문서는 그 위에 올리는 **업데이트** 기준으로 갱신했다.
 > 아래 값을 그대로 복사해 App Store Connect 에 붙여넣으면 된다.
 > ✅ 표시는 채워 넣을 값, 📌 는 선택지에서 고를 값.
 
 ---
 
-## 🚨 먼저 할 일 — ASC 버전 레코드를 1.2.0 → **1.3.0** 으로 다시 수정
+## 🚨 먼저 할 일 — ASC 에 **1.4.0** 버전을 새로 추가
 
-빌드 8에는 새 아이콘·배너 토글이 없어서 **빌드 9(1.3.0)를 새로 아카이브했다.**
-버전 표기를 1.2.0 그대로 두면 웹 배포판 1.2.0(토글 없음)과 내용이 달라지므로 **1.3.0 으로 올렸다.**
+1.3.0 이 이미 출시(2026-08-25)된 상태라, 업데이트를 내려면 **새 버전 레코드**를 만들어야 한다.
+(1.3.0 페이지를 고치는 게 아니다 — 출시된 버전은 수정할 수 없다.)
 
-| | 빌드 8 (업로드됨·폐기) | **빌드 9 (신규 · 이걸 올린다)** |
-|---|---|---|
-| 버전 | 1.2.0 | **1.3.0** |
-| 앱 아이콘 | `a0a9e50b…` 옛 iOS식 | `8d25affa…` macOS 스퀘어클 ✅ |
-| 배너 토글 | 없음 | 있음 ✅ |
+**조치**: ASC → HotSauce → 왼쪽 사이드바 `macOS 앱` 옆의 **`+` (버전 또는 플랫폼 추가)**
+→ **macOS** → 버전 번호 `1.4.0` 입력 → 생성.
 
-**조치**: ASC → HotSauce → 사이드바 `macOS 앱 → 1.2.0 제출 준비 중` → `일반 앱 정보` → **버전** 을 `1.3.0` 으로 수정·저장.
-(제출 준비 중 상태라 자유롭게 수정 가능. 저장 후 '빌드' 섹션에 빌드 9가 뜬다.)
+> 생성하면 '제출 준비 중' 상태의 1.4.0 페이지가 뜨고, **설명·키워드·스크린샷·URL 은
+> 1.3.0 것이 그대로 복사돼 온다.** 그래서 이번에 손댈 것은 사실상
+> **"이 버전의 새로운 기능"(아래 4-5) 하나뿐**이다. 나머지 섹션은 참고용으로 남겨둔다.
 
-### 빌드 9 업로드 방법 (아카이브는 생성 완료)
+### 빌드 11 업로드 방법 (아카이브는 생성 완료)
 
 1. **Xcode → Window → Organizer** (⌥⇧⌘O) → Archives 탭
-2. **`HotSauce-MAS 1.3.0 build9`** (2026-08-15) 선택
+2. **`HotSauce-MAS 1.4.0 build11`** (2026-09-06) 선택
 3. **Distribute App** → **App Store Connect** → **Upload** → 자동 서명에 맡기고 진행
-4. 업로드 후 10~30분 처리 대기 → "처리 완료" 메일 도착 → ASC '빌드' 섹션에서 선택
+4. 업로드 후 10~30분 처리 대기 → "처리 완료" 메일 도착 → ASC 1.4.0 페이지의 '빌드' 섹션에서 선택
 
-> 아카이브 위치: `~/Library/Developer/Xcode/Archives/2026-08-15/HotSauce-MAS 1.3.0 build9.xcarchive`
-> 검증 완료: 서명 TeamIdentifier `R684FN2S7J` ✅ · quarantine xattr 0건 ✅ · Sparkle 0건 ✅ · 샌드박스 엔타이틀먼트 정상 ✅
+> ⚠️ **빌드 번호가 11 인 이유**: 9 = 앱스토어 1.3.0(출시분), 10 = 직접배포 1.3.0(마지막 배포)로
+> 각각 소진됐다. ASC 는 같은 번호를 두 번 받지 않는다.
+
+### 1.4.0 에 담긴 변경 (심사 관점 요약)
+
+| 변경 | 심사 영향 |
+|---|---|
+| 팝업 얼굴 아이콘 세트 4종(기본·피자·쥐·곰돌이) + 설정 Picker | 없음 — 번들 내 이미지 교체일 뿐 |
+| 메뉴바 아이콘 5회 연타 이스터에그(폭죽 재생) | 없음 — 애니메이션 재생, 권한·통신 무관 |
+| 폭죽 페이드아웃 제거 + 재생 시간 2.4→3.0초 | 없음 |
+| 과부하 폭죽 임계치 빨강 4개 → 3개 | 없음 |
+| 첫 실행 시 '로그인 시 자동 시작' 자동 등록(1회) | ⚠️ 아래 심사노트에 한 줄 추가함 |
 
 ---
 
@@ -114,7 +123,7 @@
 
 ---
 
-## 4. 버전별 정보 (macOS 앱 → 1.3.0)
+## 4. 버전별 정보 (macOS 앱 → 1.4.0)
 
 ### 4-1. 프로모션 텍스트 (Promotional Text, 170자 이내 · 심사 없이 수정 가능)
 
@@ -242,26 +251,35 @@ system,monitor,menubar,memory,network,disk,storage,performance,activity,stats,te
 > 핫소스는 **설정창 버전 줄 옆의 `개인정보처리방침` 링크**가 이를 충족하고,
 > `SettingsView.privacyURL` 이 앱 언어에 따라 `/privacy` ↔ `/en/privacy` 로 알아서 분기한다. **추가 작업 없음.**
 
-### 4-5. 이 버전의 새로운 기능 (What's New)
+### 4-5. 이 버전의 새로운 기능 (What's New) — **이번에 유일하게 새로 써야 할 항목**
 
-> 앱스토어 **첫 출시**라면 이 항목이 아예 안 보인다 — 그때는 건너뛴다.
-> 빌드 9(신규 업로드)로 갈 경우의 문구다. **빌드 8 그대로 갈 거면 마지막 줄을 지울 것.**
+> 이스터에그(메뉴바 5연타)는 **일부러 다 밝히지 않았다.** 정확히 몇 번인지 적으면
+> 이스터에그가 아니라 그냥 기능이 된다. "여러 번 눌러보라"까지만 흘린다.
 
-**한국어**
+**한국어** (4000자 제한 · 아래는 191자)
 ```
-· 팝업 맨 아래에 Team JAM 배너가 생겼어요. 누르면 pizza-clip.com 으로 바로 갑니다.
-· '활성 상태 보기'와 설정이 있는 아래 칸의 위아래 여백을 넓혀 답답함을 덜었어요.
-· 설정 창에서 개인정보처리방침을 바로 열어볼 수 있어요.
-· 설정에서 하단 배너를 끄고 켤 수 있어요. 끄면 팝업이 원래 높이로 돌아옵니다.
+· 팝업의 얼굴을 고를 수 있어요 — 기본, 피자, 쥐, 곰돌이 네 가지. 설정 → 모양에서 바꿉니다.
+· 맥이 힘들어할 때 터지는 핫소스 폭죽이 흐려지지 않고 끝까지 선명하게 떨어져요.
+· 폭죽이 터지는 조건을 조금 낮췄어요. 이제 맥이 정말 바쁠 때 가끔 만날 수 있습니다.
+· 메뉴바의 핫소스 병을 빠르게 여러 번 눌러보세요. 뭔가 있을지도 몰라요. 🌶️
+· 처음 설치하면 '로그인 시 자동 시작'이 켜진 채로 시작합니다. 설정에서 언제든 끌 수 있어요.
 ```
 
-**English (U.S.)**
+**English (U.S.)** (아래는 447자)
 ```
-· A Team JAM banner now sits at the bottom of the popup — tap it to open pizza-clip.com.
-· More breathing room above and below the Activity Monitor and Settings row.
-· Open the privacy policy straight from the Settings window.
-· Turn the bottom banner on or off in Settings — turning it off restores the original popup height.
+· Pick the faces in your popup — Classic, Pizza, Mouse, or Bear. Change them in Settings → Appearance.
+· The hot-sauce burst no longer fades out early. Every bottle stays sharp until it falls off screen.
+· Lowered the bar for that burst, so you can actually catch it when your Mac is working hard.
+· Try clicking the hot-sauce bottle in your menu bar a few times, quickly. There might be something there. 🌶️
+· Launch at login now starts enabled on a fresh install. You can turn it off in Settings anytime.
 ```
+
+> 💡 **설명(4-2)도 한 줄 보태면 좋다** — 얼굴 아이콘 4종은 스토어 페이지에서 눈에 띄는
+> 차별점인데 지금 설명에는 없다. 기능 목록에 아래 한 줄을 끼워 넣는 것을 권한다.
+> (설명 수정은 심사를 다시 받지만, 어차피 이번에 심사에 올라가므로 추가 비용이 없다.)
+>
+> 한국어: `· 팝업 얼굴을 기본·피자·쥐·곰돌이 중에서 골라 쓸 수 있어요.`
+> English: `· Choose your popup faces: Classic, Pizza, Mouse, or Bear.`
 
 ### 4-6. 저작권 (Copyright)
 
@@ -334,6 +352,16 @@ All metrics are read and displayed locally and never leave the device. The app
 is sandboxed; the com.apple.security.network.client entitlement is required
 only because CoreWLAN (Wi-Fi signal strength) returns nil without it.
 
+WHAT'S NEW IN 1.4.0
+The popup's face icons are now user-selectable (Settings > Appearance): Classic,
+Pizza, Mouse or Bear. This only swaps bundled images; no new capability is used.
+
+One behaviour worth flagging: on a FRESH INSTALL the app registers itself as a
+login item once, using SMAppService. A menu bar monitor is only useful if it is
+running, so this is the expected default for this category of app. It happens
+ONLY on first launch, it is clearly reflected in Settings > General > "Launch at
+login", and if the user turns it off the app never re-enables it.
+
 Thank you for reviewing!
 ```
 
@@ -359,17 +387,26 @@ Thank you for reviewing!
 
 ## 8. 제출 전 최종 점검표
 
-- [ ] 버전 레코드를 **1.3.0** 으로 수정 (1.2.0 에서 한 번 더 변경 — 위 🚨 절)
-- [ ] Organizer 에서 **빌드 9 업로드** 후 처리 완료 대기
-- [ ] 빌드 섹션에서 **빌드 9** 선택
-- [ ] 스크린샷 업로드 (팝업이 열린 화면인지 확인)
-- [ ] 부제·설명·키워드·프로모션 텍스트 입력 (한국어)
-- [ ] **English (U.S.) 현지화 추가** — 기본 언어가 한국어라 이걸 안 하면 미국에서도 한국어 설명이 뜬다
-- [ ] 지원 URL · 마케팅 URL · 개인정보처리방침 URL 입력
-- [ ] **영어(미국) 방침 URL 이 `/en/privacy` 인지 확인** (`/privacy` 면 심사자에게 한국어 방침이 열린다)
-- [ ] 연령 등급 설문 완료 (4+)
-- [ ] App Privacy → "데이터를 수집하지 않습니다" 저장
-- [ ] 가격 무료 · 국가를 **미국·대한민국 두 곳만** 으로 설정
+**1.4.0 업데이트에서 실제로 해야 하는 것 (짧다)**
+
+- [ ] ASC 에 **1.4.0 버전 레코드 새로 추가** (위 🚨 절)
+- [ ] Organizer 에서 **빌드 11 업로드** 후 처리 완료 대기
+- [ ] 빌드 섹션에서 **빌드 11** 선택
+- [ ] **"이 버전의 새로운 기능"** 한/영 입력 (4-5) ← 이번의 핵심
+- [ ] 제출
+
+> 📌 **스크린샷·설명은 1.3.0 것을 그대로 간다**(사용자 결정 2026-09-06).
+>    얼굴 아이콘 세트를 보여주는 샷은 다음 업데이트 때 함께 고려한다 —
+>    4-5 아래 💡 의 설명 추가 제안도 그때까지 보류.
+
+**아래는 1.3.0 때 이미 채운 것들 — 새 버전에 자동 복사되므로 확인만 하면 된다**
+
+- [ ] 부제·설명·키워드·프로모션 텍스트 (한국어) 그대로 넘어왔는지
+- [ ] **English (U.S.) 현지화** 그대로 넘어왔는지 — 기본 언어가 한국어라 빠지면 미국에서도 한국어가 뜬다
+- [ ] 지원 URL · 마케팅 URL · 개인정보처리방침 URL
+- [ ] **영어(미국) 방침 URL 이 `/en/privacy` 인지** (`/privacy` 면 심사자에게 한국어 방침이 열린다)
+- [ ] 연령 등급 4+ · App Privacy "데이터를 수집하지 않습니다"
+- [ ] 가격 무료 · 국가 **미국·대한민국 두 곳만**
 - [ ] **앱 심사 정보 메모에 메뉴바 안내 기재** (가장 중요)
 - [ ] 저작권 `2026 TEAM jAm`
 - [ ] 수동 출시 선택
@@ -381,7 +418,7 @@ Thank you for reviewing!
 
 기본 언어가 한국어라, 영어권 사용자에게도 한국어 설명이 나간다. 반드시 추가할 것.
 
-1. 버전 페이지(1.3.0) 좌측 상단의 **언어 드롭다운**(현재 "한국어") 클릭
+1. 버전 페이지(1.4.0) 좌측 상단의 **언어 드롭다운**(현재 "한국어") 클릭
 2. 목록 아래 **`언어 추가` / `Add Language`** 선택
 3. **English (U.S.)** 선택
 4. 위 4절의 **English (U.S.)** 값들을 채워 넣는다 — 부제 · 프로모션 텍스트 · 설명 · 키워드 · URL · 새로운 기능
@@ -392,8 +429,9 @@ Thank you for reviewing!
 ## 참고 — 이 문서의 출처
 
 - 앱 카피: `web/src/i18n/hotsauce.ts` (웹 페이지 문구 재구성)
-- 릴리스노트: `web/src/i18n/info.ts` 핫소스 1.2.0 항목 + 이번 배너 토글분
-  ⚠️ 웹 릴리스노트에는 아직 **1.3.0 항목이 없다.** 직접배포판 1.3.0 을 낼 때 `info.ts` 에 추가할 것
+- 릴리스노트: `web/src/i18n/info.ts` (핫소스 1.3.0 항목까지 반영 완료)
+  ⚠️ **1.4.0 이 출시되면 `info.ts` 에 1.4.0 항목을 추가할 것.** 웹은 앱스토어와 별개라
+     자동으로 따라가지 않는다. 출시 확정 후에 넣어야 "없는 버전"을 안내하지 않는다.
 - 개인정보 근거: `web/src/i18n/privacy.ts` + 세션 9 샌드박스 실측 결과
 - 번들 정보: `apps/hotsauce/HotSauce/Resources/Info-MAS.plist`
-- 심사 리스크·지뢰: `apps/hotsauce/docs/HANDOFF.md` 세션 9·10
+- 심사 리스크·지뢰: `apps/hotsauce/docs/HANDOFF.md` 세션 9·10·12

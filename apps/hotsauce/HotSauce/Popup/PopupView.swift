@@ -10,6 +10,8 @@ struct PopupView: View {
     @State private var isLocked = false
     /// 설정 토글과 같은 키. 끄면 배너 블록(141.5유닛)이 빠지고 팝업이 짧아진다.
     @AppStorage("showSiteBanner") private var showSiteBanner = true
+    /// 얼굴 아이콘 세트. 설정과 같은 키를 보고, 고르는 즉시 팝업에 반영된다.
+    @AppStorage("faceIconSet") private var faceIconSetRaw = FaceIconSet.fallback.rawValue
 
     /// 배너를 끄면 푸터 구분선·푸터가 배너 블록만큼 위로 올라온다.
     private var footerShift: CGFloat { showSiteBanner ? 0 : -DS.bannerBlockHeight }
@@ -114,7 +116,7 @@ struct PopupView: View {
     }
 
     private func face(_ state: LoadState, x: CGFloat, y: CGFloat) -> some View {
-        Image(nsImage: Assets.image(state.faceAssetName))
+        Image(nsImage: Assets.image(FaceIconSet.resolve(faceIconSetRaw).assetName(for: state)))
             .resizable()
             .scaledToFit()
             .placedCenter(x, y, w: 61, h: 61)

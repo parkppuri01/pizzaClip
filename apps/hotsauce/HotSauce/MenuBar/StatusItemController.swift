@@ -66,7 +66,49 @@ final class StatusItemController: NSObject {
         if event.type == .rightMouseUp {
             showContextMenu()
         } else {
+            countRapidClick()
             togglePopup()
+        }
+    }
+
+    // MARK: - 이스터에그: 메뉴바 아이콘 연타
+
+    /// 아이콘을 빠르게 이만큼 누르면 부하와 상관없이 핫소스 폭발이 터진다.
+    /// 5회는 홀수라, 닫힌 상태에서 시작하면 마지막 클릭이 팝업을 "여는" 쪽이 된다.
+    private static let rapidClickTarget = 5
+    /// 연타로 인정하는 클릭 간격. macOS 기본 더블클릭 간격(약 0.5초)보다 살짝
+    /// 빡빡하게 잡았다 — 팝업을 평범하게 여닫다가 우연히 걸리면 안 된다.
+    private static let rapidClickWindow: TimeInterval = 0.4
+    /// 터진 직후 잠그는 시간. 없으면 계속 누를 때 폭발이 겹쳐 재생된다.
+    private static let burstCooldown: TimeInterval = 3
+
+    private var lastClickAt: Date?
+    private var rapidClickCount = 0
+    private var burstCooldownUntil: Date?
+
+    private func countRapidClick() {
+        let now = Date()
+        if let until = burstCooldownUntil, now < until { return }
+
+        if let last = lastClickAt, now.timeIntervalSince(last) <= Self.rapidClickWindow {
+            rapidClickCount += 1
+        } else {
+            rapidClickCount = 1
+        }
+        lastClickAt = now
+
+        guard rapidClickCount >= Self.rapidClickTarget else { return }
+        rapidClickCount = 0
+        burstCooldownUntil = now.addingTimeInterval(Self.burstCooldown)
+
+        // 이 함수가 끝나면 곧바로 togglePopup() 이 돌아 팝업 상태가 뒤집힌다.
+        // 그게 끝난 "뒤"에 팝업이 확실히 열려 있게 만들고 터뜨린다 — 폭발은
+        // 팝업 안에서 재생되므로 닫힌 채 터뜨리면 아무것도 안 보인다.
+        // (연타를 팝업이 열린 상태에서 시작하면 5번째 클릭이 닫는 쪽이 된다.)
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            if self.panel?.isVisible != true { self.showPopup() }
+            self.engine.triggerBurst()
         }
     }
 
