@@ -253,33 +253,20 @@ system,monitor,menubar,memory,network,disk,storage,performance,activity,stats,te
 
 ### 4-5. 이 버전의 새로운 기능 (What's New) — **이번에 유일하게 새로 써야 할 항목**
 
-> 이스터에그(메뉴바 5연타)는 **일부러 다 밝히지 않았다.** 정확히 몇 번인지 적으면
-> 이스터에그가 아니라 그냥 기능이 된다. "여러 번 눌러보라"까지만 흘린다.
+> 이스터에그(메뉴바 연타)와 폭죽 손질은 **일부러 뺐다.** 릴리스노트에 적으면
+> 이스터에그가 아니게 되고, 폭죽 다듬기는 굳이 알릴 만한 변화가 아니다.
 
-**한국어** (4000자 제한 · 아래는 191자)
+**한국어** (113자)
 ```
 · 팝업의 얼굴을 고를 수 있어요 — 기본, 피자, 쥐, 곰돌이 네 가지. 설정 → 모양에서 바꿉니다.
-· 맥이 힘들어할 때 터지는 핫소스 폭죽이 흐려지지 않고 끝까지 선명하게 떨어져요.
-· 폭죽이 터지는 조건을 조금 낮췄어요. 이제 맥이 정말 바쁠 때 가끔 만날 수 있습니다.
-· 메뉴바의 핫소스 병을 빠르게 여러 번 눌러보세요. 뭔가 있을지도 몰라요. 🌶️
 · 처음 설치하면 '로그인 시 자동 시작'이 켜진 채로 시작합니다. 설정에서 언제든 끌 수 있어요.
 ```
 
-**English (U.S.)** (아래는 447자)
+**English (U.S.)** (200자)
 ```
 · Pick the faces in your popup — Classic, Pizza, Mouse, or Bear. Change them in Settings → Appearance.
-· The hot-sauce burst no longer fades out early. Every bottle stays sharp until it falls off screen.
-· Lowered the bar for that burst, so you can actually catch it when your Mac is working hard.
-· Try clicking the hot-sauce bottle in your menu bar a few times, quickly. There might be something there. 🌶️
 · Launch at login now starts enabled on a fresh install. You can turn it off in Settings anytime.
 ```
-
-> 💡 **설명(4-2)도 한 줄 보태면 좋다** — 얼굴 아이콘 4종은 스토어 페이지에서 눈에 띄는
-> 차별점인데 지금 설명에는 없다. 기능 목록에 아래 한 줄을 끼워 넣는 것을 권한다.
-> (설명 수정은 심사를 다시 받지만, 어차피 이번에 심사에 올라가므로 추가 비용이 없다.)
->
-> 한국어: `· 팝업 얼굴을 기본·피자·쥐·곰돌이 중에서 골라 쓸 수 있어요.`
-> English: `· Choose your popup faces: Classic, Pizza, Mouse, or Bear.`
 
 ### 4-6. 저작권 (Copyright)
 
@@ -321,57 +308,41 @@ system,monitor,menubar,memory,network,disk,storage,performance,activity,stats,te
 
 **Notes 붙여넣기 (영문 — 심사팀은 영어로 읽는다)**
 ```
-IMPORTANT — HOW TO LAUNCH THIS APP
+HOW TO LAUNCH
 
-HotSauce is a menu bar utility (LSUIElement). It intentionally does NOT show a
-Dock icon or a main window when launched.
+HotSauce is a menu bar utility (LSUIElement). It has no Dock icon and shows no
+window on launch.
 
-After launching the app, please look at the MENU BAR at the top-right of the
-screen. You will see a small red hot-sauce bottle icon.
+After launching, look at the MENU BAR at the top-right of the screen. You will
+see a small hot-sauce bottle icon.
 
-  1. LEFT-CLICK the hot-sauce bottle icon in the menu bar.
-     -> The main popup opens, showing CPU, Memory, Storage, Battery and
-        Network statistics for the Mac.
-  2. RIGHT-CLICK the same icon for the context menu (Settings / Quit).
-  3. The gear icon at the bottom-right of the popup opens Settings.
+  1. LEFT-CLICK the bottle -> the main popup opens, showing CPU, Memory,
+     Storage, Battery and Network stats.
+  2. RIGHT-CLICK it for the context menu (Settings / Quit).
 
-The bottle icon changes color with system load (red = light, yellow = medium,
-rainbow = heavy), so its appearance may differ depending on the state of the
-review machine.
+The bottle changes color with system load, so its appearance may differ
+depending on the state of the review machine.
 
-ABOUT FUNCTIONALITY (Guideline 4.2)
-The app reads system metrics via public macOS APIs (host_statistics, sysctl,
-IOKit AppleSmartBattery, getifaddrs, CoreWLAN) and presents them in a single
-custom-designed popup, with load-based visual states and one-click access to
-Activity Monitor. It is a complete, standalone utility, not a repackaged web
-page or a thin wrapper.
+NEW IN 1.4.0
 
-PRIVACY
-No accounts, no sign-in, no ads, no analytics, no data collection whatsoever.
-All metrics are read and displayed locally and never leave the device. The app
-is sandboxed; the com.apple.security.network.client entitlement is required
-only because CoreWLAN (Wi-Fi signal strength) returns nil without it.
+The popup's face icons are now user-selectable (Settings > Appearance).
 
-WHAT'S NEW IN 1.4.0
-The popup's face icons are now user-selectable (Settings > Appearance): Classic,
-Pizza, Mouse or Bear. This only swaps bundled images; no new capability is used.
-
-One behaviour worth flagging: on a FRESH INSTALL the app registers itself as a
-login item once, using SMAppService. A menu bar monitor is only useful if it is
+One behaviour worth flagging: on a fresh install the app registers itself as a
+login item once, via SMAppService. A menu bar monitor is only useful while it is
 running, so this is the expected default for this category of app. It happens
-ONLY on first launch, it is clearly reflected in Settings > General > "Launch at
-login", and if the user turns it off the app never re-enables it.
+only on first launch, it is reflected in Settings > General > "Launch at login",
+and the app never re-enables it if the user turns it off.
+
+No accounts, no ads, no analytics, no data collection. All metrics are read and
+displayed locally and never leave the device.
 
 Thank you for reviewing!
 ```
 
-**연락처 정보**
-
-| 항목 | 값 |
-|---|---|
-| 이름 / 성 | ✅ (본인 이름) |
-| 전화번호 | ✅ (본인 번호, 국가번호 포함 `+82…`) |
-| 이메일 | ✅ `jekeun.p@gmail.com` |
+> **1.3.0 때보다 짧아진 이유**: 첫 심사에서 필요했던 Guideline 4.2(최소 기능) 해명과
+> 개인정보 상세 설명은 **이미 통과했다.** 업데이트 심사에서 반복할 이유가 없다.
+> 반면 **실행 방법 안내는 매번 남긴다** — 리뷰어가 바뀌고, LSUIElement 앱이 앱을
+> 못 찾아 리젝되는 건 이 카테고리에서 가장 흔한 사고다.
 
 ---
 
