@@ -144,9 +144,16 @@ xcrun stapler staple "dist/pizzaClip-${VERSION}.dmg"
 echo "→ Gatekeeper verdict"
 spctl -a -t open --context context:primary-signature -vv "dist/pizzaClip-${VERSION}.dmg" 2>&1 | sed 's/^/    /' || true
 
-echo "→ Installing to /Applications"
-rm -rf /Applications/pizzaClip.app
-cp -R "$APP" /Applications/
+# SKIP_INSTALL=1 skips this step — e.g. when the calling process lacks macOS
+# "App Management" permission, where rm -rf would half-delete the installed app
+# and then abort the script before the Sparkle/publish steps below.
+if [ "${SKIP_INSTALL:-0}" = "1" ]; then
+    echo "→ Skipping /Applications install (SKIP_INSTALL=1)"
+else
+    echo "→ Installing to /Applications"
+    rm -rf /Applications/pizzaClip.app
+    cp -R "$APP" /Applications/
+fi
 
 # ── Sparkle auto-update: sign the ZIP + emit an appcast <item> ───────────────
 # The notarized+stapled ZIP above is exactly what Sparkle downloads and swaps in.

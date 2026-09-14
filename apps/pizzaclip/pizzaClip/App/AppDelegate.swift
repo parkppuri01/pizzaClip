@@ -1,6 +1,7 @@
 import AppKit
 import GRDB
 import KeyboardShortcuts
+import ServiceManagement
 import Sparkle
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -46,6 +47,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             UserDefaults.standard.set(9, forKey: "historyCap")
         }
         UserDefaults.standard.set(true, forKey: "didMigrateCapTo9")
+        applyLaunchAtLoginDefault()
         setUpStorage()
         setUpStatusItem()
         setUpMonitor()
@@ -90,6 +92,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                                object: nil, queue: .main) { notification in
             guard let value = notification.object as? NSNumber else { return }
             HangulToggler.shared.setEnabled(value.boolValue)
+        }
+    }
+
+    /// Launch at login ships ON: registered once, on the first launch of a
+    /// version that has this option (new and updating users alike). After that
+    /// the Settings toggle / System Settings own it, so turning it off sticks.
+    /// Only applied from /Applications, so a dev build in DerivedData never
+    /// registers itself as the login item (the flag stays unset until then).
+    private func applyLaunchAtLoginDefault() {
+        let key = "didApplyLaunchAtLoginDefault"
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: key),
+              Bundle.main.bundlePath.hasPrefix("/Applications/") else { return }
+        defaults.set(true, forKey: key)
+        if SMAppService.mainApp.status != .enabled {
+            try? SMAppService.mainApp.register()
         }
     }
 

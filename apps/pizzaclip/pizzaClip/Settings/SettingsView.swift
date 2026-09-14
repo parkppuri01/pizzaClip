@@ -2,6 +2,7 @@ import SwiftUI
 import AppKit
 import ApplicationServices
 import KeyboardShortcuts
+import ServiceManagement
 
 struct SettingsView: View {
     @AppStorage("historyCap") private var historyCap: Int = 9
@@ -14,6 +15,10 @@ struct SettingsView: View {
     @AppStorage("SUAutomaticallyUpdate") private var automaticallyDownloadUpdates = true
     // 언어 선택 (system / en / ko). 시작 시 1회 적용되므로 변경 시 재시작 안내.
     @AppStorage(AppLocale.defaultsKey) private var appLanguage: String = AppLanguage.system.rawValue
+    // Mirrors the real login-item state (the user can also flip it in System
+    // Settings → General → Login Items), so it's re-read whenever the tab appears.
+    @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
+    @State private var launchAtLoginError: String?
 
     var body: some View {
         TabView {
@@ -69,6 +74,17 @@ struct SettingsView: View {
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
+                Section(L("Startup", "시작")) {
+                    Toggle(L("Launch at login", "Mac 시작 시 자동 실행"), isOn: Binding(
+                        get: { launchAtLogin },
+                        set: { setLaunchAtLogin($0) }))
+                    if let launchAtLoginError {
+                        Text(launchAtLoginError)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
                 Section(L("Updates", "업데이트")) {
                     Toggle(isOn: $automaticallyDownloadUpdates) {
                         Text(L("Automatically download updates", "업데이트 자동 다운로드"))
@@ -85,6 +101,21 @@ struct SettingsView: View {
             }
             .formStyle(.grouped)
         }
+        .onAppear { launchAtLogin = (SMAppService.mainApp.status == .enabled) }
+    }
+
+    private func setLaunchAtLogin(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+            launchAtLoginError = nil
+        } catch {
+            launchAtLoginError = error.localizedDescription
+        }
+        launchAtLogin = (SMAppService.mainApp.status == .enabled)
     }
 
     private var appVersionString: String {
