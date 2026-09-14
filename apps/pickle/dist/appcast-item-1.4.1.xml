@@ -1,0 +1,18 @@
+        <item>
+            <title>PICkle 1.4.1</title>
+            <pubDate>Mon, 14 Sep 2026 07:32:42 +0000</pubDate>
+            <sparkle:version>29</sparkle:version>
+            <sparkle:shortVersionString>1.4.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<h2>PICkle 1.4.1</h2>
+<ul>
+<li>Mac 시작 시 자동 실행 — Mac을 켜면 PICkle이 알아서 함께 실행돼요(기본 켜짐).</li>
+<li>설정 → 일반 → 시작에서 언제든 끌 수 있어요.</li>
+</ul>
+]]></description>
+            <!-- ⚠️ Put the REAL DMG download URL here (GitHub Release asset, etc.). -->
+            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.4.1.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="Hi9Sb6duh1YQGyfz8Y8n4LEcc1o76wpA+NYV41fS9dF4q4jrgsc0ApzWZjVm95IA6iOrj25taLFfNKKUnEkQAg==" length="4011161" />
+        </item>
