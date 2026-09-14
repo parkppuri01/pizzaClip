@@ -32,6 +32,14 @@ export const info: Record<Lang, InfoContent> = {
     relHeadingSuffix: "릴리스노트",
     releases: [
       {
+        version: "1.3.2",
+        label: "Mac 시작 시 자동 실행",
+        notes: [
+          "Mac을 켜면 pizzaClip이 알아서 함께 실행돼요(기본 켜짐).",
+          "설정 → 일반 → 시작에서 언제든 끌 수 있어요.",
+        ],
+      },
+      {
         version: "1.3.1",
         label: "설정창 정리 · 자동 업데이트 옵션",
         notes: [
@@ -95,6 +103,14 @@ export const info: Record<Lang, InfoContent> = {
       { version: "0.1.1", label: "첫 공개", notes: ["자동 복사 기록, 팝업, 핀 고정, 전체 비우기 등 기본기를 갖췄어요."] },
     ],
     pickleReleases: [
+      {
+        version: "1.4.1",
+        label: "Mac 시작 시 자동 실행",
+        notes: [
+          "Mac을 켜면 PICkle이 알아서 함께 실행돼요(기본 켜짐).",
+          "설정 → 일반 → 시작에서 언제든 끌 수 있어요.",
+        ],
+      },
       {
         version: "1.4.0",
         label: "스크롤 캡처 (베타) 🥒",
@@ -258,6 +274,14 @@ export const info: Record<Lang, InfoContent> = {
     relHeadingSuffix: "Release Notes",
     releases: [
       {
+        version: "1.3.2",
+        label: "Launch at Login",
+        notes: [
+          "pizzaClip now starts automatically when you log in to your Mac (on by default).",
+          "Turn it off anytime in Settings → General → Startup.",
+        ],
+      },
+      {
         version: "1.3.1",
         label: "Tidied-Up Settings · Auto-Update Option",
         notes: [
@@ -321,6 +345,14 @@ export const info: Record<Lang, InfoContent> = {
       { version: "0.1.1", label: "First Release", notes: ["The essentials are in: auto copy-history, the popup, pinning, and clear-all."] },
     ],
     pickleReleases: [
+      {
+        version: "1.4.1",
+        label: "Launch at Login",
+        notes: [
+          "PICkle now starts automatically when you log in to your Mac (on by default).",
+          "Turn it off anytime in Settings → General → Startup.",
+        ],
+      },
       {
         version: "1.4.0",
         label: "Scrolling Capture (Beta) 🥒",
