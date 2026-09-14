@@ -176,3 +176,5 @@
 "settings.updates.autoDownload" = "업데이트 자동 다운로드";
 "settings.updates.autoDownload.desc" = "새 버전이 나오면 자동으로 내려받아 다음 실행 때 적용됩니다.";
 "settings.updates.checkNow" = "지금 업데이트 확인…";
+"settings.startup.section" = "시작";
+"settings.startup.launchAtLogin" = "Mac 시작 시 자동 실행";

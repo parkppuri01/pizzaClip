@@ -1,5 +1,6 @@
 import AppKit
 import KeyboardShortcuts
+import ServiceManagement
 import Sparkle
 
 /// Composition root — the single wiring hub (pizzaClip pattern). Owns the status
@@ -33,12 +34,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // user who turns the toggle off actually stays off across launches.
         updaterController.updater.automaticallyChecksForUpdates = true
 
+        applyLaunchAtLoginDefault()
         setUpStatusItem()
         setUpShortcuts()
         registerObservers()
         runRetentionSweep()
         scheduleRetentionSweep()
         refreshStatusIcon()
+    }
+
+    // MARK: - Launch at login
+
+    /// Launch at login ships ON: registered once, on the first launch of a
+    /// version that has this option (new and updating users alike). After that
+    /// the Settings toggle / System Settings own it, so turning it off sticks.
+    /// Only applied from /Applications, so a dev build in DerivedData never
+    /// registers itself as the login item (the flag stays unset until then).
+    private func applyLaunchAtLoginDefault() {
+        let key = "didApplyLaunchAtLoginDefault"
+        let defaults = UserDefaults.standard
+        guard !defaults.bool(forKey: key),
+              Bundle.main.bundlePath.hasPrefix("/Applications/") else { return }
+        defaults.set(true, forKey: key)
+        if SMAppService.mainApp.status != .enabled {
+            try? SMAppService.mainApp.register()
+        }
     }
 
     // MARK: - Retention (auto-delete)

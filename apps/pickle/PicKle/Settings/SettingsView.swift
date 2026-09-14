@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import KeyboardShortcuts
+import ServiceManagement
 
 /// Settings window (TabView). 0.5.0 tabs (order/icons match the reference shot):
 ///   - 일반:     app info + language (was "정보"/About; moved to the front).
@@ -304,6 +305,10 @@ private struct AboutTab: View {
     // Sparkle reads this default live: unchecking it turns off silent
     // background download/install. Ships true, so updates auto-apply by default.
     @AppStorage("SUAutomaticallyUpdate") private var autoDownloadUpdates = true
+    // Mirrors the real login-item state (the user can also flip it in System
+    // Settings → General → Login Items), so it's re-read whenever the tab appears.
+    @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
+    @State private var launchAtLoginError: String?
 
     /// App version read from Info.plist (CFBundleShortVersionString) so it always
     /// matches MARKETING_VERSION — no more hand-editing this on every release.
@@ -345,6 +350,16 @@ private struct AboutTab: View {
                     .pickerStyle(.segmented)
                     .labelsHidden()
                 }
+                Section(L("settings.startup.section")) {
+                    Toggle(L("settings.startup.launchAtLogin"), isOn: Binding(
+                        get: { launchAtLogin },
+                        set: { setLaunchAtLogin($0) }))
+                    if let launchAtLoginError {
+                        Text(launchAtLoginError)
+                            .font(.caption).foregroundStyle(.red)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
                 Section(L("settings.updates.section")) {
                     Toggle(L("settings.updates.autoDownload"), isOn: $autoDownloadUpdates)
                     Text(L("settings.updates.autoDownload.desc"))
@@ -357,5 +372,20 @@ private struct AboutTab: View {
             }
             .formStyle(.grouped)
         }
+        .onAppear { launchAtLogin = (SMAppService.mainApp.status == .enabled) }
+    }
+
+    private func setLaunchAtLogin(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+            launchAtLoginError = nil
+        } catch {
+            launchAtLoginError = error.localizedDescription
+        }
+        launchAtLogin = (SMAppService.mainApp.status == .enabled)
     }
 }

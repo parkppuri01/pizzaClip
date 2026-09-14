@@ -176,3 +176,5 @@
 "settings.updates.autoDownload" = "Automatically download updates";
 "settings.updates.autoDownload.desc" = "New versions are downloaded automatically and applied the next time you launch.";
 "settings.updates.checkNow" = "Check for Updates…";
+"settings.startup.section" = "Startup";
+"settings.startup.launchAtLogin" = "Launch at login";
