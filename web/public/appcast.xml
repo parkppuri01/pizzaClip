@@ -6,20 +6,21 @@
         <description>pizzaClip updates</description>
         <language>en</language>
         <item>
-            <title>pizzaClip 1.3.1</title>
-            <pubDate>Wed, 08 Jul 2026 17:30:16 +0000</pubDate>
-            <sparkle:version>14</sparkle:version>
-            <sparkle:shortVersionString>1.3.1</sparkle:shortVersionString>
+            <title>pizzaClip 1.3.2</title>
+            <pubDate>Mon, 14 Sep 2026 07:33:32 +0000</pubDate>
+            <sparkle:version>15</sparkle:version>
+            <sparkle:shortVersionString>1.3.2</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
             <description><![CDATA[
-<h2>pizzaClip 1.3.1</h2>
+<h2>pizzaClip 1.3.2</h2>
 <ul>
-<li>설정창 정리 — 일반 탭을 형제 앱(피클·핫소스)과 같은 모양으로 통일했어요. 업데이트 자동 다운로드 옵션과 '지금 업데이트 확인' 버튼을 추가하고, 기록 개수 설정은 저장공간 탭으로 옮겼습니다.</li>
+<li>Mac 시작 시 자동 실행 — Mac을 켜면 pizzaClip이 알아서 함께 실행돼요(기본 켜짐).</li>
+<li>설정 → 일반 → 시작에서 언제든 끌 수 있어요.</li>
 </ul>
 ]]></description>
-            <enclosure url="https://github.com/parkppuri01/pizzaClip/releases/download/v1.3.1/pizzaClip-1.3.1.zip"
+            <enclosure url="https://github.com/parkppuri01/pizzaClip/releases/download/v1.3.2/pizzaClip-1.3.2.zip"
                        type="application/octet-stream"
-                       sparkle:edSignature="a8JulDyR5i0Mk9O55qMfoVc6dvVepHj/co0K6x3yVIY2cw9tjASrGkwBus0+xb7mlmIIvyQ1kFiW7bdVI1jZCw==" length="5121279" />
+                       sparkle:edSignature="0QGBoWWbCm4XLKHkIjKUG5sxcUCvbsgye0B+L2aGMQZhV5APdaI4wbhkBsZZbcOcqYWImNr32SJ+RLu3TVA2BA==" length="5132543" />
         </item>
     </channel>
 </rss>
