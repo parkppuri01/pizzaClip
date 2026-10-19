@@ -1,6 +1,6 @@
 # PICkle — HANDOFF (단일 진실 문서)
 
-> **마지막 업데이트**: 2026-09-14 · **🎉 1.4.1(build 29) 정식 배포 — Mac 시작 시 자동 실행(기본 켜짐). 다음 build = 30. 스크롤 캡처 결함 수정(원래 1.4.1 목표)은 1.4.2로 이월 — 아래 [2026-08-12] 섹션의 1순위/2순위 그대로 유효.** · 그 이전 배포: **🎉 1.3.3(build 20) 정식 배포 완료 — 워터마크 저장 용량 버그 수정(원본 포맷 유지 + JPEG 품질 0.9) + 편집기 확대/축소(줌)·팬 + 블러 성능 + 설정창 3앱 통일. 공증 DMG·appcast 라이브(상세는 아래 [2026-07-09] 섹션).** · 직전 **🎉 1.3.2 릴리스 완료(build 17, 배포됨 — 팝업 하단 저장폴더 경로 표시 + 자동업데이트 무인설치)** · 그 앞 1.3.1(build 16, 편집기 열림 idle CPU 6~9% 긴급패치) · 1.3.0(build 15) **캡처를 macOS 기본 `screencapture -i`로 전환**(열린 메뉴/팝업도 그대로 캡처, 자체 오버레이·십자선·모드바·dead 코드 대거 삭제). pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
+> **마지막 업데이트**: 2026-10-20 · **🎉 1.4.2(build 32) 정식 배포 — 파일 이름 ScreenShot_YYMMDD_NNN + 스크롤 캡처 1·2순위(배율 devicePixelRatio · 되감기 관문) 수정. 커밋 `131976d`(앱)·`cbbb69a`(웹). ⚠️ 스크롤 캡처 실기 확인은 배포 후로 남음(아래 [2026-10-19~20]). 다음 build = 33.** · 직전: **🎉 1.4.1(build 29) 정식 배포 — Mac 시작 시 자동 실행(기본 켜짐). 다음 build = 30. 스크롤 캡처 결함 수정(원래 1.4.1 목표)은 1.4.2로 이월 — 아래 [2026-08-12] 섹션의 1순위/2순위 그대로 유효.** · 그 이전 배포: **🎉 1.3.3(build 20) 정식 배포 완료 — 워터마크 저장 용량 버그 수정(원본 포맷 유지 + JPEG 품질 0.9) + 편집기 확대/축소(줌)·팬 + 블러 성능 + 설정창 3앱 통일. 공증 DMG·appcast 라이브(상세는 아래 [2026-07-09] 섹션).** · 직전 **🎉 1.3.2 릴리스 완료(build 17, 배포됨 — 팝업 하단 저장폴더 경로 표시 + 자동업데이트 무인설치)** · 그 앞 1.3.1(build 16, 편집기 열림 idle CPU 6~9% 긴급패치) · 1.3.0(build 15) **캡처를 macOS 기본 `screencapture -i`로 전환**(열린 메뉴/팝업도 그대로 캡처, 자체 오버레이·십자선·모드바·dead 코드 대거 삭제). pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
 > **새 세션은 이 문서를 먼저 읽으면 컨텍스트가 잡힙니다.**
 > **▶ 1.3.0 핵심: 열린 메뉴/팝업(예: 사운드 컨트롤센터)을 펼친 채 캡처하려 하면 단축키 누른 순간 그 메뉴가 닫히던 문제. 근본 원인 = 일반 앱은 캡처용 오버레이 창을 띄우는 순간 macOS가 열린 메뉴를 닫음(오버레이가 key window를 가져가 히스토리 패널이 resignKey로 닫히고, shield 레벨 최상위 창으로 떠 다른 앱 메뉴 트래킹도 취소됨). ⌘⇧4가 멀쩡한 건 WindowServer(OS)가 직접 처리 = OS만의 특권. → 자체 오버레이(⇧⌘5식)를 전부 버리고 macOS 기본 `screencapture -i` 호출로 전환. `-i`는 사용자 동의형이라 권한 상속 문제 없음(과거 `-R` 실패와 대비). 픽셀 치수·스페이스 이동은 OS UI 기본 제공, 모드(S/D/A)는 단축키로 확정. 상세는 아래 [✅ 2026-07-03 — 1.3.0] 섹션.**
 > **테스트 규칙: 빌드마다 `project.yml` MARKETING_VERSION+build 올리고 사용자에게 번호 알림(Settings 일반탭 `v1.x.x (build N)` 표시). 정식 배포=둘째자리(minor) ↑, 테스트 빌드=셋째자리(patch) ↑.**
@@ -11,6 +11,31 @@
 > ⚠️ **개인정보 주의**: 서명에 쓰는 팀 ID·Developer ID 식별자는 **gitignore된 `Signing.xcconfig`** 에만 둡니다 (커밋 금지). 배포 자격증명은 `scripts/release.local.sh`(gitignore)에. 각각 `*.example` 템플릿을 복사해 채우세요.
 >
 > 📛 **이름 표기 규칙(중요)**: 사용자에게 보이는 **브랜드 = `PICkle`**(점·소문자 없이 통일). 단, **번들 ID는 `com.Team-jAm.PICkle`**(건드리면 TCC 권한 깨짐), **Xcode 프로젝트/스킴/소스폴더 이름은 `PicKle`(대문자 K)** 로 그대로 둡니다(내부 식별자라 화면에 안 보임).
+
+---
+
+## ✅ 2026-10-19~20 — 🎉 1.4.2(build 32) 정식 배포: 파일 이름 규칙 + 스크롤 캡처 1·2순위 수정
+
+> 커밋 `131976d`(앱 소스) → `cbbb69a`(웹: DMG·appcast·다운로드 링크·릴리스노트 한/영) → master push → Vercel. 공증 2라운드 Accepted·staple·Gatekeeper=Notarized Developer ID. 절차는 1.4.1과 동일(Release 빌드 → `release-test-dmg.sh` → `dist/notes-1.4.2.md` → `sparkle-appcast.sh` → `web/public/pickle/`).
+
+**① 저장 파일 이름** (`Capture/CaptureService.swift` `newBottleFileURL()`)
+- `PICkle 2026-10-19 at 14.30.12.png`(공백·점) → **`ScreenShot_YYMMDD_NNN.png`**. NNN = max(그날 디스크에 있는 최대 번호, **이번 실행에서 이미 발급한 번호**) + 1, 3자리 0채움(999 넘으면 1000…). 발급 기억이 필요한 이유: `screencapture -i`는 드래그가 끝나야 파일을 쓰므로 그 사이 다른 캡처가 같은 번호를 받아 덮어쓸 수 있었음(독립 리뷰 지적). 100만 이상 번호는 무시(오버플로 방지). 일반(S/D)·스크롤(W) 캡처 공통. 옛 이름 파일은 그대로.
+
+**② 브라우저 모드 배율(1순위) — Vision 단독 → `devicePixelRatio` 우선** (`Browser/BrowserScrollDriver.swift`·`BrowserScrollSession.swift`)
+- 드라이버 `display()`가 JS로 `{dpr: devicePixelRatio, ih: innerHeight}` 읽음(고정 상수 페이로드). 세션은 순수 함수 `choosePxPerCss`로 **dpr → Vision → backing** 중 첫 "그럴듯한" 값 채택. 그럴듯함 = backing×[0.25,5] 안 + **`영역px / 비율 ≤ innerHeight×1.25+60`**(영역이 뷰포트보다 많이 보일 수 없다 — 1.4.0 로그의 0.977은 1806px 영역 = 1848css로 928css 뷰포트의 2배라 즉시 탈락).
+- Safari는 페이지 줌을 dpr에 반영 안 함 → `pixelRatioIgnoresZoom`(Safari만): dpr이 backing과 같고 Vision이 그럴듯하며 10%↑ 다르면 Vision 채택.
+- 배율은 시작 전 1회(dpr) + 타일 2장 후 1회(Vision 교차검증) 결정해 `pxPerCss` 속성에 저장, 조립은 그 값을 그대로 씀(전엔 조립 때 Vision을 한 번 더 돌렸음). 로그: `browser: pxPerCss=… from …`.
+
+**③ 범용 모드 되감기 오발동(2순위)** (`ScrollStitcher.swift` `rewindIfConfirmed`)
+- 기존 "연속 2회 + 행 일치 0.60"에 관문 추가: ①두 번째 읽기 ≥ 첫 번째 − max(8, 10%)(일관성) ②검증 가능 높이 ≥ 창의 1/4 ③행 일치 ≥ **0.80** ④**"안 움직였다고 가정한 비교"보다 0.15 이상 더 잘 맞아야** — 여백 많은 페이지는 아무 시프트에서나 일치하므로 차이만이 증거. 실패는 `rejectRewind`(기존과 같은 재앵커 복구 경로).
+- 대가(알려진 한계): 여백이 아주 많은 페이지에서 **진짜** 위로 올림도 거부될 수 있음 → 2회 거부 시 재앵커 → 내려올 때 중복 가능. 파괴(내용 삭제)보다 중복이 낫다는 판단.
+
+**검증**
+- 하니스 `.omc/dev/stitch-harness.swift` 전 시나리오 PASS + 신규 **[R]**(문서형 여백 페이지에 실기 로그 수치 −344/−390 주입: 1.4.0 규칙은 되감기로 잘림 재현 → 1.4.2는 거부·바이트 일치. (b)변형은 일치율 0.83으로 0.80도 통과하지만 still=1.00이라 ④가 잡음) + **[K]**(배율 선택 11케이스). 하니스 미러용 훅: `strictRewind`, `forcedReadings`.
+- 앱 실제 `choosePxPerCss`를 직접 컴파일해 같은 케이스 PASS. 파일 이름 헤드리스 E2E 15항목 PASS. Debug 빌드 31 실행 정상. 독립 리뷰(서브에이전트) 지적 2건(Safari 110~125% · 이름 중복) 반영.
+- ❗ **실기 미실시**: 화면 제어 권한 없음. Chrome/Safari 실제 스크롤 캡처로 `scroll.log`의 `pxPerCss=… from devicePixelRatio`·REWIND 횟수 확인 필요.
+- **발견(기존 결함, 무관)**: 매 실행 `ExcUserFault` — `FolderIcon.apply` → `NSWorkspace.setIcon`(IconServices `addCGImage:scale:` 경고). 비치명. 별도 작업 카드로 분리.
+- 남은 것: **실기 확인(Chrome/Safari ⌥⇧W → `scroll.log`의 `pxPerCss=… from …`·REWIND 횟수)** → 사용자 로그 분석(3) → 베타 해제 시 진단 제거(4). 다중 모니터(브라우저 창 화면 ≠ 캡처 화면 배율)는 미대응(드묾). **다음 빌드 = 33.**
 
 ---
 
