@@ -55,23 +55,44 @@ final class CaptureService {
         }
     }
 
-    /// A timestamped path in the bottle folder, guaranteed not to collide with an
-    /// existing file (two captures in the same second get ` (2)`, ` (3)`, …).
-    /// Internal (not private) so other capture paths — e.g. scrolling capture,
-    /// which writes its stitched PNG itself — land on the same naming rule.
+    /// Highest number handed out per day prefix. A path is chosen *before* its file
+    /// exists — `screencapture -i` only writes once the user finishes dragging — so
+    /// the folder alone can't tell a second capture started meanwhile (a scrolling
+    /// capture saving, another shortcut) that the number is taken.
+    private var issued: [String: Int] = [:]
+    private let issueLock = NSLock()
+
+    /// A new path in the bottle folder named `ScreenShot_YYMMDD_NNN.png` — no
+    /// spaces and no dots except the extension (names like
+    /// `PICkle 2026-07-03 at 14.30.12.png` tripped up other tools). NNN is a
+    /// per-day counter: one past the highest number already used today, on disk or
+    /// handed out to a capture still in progress, so a deleted file never causes a
+    /// collision and two overlapping captures never share a name. Internal (not
+    /// private) so other capture paths — e.g. scrolling capture, which writes its
+    /// stitched PNG itself — land on the same naming rule.
     func newBottleFileURL() -> URL {
         let dir = AppPaths.bottleDirectory
         let df = DateFormatter()
         df.locale = Locale(identifier: "en_US_POSIX")
-        df.dateFormat = "yyyy-MM-dd 'at' HH.mm.ss"
-        let base = "PICkle \(df.string(from: Date()))"
+        df.dateFormat = "yyMMdd"
+        let prefix = "ScreenShot_\(df.string(from: Date()))_"
 
-        var url = dir.appendingPathComponent("\(base).png")
-        var n = 2
-        while FileManager.default.fileExists(atPath: url.path) {
-            url = dir.appendingPathComponent("\(base) (\(n)).png")
-            n += 1
+        issueLock.lock()
+        defer { issueLock.unlock() }
+        let existing = (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? []
+        let used = existing.compactMap { name -> Int? in
+            guard name.hasPrefix(prefix) else { return nil }
+            let rest = (name.dropFirst(prefix.count) as Substring).split(separator: ".").first ?? ""
+            // A hand-renamed file with an absurd number must not overflow `+ 1`.
+            return Int(rest).flatMap { $0 < 1_000_000 ? $0 : nil }
         }
+        var n = max(used.max() ?? 0, issued[prefix] ?? 0) + 1
+        var url = dir.appendingPathComponent(String(format: "%@%03d.png", prefix, n))
+        while FileManager.default.fileExists(atPath: url.path) {
+            n += 1
+            url = dir.appendingPathComponent(String(format: "%@%03d.png", prefix, n))
+        }
+        issued = [prefix: n]   // older days can never be issued again
         return url
     }
 }

@@ -76,6 +76,13 @@ final class ScrollStitcher {
     /// always a misregistration; two in a row against the *same* reference is the
     /// user scrolling back, and the second reading is the whole distance travelled.
     private static let upsBeforeRewind = 2
+    /// Row agreement a rewind needs at the offset claimed. Stricter than the forward
+    /// guard's 0.60: a rewind destroys confirmed image, a forward step only adds.
+    private static let rewindMinRowFraction = 0.80
+    /// How much better the claimed offset must match than no movement at all.
+    /// Whitespace agrees with itself at any shift, so on a sparse page a bogus
+    /// offset scores as well as the true one; only the difference is evidence.
+    private static let rewindMinMargin = 0.15
     /// Sampled gray spread below which a band counts as featureless. A flat band
     /// looks "unchanged" between two frames however far the page scrolled, so this
     /// is what stops a plain white page bottom from being mistaken for a footer and
@@ -111,6 +118,8 @@ final class ScrollStitcher {
     private var reAnchors = 0
     /// Upward readings against the current reference, for the rewind debounce.
     private var consecutiveUps = 0
+    /// The first of those readings, which the second has to be consistent with.
+    private var firstUp = 0
     /// Rows of pinned chrome at the top and bottom of every frame, or -1 until
     /// they've been measured. Measured once, on the first pair of frames proven to
     /// be a known distance apart — anything that did not move on a frame that did is
@@ -384,33 +393,37 @@ final class ScrollStitcher {
     // MARK: - Rewind
 
     /// The user scrolled back up. Undo that much of the image — but only once a
-    /// second frame agrees, and only if the pixels actually line up at the offset
-    /// claimed.
+    /// second frame agrees, and only if the pixels prove the offset claimed.
     ///
-    /// Both conditions earn their keep. A single negative reading is far more often a
-    /// misregistration than a real reversal, and because the reference is *not*
-    /// advanced on the first one, the second reading measures the whole distance
-    /// travelled rather than just the last hop. Verifying the overlap then separates
-    /// a genuine reversal from two bad readings in a row, which would otherwise saw
-    /// the bottom off a perfectly good capture.
+    /// A single negative reading is far more often a misregistration than a real
+    /// reversal, and because the reference is *not* advanced on the first one, the
+    /// second reading measures the whole distance travelled rather than just the
+    /// last hop. The rest separates a genuine reversal from two bad readings in a
+    /// row, which would otherwise saw the bottom off a perfectly good capture — and
+    /// on device (1.4.0 logs) did, 8–14 times a session, with the user never
+    /// scrolling up at all. Every gate below has to pass:
+    ///
+    /// 1. **Consistent** — the second reading is at least the first (less a little
+    ///    slack). Scrolling up only ever adds distance against a fixed reference;
+    ///    two unrelated misregistrations rarely line up that way.
+    /// 2. **Verifiable** — at least a quarter of the window is left to check. The
+    ///    big readings are the least trustworthy and leave the least to check.
+    /// 3. **Agrees** — 80% of rows match at the claimed offset.
+    /// 4. **Discriminates** — and match clearly better than at no offset at all.
+    ///    Whitespace matches itself at every shift, so on a sparse page (3) passes
+    ///    for any number Vision cares to return; a still page scores ~1.0 here too.
     private func rewindIfConfirmed(by up: Int, frame: CGImage, win: (top: Int, height: Int)) {
         consecutiveUps += 1
+        if consecutiveUps == 1 { firstUp = up }
         guard consecutiveUps >= Self.upsBeforeRewind, let reference = previous else { return }
         let w = frame.width
+        guard up + max(8, firstUp / 10) >= firstUp else {
+            rejectRewind(frame, "up=\(up)px after \(firstUp)px — readings disagree")
+            return
+        }
         let guardHeight = win.height - up
-        // Too little overlap left to check is NOT permission to proceed. This is the
-        // one operation that destroys already-confirmed image, and the readings it
-        // fires on — the big ones — are exactly the readings that shrink the window
-        // below the checkable minimum. An unverifiable rewind is treated as a bad
-        // frame instead, which routes it to the same re-anchor recovery as any other.
-        guard guardHeight >= ScrollCompare.stride else {
-            consecutiveUps = 0
-            rejected += 1
-            consecutiveRejects += 1
-            ScrollSessionLog.write(
-                "REJECT rewind up=\(up)px — only \(guardHeight)px of window left to verify "
-                + "against (streak=\(consecutiveRejects))")
-            if consecutiveRejects >= Self.rejectsBeforeReAnchor { reAnchor(to: frame) }
+        guard guardHeight >= max(ScrollCompare.stride, win.height / 4) else {
+            rejectRewind(frame, "up=\(up)px — only \(guardHeight)px of a \(win.height)px window left to verify")
             return
         }
         // Moving up means the new frame holds the reference's content shifted DOWN
@@ -418,14 +431,10 @@ final class ScrollStitcher {
         let inReference = CGRect(x: 0, y: win.top, width: w, height: guardHeight)
         let inFrame = CGRect(x: 0, y: win.top + up, width: w, height: guardHeight)
         let agreement = Self.rowsAgreeing(reference, inReference, frame, inFrame) ?? -1
-        guard agreement >= ScrollCompare.overlapMinRowFraction else {
-            consecutiveUps = 0
-            rejected += 1
-            consecutiveRejects += 1
-            ScrollSessionLog.write(String(format:
-                "REJECT rewind up=%dpx rowsAgree=%.2f (need %.2f) streak=%d",
-                up, agreement, ScrollCompare.overlapMinRowFraction, consecutiveRejects))
-            if consecutiveRejects >= Self.rejectsBeforeReAnchor { reAnchor(to: frame) }
+        let still = Self.rowsAgreeing(reference, inReference, frame, inReference) ?? 1
+        guard agreement >= Self.rewindMinRowFraction, agreement - still >= Self.rewindMinMargin else {
+            rejectRewind(frame, String(format: "up=%dpx rowsAgree=%.2f still=%.2f (need %.2f, margin %.2f)",
+                                       up, agreement, still, Self.rewindMinRowFraction, Self.rewindMinMargin))
             return
         }
         rewindOvershoot = rewind(by: up)
@@ -437,6 +446,16 @@ final class ScrollStitcher {
         lastDy = 0
         consecutiveUps = 0
         consecutiveRejects = 0
+    }
+
+    /// A rewind that failed its checks is treated as a bad frame, which routes it to
+    /// the same re-anchor recovery as any other.
+    private func rejectRewind(_ frame: CGImage, _ detail: String) {
+        consecutiveUps = 0
+        rejected += 1
+        consecutiveRejects += 1
+        ScrollSessionLog.write("REJECT rewind \(detail) streak=\(consecutiveRejects)")
+        if consecutiveRejects >= Self.rejectsBeforeReAnchor { reAnchor(to: frame) }
     }
 
     /// Take `pixels` rows off the bottom of everything captured so far: the pending

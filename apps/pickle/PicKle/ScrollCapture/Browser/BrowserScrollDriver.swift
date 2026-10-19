@@ -140,6 +140,28 @@ final class BrowserScrollDriver {
         return try parseMetrics(await run(Self.scrollJS(to: safe)))
     }
 
+    /// What the page says about how it is drawn on screen.
+    struct Display {
+        /// `window.devicePixelRatio` — device pixels per CSS pixel, i.e. the
+        /// display's backing scale × the browser's page zoom.
+        let pixelRatio: Double
+        /// `window.innerHeight` — the browser's own viewport in CSS pixels. Unlike
+        /// `Metrics.viewport` this is never an inner scroller, so it bounds how much
+        /// of the page any on-screen region can show.
+        let innerHeight: Double
+    }
+
+    /// Read `devicePixelRatio` and `innerHeight` from the front tab.
+    func display() async throws -> Display {
+        let text = try await run(Self.displayJS)
+        guard let data = text.data(using: .utf8),
+              let object = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let ratio = (object["dpr"] as? NSNumber)?.doubleValue,
+              let inner = (object["ih"] as? NSNumber)?.doubleValue,
+              ratio.isFinite, inner.isFinite else { throw DriverError.badResponse }
+        return Display(pixelRatio: ratio, innerHeight: inner)
+    }
+
     /// Height, in CSS pixels, that each tile must overlap the previous one by so
     /// that pinned page chrome can be discarded from the top of it.
     ///
@@ -295,6 +317,12 @@ final class BrowserScrollDriver {
         return JSON.stringify({y:e.scrollTop,vh:e.clientHeight,total:e.scrollHeight});})()
         """
     }
+
+    /// `{dpr, ih}` — see `Display`. Zero stands in for a missing value so the
+    /// answer always parses; the session treats zero as "not reported".
+    private static let displayJS = """
+    (function(){return JSON.stringify({dpr:window.devicePixelRatio||0,ih:window.innerHeight||0});})()
+    """
 
     /// Lowest edge of anything pinned against the top of the viewport, + 40px, floor 200px.
     ///

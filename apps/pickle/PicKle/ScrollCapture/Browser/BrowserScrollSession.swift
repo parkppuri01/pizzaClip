@@ -5,9 +5,9 @@ import AppKit
 /// The user does nothing after picking the region: the page is scrolled to the top,
 /// stepped down by a fixed amount, and each stop is captured once the pixels stop
 /// changing. Because the page reports its own offset, the tiles are assembled by
-/// coordinate (`TileComposer`) instead of being matched against each other — the
-/// single Vision call in here exists only to learn the pixels-per-CSS-pixel ratio,
-/// which browser zoom makes unknowable any other way.
+/// coordinate (`TileComposer`) instead of being matched against each other. The
+/// pixels-per-CSS-pixel ratio comes from the page's own `devicePixelRatio`; the
+/// single Vision call in here is only a cross-check and fallback for it.
 @available(macOS 14.0, *)
 final class BrowserScrollSession {
 
@@ -63,6 +63,10 @@ final class BrowserScrollSession {
     /// Overlap the driver asked for, in CSS pixels. Kept only so the assembly step
     /// can say whether the tiles really did overlap by that much.
     private var measuredPad: Double = 0
+    /// Captured pixels per CSS pixel as last resolved by `resolvePxPerCss` — once
+    /// from the page's own report before the first tile, again after the second.
+    /// Assembly uses this value as-is rather than measuring a third time.
+    private var pxPerCss: Double = 0
 
     init(driver: BrowserScrollDriver, grabber: ScrollFrameGrabber,
          regionHeightPixels: CGFloat, maxHeightPixels: Int, backingScale: CGFloat) {
@@ -150,10 +154,14 @@ final class BrowserScrollSession {
 
             let pad = try await driver.stickyPad()
             measuredPad = pad
-            // Provisionally, CSS pixels and points are the same size (browser zoom at
-            // 100%), which is what makes the backing scale a usable stand-in until
-            // tile 1 exists and the ratio can be measured for real.
-            var pxPerCss = backingScale
+            // The page states its own ratio. A failed read is not worth losing the
+            // session over — Vision and the backing scale are still there behind it.
+            let display: BrowserScrollDriver.Display?
+            do { display = try await driver.display() } catch {
+                ScrollSessionLog.write("browser: devicePixelRatio unavailable — \(error)")
+                display = nil
+            }
+            pxPerCss = resolvePxPerCss(display: display, vision: nil)
             var step = self.step(pad: pad, viewport: start.viewport, pxPerCss: pxPerCss)
             ScrollSessionLog.write(String(format:
                 "browser: pad=%.0fcss region=%.0fpx vh=%.0fcss step=%.0fcss",
@@ -181,11 +189,11 @@ final class BrowserScrollSession {
                 capturedBytes += bytes(of: frame)
                 await report(progress, current)
 
-                // With two tiles a known distance apart the real ratio is knowable,
-                // and at anything but 100% zoom it is not the backing scale. Re-derive
-                // the step from it now, while there are still tiles left to take.
+                // With two tiles a known distance apart Vision can offer a second
+                // opinion. Re-resolve with it and re-derive the step now, while there
+                // are still tiles left to take.
                 if tiles.count == 2 {
-                    pxPerCss = calibrate(tiles)
+                    pxPerCss = resolvePxPerCss(display: display, vision: visionRatio(tiles))
                     let corrected = self.step(pad: pad, viewport: start.viewport, pxPerCss: pxPerCss)
                     if abs(corrected - step) >= 1 {
                         ScrollSessionLog.write(String(format:
@@ -309,7 +317,6 @@ final class BrowserScrollSession {
             return .image(single)
         }
 
-        let pxPerCss = calibrate(tiles)
         guard let layout = TileComposer.layout(tiles: tiles, pxPerCss: pxPerCss,
                                                maxHeightPixels: maxHeightPixels) else {
             ScrollSessionLog.write("browser: no usable tile layout")
@@ -353,38 +360,100 @@ final class BrowserScrollSession {
             + "of pinned chrome — expect a header remnant at a seam")
     }
 
-    /// Captured pixels per CSS pixel, measured once.
+    /// Vision's opinion of the ratio: the first two tiles registered once against
+    /// the CSS distance the page reported between them. nil when it can't say.
     ///
-    /// It is *not* simply the display's backing scale: browser zoom changes it, and
-    /// at 110% zoom a canvas laid out at 2.0 would drift a pixel every ten tiles
-    /// until the seams walked visibly out of line. So the first two tiles — whose
-    /// CSS distance apart the page told us exactly — are registered once, and the
-    /// ratio falls out of that one measurement.
-    ///
-    /// A wild answer is rejected rather than used: browser zoom tops out around
-    /// 25…500%, so anything outside that band is a failed registration, not a zoom
-    /// level, and the backing scale is the better guess.
-    private func calibrate(_ tiles: [TileComposer.Tile]) -> Double {
+    /// Second opinion only. On device (1.4.0, Chrome) it came back at almost
+    /// exactly half the truth — 687px for a 703css step on a 2× display — because a
+    /// full step leaves the two tiles only a quarter of the region in common, and
+    /// Vision locked onto a wrong match inside it.
+    private func visionRatio(_ tiles: [TileComposer.Tile]) -> Double? {
         let deltaCss = tiles[1].y - tiles[0].y
         guard deltaCss > 1,
               let measured = ScrollStitcher.verticalOffset(from: tiles[0].image, to: tiles[1].image),
               measured > 0 else {
-            ScrollSessionLog.write(String(format:
-                "browser: calibration failed (Δy=%.1fcss) — using backing scale %.2f",
-                deltaCss, backingScale))
-            return backingScale
+            ScrollSessionLog.write(String(format: "browser: vision calibration failed (Δy=%.1fcss)", deltaCss))
+            return nil
         }
-        let ratio = Double(measured) / deltaCss
-        guard ratio >= backingScale * 0.25, ratio <= backingScale * 5 else {
-            ScrollSessionLog.write(String(format:
-                "browser: calibration %.3f out of range — using backing scale %.2f",
-                ratio, backingScale))
-            return backingScale
-        }
+        return Double(measured) / deltaCss
+    }
+
+    /// Settle captured pixels per CSS pixel and log how it was decided.
+    private func resolvePxPerCss(display: BrowserScrollDriver.Display?, vision: Double?) -> Double {
+        let choice = Self.choosePxPerCss(pixelRatio: display?.pixelRatio, vision: vision,
+                                         backing: backingScale, regionPixels: regionHeightPixels,
+                                         innerHeightCss: display?.innerHeight ?? 0,
+                                         pixelRatioIgnoresZoom: driver.family == .safari)
         ScrollSessionLog.write(String(format:
-            "browser: calibrated pxPerCss=%.4f (%dpx over %.1fcss, backing %.2f)",
-            ratio, measured, deltaCss, backingScale))
-        return ratio
+            "browser: pxPerCss=%.4f from %@ (devicePixelRatio=%@ vision=%@ backing=%.2f "
+            + "region=%.0fpx innerHeight=%.0fcss)",
+            choice.value, choice.source,
+            display.map { String(format: "%.4f", $0.pixelRatio) } ?? "-",
+            vision.map { String(format: "%.4f", $0) } ?? "-",
+            backingScale, regionHeightPixels, display?.innerHeight ?? 0))
+        if let note = choice.note { ScrollSessionLog.write("browser: \(note)") }
+        return choice.value
+    }
+
+    /// Captured pixels per CSS pixel, picked from the candidates in order of trust.
+    ///
+    /// It is *not* simply the display's backing scale: browser zoom changes it, and
+    /// at 110% zoom a canvas laid out at 2.0 would drift a pixel every ten tiles
+    /// until the seams walked visibly out of line.
+    ///
+    /// 1. `devicePixelRatio` — the browser's own statement of backing scale × zoom,
+    ///    exact and free of registration error. The grabber captures at the
+    ///    display's native pixels, so this is the ratio directly.
+    /// 2. Vision — a measurement, and the fallback where the page's number fails
+    ///    the checks below or, in Safari, may simply not include the zoom.
+    /// 3. The backing scale — exact at 100% zoom, which is the common case.
+    ///
+    /// A candidate must be **plausible** to be used: inside the 25…500% zoom band,
+    /// and not imply that the region shows more of the page than the browser's
+    /// viewport holds (plus slack for a toolbar dragged into the region). That
+    /// second test is what catches a half-value ratio: 0.977 on the 1.4.0 log meant
+    /// a 1806px region showing 1848css of a 928css viewport.
+    ///
+    /// Pure and static so the offline harness can pin every branch.
+    ///
+    /// `pixelRatioIgnoresZoom` (Safari): WebKit keeps `devicePixelRatio` at the
+    /// backing scale under page zoom, and the geometry check's slack lets zooms up
+    /// to ~125% through. So there, a ratio *equal to the backing scale* that a
+    /// plausible Vision reading contradicts by more than 10% loses to Vision.
+    static func choosePxPerCss(pixelRatio: Double?, vision: Double?, backing: Double,
+                               regionPixels: Double, innerHeightCss: Double,
+                               pixelRatioIgnoresZoom: Bool = false)
+        -> (value: Double, source: String, note: String?) {
+        func plausible(_ ratio: Double?) -> Bool {
+            guard let ratio, ratio.isFinite, ratio >= backing * 0.25, ratio <= backing * 5 else { return false }
+            // No viewport reported: the range check is all there is to go on.
+            guard innerHeightCss > 0 else { return true }
+            return regionPixels / ratio <= innerHeightCss * 1.25 + 60
+        }
+        let reported = (pixelRatio ?? 0) > 0 ? pixelRatio : nil
+        if plausible(reported), let ratio = reported {
+            if pixelRatioIgnoresZoom, abs(ratio - backing) < 0.01,
+               plausible(vision), let vision, abs(vision - ratio) > ratio * 0.10 {
+                return (vision, "vision", String(format:
+                    "devicePixelRatio %.4f is the bare backing scale and vision says %.4f — "
+                    + "taking vision (this browser does not report page zoom)", ratio, vision))
+            }
+            var note: String?
+            if let vision, abs(vision - ratio) > ratio * 0.10 {
+                note = String(format: "vision %.4f disagrees with devicePixelRatio %.4f by more than 10%% — "
+                    + "keeping devicePixelRatio", vision, ratio)
+            }
+            return (ratio, "devicePixelRatio", note)
+        }
+        if plausible(vision), let vision {
+            return (vision, "vision", reported == nil ? nil
+                : String(format: "devicePixelRatio %.4f implausible for this region", reported!))
+        }
+        var rejected: [String] = []
+        if let reported { rejected.append(String(format: "devicePixelRatio %.4f", reported)) }
+        if let vision { rejected.append(String(format: "vision %.4f", vision)) }
+        return (backing, "backing scale",
+                rejected.isEmpty ? nil : "implausible: " + rejected.joined(separator: ", "))
     }
 
 }
