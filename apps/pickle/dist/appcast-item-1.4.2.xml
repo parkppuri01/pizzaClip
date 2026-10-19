@@ -1,0 +1,19 @@
+        <item>
+            <title>PICkle 1.4.2</title>
+            <pubDate>Mon, 19 Oct 2026 17:47:49 +0000</pubDate>
+            <sparkle:version>32</sparkle:version>
+            <sparkle:shortVersionString>1.4.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<h2>PICkle 1.4.2</h2>
+<ul>
+<li>저장되는 파일 이름이 ScreenShot_날짜_번호 형식으로 바뀌었어요(예: ScreenShot_261020_001.png). 띄어쓰기와 점이 없어 다른 프로그램에서도 다루기 쉬워요.</li>
+<li>브라우저 스크롤 캡처에서 이어붙인 부분 사이의 내용이 빠지던 문제를 고쳤어요. 브라우저 확대 배율도 정확히 반영해요.</li>
+<li>직접 스크롤하는 방식에서 위로 올리지 않았는데 이미 찍힌 부분이 잘려 나가던 문제를 고쳤어요.</li>
+</ul>
+]]></description>
+            <!-- ⚠️ Put the REAL DMG download URL here (GitHub Release asset, etc.). -->
+            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.4.2.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="WHpPX3Rwrko2UbjCFf5cPV8Dcs1B2JWRUVzjDiIuUlJBR5gNY2Ky+vb/uXiGBitnCZSfQriqFnr1kZ2rv9mDDQ==" length="4009296" />
+        </item>

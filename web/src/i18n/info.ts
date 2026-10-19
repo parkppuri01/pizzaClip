@@ -104,6 +104,15 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.4.2",
+        label: "스크롤 캡처 개선 · 파일 이름 정리 🥒",
+        notes: [
+          "저장되는 파일 이름이 ScreenShot_날짜_번호 형식으로 바뀌었어요(예: ScreenShot_261020_001.png). 띄어쓰기와 점이 없어 다른 프로그램에서도 다루기 쉬워요.",
+          "브라우저 스크롤 캡처에서 이어붙인 부분 사이의 내용이 빠지던 문제를 고쳤어요. 브라우저 확대 배율도 정확히 반영해요.",
+          "직접 스크롤하는 방식에서 위로 올리지 않았는데 이미 찍힌 부분이 잘려 나가던 문제를 고쳤어요.",
+        ],
+      },
+      {
         version: "1.4.1",
         label: "Mac 시작 시 자동 실행",
         notes: [
@@ -345,6 +354,15 @@ export const info: Record<Lang, InfoContent> = {
       { version: "0.1.1", label: "First Release", notes: ["The essentials are in: auto copy-history, the popup, pinning, and clear-all."] },
     ],
     pickleReleases: [
+      {
+        version: "1.4.2",
+        label: "Better scrolling capture · tidier file names 🥒",
+        notes: [
+          "Saved files are now named ScreenShot_date_number (e.g. ScreenShot_261020_001.png) — no spaces or extra dots, so other apps handle them easily.",
+          "Fixed browser scrolling captures dropping content between stitched parts. Browser zoom is now taken into account correctly.",
+          "Fixed manual scrolling captures cutting off already-captured parts when you never scrolled back up.",
+        ],
+      },
       {
         version: "1.4.1",
         label: "Launch at Login",
