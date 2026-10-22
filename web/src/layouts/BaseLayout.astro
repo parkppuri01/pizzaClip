@@ -114,7 +114,8 @@ const orgSchema = {
   name: "Team JAM",
   url: siteUrl,
   logo: new URL("/img/jam-logo.png", Astro.site).toString(),
-  sameAs: [GITHUB_URL, PICKLE_GITHUB_URL, INSTAGRAM_URL, THREADS_URL],
+  // 조직의 공식 계정만 — 피클 링크는 이제 같은 저장소의 하위 폴더라 넣지 않는다.
+  sameAs: [GITHUB_URL, INSTAGRAM_URL, THREADS_URL],
 };
 
 const jsonLd = [

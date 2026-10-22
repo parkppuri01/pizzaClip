@@ -7,6 +7,14 @@
 
 ---
 
+## 🔖 2026-10-23 — 피클 GitHub 링크 404 수정
+
+- `src/consts.ts` `PICKLE_GITHUB_URL`: 없어진 전용 저장소 `github.com/parkppuri01/pickle`(404) → 모노레포 `github.com/parkppuri01/pizzaClip/tree/master/apps/pickle`(200 확인). 쓰는 곳 4군데(PickleFooter·NavMinimal 피클 테마·BaseLayout `ghUrl`·InfoPage 더보기 링크)에 자동 반영.
+- `src/layouts/BaseLayout.astro` 조직 JSON-LD `sameAs`에서 피클 링크 제거 — 이제 같은 저장소의 하위 폴더라 "조직 공식 계정" 목록에 맞지 않음. `HOTSAUCE_GITHUB_URL`은 원래 모노레포라 그대로.
+- 검증: `npm run build` 13p 통과 · 프리뷰에서 한/영 피클·인포 페이지 링크 새 주소 · 옛 주소 0건.
+
+---
+
 ## 🔖 세션 이어받기 (2026-07-09, 인포 릴리스노트 '더보기' 통합 + 피클 안내 카드 제거 — **라이브 배포 완료**)
 
 > ✅ **배포됨**: 커밋 `8b03255` → master push → Vercel. 라이브(`pizza-clip.com/info`) 반영 폴링 확인(통합 버튼 present · "새 소식" 카드 0). 변경: `web/src/components/pages/InfoPage.astro` + `web/src/i18n/info.ts` **2파일만**(핫소스 앱 스트림 WIP·`.claude/`는 커밋 제외).
