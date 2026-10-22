@@ -25,5 +25,5 @@
 - 🍕 **피자클립**: 1.0.0~1.3.0 배포 → **1.3.1 배포 완료**(설정창 통일 + 자동 업데이트 토글). / 🌐 **웹**: 세 앱 릴리스 반영 완료. 상세 `apps/pizzaclip/docs/HANDOFF.md` · `web/HANDOFF.md`
 
 ## 남은 일 (모노레포 공통 · 사용자 확인 후)
-- [ ] 원본 3개 백업 폴더 삭제 — `../pizzaClip`·`../pic.kle`·`../hotsauce` (~3.5GB, 며칠 실사용 검증 후)
+- [x] 원본 3개 백업 폴더 삭제 — `../pizzaClip`·`../pic.kle`·`../hotsauce` (2026-10-22 휴지통으로 이동 · 옛 피클/핫소스 Claude 프로젝트 기록도)
 - [ ] (선택) GitHub repo 이름 `pizzaClip` → `pizza-clip` 변경

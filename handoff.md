@@ -27,7 +27,7 @@
 ## 🗺 저장소 한눈에
 - 구성: `web/`(Astro 공용 사이트) + `apps/{pizzaclip,pickle,hotsauce}/`(각 macOS Swift 앱, XcodeGen `project.yml` 기반).
 - Git remote: `origin` = `github.com/parkppuri01/pizzaClip.git` (폴더명은 pizza-clip 이지만 repo 명은 **pizzaClip**).
-- 원본 백업 보존 중: `../pizzaClip`·`../pic.kle`·`../hotsauce` (총 ~3.5GB). 며칠 실사용 후 문제없으면 삭제 예정.
+- 원본 백업 3개(`../pizzaClip`·`../pic.kle`·`../hotsauce`)는 2026-10-22 휴지통으로 옮김 (서명·배포 자격 파일은 새 저장소 것과 같음 확인). 같은 날 옛 피클·핫소스 폴더용 Claude 프로젝트 기록(`~/.claude/projects/…-pic-kle`·`…-hotsauce`, 메모리뿐 — 내용은 각 스트림 핸드오프에 이미 있음 확인)도 휴지통으로. GitHub에 `pickle`·`hotsauce` 저장소는 없음(확인). 옛 `…-pizzaClip` Claude 기록(세션 3개+메모리)은 남겨 둠.
 
 ## 🚀 배포 모델
 - **웹**: `master` push → **Vercel 자동배포**. 배포 전 `cd web && npm run build` 통과 확인. (미들웨어 언어분기는 Vercel에서만 동작 → 배포 후 실기 확인.)
@@ -40,8 +40,9 @@
 - 배포 자격: 각 앱 `scripts/release.local.sh` (Apple 공증 notary keychain 프로파일 등). 템플릿 `*.example` 복사.
 
 ## ⏳ 모노레포 공통 남은 일 (스트림 무관)
-- [ ] 원본 3개 백업 폴더 삭제 — `../pizzaClip`·`../pic.kle`·`../hotsauce` (실사용 검증 후).
+- [x] 원본 3개 백업 폴더 삭제 — `../pizzaClip`·`../pic.kle`·`../hotsauce` (2026-10-22 휴지통으로 이동).
 - [ ] (선택) GitHub repo 이름 `pizzaClip` → `pizza-clip` 변경.
+- [ ] 🌐 웹: `web/src/consts.ts` `PICKLE_GITHUB_URL`(`github.com/parkppuri01/pickle`)이 없는 저장소라 **404** — 피클 푸터·내비·인포 페이지 링크가 깨짐. 모노레포(`pizzaClip/tree/master/apps/pickle`)로 바꿀 것.
 
 ## 📌 각 스트림 최근 상태 (한 줄 · 상세는 각 핸드오프)
 - 🌐 **웹**: 핫소스 페이지 다운로드 버튼 → **Mac App Store 링크로 전환**(`f31dd39`, 핫소스 스트림에서 함께 처리). (직전: 인포 릴리스노트 '더보기' 3컬럼 통합 `8b03255` · 세 앱 릴리스 반영 `8c26ea1`·`27d16a2`.) → `web/HANDOFF.md`
