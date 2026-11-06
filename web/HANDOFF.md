@@ -7,6 +7,8 @@
 
 ---
 
+> 🧹 **인수인계 다이어트 전용 세션 필요 (456줄·73KB, 상한 150줄·12KB) — 새 세션에서 "인수인계 다이어트".**
+
 ## 🔖 2026-10-23 — 피클 GitHub 링크 404 수정
 
 - `src/consts.ts` `PICKLE_GITHUB_URL`: 없어진 전용 저장소 `github.com/parkppuri01/pickle`(404) → 모노레포 `github.com/parkppuri01/pizzaClip/tree/master/apps/pickle`(200 확인). 쓰는 곳 4군데(PickleFooter·NavMinimal 피클 테마·BaseLayout `ghUrl`·InfoPage 더보기 링크)에 자동 반영.

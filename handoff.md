@@ -1,6 +1,6 @@
 # Handoff — pizza-clip.com 모노레포 (인덱스)
 
-> 최종 업데이트: 2026-10-23 · **이 파일 = 모노레포 인덱스 + 공통 컨텍스트.** 개별 스트림 세부는 각 스트림 핸드오프에.
+> 최종 업데이트: 2026-11-07 · **이 파일 = 모노레포 인덱스 + 공통 컨텍스트.** 개별 스트림 세부는 각 스트림 핸드오프에.
 
 > 🔗 **크로스컷 (2026-07-09): 세 앱 설정창 '일반' 탭 통일 + 정식 배포 3종 동시 진행.** 설정창을 피클 크기(500×420) 기준으로 통일 — 공통 일반 탭(아이콘·이름·버전 헤더 + 언어 세그먼트 + 자동 다운로드 업데이트 토글[기본 ON] + '지금 업데이트 확인'). 피클·핫소스의 자동다운로드 강제코드를 제거해 실효 토글화. 이어서 **피자 1.3.1 · 피클 1.3.3 · 핫소스 1.1.2 정식 공증 배포**까지 완료(아래 각 스트림 상태). 계획서: `.omc/plans/settings-unification.md`. 언어 방식은 사용자 결정 A(피클=실시간, 피자·핫소스=재시작 유지).
 
@@ -27,7 +27,7 @@
 ## 🗺 저장소 한눈에
 - 구성: `web/`(Astro 공용 사이트) + `apps/{pizzaclip,pickle,hotsauce}/`(각 macOS Swift 앱, XcodeGen `project.yml` 기반).
 - Git remote: `origin` = `github.com/parkppuri01/pizzaClip.git` (폴더명은 pizza-clip 이지만 repo 명은 **pizzaClip**).
-- 원본 백업 3개(`../pizzaClip`·`../pic.kle`·`../hotsauce`)는 2026-10-22 휴지통으로 옮김 (서명·배포 자격 파일은 새 저장소 것과 같음 확인). 같은 날 옛 피클·핫소스 폴더용 Claude 프로젝트 기록(`~/.claude/projects/…-pic-kle`·`…-hotsauce`, 메모리뿐 — 내용은 각 스트림 핸드오프에 이미 있음 확인)도 휴지통으로. GitHub에 `pickle`·`hotsauce` 저장소는 없음(확인). 옛 `…-pizzaClip` Claude 기록(세션 3개+메모리)은 남겨 둠.
+- 원본 백업 3개(`../pizzaClip`·`../pic.kle`·`../hotsauce`)는 2026-10-22 휴지통으로 옮김 (서명·배포 자격 파일은 새 저장소 것과 같음 확인). 같은 날 옛 피클·핫소스 폴더용 Claude 프로젝트 기록(`~/.claude/projects/…-pic-kle`·`…-hotsauce`, 메모리뿐 — 내용은 각 스트림 핸드오프에 이미 있음 확인)도 휴지통으로. GitHub에 `pickle`·`hotsauce` 저장소는 없음(확인). 옛 `…-pizzaClip` Claude 기록(세션 3개+메모리)은 남겨 둠. 앱 왼쪽 목록의 옛 폴더 세션 27개는 2026-10-23 보관 처리(되살리기 가능).
 
 ## 🚀 배포 모델
 - **웹**: `master` push → **Vercel 자동배포**. 배포 전 `cd web && npm run build` 통과 확인. (미들웨어 언어분기는 Vercel에서만 동작 → 배포 후 실기 확인.)
@@ -43,11 +43,14 @@
 - [x] 원본 3개 백업 폴더 삭제 — `../pizzaClip`·`../pic.kle`·`../hotsauce` (2026-10-22 휴지통으로 이동).
 - [ ] (선택) GitHub repo 이름 `pizzaClip` → `pizza-clip` 변경.
 - [x] 🌐 웹: 피클 GitHub 링크 404 → 모노레포 `pizzaClip/tree/master/apps/pickle`로 교체 (2026-10-23).
+- [ ] (사용자) 휴지통 비우기 — 비우기 전까지 옛 폴더 3개·Claude 기록 2개를 되살릴 수 있음.
+- [ ] (선택) 보관 세션 27개 완전 삭제(세션마다 앱 승인 창) + `~/.claude/projects/…-pizzaClip` 정리 — 그 안의 메모리 `apple_developer_enrollment`·`brand_intro_videos`·`user_role`·`feedback_input_source_switcher`는 아직 옮겨 적지 않았으니 먼저 확인.
+- [ ] 🧹 인수인계 다이어트 전용 세션 필요 — 피클 615줄·83KB, 웹 456줄·73KB (각각 스트림 세션에서 "인수인계 다이어트").
 
 ## 📌 각 스트림 최근 상태 (한 줄 · 상세는 각 핸드오프)
 - 🌐 **웹**: **피클 GitHub 링크 404 수정**(2026-10-23 · 없어진 `pickle` 저장소 → 모노레포 `apps/pickle`). 직전: 핫소스 페이지 다운로드 버튼 → **Mac App Store 링크로 전환**(`f31dd39`, 핫소스 스트림에서 함께 처리). (직전: 인포 릴리스노트 '더보기' 3컬럼 통합 `8b03255` · 세 앱 릴리스 반영 `8c26ea1`·`27d16a2`.) → `web/HANDOFF.md`
 - 🍕 **피자클립 앱**: **1.3.2 정식 배포**(2026-09-14 · Mac 시작 시 자동 실행, 기본 켜짐). GitHub 릴리스 v1.3.2·루트 appcast. → `apps/pizzaclip/docs/HANDOFF.md`
-- 🥒 **피클 앱**: **1.4.2 정식 배포**(2026-10-20 · 저장 파일 이름 `ScreenShot_YYMMDD_NNN` + 스크롤 캡처 브라우저 배율(devicePixelRatio)·범용 되감기 오발동 수정). 공증 DMG·appcast. 스크롤 캡처 실기 확인이 다음 1순위. → `apps/pickle/docs/HANDOFF.md`
+- 🥒 **피클 앱**: **1.4.2 정식 배포**(2026-10-20 · 저장 파일 이름 `ScreenShot_YYMMDD_NNN` + 스크롤 캡처 브라우저 배율(devicePixelRatio)·범용 되감기 오발동 수정). 공증 DMG·appcast. 스크롤 캡처 실기 확인이 다음 1순위(아직 안 함). → `apps/pickle/docs/HANDOFF.md`
 - 🌶 **핫소스 앱**: **🍎 App Store 라이브**(2026-08-25 · `HotSauce - System Monitor`) + **직접배포 1.3.0 마지막 배포 완료**(`f31dd39`). 이전 안내 3중(실행 시 1회 창 · 설정창 · 릴리스노트) + 웹 CTA 를 App Store 로 전환. **appcast·DMG 는 구버전 사용자 업데이트 확인 때문에 당분간 유지.** → `apps/hotsauce/docs/HANDOFF.md`
 
 ## 🗒 모노레포 통합 이력
