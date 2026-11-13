@@ -104,6 +104,15 @@ export const info: Record<Lang, InfoContent> = {
     ],
     pickleReleases: [
       {
+        version: "1.5.0",
+        label: "우측 ⌘ 한/영 전환 · 우측 ⌥ 이모지 ⌨️",
+        notes: [
+          "설정에 ‘입력’ 탭이 생겼어요. 우측 ⌘로 한/영을 바꾸면 누르는 순간 전환돼서, 빠르게 쳐도 글자나 전환이 씹히지 않아요(gksdud 방식). 켜 두는 동안 우측 ⌘는 ⌘ 키로 쓰지 않아요.",
+          "우측 ⌥만 톡 눌렀다 떼면 이모지 창이 열려요. 다른 키와 함께 누르면 평소처럼 ⌥로 동작해요.",
+          "두 기능 모두 기본은 꺼져 있어요. 설정 → 입력에서 켜면 손쉬운 사용 권한을 요청합니다.",
+        ],
+      },
+      {
         version: "1.4.2",
         label: "스크롤 캡처 개선 · 파일 이름 정리 🥒",
         notes: [
@@ -354,6 +363,15 @@ export const info: Record<Lang, InfoContent> = {
       { version: "0.1.1", label: "First Release", notes: ["The essentials are in: auto copy-history, the popup, pinning, and clear-all."] },
     ],
     pickleReleases: [
+      {
+        version: "1.5.0",
+        label: "Right ⌘ Korean/English · Right ⌥ Emoji ⌨️",
+        notes: [
+          "A new Input tab in Settings: switch Korean/English with right ⌘. It switches the moment you press, so fast typing doesn't drop letters or switches (gksdud's method). While it's on, right ⌘ no longer acts as ⌘.",
+          "Tap right ⌥ by itself to open Emoji & Symbols. Pressed with other keys, it works as ⌥ as usual.",
+          "Both are off by default. Turn them on in Settings → Input; PICkle will ask for Accessibility permission.",
+        ],
+      },
       {
         version: "1.4.2",
         label: "Better scrolling capture · tidier file names 🥒",

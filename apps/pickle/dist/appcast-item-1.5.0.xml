@@ -1,0 +1,19 @@
+        <item>
+            <title>PICkle 1.5.0</title>
+            <pubDate>Fri, 13 Nov 2026 10:36:32 +0000</pubDate>
+            <sparkle:version>34</sparkle:version>
+            <sparkle:shortVersionString>1.5.0</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>13.0</sparkle:minimumSystemVersion>
+            <description><![CDATA[
+<h2>PICkle 1.5.0</h2>
+<ul>
+<li>설정에 ‘입력’ 탭이 생겼어요. 우측 ⌘로 한/영을 바꾸면 누르는 순간 전환돼서, 빠르게 쳐도 글자나 전환이 씹히지 않아요(gksdud 방식). 켜 두는 동안 우측 ⌘는 ⌘ 키로 쓰지 않아요.</li>
+<li>우측 ⌥만 톡 눌렀다 떼면 이모지 창이 열려요. 다른 키와 함께 누르면 평소처럼 ⌥로 동작해요.</li>
+<li>두 기능 모두 기본은 꺼져 있어요. 설정 → 입력에서 켜면 손쉬운 사용 권한을 요청합니다.</li>
+</ul>
+]]></description>
+            <!-- ⚠️ Put the REAL DMG download URL here (GitHub Release asset, etc.). -->
+            <enclosure url="https://pizza-clip.com/pickle/PICkle-1.5.0.dmg"
+                       type="application/octet-stream"
+                       sparkle:edSignature="vZBMoFiQxmjXqegugX0a4HeLNZzfMTDwIAkA8GHEakM5tH9qXZ12nLfQ5aBmv1OocuwCzoVlk6BXcINJbbhbAw==" length="4195609" />
+        </item>
