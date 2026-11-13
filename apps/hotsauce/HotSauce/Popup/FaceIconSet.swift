@@ -25,6 +25,7 @@ enum FaceIconSet: String, CaseIterable, Identifiable {
     case pizza
     case mouse
     case bear
+    case frog
 
     static let fallback: FaceIconSet = .classic
 
@@ -36,6 +37,7 @@ enum FaceIconSet: String, CaseIterable, Identifiable {
         case .pizza:   return L("Pizza", "피자")
         case .mouse:   return L("Mouse", "쥐")
         case .bear:    return L("Bear", "곰돌이")
+        case .frog:    return L("Frog", "개구리")
         }
     }
 

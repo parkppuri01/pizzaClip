@@ -1,43 +1,44 @@
 # HotSauce — App Store Connect 제출 정보
 
-> 작성 2026-08-15 · 갱신 2026-09-06 · 대상 버전 **1.4.0 (빌드 11)** · 출시 **무료 / 미국·대한민국**
-> 1.3.0(빌드 9)은 2026-08-25 출시 완료. 이 문서는 그 위에 올리는 **업데이트** 기준으로 갱신했다.
+> 작성 2026-08-15 · 갱신 2026-11-07 · 대상 버전 **1.5.0 (빌드 12)** · 출시 **무료 / 미국·대한민국**
+> 1.4.0(빌드 11)은 2026-09-06 출시 완료. 이 문서는 그 위에 올리는 **업데이트** 기준으로 갱신했다.
 > 아래 값을 그대로 복사해 App Store Connect 에 붙여넣으면 된다.
 > ✅ 표시는 채워 넣을 값, 📌 는 선택지에서 고를 값.
 
 ---
 
-## 🚨 먼저 할 일 — ASC 에 **1.4.0** 버전을 새로 추가
+## 🚨 먼저 할 일 — ASC 에 **1.5.0** 버전을 새로 추가
 
-1.3.0 이 이미 출시(2026-08-25)된 상태라, 업데이트를 내려면 **새 버전 레코드**를 만들어야 한다.
-(1.3.0 페이지를 고치는 게 아니다 — 출시된 버전은 수정할 수 없다.)
+1.4.0 이 이미 출시(2026-09-06)된 상태라, 업데이트를 내려면 **새 버전 레코드**를 만들어야 한다.
+(1.4.0 페이지를 고치는 게 아니다 — 출시된 버전은 수정할 수 없다.)
 
 **조치**: ASC → HotSauce → 왼쪽 사이드바 `macOS 앱` 옆의 **`+` (버전 또는 플랫폼 추가)**
-→ **macOS** → 버전 번호 `1.4.0` 입력 → 생성.
+→ **macOS** → 버전 번호 `1.5.0` 입력 → 생성.
 
-> 생성하면 '제출 준비 중' 상태의 1.4.0 페이지가 뜨고, **설명·키워드·스크린샷·URL 은
-> 1.3.0 것이 그대로 복사돼 온다.** 그래서 이번에 손댈 것은 사실상
-> **"이 버전의 새로운 기능"(아래 4-5) 하나뿐**이다. 나머지 섹션은 참고용으로 남겨둔다.
+> 생성하면 '제출 준비 중' 상태의 1.5.0 페이지가 뜨고, **설명·키워드·스크린샷·URL 은
+> 1.4.0 것이 그대로 복사돼 온다.** 이번에 손댈 것은
+> **"이 버전의 새로운 기능"(4-5)** 과 **설명 한 문장 추가(4-2)** 둘이다.
+> 나머지 섹션은 참고용으로 남겨둔다.
 
-### 빌드 11 업로드 방법 (아카이브는 생성 완료)
+### 빌드 12 업로드 방법 (아카이브는 생성 완료)
 
 1. **Xcode → Window → Organizer** (⌥⇧⌘O) → Archives 탭
-2. **`HotSauce-MAS 1.4.0 build11`** (2026-09-06) 선택
+2. **`HotSauce-MAS 1.5.0 build12`** (2026-11-07) 선택
 3. **Distribute App** → **App Store Connect** → **Upload** → 자동 서명에 맡기고 진행
-4. 업로드 후 10~30분 처리 대기 → "처리 완료" 메일 도착 → ASC 1.4.0 페이지의 '빌드' 섹션에서 선택
+4. 업로드 후 10~30분 처리 대기 → "처리 완료" 메일 도착 → ASC 1.5.0 페이지의 '빌드' 섹션에서 선택
 
-> ⚠️ **빌드 번호가 11 인 이유**: 9 = 앱스토어 1.3.0(출시분), 10 = 직접배포 1.3.0(마지막 배포)로
+> ⚠️ **빌드 번호가 12 인 이유**: 9 = 앱스토어 1.3.0, 10 = 직접배포 1.3.0, 11 = 앱스토어 1.4.0 으로
 > 각각 소진됐다. ASC 는 같은 번호를 두 번 받지 않는다.
 
-### 1.4.0 에 담긴 변경 (심사 관점 요약)
+### 1.5.0 에 담긴 변경 (심사 관점 요약)
 
 | 변경 | 심사 영향 |
 |---|---|
-| 팝업 얼굴 아이콘 세트 4종(기본·피자·쥐·곰돌이) + 설정 Picker | 없음 — 번들 내 이미지 교체일 뿐 |
-| 메뉴바 아이콘 5회 연타 이스터에그(폭죽 재생) | 없음 — 애니메이션 재생, 권한·통신 무관 |
-| 폭죽 페이드아웃 제거 + 재생 시간 2.4→3.0초 | 없음 |
-| 과부하 폭죽 임계치 빨강 4개 → 3개 | 없음 |
-| 첫 실행 시 '로그인 시 자동 시작' 자동 등록(1회) | ⚠️ 아래 심사노트에 한 줄 추가함 |
+| 팝업 얼굴 아이콘에 개구리 세트 추가 (모두 5종) | 없음 — 번들 내 이미지 추가일 뿐 |
+
+> 코드 변경은 `FaceIconSet` 의 case 하나뿐이다. 권한·통신·저장 방식은 그대로다.
+> ⚠️ 앱 정보의 콘텐츠 권한이 **"제3자 콘텐츠를 포함하지 않음"** 이므로,
+> 개구리 그림의 사용 권리가 우리에게 있는지 제출 전에 확인한다.
 
 ---
 
@@ -123,7 +124,7 @@
 
 ---
 
-## 4. 버전별 정보 (macOS 앱 → 1.4.0)
+## 4. 버전별 정보 (macOS 앱 → 1.5.0)
 
 ### 4-1. 프로모션 텍스트 (Promotional Text, 170자 이내 · 심사 없이 수정 가능)
 
@@ -154,7 +155,7 @@ Your Mac looks calm — but is it? Check CPU, memory, battery, disk, and network
 · 네트워크 — 로컬 IP, 신호 세기, 업로드·다운로드 속도
 
 ■ 부하에 따라 변하는 병 아이콘
-Mac이 여유로우면 빨간 병, 바빠지면 노란 병, 아주 뜨거우면 무지개 병으로 바뀝니다. 메뉴바를 힐끗 보는 것만으로 지금 상태를 알 수 있습니다. 각 항목 옆의 얼굴 표정도 함께 바뀝니다.
+Mac이 여유로우면 빨간 병, 바빠지면 노란 병, 아주 뜨거우면 무지개 병으로 바뀝니다. 메뉴바를 힐끗 보는 것만으로 지금 상태를 알 수 있습니다. 각 항목 옆의 얼굴 표정도 함께 바뀝니다. 얼굴은 설정에서 기본·피자·쥐·곰돌이·개구리 중에 고를 수 있어요.
 
 ■ 활성 상태 보기 바로 열기
 더 자세히 파고들고 싶을 땐 팝업 아래의 버튼으로 macOS 활성 상태 보기를 바로 열 수 있습니다.
@@ -188,7 +189,7 @@ No heavy windows to open. Click the hot-sauce bottle in your menu bar and your M
 · Network — local IP, signal strength, upload and download speed
 
 ■ A bottle that changes with the load
-When your Mac is relaxed the bottle is red; as it gets busy it turns yellow; and when things get really hot it goes rainbow. One glance at the menu bar tells you where you stand. The face next to each metric changes too.
+When your Mac is relaxed the bottle is red; as it gets busy it turns yellow; and when things get really hot it goes rainbow. One glance at the menu bar tells you where you stand. The face next to each metric changes too — pick Classic, Pizza, Mouse, Bear, or Frog in Settings.
 
 ■ Open Activity Monitor in one click
 Want to dig deeper? A button at the bottom of the popup opens macOS Activity Monitor right away.
@@ -251,21 +252,16 @@ system,monitor,menubar,memory,network,disk,storage,performance,activity,stats,te
 > 핫소스는 **설정창 버전 줄 옆의 `개인정보처리방침` 링크**가 이를 충족하고,
 > `SettingsView.privacyURL` 이 앱 언어에 따라 `/privacy` ↔ `/en/privacy` 로 알아서 분기한다. **추가 작업 없음.**
 
-### 4-5. 이 버전의 새로운 기능 (What's New) — **이번에 유일하게 새로 써야 할 항목**
+### 4-5. 이 버전의 새로운 기능 (What's New) — **이번의 핵심 항목**
 
-> 이스터에그(메뉴바 연타)와 폭죽 손질은 **일부러 뺐다.** 릴리스노트에 적으면
-> 이스터에그가 아니게 되고, 폭죽 다듬기는 굳이 알릴 만한 변화가 아니다.
-
-**한국어** (113자)
+**한국어**
 ```
-· 팝업의 얼굴을 고를 수 있어요 — 기본, 피자, 쥐, 곰돌이 네 가지. 설정 → 모양에서 바꿉니다.
-· 처음 설치하면 '로그인 시 자동 시작'이 켜진 채로 시작합니다. 설정에서 언제든 끌 수 있어요.
+· 얼굴 아이콘에 개구리가 합류했어요. 설정 → 모양에서 고를 수 있습니다.
 ```
 
-**English (U.S.)** (200자)
+**English (U.S.)**
 ```
-· Pick the faces in your popup — Classic, Pizza, Mouse, or Bear. Change them in Settings → Appearance.
-· Launch at login now starts enabled on a fresh install. You can turn it off in Settings anytime.
+· A new face joins the popup: Frog. Pick it in Settings → Appearance.
 ```
 
 ### 4-6. 저작권 (Copyright)
@@ -323,15 +319,9 @@ see a small hot-sauce bottle icon.
 The bottle changes color with system load, so its appearance may differ
 depending on the state of the review machine.
 
-NEW IN 1.4.0
+NEW IN 1.5.0
 
-The popup's face icons are now user-selectable (Settings > Appearance).
-
-One behaviour worth flagging: on a fresh install the app registers itself as a
-login item once, via SMAppService. A menu bar monitor is only useful while it is
-running, so this is the expected default for this category of app. It happens
-only on first launch, it is reflected in Settings > General > "Launch at login",
-and the app never re-enables it if the user turns it off.
+Adds one more set of popup face icons (Frog), selectable in Settings > Appearance.
 
 No accounts, no ads, no analytics, no data collection. All metrics are read and
 displayed locally and never leave the device.
@@ -339,8 +329,8 @@ displayed locally and never leave the device.
 Thank you for reviewing!
 ```
 
-> **1.3.0 때보다 짧아진 이유**: 첫 심사에서 필요했던 Guideline 4.2(최소 기능) 해명과
-> 개인정보 상세 설명은 **이미 통과했다.** 업데이트 심사에서 반복할 이유가 없다.
+> **1.4.0 때보다 짧아진 이유**: 로그인 항목 자동 등록 사유는 1.4.0 심사에서 **이미 통과했다.**
+> 1.3.0 의 Guideline 4.2 해명을 뺀 것과 같은 판단이다.
 > 반면 **실행 방법 안내는 매번 남긴다** — 리뷰어가 바뀌고, LSUIElement 앱이 앱을
 > 못 찾아 리젝되는 건 이 카테고리에서 가장 흔한 사고다.
 
@@ -358,21 +348,22 @@ Thank you for reviewing!
 
 ## 8. 제출 전 최종 점검표
 
-**1.4.0 업데이트에서 실제로 해야 하는 것 (짧다)**
+**1.5.0 업데이트에서 실제로 해야 하는 것 (짧다)**
 
-- [ ] ASC 에 **1.4.0 버전 레코드 새로 추가** (위 🚨 절)
-- [ ] Organizer 에서 **빌드 11 업로드** 후 처리 완료 대기
-- [ ] 빌드 섹션에서 **빌드 11** 선택
-- [ ] **"이 버전의 새로운 기능"** 한/영 입력 (4-5) ← 이번의 핵심
-- [ ] 제출
+- [x] ASC 에 **1.5.0 버전 레코드 새로 추가** (위 🚨 절) — 2026-11-07 `asc` 로 완료
+- [x] **빌드 12 업로드** 후 처리 완료 대기 — 2026-11-07 사용자가 직접 업로드
+- [x] 빌드 섹션에서 **빌드 12** 선택 — 2026-11-07 `asc` 로 연결
+- [x] **"이 버전의 새로운 기능"** 한/영 입력 (4-5) ← 이번의 핵심
+- [x] **설명**에 얼굴 선택 문장 추가 한/영 (4-2) — 1.4.0 때 보류한 제안
+- [x] 심사노트 **NEW IN 1.5.0** 으로 교체 (6)
+- [x] 제출 — 2026-11-07 `asc review submit` · 심사 통과 → **2026-11-08 출시**
 
-> 📌 **스크린샷·설명은 1.3.0 것을 그대로 간다**(사용자 결정 2026-09-06).
->    얼굴 아이콘 세트를 보여주는 샷은 다음 업데이트 때 함께 고려한다 —
->    4-5 아래 💡 의 설명 추가 제안도 그때까지 보류.
+> 📌 **스크린샷은 1.4.0 것을 그대로 간다.** 얼굴 아이콘 세트를 보여주는 샷은 2026-09-06 에
+>    "다음 업데이트 때 고려"로 미뤄 둔 항목이라, 바꾸려면 이번에 결정한다.
 
-**아래는 1.3.0 때 이미 채운 것들 — 새 버전에 자동 복사되므로 확인만 하면 된다**
+**아래는 이전 버전에서 이미 채운 것들 — 새 버전에 자동 복사되므로 확인만 하면 된다**
 
-- [ ] 부제·설명·키워드·프로모션 텍스트 (한국어) 그대로 넘어왔는지
+- [ ] 부제·키워드·프로모션 텍스트 (한국어) 그대로 넘어왔는지
 - [ ] **English (U.S.) 현지화** 그대로 넘어왔는지 — 기본 언어가 한국어라 빠지면 미국에서도 한국어가 뜬다
 - [ ] 지원 URL · 마케팅 URL · 개인정보처리방침 URL
 - [ ] **영어(미국) 방침 URL 이 `/en/privacy` 인지** (`/privacy` 면 심사자에게 한국어 방침이 열린다)
@@ -381,7 +372,7 @@ Thank you for reviewing!
 - [ ] **앱 심사 정보 메모에 메뉴바 안내 기재** (가장 중요)
 - [ ] 저작권 `2026 TEAM jAm`
 - [ ] 수동 출시 선택
-- [ ] "심사를 위해 제출" 클릭
+- [x] "심사를 위해 제출" 클릭 — `asc` 로 대신함
 
 ---
 
@@ -389,7 +380,7 @@ Thank you for reviewing!
 
 기본 언어가 한국어라, 영어권 사용자에게도 한국어 설명이 나간다. 반드시 추가할 것.
 
-1. 버전 페이지(1.4.0) 좌측 상단의 **언어 드롭다운**(현재 "한국어") 클릭
+1. 버전 페이지(1.5.0) 좌측 상단의 **언어 드롭다운**(현재 "한국어") 클릭
 2. 목록 아래 **`언어 추가` / `Add Language`** 선택
 3. **English (U.S.)** 선택
 4. 위 4절의 **English (U.S.)** 값들을 채워 넣는다 — 부제 · 프로모션 텍스트 · 설명 · 키워드 · URL · 새로운 기능
@@ -400,8 +391,9 @@ Thank you for reviewing!
 ## 참고 — 이 문서의 출처
 
 - 앱 카피: `web/src/i18n/hotsauce.ts` (웹 페이지 문구 재구성)
-- 릴리스노트: `web/src/i18n/info.ts` (핫소스 1.3.0 항목까지 반영 완료)
-  ⚠️ **1.4.0 이 출시되면 `info.ts` 에 1.4.0 항목을 추가할 것.** 웹은 앱스토어와 별개라
+- 릴리스노트: `web/src/i18n/info.ts` (핫소스는 1.3.0 항목까지만 반영됨)
+  ⚠️ **1.4.0 은 출시됐는데 아직 안 넣었다.** 1.5.0 이 출시되면 `info.ts` 에 1.4.0·1.5.0 을
+     함께 추가하고 `HotSaucePage.astro` 의 `softwareVersion` 도 올릴 것. 웹은 앱스토어와 별개라
      자동으로 따라가지 않는다. 출시 확정 후에 넣어야 "없는 버전"을 안내하지 않는다.
 - 개인정보 근거: `web/src/i18n/privacy.ts` + 세션 9 샌드박스 실측 결과
 - 번들 정보: `apps/hotsauce/HotSauce/Resources/Info-MAS.plist`
