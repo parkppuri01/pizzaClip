@@ -208,6 +208,19 @@ export const info: Record<Lang, InfoContent> = {
     ],
     hotsauceReleases: [
       {
+        version: "1.5.0",
+        label: "개구리 얼굴 합류 🐸",
+        notes: ["팝업 얼굴에 개구리가 합류했어요. 설정 → 모양에서 고를 수 있습니다."],
+      },
+      {
+        version: "1.4.0",
+        label: "팝업 얼굴 고르기 · 로그인 시 자동 시작",
+        notes: [
+          "팝업의 얼굴을 고를 수 있어요 — 기본, 피자, 쥐, 곰돌이 네 가지. 설정 → 모양에서 바꿉니다.",
+          "처음 설치하면 ‘로그인 시 자동 시작’이 켜진 채로 시작해요. 설정에서 언제든 끌 수 있어요.",
+        ],
+      },
+      {
         version: "1.3.0",
         label: "Mac App Store 출시 🍎 · 새 아이콘 · 배너 끄기",
         notes: [
@@ -467,6 +480,19 @@ export const info: Record<Lang, InfoContent> = {
       },
     ],
     hotsauceReleases: [
+      {
+        version: "1.5.0",
+        label: "Say Hi to Frog 🐸",
+        notes: ["A new face joins the popup: Frog. Pick it in Settings → Appearance."],
+      },
+      {
+        version: "1.4.0",
+        label: "Choose Your Faces · Launch at Login",
+        notes: [
+          "Pick the faces in your popup — Classic, Pizza, Mouse, or Bear. Change them in Settings → Appearance.",
+          "Launch at login now starts enabled on a fresh install. You can turn it off in Settings anytime.",
+        ],
+      },
       {
         version: "1.3.0",
         label: "Now on the Mac App Store 🍎 · New Icon · Hideable Banner",
