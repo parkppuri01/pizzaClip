@@ -1,10 +1,10 @@
 # PICkle — HANDOFF (단일 진실 문서)
 
-> 🧹 **인수인계 다이어트 전용 세션 필요 (615줄·83KB, 상한 150줄·12KB) — 새 세션에서 "인수인계 다이어트".**
+> 🧹 **인수인계 다이어트 전용 세션 필요 (657줄·90KB, 상한 150줄·12KB) — 새 세션에서 "인수인계 다이어트".**
 >
-> **▶ 다음에 할 일 (2026-11-11 기준)**: ⓪ **1.4.3(build 33) 테스트 빌드 실기 확인 — 우측 ⌘ 한/영 · 우측 ⌥ 이모지**(아래 [2026-11-11] 섹션의 실기 체크리스트) → 통과하면 1.5.0 정식 배포 ① Chrome·Safari에서 ⌥⇧W 실기 확인 → `~/Library/Logs/PICkle/scroll.log`의 `browser: pxPerCss=… from …` 줄과 REWIND/REJECT rewind 횟수 확인(1.4.2 수정의 실제 효과는 아직 미확인) ② 폴더 아이콘 fault 수정(`Storage/FolderIcon.swift` → `NSWorkspace.setIcon`, 아래 [2026-10-19~20] 참고) ③ 사용자 로그 분석 ④ 베타 해제 시 진단 제거. **다음 build = 34.**
+> **▶ 다음에 할 일 (2026-11-13 기준)**: ⓪ **1.5.0 우측 ⌘ 한/영 · 우측 ⌥ 이모지 실기 결과 받기** — 배포는 끝났지만 실제 키 확인 결과는 기록이 없다(아래 [2026-11-11~13] 실기 체크리스트). 문제가 나오면 1.5.1 ① Chrome·Safari에서 ⌥⇧W 실기 확인 → `~/Library/Logs/PICkle/scroll.log`의 `browser: pxPerCss=… from …` 줄과 REWIND/REJECT rewind 횟수 확인(1.4.2 수정의 실제 효과는 아직 미확인) ② 폴더 아이콘 fault 수정(`Storage/FolderIcon.swift` → `NSWorkspace.setIcon`, 아래 [2026-10-19~20] 참고) ③ 사용자 로그 분석 ④ 베타 해제 시 진단 제거. **다음 build = 35.**
 >
-> **마지막 업데이트**: 2026-11-07 · **🎉 1.4.2(build 32) 정식 배포 — 파일 이름 ScreenShot_YYMMDD_NNN + 스크롤 캡처 1·2순위(배율 devicePixelRatio · 되감기 관문) 수정. 커밋 `131976d`(앱)·`cbbb69a`(웹). ⚠️ 스크롤 캡처 실기 확인은 배포 후로 남음(아래 [2026-10-19~20]). 다음 build = 33.** · 직전: **🎉 1.4.1(build 29) 정식 배포 — Mac 시작 시 자동 실행(기본 켜짐). 다음 build = 30. 스크롤 캡처 결함 수정(원래 1.4.1 목표)은 1.4.2로 이월 — 아래 [2026-08-12] 섹션의 1순위/2순위 그대로 유효.** · 그 이전 배포: **🎉 1.3.3(build 20) 정식 배포 완료 — 워터마크 저장 용량 버그 수정(원본 포맷 유지 + JPEG 품질 0.9) + 편집기 확대/축소(줌)·팬 + 블러 성능 + 설정창 3앱 통일. 공증 DMG·appcast 라이브(상세는 아래 [2026-07-09] 섹션).** · 직전 **🎉 1.3.2 릴리스 완료(build 17, 배포됨 — 팝업 하단 저장폴더 경로 표시 + 자동업데이트 무인설치)** · 그 앞 1.3.1(build 16, 편집기 열림 idle CPU 6~9% 긴급패치) · 1.3.0(build 15) **캡처를 macOS 기본 `screencapture -i`로 전환**(열린 메뉴/팝업도 그대로 캡처, 자체 오버레이·십자선·모드바·dead 코드 대거 삭제). pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
+> **마지막 업데이트**: 2026-11-13 · **🎉 1.5.0(build 34) 정식 배포 — 우측 ⌘ 한/영 전환(gksdud 방식) + 우측 ⌥ 이모지. 커밋 `12a202e`(앱)·`f161a5d`(웹). 다음 build = 35.** · 직전: 2026-11-07 · **🎉 1.4.2(build 32) 정식 배포 — 파일 이름 ScreenShot_YYMMDD_NNN + 스크롤 캡처 1·2순위(배율 devicePixelRatio · 되감기 관문) 수정. 커밋 `131976d`(앱)·`cbbb69a`(웹). ⚠️ 스크롤 캡처 실기 확인은 배포 후로 남음(아래 [2026-10-19~20]). 다음 build = 33.** · 직전: **🎉 1.4.1(build 29) 정식 배포 — Mac 시작 시 자동 실행(기본 켜짐). 다음 build = 30. 스크롤 캡처 결함 수정(원래 1.4.1 목표)은 1.4.2로 이월 — 아래 [2026-08-12] 섹션의 1순위/2순위 그대로 유효.** · 그 이전 배포: **🎉 1.3.3(build 20) 정식 배포 완료 — 워터마크 저장 용량 버그 수정(원본 포맷 유지 + JPEG 품질 0.9) + 편집기 확대/축소(줌)·팬 + 블러 성능 + 설정창 3앱 통일. 공증 DMG·appcast 라이브(상세는 아래 [2026-07-09] 섹션).** · 직전 **🎉 1.3.2 릴리스 완료(build 17, 배포됨 — 팝업 하단 저장폴더 경로 표시 + 자동업데이트 무인설치)** · 그 앞 1.3.1(build 16, 편집기 열림 idle CPU 6~9% 긴급패치) · 1.3.0(build 15) **캡처를 macOS 기본 `screencapture -i`로 전환**(열린 메뉴/팝업도 그대로 캡처, 자체 오버레이·십자선·모드바·dead 코드 대거 삭제). pic.kle·pizzaClip 양쪽 커밋·공증 DMG·사이트/Sparkle 배포 완료.
 > **새 세션은 이 문서를 먼저 읽으면 컨텍스트가 잡힙니다.**
 > **▶ 1.3.0 핵심: 열린 메뉴/팝업(예: 사운드 컨트롤센터)을 펼친 채 캡처하려 하면 단축키 누른 순간 그 메뉴가 닫히던 문제. 근본 원인 = 일반 앱은 캡처용 오버레이 창을 띄우는 순간 macOS가 열린 메뉴를 닫음(오버레이가 key window를 가져가 히스토리 패널이 resignKey로 닫히고, shield 레벨 최상위 창으로 떠 다른 앱 메뉴 트래킹도 취소됨). ⌘⇧4가 멀쩡한 건 WindowServer(OS)가 직접 처리 = OS만의 특권. → 자체 오버레이(⇧⌘5식)를 전부 버리고 macOS 기본 `screencapture -i` 호출로 전환. `-i`는 사용자 동의형이라 권한 상속 문제 없음(과거 `-R` 실패와 대비). 픽셀 치수·스페이스 이동은 OS UI 기본 제공, 모드(S/D/A)는 단축키로 확정. 상세는 아래 [✅ 2026-07-03 — 1.3.0] 섹션.**
 > **테스트 규칙: 빌드마다 `project.yml` MARKETING_VERSION+build 올리고 사용자에게 번호 알림(Settings 일반탭 `v1.x.x (build N)` 표시). 정식 배포=둘째자리(minor) ↑, 테스트 빌드=셋째자리(patch) ↑.**
@@ -18,7 +18,10 @@
 
 ---
 
-## 🧪 2026-11-11 — 1.4.3(build 33) 테스트 빌드: 우측 ⌘ 한/영 전환 + 우측 ⌥ 이모지 (미커밋 · 실기 미확인)
+## ✅ 2026-11-11~13 — 🎉 1.5.0(build 34) 정식 배포: 우측 ⌘ 한/영 전환 + 우측 ⌥ 이모지 (실기 결과 미기록)
+
+> 1.4.3(build 33) 테스트 빌드를 사용자가 실행(2026-11-12) → 2026-11-13 사용자 지시로 **1.5.0(build 34) 정식 배포**. 공증 2라운드 Accepted·staple·Gatekeeper=Notarized Developer ID. 커밋 `12a202e`(앱) → `f161a5d`(웹: DMG·appcast·`PICKLE_DOWNLOAD_URL`·`PicklePage` softwareVersion·`info.ts` `pickleReleases` 한/영) → master push → Vercel(appcast 40초 만에 1.5.0, 라이브 DMG 체크섬 = 공증본). 절차는 1.4.2와 같다.
+> 로컬 `/Applications/PICkle.app`은 아직 **1.4.2**(테스트 뒤 사용자가 다시 켬) — Sparkle 자동 업데이트로 1.5.0을 받게 된다.
 
 ### 한 일
 - **설정 → 새 '입력' 탭** (둘 다 기본 꺼짐, 손쉬운 사용 권한 필요): ① 우측 ⌘로 한/영 전환 ② 우측 ⌥만 눌렀다 떼면 이모지 창.
@@ -36,7 +39,7 @@
 
 ### 파일
 - 새 파일: `PicKle/Keyboard/{KeyboardRemapper,InputSourceShortcut,KeyEventTap,KeyboardFeatures}.swift`, `PicKle/Settings/InputSettingsTab.swift`.
-- 수정: `AppDelegate.swift`(시작·종료·SIGTERM), `SettingsView.swift`(탭 1줄), `{ko,en}.lproj/Localizable.strings`(`settings.input.*` 28키), `project.yml`(1.4.3 / 33).
+- 수정: `AppDelegate.swift`(시작·종료·SIGTERM), `SettingsView.swift`(탭 1줄), `{ko,en}.lproj/Localizable.strings`(`settings.input.*` 28키), `project.yml`(테스트 1.4.3 / 33 → 배포 1.5.0 / 34).
 - 저장 키: `kbd.rightCmdHangul`·`kbd.rightOptEmoji`(켜짐), `kbd.targetKeyCode`·`kbd.shortcutMode`, `kbd.shortcutBackup*`(owned만), `kbd.hidRecords`·`kbd.hidBoot`(되돌리기 기록), `kbd.notice`.
 
 ### 검증한 것 / 안 한 것
@@ -51,7 +54,8 @@
 - PizzaClip의 우측 ⌘ 토글이 지금 **켜져 있음**(`com.jekeun.pizzaClip` `rightCommandHangulToggle`=1) — 피클 매핑이 있으면 피자클립 쪽은 동작하지 않지만, 둘 중 하나는 끄는 게 맞음. 후속: 피자클립이 피클 기능 켜짐을 보고 스스로 비켜 주기.
 
 ### 남은 할 일
-- 실기 확인 → 고칠 것 반영 → **1.5.0 정식 배포**(build 34~). 웹 릴리스노트에 기능 + gksdud 출처.
+- ~~실기 확인 → 1.5.0 정식 배포~~ → 배포 완료(2026-11-13). **실기 결과를 받아** 문제가 있으면 1.5.1(build 35~).
+- (후속·피자클립 스트림) 피자클립의 우측 ⌘ 한/영 토글이 같은 일을 한다 — 피클 `kbd.rightCmdHangul`이 켜져 있으면 피자클립 `HangulToggler`가 비켜 주게 하거나, 피자클립 기능을 정리할지 결정.
 - (선택) Sparkle·KeyboardShortcuts(MIT) 라이선스 고지도 같은 방식으로 추가 — 지금은 없음.
 
 ---
