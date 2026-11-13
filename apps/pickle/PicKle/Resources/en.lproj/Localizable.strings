@@ -178,3 +178,33 @@
 "settings.updates.checkNow" = "Check for Updates…";
 "settings.startup.section" = "Startup";
 "settings.startup.launchAtLogin" = "Launch at login";
+
+/* Settings → Input (right ⌘ Korean/English · right ⌥ emoji) */
+"settings.tab.input" = "Input";
+"settings.input.otherInstance" = "Another copy of PICkle is running, so these features are off. Keep only one running.";
+"settings.input.permission.section" = "Accessibility permission";
+"settings.input.permission.granted" = "Allowed";
+"settings.input.permission.missing" = "Needed";
+"settings.input.permission.request" = "Request";
+"settings.input.permission.open" = "Open System Settings";
+"settings.input.permission.desc" = "Both features below watch key presses, so they need this permission. PICkle never stores or sends what you type. If allowing it doesn't take effect, relaunch PICkle.";
+"settings.input.hangul.section" = "Korean/English switching";
+"settings.input.hangul.toggle" = "Switch Korean/English with right ⌘";
+"settings.input.hangul.desc" = "Switches the moment you press, so fast typing doesn't drop letters or switches. While on, right ⌘ no longer works as ⌘ (left ⌘ is unchanged). Turning it off or quitting PICkle puts it back.";
+"settings.input.hangul.status.adopted" = "Switch key %@ · uses this Mac's existing “Select the previous input source” shortcut";
+"settings.input.hangul.status.owned" = "Switch key %1$@ · while on, “Select the previous input source” is set to %1$@ (restored when off)";
+"settings.input.hangul.status.noPermission" = "Without the permission it switches when you release the key.";
+"settings.input.hangul.status.failed" = "Not applied yet on: %@ (retrying)";
+"settings.input.warning.pizzaClip" = "PizzaClip's right-⌘ Korean/English switch is also on. Keep only one of them on.";
+"settings.input.warning.karabiner" = "Karabiner-Elements detected. Its rules for right ⌘ may overlap.";
+"settings.input.emoji.section" = "Emoji";
+"settings.input.emoji.toggle" = "Open Emoji & Symbols with a lone right-⌥ tap";
+"settings.input.emoji.desc" = "Tap right ⌥ by itself to open Emoji & Symbols (⌃⌘Space). Pressed with other keys it works as ⌥ as usual. Some apps, such as terminals and remote desktops, may not open it.";
+"settings.input.credit" = "Korean/English switching is based on gksdud's method (Apache License 2.0).";
+"settings.input.license" = "View license";
+"settings.input.error.gksdud" = "gksdud is running. It does the same job, so both can't be on.";
+"settings.input.error.noFreeKey" = "No free F-key (F13–F19) is available for switching.";
+"settings.input.error.shortcutWrite" = "Couldn't save the input source shortcut.";
+"settings.input.error.shortcutActivate" = "Couldn't apply the input source shortcut. Please try again.";
+"settings.input.notice.shortcutChanged" = "The “Select the previous input source” shortcut changed, so right-⌘ switching was turned off.";
+"settings.input.notice.gksdud" = "gksdud started, so right-⌘ switching was turned off.";

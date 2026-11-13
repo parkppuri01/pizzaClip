@@ -41,6 +41,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         runRetentionSweep()
         scheduleRetentionSweep()
         refreshStatusIcon()
+        installTerminationSignalHandler()
+        // Right ⌘ Korean/English + right ⌥ emoji (both opt-in).
+        KeyboardFeatures.shared.start()
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        // Put right ⌘ (and, if PICkle bound it, the input-source shortcut)
+        // back before exiting; the next launch re-applies.
+        KeyboardFeatures.shared.prepareForQuit()
+    }
+
+    // MARK: - SIGTERM
+
+    private var terminationSignalSource: DispatchSourceSignal?
+
+    /// `kill`, launchd and some logout paths end the app with SIGTERM, which
+    /// skips `applicationWillTerminate` by default. Route it through a normal
+    /// quit so keyboard changes are undone.
+    private func installTerminationSignalHandler() {
+        signal(SIGTERM, SIG_IGN)
+        let source = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
+        source.setEventHandler { NSApp.terminate(nil) }
+        source.resume()
+        terminationSignalSource = source
     }
 
     // MARK: - Launch at login

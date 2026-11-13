@@ -6,6 +6,7 @@ import ServiceManagement
 /// Settings window (TabView). 0.5.0 tabs (order/icons match the reference shot):
 ///   - 일반:     app info + language (was "정보"/About; moved to the front).
 ///   - 단축키:   change the three global capture shortcuts.
+///   - 입력:     right ⌘ Korean/English + right ⌥ emoji (InputSettingsTab).
 ///   - 워터마크: text font + saved logo presets + remember-last-text toggle.
 ///   - 저장공간: auto-delete period + storage folder (with a Clear-all warning).
 struct SettingsView: View {
@@ -17,6 +18,8 @@ struct SettingsView: View {
                 .tabItem { Label(L("settings.tab.general"), systemImage: "gearshape") }
             ShortcutsSettingsTab()
                 .tabItem { Label(L("settings.tab.shortcuts"), systemImage: "keyboard") }
+            InputSettingsTab()
+                .tabItem { Label(L("settings.tab.input"), systemImage: "globe") }
             WatermarkSettingsTab()
                 .tabItem { Label(L("settings.tab.watermark"), systemImage: "signature") }
             StorageSettingsTab()
